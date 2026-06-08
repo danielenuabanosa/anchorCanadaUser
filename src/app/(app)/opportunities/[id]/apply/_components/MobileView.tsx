@@ -10,13 +10,13 @@ import {
   Shield, Globe, Zap, Info, AlertCircle,
 } from 'lucide-react';
 
-/* ─── Types ─────────────────────────────────────────────────────────────── */
+/* ─ Types  ─ */
 type FlowType = 'internal' | 'external' | 'express';
 type InternalStep = 1 | 2 | 3 | 4;
 type ExternalStep = 1 | 2 | 3 | 4;
 type ExpressStep  = 1 | 2 | 3 | 4 | 5 | 6;
 
-/* ─── Mock opportunity data ──────────────────────────────────────────────── */
+/* ─ Mock opportunity data ──────────────── */
 const OPP = {
   title: 'UX Design Intern',
   company: 'Shopify',
@@ -42,7 +42,7 @@ const INTERNAL_STEP_LABELS = ['Checklist', 'Details',   'Documents', 'Review'];
 const EXTERNAL_STEP_LABELS = ['Overview',  'Profile',   'Documents', 'Redirect'];
 const EXPRESS_STEP_LABELS  = ['Overview',  'Profile',   'Message',   'Availability', 'Review', 'Done'];
 
-/* ─── Compact opp strip (mobile) ────────────────────────────────────────── */
+/* ─ Compact opp strip (mobile) ────────────── */
 function OppMiniStrip() {
   return (
     <div className="flex items-center gap-3 py-3 border-b border-[#EEF2F8] mb-4">
@@ -70,7 +70,7 @@ function OppMiniStrip() {
   );
 }
 
-/* ─── Shared: section heading ────────────────────────────────────────────── */
+/* ─ Shared: section heading ──────────────── */
 function SectionHead({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="mb-4">
@@ -137,7 +137,7 @@ export default function ApplyMobile() {
   const showProgress = !!flow && !isSuccess;
   const showStepCount = !!flow && !isSuccess;
 
-  /* ─── Success / done screen ─── */
+  /* ─ Success / done screen ─ */
   if (isSuccess) {
     const msgs: Record<FlowType, { title: string; body: string; bg: string; icon: React.ReactNode }> = {
       internal: { title: 'Application Submitted!', body: `Your application for ${OPP.title} has been submitted. We'll notify you of any updates.`, bg: 'bg-[#ECFDF5]', icon: <CheckCircle2 className="h-10 w-10 text-[#22C55E]" /> },
@@ -172,7 +172,7 @@ export default function ApplyMobile() {
 
   return (
     <div className="flex flex-col pb-28">
-      {/* ─── Sticky header ─── */}
+      {/* ─ Sticky header ─ */}
       <div className="sticky top-0 z-20 bg-white border-b border-[#EEF2F8]">
         <div className="flex items-center gap-3 px-4 py-3">
           <button onClick={handleBack} className="p-1 -ml-1 text-[#44516A]">
@@ -195,7 +195,7 @@ export default function ApplyMobile() {
         )}
       </div>
 
-      {/* ─── Scrollable content ─── */}
+      {/* ─ Scrollable content ─ */}
       <div className="px-4 pt-5 flex flex-col gap-5">
 
         {/* ══ FLOW SELECTOR ══ */}
@@ -665,7 +665,7 @@ export default function ApplyMobile() {
         )}
       </div>
 
-      {/* ─── Fixed bottom CTA ─── */}
+      {/* ─ Fixed bottom CTA ─ */}
       {!isSuccess && (
         <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-[#EEF2F8] px-4 py-3">
           {!flow && (

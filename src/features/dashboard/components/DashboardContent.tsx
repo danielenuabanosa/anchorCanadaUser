@@ -21,7 +21,7 @@ import ac2 from '@assets/images/ac2.png';
 import ac3 from '@assets/images/ac3.png';
 import ac4 from '@assets/images/ac4.png';
 
-/* ─── Types ─────────────────────────────────────────────────────────────── */
+/* ─ Types  ─ */
 
 interface OpportunityCard {
   id: string;
@@ -35,7 +35,7 @@ interface OpportunityCard {
   logo: StaticImageData;
 }
 
-/* ─── Mock data ──────────────────────────────────────────────────────────── */
+/* ─ Mock data ── ─ */
 
 const APP_STATS = [
   { label: 'Submitted',    value: 6,  color: 'bg-[#2f66c8]'  },
@@ -92,7 +92,7 @@ const PROFILE_CHECKS = [
   { label: 'Resume / CV',          done: false },
 ] as const;
 
-/* ─── Sub-components ─────────────────────────────────────────────────────── */
+/* ─ Sub-components ─ ─ */
 
 function OpportunityCardItem({ card }: { card: OpportunityCard }) {
   return (
@@ -152,7 +152,7 @@ function CircularProgress({ percent }: { percent: number }) {
   );
 }
 
-/* ─── Main component ─────────────────────────────────────────────────────── */
+/* ─ Main component ─ ─ */
 
 export function DashboardContent() {
   const { user } = useAuthStore();
@@ -166,7 +166,7 @@ export function DashboardContent() {
   return (
     <div className="flex min-h-0 gap-6">
 
-      {/* ── Left / Main ──────────────────────────────────────────────────── */}
+      {/* ── Left / Main  ─ */}
       <div className="flex min-w-0 flex-1 flex-col gap-6">
 
         {/* Greeting row */}
@@ -308,7 +308,7 @@ export function DashboardContent() {
         </div>
       </div>
 
-      {/* ── Right panel ──────────────────────────────────────────────────── */}
+      {/* ── Right panel  ─ */}
       <div className="w-80 shrink-0 space-y-4">
 
         {/* Upcoming deadlines */}

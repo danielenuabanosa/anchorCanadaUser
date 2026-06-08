@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
-/* ─────────────────────────────────────────────────────────
+/* ───────────────────
    ANCHOR CANADA USER APP — DESIGN SYSTEM TOKENS
    8-pt spacing grid · WCAG-AA accessible contrast
-───────────────────────────────────────────────────────── */
+─ ─ */
 
 @theme inline {
   /* ── Fonts ── */
@@ -145,7 +145,7 @@
   --font-weight-extrabold: 800;
 }
 
-/* ─── Base Reset ───────────────────────────────────────── */
+/* ─ Base Reset ─────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
@@ -179,7 +179,7 @@ body {
   clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
 }
 
-/* ─── Form field system ──────────────────────────────── */
+/* ─ Form field system ──────────── */
 .anchor-field {
   width: 100%;
   min-height: 48px;
@@ -229,7 +229,7 @@ body {
   box-shadow: 0 0 0 3px rgba(59, 111, 226, 0.12);
 }
 
-/* ─── Dashboard layout ───────────────────────────────── */
+/* ─ Dashboard layout ─────────── */
 .app-layout {
   display: flex;
   min-height: 100vh;
@@ -270,13 +270,13 @@ body {
   .app-main     { margin-left: 0; }
 }
 
-/* ─── Stat card gradient accents ────────────────────── */
+/* ─ Stat card gradient accents ──────── */
 .stat-card-jobs     { background: linear-gradient(135deg, #eff4ff 0%, #dce8ff 100%); border-left: 4px solid #2f66c8; }
 .stat-card-housing  { background: linear-gradient(135deg, #e8f5f0 0%, #d1fae5 100%); border-left: 4px solid #15803d; }
 .stat-card-training { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border-left: 4px solid #f59e0b; }
 .stat-card-saved    { background: linear-gradient(135deg, #f4f1fe 0%, #ede9ff 100%); border-left: 4px solid #7c3aed; }
 
-/* ─── Skeleton shimmer ──────────────────────────────── */
+/* ─ Skeleton shimmer ──────────── */
 @keyframes shimmer {
   from { background-position: -200% 0; }
   to   { background-position:  200% 0; }
@@ -287,7 +287,7 @@ body {
   animation: shimmer 1.5s infinite;
 }
 
-/* ─── Hero cursor blink ─────────────────────────────── */
+/* ─ Hero cursor blink ─────────── */
 @keyframes cursor-blink {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0; }
@@ -296,6 +296,6 @@ body {
   animation: cursor-blink 1s step-end infinite;
 }
 
-/* ─── Utility: hide scrollbar ───────────────────────── */
+/* ─ Utility: hide scrollbar ───────── */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

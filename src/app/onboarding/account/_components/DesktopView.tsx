@@ -20,7 +20,7 @@ import boxIcon from '@assets/icons/box.png';
 import lightBulbIcon from '@assets/icons/light-bulb.png';
 import locationPinIcon from '@assets/icons/location2.png';
 import canadaFlagIcon from '@assets/icons/canada-flag.png';
-import avatarImg from '@assets/images/image.png';
+import avatarImg from '@assets/images/w1.png';
 
 const PREVIEW_BADGES = [
   { label: 'STUDENT', bg: '#EEF3FF', text: '#2F66C8', dot: '🎓' },

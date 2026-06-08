@@ -9,12 +9,12 @@ import {
   CheckCircle2, Circle, ArrowRight, Clock,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
-import ac1 from '@assets/images/ac1.png';
-import ac2 from '@assets/images/ac2.png';
-import ac3 from '@assets/images/ac3.png';
-import ac4 from '@assets/images/ac4.png';
+import ac1 from '@assets/images/w1.png';
+import ac2 from '@assets/images/w1.png';
+import ac3 from '@assets/images/w1.png';
+import ac4 from '@assets/images/w1.png';
 
-/* ─── Mock data ──────────────────────────────────────────────────────────── */
+/* ─ Mock data ── ─ */
 
 const APP_STATS = [
   { label: 'Submitted',    value: 6,  dotColor: 'bg-[#2f66c8]' },
@@ -81,7 +81,7 @@ const PROFILE_CHECKS = [
 
 const SAVED_LOGOS = [ac1, ac2, ac3, ac4];
 
-/* ─── Circular progress ──────────────────────────────────────────────────── */
+/* ─ Circular progress  ─ */
 
 function CircularProgress({ percent }: { percent: number }) {
   const r = 36;
@@ -100,7 +100,7 @@ function CircularProgress({ percent }: { percent: number }) {
   );
 }
 
-/* ─── Main ───────────────────────────────────────────────────────────────── */
+/* ─ Main ── ─ */
 
 export default function DashboardMobileView() {
   const { user } = useAuthStore();

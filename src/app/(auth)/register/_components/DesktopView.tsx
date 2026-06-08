@@ -22,7 +22,7 @@ import flashIcon       from '@/../assets/icons/flash.png';
 import cardBg          from '@/../assets/images/lp2.png';
 import avatarImg       from '@/../assets/images/image3.png';
 
-/* ─── Role options ──────────────────────────────────────────────────────── */
+/* ─ Role options ── ─ */
 
 const ROLES = [
   {
@@ -50,7 +50,7 @@ const ROLES = [
 
 type Role = 'individual' | 'business' | 'expert';
 
-/* ─── Password strength ──────────────────────────────────────────────────── */
+/* ─ Password strength  ─ */
 
 function getStrength(pwd: string): { score: number; label: string; color: string } {
   let score = 0;
@@ -68,7 +68,7 @@ function getStrength(pwd: string): { score: number; label: string; color: string
   return { score, ...map[score] };
 }
 
-/* ─── Component ──────────────────────────────────────────────────────────── */
+/* ─ Component ── ─ */
 
 export default function RegisterDesktop() {
   const [step, setStep]             = useState<1 | 2>(1);

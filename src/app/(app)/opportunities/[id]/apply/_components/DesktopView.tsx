@@ -10,13 +10,13 @@ import {
   Shield, Globe, Zap, Info, AlertCircle,
 } from 'lucide-react';
 
-/* ─── Types ─────────────────────────────────────────────────────────────── */
+/* ─ Types  ─ */
 type FlowType = 'internal' | 'external' | 'express';
 type InternalStep = 1 | 2 | 3 | 4;
 type ExternalStep = 1 | 2 | 3 | 4;
 type ExpressStep = 1 | 2 | 3 | 4 | 5 | 6;
 
-/* ─── Mock opportunity data ──────────────────────────────────────────────── */
+/* ─ Mock opportunity data ──────────────── */
 const OPP = {
   id: '1',
   title: 'UX Design Intern',
@@ -43,7 +43,7 @@ const INTERNAL_STEP_LABELS = ['Checklist', 'Your Details', 'Documents', 'Review 
 const EXTERNAL_STEP_LABELS = ['Overview', 'Your Profile', 'Documents', 'Redirect'];
 const EXPRESS_STEP_LABELS  = ['Overview', 'Your Profile', 'Message', 'Availability', 'Review', 'Success'];
 
-/* ─── Shared: Opportunity strip ─────────────────────────────────────────── */
+/* ─ Shared: Opportunity strip ─────────────── */
 function OppStrip({ compact = false }: { compact?: boolean }) {
   return (
     <div className={`flex items-start gap-4 ${compact ? 'py-3' : 'py-4'} border-b border-[#EEF2F8] mb-5`}>
@@ -71,7 +71,7 @@ function OppStrip({ compact = false }: { compact?: boolean }) {
   );
 }
 
-/* ─── Shared: Step header ────────────────────────────────────────────────── */
+/* ─ Shared: Step header  ─ */
 function StepHeader({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="mb-5">
@@ -81,7 +81,7 @@ function StepHeader({ title, subtitle }: { title: string; subtitle: string }) {
   );
 }
 
-/* ─── Shared: Nav buttons ────────────────────────────────────────────────── */
+/* ─ Shared: Nav buttons  ─ */
 function NavRow({
   onBack, onNext, backLabel = 'Back', nextLabel = 'Continue',
   nextIcon, disabled = false, isLink, href,
@@ -113,7 +113,7 @@ function NavRow({
   );
 }
 
-/* ─── Flow selector ──────────────────────────────────────────────────────── */
+/* ─ Flow selector ── ─ */
 function FlowSelector({ onSelect }: { onSelect: (f: FlowType) => void }) {
   const options = [
     {
@@ -766,7 +766,7 @@ function ExpressStep6() {
   );
 }
 
-/* ─── Success view (internal/external done) ──────────────────────────────── */
+/* ─ Success view (internal/external done) ──────────── */
 function SuccessView({ type }: { type: FlowType }) {
   const msgs: Record<FlowType, { title: string; body: string; icon: React.ReactNode }> = {
     internal: {
@@ -806,7 +806,7 @@ function SuccessView({ type }: { type: FlowType }) {
   );
 }
 
-/* ─── Step tab bar ───────────────────────────────────────────────────────── */
+/* ─ Step tab bar ─ ─ */
 function StepTabs({ labels, current, total }: { labels: string[]; current: number; total: number }) {
   return (
     <div className="flex items-center gap-0 mb-5 border-b border-[#EEF2F8] overflow-x-auto">
@@ -893,14 +893,14 @@ export default function ApplyDesktop() {
 
         {/* Card */}
         <div className="bg-white rounded-2xl border border-[#EEF2F8] shadow-[0_4px_24px_0_rgba(0,0,0,0.06)] p-8">
-          {/* ─── Success states ─── */}
+          {/* ─ Success states ─ */}
           {submitted && flow !== 'express' && <SuccessView type={flow!} />}
           {flow === 'express' && expressStep === 6 && <ExpressStep6 />}
 
-          {/* ─── Flow selector ─── */}
+          {/* ─ Flow selector ─ */}
           {!flow && !submitted && <FlowSelector onSelect={resetFlow} />}
 
-          {/* ─── Active flow with progress ─── */}
+          {/* ─ Active flow with progress ─ */}
           {flow && !submitted && !(flow === 'express' && expressStep === 6) && (
             <>
               {/* Progress bar */}

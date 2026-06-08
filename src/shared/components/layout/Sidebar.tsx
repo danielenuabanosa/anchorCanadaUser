@@ -25,7 +25,7 @@ import sidebar_bg from '@assets/images/sidebar_bg.png';
 
 const NAV_ITEMS = [
   { label: 'Home',                href: '/dashboard',     icon: Home },
-  { label: 'Explore',             href: '/opportunities', icon: Compass },
+  // { label: 'Explore',             href: '/opportunities', icon: Compass },
   { label: 'Providers',           href: '/categories',    icon: Building2 },
   { label: 'My Applications',     href: '/applications',  icon: FileText },
   { label: 'Saved Opportunities', href: '/saved',         icon: Bookmark },

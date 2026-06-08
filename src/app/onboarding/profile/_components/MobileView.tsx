@@ -16,7 +16,7 @@ import canadaFlagIcon from '@assets/icons/canada-flag.png';
 import lightBulbIcon from '@assets/icons/light-bulb.png';
 import questionIcon from '@assets/icons/question-mark.png';
 import cityBannerImg from '@assets/images/w1.png';
-import avatarImg from '@assets/images/image.png';
+import avatarImg from '@assets/images/w1.png';
 
 const PRONOUN_OPTIONS = ['He / Him', 'She / Her', 'They / Them', 'Prefer not to say'];
 

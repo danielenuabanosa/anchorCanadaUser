@@ -30,7 +30,7 @@ interface OpportunityItem {
   logoImg?: string;
 }
 
-/* ─── Mock data ──────────────────────────────────────────────────────────── */
+/* ─ Mock data ── ─ */
 
 const CATEGORIES: Record<Category, CategoryMeta> = {
   all:       { label: 'All',       count: 1248 },
@@ -142,7 +142,7 @@ function CompanyLogo({ item }: { item: OpportunityItem }) {
   );
 }
 
-/* ─── Component ──────────────────────────────────────────────────────────── */
+/* ─ Component ── ─ */
 
 export default function OpportunitiesDesktopView() {
   const [activeCategory, setActiveCategory] = useState<Category>('all');

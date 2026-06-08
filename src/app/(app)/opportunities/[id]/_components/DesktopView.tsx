@@ -9,10 +9,10 @@ import {
   ChevronRight, X, Mail, Link2,
 } from 'lucide-react';
 
-/* ─── Types ─────────────────────────────────────────────────────────────── */
+/* ─ Types  ─ */
 type Tab = 'overview' | 'requirements' | 'benefits' | 'organization' | 'faqs';
 
-/* ─── Mock opportunity ──────────────────────────────────────────────────── */
+/* ─ Mock opportunity  ─ */
 const OPP = {
   id: '1',
   matchPct: 94,
@@ -69,7 +69,7 @@ const OPP = {
   ],
 };
 
-/* ─── Component ─────────────────────────────────────────────────────────── */
+/* ─ Component  ─ */
 export default function OpportunityDesktop() {
   const params = useParams<{ id: string }>();
   const [activeTab, setActiveTab]     = useState<Tab>('overview');

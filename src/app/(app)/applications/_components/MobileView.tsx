@@ -9,7 +9,7 @@ import {
   ChevronLeft, Paperclip, Image as ImageIcon,
 } from 'lucide-react';
 
-/* ─── Types ──────────────────────────────────────────────────────────────── */
+/* ─ Types ─ ─ */
 
 type AppStatus =
   | 'Under Review'
@@ -78,7 +78,7 @@ interface Application {
   withdrawalReason?: string;
 }
 
-/* ─── Mock data ─────────────────────────────────────────────────────────── */
+/* ─ Mock data  ─ */
 
 const APPS: Application[] = [
   {
@@ -249,7 +249,7 @@ const APPS: Application[] = [
   },
 ];
 
-/* ─── Constants ──────────────────────────────────────────────────────────── */
+/* ─ Constants ── ─ */
 
 const FILTER_TABS: { key: FilterTab; label: string }[] = [
   { key: 'All', label: 'All' },
@@ -285,7 +285,7 @@ const TIMELINE_ICON: Record<TimelineEvent['type'], { icon: typeof Send; bg: stri
   message:   { icon: MessageSquare,bg: 'bg-[#EFF4FF]',  color: 'text-[#2F66C8]' },
 };
 
-/* ─── Helper ─────────────────────────────────────────────────────────────── */
+/* ─ Helper  ─ */
 
 function filterApps(apps: Application[], tab: FilterTab, search: string): Application[] {
   let list = apps;
@@ -303,7 +303,7 @@ function filterApps(apps: Application[], tab: FilterTab, search: string): Applic
   return list;
 }
 
-/* ─── Progress Steps (compact) ───────────────────────────────────────────── */
+/* ─ Progress Steps (compact) ─────────────── */
 
 function MobileProgressTimeline({ steps }: { steps: ProgressStep[] }) {
   const visible = steps.slice(0, 4);
@@ -341,7 +341,7 @@ function MobileProgressTimeline({ steps }: { steps: ProgressStep[] }) {
   );
 }
 
-/* ─── App Card ───────────────────────────────────────────────────────────── */
+/* ─ App Card  ─ */
 
 function AppCard({ app, onClick }: { app: Application; onClick: () => void }) {
   const st = STATUS_STYLES[app.status];
@@ -395,7 +395,7 @@ function AppCard({ app, onClick }: { app: Application; onClick: () => void }) {
   );
 }
 
-/* ─── Detail: Overview ───────────────────────────────────────────────────── */
+/* ─ Detail: Overview ─ ─ */
 
 function MobileOverviewTab({ app }: { app: Application }) {
   if (app.status === 'Accepted' && app.offerDetails) {
@@ -510,7 +510,7 @@ function MobileOverviewTab({ app }: { app: Application }) {
   );
 }
 
-/* ─── Detail: Documents ──────────────────────────────────────────────────── */
+/* ─ Detail: Documents  ─ */
 
 function MobileDocumentsTab({ app }: { app: Application }) {
   return (
@@ -542,7 +542,7 @@ function MobileDocumentsTab({ app }: { app: Application }) {
   );
 }
 
-/* ─── Detail: Timeline ───────────────────────────────────────────────────── */
+/* ─ Detail: Timeline ─ ─ */
 
 function MobileTimelineTab({ app }: { app: Application }) {
   return (
@@ -574,7 +574,7 @@ function MobileTimelineTab({ app }: { app: Application }) {
   );
 }
 
-/* ─── Detail: Messages ───────────────────────────────────────────────────── */
+/* ─ Detail: Messages ─ ─ */
 
 function MobileMessagesTab({ app }: { app: Application }) {
   const [draft, setDraft] = useState('');
@@ -634,7 +634,7 @@ function MobileMessagesTab({ app }: { app: Application }) {
   );
 }
 
-/* ─── Detail Screen ──────────────────────────────────────────────────────── */
+/* ─ Detail Screen ── ─ */
 
 function DetailScreen({
   app,
@@ -725,7 +725,7 @@ function DetailScreen({
   );
 }
 
-/* ─── Main Mobile View ───────────────────────────────────────────────────── */
+/* ─ Main Mobile View ─ ─ */
 
 export default function MobileView() {
   const [filterTab, setFilterTab] = useState<FilterTab>('All');
