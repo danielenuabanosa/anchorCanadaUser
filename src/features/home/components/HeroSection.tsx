@@ -15,7 +15,7 @@ import heroBg   from '@assets/images/herobg.png';
 import validIcon from '@assets/icons/valid.png';
 import compassIcon from '@assets/icons/compass.png';
 
-/* ─── Static data ────────────────────────────────────────── */
+/* --- Static data ------------------------------------------ */
 const TRUST_ITEMS = ['Verified Opportunities', 'Free to Use', 'Built in Canada'] as const;
 
 const SNAPSHOT_STATS = [
@@ -24,7 +24,7 @@ const SNAPSHOT_STATS = [
   { Icon: Bookmark, label: 'Saved',         value: '8',  trend: '8%'  },
 ] as const;
 
-/* ─── Reusable mini card pieces ─────────────────────────── */
+/* --- Reusable mini card pieces ----------------------------- */
 function Badge({
   children,
   color,
@@ -66,15 +66,13 @@ function Tag({
 }
 
 
-
-
-/* ─── Main component ─────────────────────────────────────── */
+/* --- Main component ---------------------------------------- */
 export function HeroSection() {
   return (
     <>
-      {/* ══════════════════════════════════════════════════════
+      {/* =====================================================
           MOBILE HERO
-      ══════════════════════════════════════════════════════ */}
+      ===================================================== */}
       <section className="relative overflow-hidden bg-[#EFF4FF] lg:hidden">
         <div className="px-5 pb-6 pt-10">
 
@@ -179,13 +177,13 @@ export function HeroSection() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════════
+      {/* =====================================================
           DESKTOP HERO
-      ══════════════════════════════════════════════════════ */}
+      ===================================================== */}
       <section className="relative hidden min-h-[calc(100vh-64px)] overflow-hidden bg-[#EFF4FF] lg:flex lg:items-center">
         <div className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-2 items-center gap-10 px-10 py-16 xl:gap-16">
 
-          {/* ─── LEFT PANEL ─────────────────────────────── */}
+          {/* --- LEFT PANEL --------------------------------- */}
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#1B4FCA]">
               Welcome to Anchor Canada
@@ -245,10 +243,10 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* ─── RIGHT PANEL — floating cards ───────────── */}
+          {/* --- RIGHT PANEL - floating cards --------------- */}
           <div className="relative h-[520px] w-full">
 
-            {/* herobg.png — concentric ring decoration, centered */}
+            {/* herobg.png - concentric ring decoration, centered */}
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden="true">
               <Image
                 src={heroBg}
@@ -259,8 +257,6 @@ export function HeroSection() {
               />
             </div>
 
-          
-        
           </div>
         </div>
       </section>
