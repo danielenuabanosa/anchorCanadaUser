@@ -7,8 +7,8 @@ import Link from 'next/link';
 import mailIcon from '@/../assets/icons/mail.png';
 import shieldIcon from '@/../assets/icons/shield-check.png';
 import headphonesIcon from '@/../assets/icons/hear-phone.png';
-import fpwd1 from '@/../assets/images/w1.png';
-import fpwd2 from '@/../assets/images/w1.png';
+import validLockImg from '@/../assets/images/valid-lock.png';
+import cityImg from '@/../assets/images/city.png';
 
 export default function ForgotPasswordDesktopView() {
   const [email, setEmail] = useState('');
@@ -215,7 +215,7 @@ export default function ForgotPasswordDesktopView() {
                 </p>
               </div>
               <div className="shrink-0 w-[162px] h-[200px] relative">
-                <Image src={fpwd1} alt="Secure account" fill className="object-contain" />
+                <Image src={validLockImg} alt="Secure account" fill className="object-contain" />
               </div>
             </div>
 
@@ -237,7 +237,7 @@ export default function ForgotPasswordDesktopView() {
 
           {/* City landscape at bottom */}
           <div className="relative h-[255px] w-full shrink-0">
-            <Image src={fpwd2} alt="" fill className="object-cover" />
+            <Image src={cityImg} alt="" fill className="object-cover" />
           </div>
         </div>
       </div>

@@ -9,89 +9,12 @@ import { OnboardingNavbar } from '@/features/home/components/OnboardingNavbar';
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
 import { OnboardingNavButtons } from '@/shared/components/onboarding/OnboardingNavButtons';
 import { Footer } from './Footer';
+import { ProfilePreviewCard } from './ProfilePreviewCard';
 
 import cameraIcon from '@assets/icons/camera.png';
-import locationPinIcon from '@assets/icons/location2.png';
-import canadaFlagIcon from '@assets/icons/canada-flag.png';
-import lightBulbIcon from '@assets/icons/light-bulb.png';
 import questionIcon from '@assets/icons/question-mark.png';
-import cityBannerImg from '@assets/images/profile_bg.png';
-import avatarImg from '@assets/images/w1.png';
 
 const PRONOUN_OPTIONS = ['He / Him', 'She / Her', 'They / Them', 'Prefer not to say'];
-
-const PREVIEW_BADGES = [
-  { label: 'STUDENT',      bg: '#EEF3FF', text: '#2F66C8', dot: '🎓' },
-  { label: 'NEWCOMER',     bg: '#DFFAF3', text: '#059669', dot: '✦' },
-  { label: 'ENTREPRENEUR', bg: '#FFF5EC', text: '#E8812A', dot: '🚀' },
-];
-
-const FOCUS_CHIPS = [
-  { label: 'Finding Employment',   color: '#2F66C8' },
-  { label: 'Accessing Funding',    color: '#9333EA' },
-  { label: 'Support my community', color: '#059669' },
-];
-
-function ProfilePreviewCard({
-  displayName,
-  pronounLabel,
-  avatarSrc,
-}: {
-  displayName: string;
-  pronounLabel: string;
-  avatarSrc: string | null;
-}) {
-  return (
-    <div className="overflow-hidden rounded-xl border border-[#D9E1EF]">
-      <div className="relative h-[130px] w-full overflow-hidden">
-        <Image src={cityBannerImg} alt="city skyline" fill className="object-cover" />
-        <div className="absolute bottom-[-28px] left-1/2 h-16 w-16 -translate-x-1/2 overflow-hidden rounded-full border-4 border-white bg-[#FFF9EC]">
-          {avatarSrc ? (
-            <img src={avatarSrc} alt="avatar" className="h-full w-full object-cover" />
-          ) : (
-            <Image src={avatarImg} alt="avatar" fill className="object-cover" />
-          )}
-        </div>
-      </div>
-      <div className="px-4 pb-4 pt-10 text-center">
-        <p className="text-[16px] font-bold text-[#0F172A]">Hello, {displayName}! 👋</p>
-        <p className="mt-0.5 text-[11px] text-[#8C97AD]">{pronounLabel}</p>
-        <div className="mt-2 flex flex-wrap justify-center gap-1.5">
-          {PREVIEW_BADGES.map((b) => (
-            <span
-              key={b.label}
-              className="inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[9px] font-bold"
-              style={{ background: b.bg, color: b.text }}
-            >
-              <span>{b.dot}</span> {b.label}
-            </span>
-          ))}
-        </div>
-        <div className="mt-2 flex items-center justify-center gap-1.5 text-[11px] text-[#8C97AD]">
-          <Image src={locationPinIcon} alt="" width={11} height={11} className="opacity-60" />
-          Toronto, Ontario, Canada
-          <Image src={canadaFlagIcon} alt="🍁" width={16} height={11} className="rounded-sm object-cover" />
-        </div>
-        <p className="mt-3 text-[10px] font-semibold uppercase tracking-widest text-[#8C97AD]">
-          Focused on:
-        </p>
-        <div className="mt-1.5 flex flex-wrap justify-center gap-x-3 gap-y-1">
-          {FOCUS_CHIPS.map((c) => (
-            <span key={c.label} className="text-[11px] font-medium" style={{ color: c.color }}>
-              {c.label}
-            </span>
-          ))}
-        </div>
-        <div className="mt-3 flex items-start gap-2 rounded-xl bg-[#EFF4FF] px-3 py-2.5 text-left">
-          <Image src={lightBulbIcon} alt="" width={13} height={13} className="mt-0.5 shrink-0 opacity-70" />
-          <p className="text-[11px] leading-relaxed text-[#44516A]">
-            Great choice! We&apos;ll personalize your dashboard and recommendations based on your selections.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function DesktopView() {
   const router = useRouter();
@@ -156,7 +79,7 @@ export default function DesktopView() {
         <div className="flex w-full gap-12">
 
           {/* Left: form */}
-          <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex w-[886px]  max-w-[886px] flex-1 flex-col">
             <h1 className="font-serif text-[60px] font-regular leading-[56px] text-[#0F172A]">
               Let&apos;s Make Anchor{' '}
               <span className="italic text-[#2F66C8] font-serif text-[78.83px] leading-[73.57px]">Yours</span>
@@ -289,18 +212,18 @@ export default function DesktopView() {
           </div>
 
           {/* Right: live preview */}
-          <div className="w-[370px] h-[1350px] shrink-0">
-            <div className="sticky top-24 rounded-md border border-[#D9E1EF]  bg-#FFFFFF p-4 shadow-sm">
-              <div className="flex items-center justify-between">
-                <p className="text-[13px] font-semibold text-[#0F172A]">
+          <div className="w-[622px] shrink-0">
+            <div className="sticky top-24 rounded-2xl border border-[#D9E1EF] bg-white p-5 shadow-[0_2px_12px_rgba(15,23,42,0.06)]">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[15px] font-semibold leading-snug text-[#0F172A]">
                   Here&apos;s how your profile will look
                 </p>
-                <span className="flex items-center gap-1 text-[11px] font-medium text-emerald-500">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                <span className="flex shrink-0 items-center gap-1.5 text-[12px] font-medium text-emerald-600">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
                   Live Preview
                 </span>
               </div>
-              <div className="mt-3">
+              <div className="mt-4">
                 <ProfilePreviewCard
                   displayName={displayedName}
                   pronounLabel={pronounLabel}

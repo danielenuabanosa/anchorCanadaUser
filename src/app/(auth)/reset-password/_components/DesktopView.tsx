@@ -7,7 +7,8 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import lockIcon from '@/../assets/icons/lock2.png';
-import w1 from '@/../assets/images/w1.png';
+import validLockIcon from '@/../assets/images/valid-lock.png';
+import cityImg from '@/../assets/images/city.png';
 
 interface Req { label: string; test: (p: string) => boolean; }
 
@@ -193,16 +194,18 @@ export default function ResetPasswordDesktopView() {
         </div>
 
         {/* -- Right column: security card -- */}
-        <div className="flex-1 min-w-0 bg-[#eff4ff] border border-[#e0ebff] rounded-[10px] overflow-hidden flex flex-col">
+        <div className="flex-1 min-w-0 w-full max-w-[541px] bg-[#eff4ff] border border-[#e0ebff] rounded-[10px] overflow-hidden flex flex-col">
           <div className="flex flex-col gap-10 px-[37px] py-[60px]">
             {/* Title + 3D image */}
             <div className="flex gap-10 items-center">
-              <div className="flex flex-col gap-2 flex-1">
-                <h2 className="font-serif text-[36px] leading-[56px] text-[#0f172a]">Keeping Your<br />Account Secure</h2>
+              <div className="flex flex-col gap-2 flex-1 min-w-0">
+                <h2 className="font-serif text-[36px] leading-[56px] text-[#0f172a] whitespace-nowrap">
+                  Keeping Your<br />Account Secure
+                </h2>
                 <p className="text-base text-[#44516a]">Your new password protects what matters most.</p>
               </div>
               <div className="shrink-0 w-[162px] h-[200px] relative">
-                <Image src={fpwd1} alt="Secure password" fill className="object-contain" />
+                <Image src={validLockIcon} alt="Secure password" fill className="object-contain" />
               </div>
             </div>
 
@@ -213,7 +216,7 @@ export default function ResetPasswordDesktopView() {
                   <div className={`${item.iconBg} rounded-[10px] flex items-center justify-center p-2.5 size-[60px] shrink-0`}>
                     {item.icon}
                   </div>
-                  <div className="flex flex-col gap-1 flex-1 w-[271px]">
+                  <div className="flex flex-col gap-1 flex-1 min-w-0">
                     <span className="font-semibold text-base text-[#0f172a]">{item.label}</span>
                     <span className="text-sm text-[#44516a]">{item.desc}</span>
                   </div>
@@ -224,10 +227,10 @@ export default function ResetPasswordDesktopView() {
 
           {/* City landscape */}
           <div className="relative h-[255px] w-full shrink-0">
-            <Image src={fpwd2} alt="" fill className="object-cover" />
+            <Image src={cityImg} alt="" fill className="object-cover" />
           </div>
         </div>
-      </div>
+        </div>
 
       {/* -- Footer bar -- */}
       <div className="border-t border-[#eef2f8] flex items-center gap-10 py-10 w-full">

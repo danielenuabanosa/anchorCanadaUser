@@ -2,7 +2,7 @@ import DesktopView from './_components/DesktopView';
 import MobileView from './_components/MobileView';
 
 export default function OnboardingActivationPage() {
-  return (
+    return (
     <>
       <div className="hidden md:block w-full">
         <DesktopView />

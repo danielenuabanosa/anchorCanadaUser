@@ -14,69 +14,10 @@ import locationPinIcon from '@assets/icons/location2.png';
 import canadaFlagIcon from '@assets/icons/canada-flag.png';
 import questionIcon from '@assets/icons/question-mark.png';
 import { Footer } from './Footer';
-import cityBannerImg from '@assets/images/w1.png';
+import { ProfilePreviewCard } from './ProfilePreviewCard';
 import avatarImg from '@assets/images/w1.png';
 
 const PRONOUN_OPTIONS = ['He / Him', 'She / Her', 'They / Them', 'Prefer not to say'];
-
-const PREVIEW_BADGES = [
-  { label: 'STUDENT',      bg: '#EEF3FF', text: '#2F66C8', dot: '🎓' },
-  { label: 'NEWCOMER',     bg: '#DFFAF3', text: '#059669', dot: '✦' },
-  { label: 'ENTREPRENEUR', bg: '#FFF5EC', text: '#E8812A', dot: '🚀' },
-];
-
-function ProfilePreviewCard({
-  displayName,
-  pronounLabel,
-  avatarSrc,
-  compact = false,
-}: {
-  displayName: string;
-  pronounLabel: string;
-  avatarSrc: string | null;
-  compact?: boolean;
-}) {
-  return (
-    <div className="overflow-hidden rounded-xl border border-[#D9E1EF]">
-      <div className={`relative w-full overflow-hidden ${compact ? 'h-[90px]' : 'h-[130px]'}`}>
-        <Image src={cityBannerImg} alt="city skyline" fill className="object-cover" />
-        <div
-          className={`absolute left-1/2 -translate-x-1/2 overflow-hidden rounded-full border-4 border-white bg-[#FFF9EC] ${
-            compact ? 'bottom-[-20px] h-10 w-10' : 'bottom-[-28px] h-16 w-16'
-          }`}
-        >
-          {avatarSrc ? (
-            <img src={avatarSrc} alt="avatar" className="h-full w-full object-cover" />
-          ) : (
-            <Image src={avatarImg} alt="avatar" fill className="object-cover" />
-          )}
-        </div>
-      </div>
-      <div className={`text-center ${compact ? 'px-3 pb-3 pt-7' : 'px-4 pb-4 pt-10'}`}>
-        <p className={`font-bold text-[#0F172A] ${compact ? 'text-[13px]' : 'text-[16px]'}`}>
-          Hello, {displayName}! 👋
-        </p>
-        <p className="mt-0.5 text-[11px] text-[#8C97AD]">{pronounLabel}</p>
-        <div className="mt-2 flex flex-wrap justify-center gap-1.5">
-          {PREVIEW_BADGES.map((b) => (
-            <span
-              key={b.label}
-              className="inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[9px] font-bold"
-              style={{ background: b.bg, color: b.text }}
-            >
-              <span>{b.dot}</span> {b.label}
-            </span>
-          ))}
-        </div>
-        <div className="mt-2 flex items-center justify-center gap-1.5 text-[11px] text-[#8C97AD]">
-          <Image src={locationPinIcon} alt="" width={11} height={11} className="opacity-60" />
-          Toronto, Ontario, Canada
-          <Image src={canadaFlagIcon} alt="🍁" width={16} height={11} className="rounded-sm object-cover" />
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function MobileView() {
   const router = useRouter();

@@ -1,0 +1,39 @@
+05:28:39.659 Running build in Washington, D.C., USA (East) – iad1
+05:28:39.660 Build machine configuration: 2 cores, 8 GB
+05:28:39.787 Cloning github.com/danielenuabanosa/anchorCanadaUser (Branch: main, Commit: 256b13c)
+05:28:44.515 Cloning completed: 4.727s
+05:28:44.607 Restored build cache from previous deployment (Duj91wiMfQ6oZybCZNpett4PW8zK)
+05:28:44.822 Running "vercel build"
+05:28:44.842 Vercel CLI 54.12.2
+05:28:45.180 Installing dependencies...
+05:28:46.189 
+05:28:46.190 up to date in 873ms
+05:28:46.190 
+05:28:46.191 155 packages are looking for funding
+05:28:46.191   run `npm fund` for details
+05:28:46.223 Detected Next.js version: 16.2.4
+05:28:46.227 Running "npm run build"
+05:28:46.329 
+05:28:46.330 > anchor-canada-user@0.1.0 build
+05:28:46.330 > next build
+05:28:46.330 
+05:28:47.057   Applying modifyConfig from Vercel
+05:28:47.074 ▲ Next.js 16.2.4 (Turbopack)
+05:28:47.075 
+05:28:47.111   Creating an optimized production build ...
+05:28:58.249 ✓ Compiled successfully in 10.8s
+05:28:58.262   Running TypeScript ...
+05:29:09.769 Failed to type check.
+05:29:09.770 
+05:29:09.771 ./src/app/(auth)/reset-password/_components/DesktopView.tsx:205:29
+05:29:09.771 Type error: Cannot find name 'fpwd1'.
+05:29:09.771 
+05:29:09.771   203 |               </div>
+05:29:09.771   204 |               <div className="shrink-0 w-[162px] h-[200px] relative">
+05:29:09.772 > 205 |                 <Image src={fpwd1} alt="Secure password" fill className="object-contain" />
+05:29:09.772       |                             ^
+05:29:09.772   206 |               </div>
+05:29:09.772   207 |             </div>
+05:29:09.772   208 |
+05:29:09.817 Next.js build worker exited with code: 1 and signal: null
+05:29:09.868 Error: Command "npm run build" exited with 1
