@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
-/* ── Context ── */
+/* -- Context -- */
 interface TabsContextValue {
   value: string;
   onChange: (v: string) => void;
@@ -16,7 +16,7 @@ function useTabsContext() {
   return ctx;
 }
 
-/* ── Root ── */
+/* -- Root -- */
 interface TabsProps {
   defaultValue: string;
   value?: string;
@@ -41,7 +41,7 @@ function Tabs({ defaultValue, value, onValueChange, children, className }: TabsP
   );
 }
 
-/* ── List ── */
+/* -- List -- */
 function TabsList({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <div
@@ -56,7 +56,7 @@ function TabsList({ children, className }: { children: ReactNode; className?: st
   );
 }
 
-/* ── Trigger ── */
+/* -- Trigger -- */
 function TabsTrigger({
   value,
   children,
@@ -87,7 +87,7 @@ function TabsTrigger({
   );
 }
 
-/* ── Content ── */
+/* -- Content -- */
 function TabsContent({
   value,
   children,

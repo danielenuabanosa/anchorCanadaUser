@@ -9,7 +9,7 @@ import {
   ChevronLeft, Paperclip, Image as ImageIcon,
 } from 'lucide-react';
 
-/* ─ Types ─ ─ */
+/* - Types - - */
 
 type AppStatus =
   | 'Under Review'
@@ -78,7 +78,7 @@ interface Application {
   withdrawalReason?: string;
 }
 
-/* ─ Mock data  ─ */
+/* - Mock data  - */
 
 const APPS: Application[] = [
   {
@@ -249,7 +249,7 @@ const APPS: Application[] = [
   },
 ];
 
-/* ─ Constants ── ─ */
+/* - Constants -- - */
 
 const FILTER_TABS: { key: FilterTab; label: string }[] = [
   { key: 'All', label: 'All' },
@@ -285,7 +285,7 @@ const TIMELINE_ICON: Record<TimelineEvent['type'], { icon: typeof Send; bg: stri
   message:   { icon: MessageSquare,bg: 'bg-[#EFF4FF]',  color: 'text-[#2F66C8]' },
 };
 
-/* ─ Helper  ─ */
+/* - Helper  - */
 
 function filterApps(apps: Application[], tab: FilterTab, search: string): Application[] {
   let list = apps;
@@ -303,7 +303,7 @@ function filterApps(apps: Application[], tab: FilterTab, search: string): Applic
   return list;
 }
 
-/* ─ Progress Steps (compact) ─────────────── */
+/* - Progress Steps (compact) --------------- */
 
 function MobileProgressTimeline({ steps }: { steps: ProgressStep[] }) {
   const visible = steps.slice(0, 4);
@@ -341,7 +341,7 @@ function MobileProgressTimeline({ steps }: { steps: ProgressStep[] }) {
   );
 }
 
-/* ─ App Card  ─ */
+/* - App Card  - */
 
 function AppCard({ app, onClick }: { app: Application; onClick: () => void }) {
   const st = STATUS_STYLES[app.status];
@@ -395,7 +395,7 @@ function AppCard({ app, onClick }: { app: Application; onClick: () => void }) {
   );
 }
 
-/* ─ Detail: Overview ─ ─ */
+/* - Detail: Overview - - */
 
 function MobileOverviewTab({ app }: { app: Application }) {
   if (app.status === 'Accepted' && app.offerDetails) {
@@ -510,7 +510,7 @@ function MobileOverviewTab({ app }: { app: Application }) {
   );
 }
 
-/* ─ Detail: Documents  ─ */
+/* - Detail: Documents  - */
 
 function MobileDocumentsTab({ app }: { app: Application }) {
   return (
@@ -542,7 +542,7 @@ function MobileDocumentsTab({ app }: { app: Application }) {
   );
 }
 
-/* ─ Detail: Timeline ─ ─ */
+/* - Detail: Timeline - - */
 
 function MobileTimelineTab({ app }: { app: Application }) {
   return (
@@ -574,7 +574,7 @@ function MobileTimelineTab({ app }: { app: Application }) {
   );
 }
 
-/* ─ Detail: Messages ─ ─ */
+/* - Detail: Messages - - */
 
 function MobileMessagesTab({ app }: { app: Application }) {
   const [draft, setDraft] = useState('');
@@ -620,7 +620,7 @@ function MobileMessagesTab({ app }: { app: Application }) {
           value={draft}
           onChange={e => setDraft(e.target.value)}
           placeholder="Type a message…"
-          className="flex-1 px-3 py-2 rounded-xl border border-[#D9E1EF] text-xs text-[#0F172A] placeholder:text-[#8C97AD] focus:outline-none focus:border-[#2F66C8] bg-white"
+          className="flex-1 anchor-field"
         />
         <button
           onClick={() => setDraft('')}
@@ -634,7 +634,7 @@ function MobileMessagesTab({ app }: { app: Application }) {
   );
 }
 
-/* ─ Detail Screen ── ─ */
+/* - Detail Screen -- - */
 
 function DetailScreen({
   app,
@@ -725,7 +725,7 @@ function DetailScreen({
   );
 }
 
-/* ─ Main Mobile View ─ ─ */
+/* - Main Mobile View - - */
 
 export default function MobileView() {
   const [filterTab, setFilterTab] = useState<FilterTab>('All');
@@ -780,7 +780,7 @@ export default function MobileView() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search applications…"
-            className="w-full pl-9 pr-9 py-2.5 rounded-xl border border-[#D9E1EF] text-sm text-[#0F172A] placeholder:text-[#8C97AD] focus:outline-none focus:border-[#2F66C8] bg-white"
+            className="anchor-field anchor-field--icon-left anchor-field--icon-right"
           />
           {search && (
             <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C97AD]">

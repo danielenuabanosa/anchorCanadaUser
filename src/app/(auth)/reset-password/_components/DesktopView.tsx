@@ -7,8 +7,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import lockIcon from '@/../assets/icons/lock2.png';
-import fpwd1 from '@/../assets/images/fpwd1.png';
-import fpwd2 from '@/../assets/images/fpwd2.png';
+import w1 from '@/../assets/images/w1.png';
 
 interface Req { label: string; test: (p: string) => boolean; }
 
@@ -57,7 +56,7 @@ export default function ResetPasswordDesktopView() {
     <div className="w-full max-w-[1548px] mx-auto flex flex-col gap-10">
       <div className="flex gap-10 items-start">
 
-        {/* ── Left column: form ── */}
+        {/* -- Left column: form -- */}
         <div className="flex flex-col gap-10 items-start shrink-0 w-[886px]">
 
           {/* Heading */}
@@ -79,19 +78,19 @@ export default function ResetPasswordDesktopView() {
                     <span className="font-semibold text-[#0f172a]">New Password</span>
                     <span className="text-[#ef4444]">*</span>
                   </div>
-                  <div className="bg-white border border-[#d9e1ef] rounded-[10px] flex items-center justify-between p-4 w-full">
-                    <div className="flex gap-2.5 items-center flex-1 min-w-0">
-                      <Image src={lockIcon} alt="" width={18} height={18} className="shrink-0 opacity-60" />
-                      <input
-                        type={showNew ? 'text' : 'password'}
-                        value={newPassword}
-                        onChange={e => setNewPassword(e.target.value)}
-                        placeholder="Minimum 8 characters"
-                        className="flex-1 min-w-0 text-base text-[#0f172a] placeholder:text-[#8c97ad] bg-transparent outline-none"
-                        autoComplete="new-password"
-                      />
-                    </div>
-                    <button type="button" onClick={() => setShowNew(v => !v)} className="text-[#8c97ad] shrink-0">
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <Image src={lockIcon} alt="" width={18} height={18} className="opacity-60" />
+                    </span>
+                    <input
+                      type={showNew ? 'text' : 'password'}
+                      value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)}
+                      placeholder="Minimum 8 characters"
+                      className="anchor-field anchor-field--icon-left anchor-field--icon-right"
+                      autoComplete="new-password"
+                    />
+                    <button type="button" onClick={() => setShowNew(v => !v)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8c97ad]">
                       {showNew ? <Eye className="h-[18px] w-[18px]" /> : <EyeOff className="h-[18px] w-[18px]" />}
                     </button>
                   </div>
@@ -129,19 +128,19 @@ export default function ResetPasswordDesktopView() {
                     <span className="font-semibold text-[#0f172a]">Confirm Password</span>
                     <span className="text-[#ef4444]">*</span>
                   </div>
-                  <div className={`bg-white border rounded-[10px] flex items-center justify-between p-4 w-full ${confirmPassword && !passwordsMatch ? 'border-[#ef4444]' : 'border-[#d9e1ef]'}`}>
-                    <div className="flex gap-2.5 items-center flex-1 min-w-0">
-                      <Image src={lockIcon} alt="" width={18} height={18} className="shrink-0 opacity-60" />
-                      <input
-                        type={showConfirm ? 'text' : 'password'}
-                        value={confirmPassword}
-                        onChange={e => setConfirmPassword(e.target.value)}
-                        placeholder="Re-enter your password"
-                        className="flex-1 min-w-0 text-base text-[#0f172a] placeholder:text-[#8c97ad] bg-transparent outline-none"
-                        autoComplete="new-password"
-                      />
-                    </div>
-                    <button type="button" onClick={() => setShowConfirm(v => !v)} className="text-[#8c97ad] shrink-0">
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <Image src={lockIcon} alt="" width={18} height={18} className="opacity-60" />
+                    </span>
+                    <input
+                      type={showConfirm ? 'text' : 'password'}
+                      value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)}
+                      placeholder="Re-enter your password"
+                      className={`anchor-field anchor-field--icon-left anchor-field--icon-right${confirmPassword && !passwordsMatch ? ' anchor-field--error' : ''}`}
+                      autoComplete="new-password"
+                    />
+                    <button type="button" onClick={() => setShowConfirm(v => !v)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8c97ad]">
                       {showConfirm ? <Eye className="h-[18px] w-[18px]" /> : <EyeOff className="h-[18px] w-[18px]" />}
                     </button>
                   </div>
@@ -193,7 +192,7 @@ export default function ResetPasswordDesktopView() {
           </div>
         </div>
 
-        {/* ── Right column: security card ── */}
+        {/* -- Right column: security card -- */}
         <div className="flex-1 min-w-0 bg-[#eff4ff] border border-[#e0ebff] rounded-[10px] overflow-hidden flex flex-col">
           <div className="flex flex-col gap-10 px-[37px] py-[60px]">
             {/* Title + 3D image */}
@@ -230,7 +229,7 @@ export default function ResetPasswordDesktopView() {
         </div>
       </div>
 
-      {/* ── Footer bar ── */}
+      {/* -- Footer bar -- */}
       <div className="border-t border-[#eef2f8] flex items-center gap-10 py-10 w-full">
         {footerItems.map((item, i) => (
           <div key={item.label} className="flex items-center gap-10 flex-1">

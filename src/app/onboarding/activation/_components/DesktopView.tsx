@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import { OnboardingNavbar } from '@/features/home/components/OnboardingNavbar';
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
-import { OnboardingFooter } from '@/shared/components/onboarding/OnboardingFooter';
+import { OnboardingNavButtons } from '@/shared/components/onboarding/OnboardingNavButtons';
+import { Footer } from './Footer';
 
 import caseIcon from '@assets/icons/case.png';
 import grantIcon from '@assets/icons/grant-funding.png';
@@ -16,7 +17,6 @@ import graduationIcon from '@assets/icons/graduation-cap.png';
 import heartHandshake from '@assets/icons/heart-handshake.png';
 import star2Icon from '@assets/icons/star2.png';
 import start3Icon from '@assets/icons/start3.png';
-import lightBulbIcon from '@assets/icons/light-bulb.png';
 import locationPinIcon from '@assets/icons/location2.png';
 import canadaFlagIcon from '@assets/icons/canada-flag.png';
 import mapBgImg from '@assets/images/map-bg.png';
@@ -113,6 +113,7 @@ function Spinner() {
 }
 
 export default function DesktopView() {
+  const router = useRouter();
   const [phase, setPhase] = useState<'loading' | 'welcome'>('loading');
   const [feedStep, setFeedStep] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -157,20 +158,15 @@ export default function DesktopView() {
       <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
         <OnboardingNavbar />
 
-        <div className="border-b border-[#D9E1EF] bg-white">
-          <div className="mx-auto max-w-5xl px-10 pb-3 pt-4">
-            <StepProgress current={6} />
-          </div>
+        <div className="mx-auto w-full max-w-[1548px] px-10 pt-10">
+          <StepProgress current={6} />
         </div>
 
-        <main className="flex flex-1 flex-col items-center px-10 py-12">
-          <div className="w-full max-w-5xl">
+        <main className="mx-auto flex w-full max-w-[1548px] flex-1 flex-col items-center px-10 py-12">
             <div className="mb-8 text-center">
               <h1 className="font-instrument-serif text-[46px] font-normal leading-[1.1] text-[#0F172A]">
                 Personalizing Your{' '}
-                <span className="italic text-[#2F66C8]" style={{ fontFamily: 'var(--font-playfair)' }}>
-                  Anchor
-                </span>{' '}
+                <span className="italic text-[#2F66C8]">Anchor</span>{' '}
                 Experience
               </h1>
               <p className="mt-3 text-[14px] text-[#8C97AD]">
@@ -268,12 +264,11 @@ export default function DesktopView() {
                 <p className="text-[11px] font-semibold text-[#2F66C8]">{Math.round(Math.min(progress, 100))}%</p>
               </div>
             </div>
-          </div>
         </main>
 
-        <div className="border-t border-[#D9E1EF] bg-white px-10 py-4">
-          <div className="mx-auto max-w-5xl">
-            <OnboardingFooter />
+        <div className="border-t border-[#D9E1EF] bg-white px-5 py-5 md:px-10 md:py-10">
+          <div className="mx-auto max-w-[1548px]">
+            <Footer phase="loading" className="mt-0" />
           </div>
         </div>
       </div>
@@ -284,14 +279,12 @@ export default function DesktopView() {
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
       <OnboardingNavbar />
 
-      <div className="border-b border-[#D9E1EF] bg-white">
-        <div className="mx-auto max-w-5xl px-10 pb-3 pt-4">
-          <StepProgress current={7} />
-        </div>
+      <div className="mx-auto w-full max-w-[1548px] px-10 pt-10">
+        <StepProgress current={6} />
       </div>
 
-      <main className="flex-1 px-10 py-10">
-        <div className="mx-auto flex w-full max-w-5xl gap-12">
+      <main className="mx-auto w-full max-w-[1548px] flex-1 px-10 pb-16 pt-10">
+        <div className="flex w-full gap-12">
           <div className="flex min-w-0 flex-1 flex-col">
             <div className="relative h-[200px] w-full overflow-hidden rounded-2xl">
               <Image src={validBgImg} alt="celebration" fill className="object-cover" />
@@ -409,30 +402,12 @@ export default function DesktopView() {
         </div>
       </main>
 
-      <div className="sticky bottom-0 border-t border-[#D9E1EF] bg-white px-10 py-5">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <button
-            type="button"
-            onClick={() => setPhase('loading')}
-            className="inline-flex h-10 items-center gap-2 rounded-xl border-2 border-[#D9E1EF] bg-white px-6 text-[14px] font-medium text-[#0F172A] transition-colors hover:bg-[#EFF4FF]"
-          >
-            <ArrowLeft className="h-4 w-4" /> Back
-          </button>
-          <Link
-            href="/onboarding/dashboard-transition"
-            className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#2F66C8] px-8 text-[14px] font-semibold text-white transition-colors hover:bg-[#1B4FCA]"
-          >
-            Enter My Dashboard <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-        <div className="mx-auto mt-3 flex max-w-5xl items-center gap-2 text-[11px] text-[#8C97AD]">
-          <Image src={lightBulbIcon} alt="" width={13} height={13} className="shrink-0 opacity-60" />
-          You can update your preferences anytime.
-        </div>
-        <div className="mx-auto mt-4 max-w-5xl border-t border-[#EEF2F8] pt-4">
-          <OnboardingFooter />
-        </div>
-      </div>
+      <OnboardingNavButtons
+        onBack={() => setPhase('loading')}
+        onContinue={() => router.push('/onboarding/dashboard-transition')}
+        continueLabel="Enter My Dashboard"
+        footer={<Footer phase="success" />}
+      />
     </div>
   );
 }

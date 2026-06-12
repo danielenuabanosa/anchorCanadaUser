@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -8,11 +8,11 @@ import { ArrowLeft, ArrowRight, X, Check } from 'lucide-react';
 
 import { OnboardingNavbar } from '@/features/home/components/OnboardingNavbar';
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
-import { OnboardingFooter } from '@/shared/components/onboarding/OnboardingFooter';
+import { OtpInput } from '@/shared/components/onboarding/OtpInput';
 
 import mail3Icon from '@assets/icons/mail3.png';
 import sendIcon from '@assets/icons/send.png';
-import lightBulbIcon from '@assets/icons/light-bulb.png';
+import { Footer } from './Footer';
 import shield3Icon from '@assets/icons/shield3.png';
 import shieldValidIcon from '@assets/icons/shield-valid.png';
 import editIcon from '@assets/icons/edit.png';
@@ -39,8 +39,6 @@ export default function MobileView() {
   const [showToast, setShowToast] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
 
-  const digitRefs = useRef<(HTMLInputElement | null)[]>([]);
-
   const filledDigits = digits.filter(Boolean).length;
   const canVerify = filledDigits === DIGITS_COUNT;
 
@@ -62,52 +60,6 @@ export default function MobileView() {
     if (!canVerify) return;
     setShowToast(true);
     setTimeout(() => router.push('/onboarding/activation'), 1600);
-  }
-
-  const handleDigitChange = useCallback(
-    (idx: number, val: string) => {
-      const char = val.replace(/\D/g, '').slice(-1);
-      const next = [...digits];
-      next[idx] = char;
-      setDigits(next);
-      if (char && idx < DIGITS_COUNT - 1) {
-        digitRefs.current[idx + 1]?.focus();
-      }
-    },
-    [digits],
-  );
-
-  const handleDigitKeyDown = useCallback(
-    (idx: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Backspace' && !digits[idx] && idx > 0) {
-        digitRefs.current[idx - 1]?.focus();
-      }
-    },
-    [digits],
-  );
-
-  function OtpBoxes() {
-    return (
-      <div className="flex gap-2">
-        {digits.map((d, i) => (
-          <input
-            key={i}
-            ref={(el) => {
-              digitRefs.current[i] = el;
-            }}
-            type="text"
-            inputMode="numeric"
-            maxLength={1}
-            value={d}
-            onChange={(e) => handleDigitChange(i, e.target.value)}
-            onKeyDown={(e) => handleDigitKeyDown(i, e)}
-            className={`h-10 w-9 rounded-xl border-2 bg-white text-center text-[16px] font-bold text-[#0F172A] transition-colors focus:outline-none ${
-              d ? 'border-[#2F66C8] bg-[#EEF3FF]' : 'border-neutral-200 text-neutral-300'
-            }`}
-          />
-        ))}
-      </div>
-    );
   }
 
   function VerificationForm() {
@@ -143,7 +95,7 @@ export default function MobileView() {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleSaveEmail();
                 }}
-                className="w-full rounded-xl border border-neutral-200 bg-neutral-50 py-2.5 pl-9 pr-4 text-[13px] text-[#0F172A] placeholder:text-neutral-400 focus:border-[#2F66C8] focus:outline-none"
+                className="anchor-field anchor-field--icon-left"
               />
             </div>
           </div>
@@ -171,7 +123,7 @@ export default function MobileView() {
 
         <div>
           <p className="mb-3 text-[13px] font-semibold text-[#0F172A]">Enter the 6-digit code</p>
-          <OtpBoxes />
+          <OtpInput digits={digits} onChange={setDigits} />
           <p className="mt-2.5 flex items-center gap-1.5 text-[11px] text-neutral-400">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
               <circle cx="6" cy="6" r="5" stroke="#94A3B8" strokeWidth="1.2" />
@@ -215,7 +167,7 @@ export default function MobileView() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#EFF4FF]">
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
       <OnboardingNavbar />
 
       {showToast && (
@@ -238,13 +190,11 @@ export default function MobileView() {
       </div>
 
       <main className="flex-1 px-5 pb-4 pt-8">
-        <h1 className="text-[27px] font-medium leading-tight text-[#0F172A]">
+        <h1 className="font-instrument-serif text-[28px] font-normal leading-tight text-[#0F172A]">
           Confirm Your
-          <span className="block text-[30px] italic text-[#2F66C8]" style={{ fontFamily: 'var(--font-playfair)' }}>
-            Email
-          </span>
+          <span className="block text-[32px] italic text-[#2F66C8]">Email</span>
         </h1>
-        <p className="mt-2.5 text-[12px] leading-relaxed text-neutral-400">
+        <p className="mt-2.5 text-[12px] leading-relaxed text-[#8C97AD]">
           We&apos;ve sent a secure verification code to your inbox. Enter it below to activate your Anchor experience.
         </p>
 
@@ -322,24 +272,20 @@ export default function MobileView() {
             type="button"
             onClick={handleVerify}
             disabled={!canVerify}
-            className={`flex h-12 w-full items-center justify-center gap-2 rounded-xl text-[15px] font-semibold text-white transition-colors ${
-              canVerify ? 'bg-[#2F66C8] hover:bg-[#1B4FCA]' : 'cursor-not-allowed bg-[#2F66C8]/50'
+            className={`flex h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[15px] font-semibold text-white transition-colors ${
+              canVerify ? 'bg-[#2F66C8] hover:bg-[#2454A4]' : 'cursor-not-allowed bg-[#2F66C8]/40'
             }`}
           >
             Verify &amp; Continue <ArrowRight className="h-4 w-4" />
           </button>
           <Link
             href="/onboarding/account"
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-[#D9E1EF] bg-white text-[15px] font-medium text-[#0F172A]"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white text-[15px] font-medium text-[#2F66C8]"
           >
             <ArrowLeft className="h-4 w-4" /> Back
           </Link>
         </div>
-        <div className="mt-3 flex items-start gap-1.5 text-[11px] text-[#44516A]">
-          <Image src={lightBulbIcon} alt="" width={13} height={13} className="mt-0.5 shrink-0 opacity-60" />
-          You can edit your profile anytime in your account settings.
-        </div>
-        <OnboardingFooter />
+        <Footer variant="mobile" />
       </div>
     </div>
   );

@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import { OnboardingNavbar } from '@/features/home/components/OnboardingNavbar';
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
-import { OnboardingFooter } from '@/shared/components/onboarding/OnboardingFooter';
+import { Footer } from './Footer';
 
 import caseIcon from '@assets/icons/case.png';
 import grantIcon from '@assets/icons/grant-funding.png';
@@ -15,7 +15,6 @@ import loveIcon from '@assets/icons/love.png';
 import graduationIcon from '@assets/icons/graduation-cap.png';
 import heartHandshake from '@assets/icons/heart-handshake.png';
 import start3Icon from '@assets/icons/start3.png';
-import lightBulbIcon from '@assets/icons/light-bulb.png';
 import locationPinIcon from '@assets/icons/location2.png';
 import canadaFlagIcon from '@assets/icons/canada-flag.png';
 import mapBgImg from '@assets/images/map-bg.png';
@@ -111,6 +110,7 @@ function Spinner() {
 }
 
 export default function MobileView() {
+  const router = useRouter();
   const [phase, setPhase] = useState<'loading' | 'welcome'>('loading');
   const [feedStep, setFeedStep] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -160,11 +160,9 @@ export default function MobileView() {
         </div>
 
         <main className="flex-1 px-5 pb-4 pt-8">
-          <h1 className="text-[26px] font-medium leading-tight text-[#0F172A]">
+          <h1 className="font-instrument-serif text-[26px] font-normal leading-tight text-[#0F172A]">
             Personalizing Your
-            <span className="block text-[28px] italic text-[#2F66C8]" style={{ fontFamily: 'var(--font-playfair)' }}>
-              Anchor
-            </span>
+            <span className="block text-[28px] italic text-[#2F66C8]">Anchor</span>
             Experience
           </h1>
           <p className="mt-2 text-[12px] text-[#8C97AD]">
@@ -257,7 +255,7 @@ export default function MobileView() {
         </main>
 
         <div className="border-t border-[#D9E1EF] bg-white px-5 py-4">
-          <OnboardingFooter />
+          <Footer phase="loading" variant="mobile" className="mt-0" />
         </div>
       </div>
     );
@@ -268,7 +266,7 @@ export default function MobileView() {
       <OnboardingNavbar />
 
       <div className="px-5 pb-3 pt-4">
-        <StepProgress current={7} />
+        <StepProgress current={6} />
       </div>
 
       <main className="flex-1 px-5 pb-4 pt-6">
@@ -276,7 +274,7 @@ export default function MobileView() {
           <Image src={validBgImg} alt="celebration" fill className="object-cover" />
         </div>
 
-        <h1 className="mt-5 text-[26px] font-bold text-[#0F172A]">Welcome to Anchor! 🎉</h1>
+        <h1 className="font-instrument-serif text-[26px] font-normal text-[#0F172A]">Welcome to Anchor! 🎉</h1>
         <p className="mt-2 text-[12px] leading-relaxed text-[#8C97AD]">
           Your account is verified, your profile is ready, and your personalized opportunities are waiting.
         </p>
@@ -363,27 +361,22 @@ export default function MobileView() {
 
       <div className="sticky bottom-0 border-t border-[#D9E1EF] bg-white px-5 pb-8 pt-4">
         <div className="flex flex-col gap-3">
-          <Link
-            href="/onboarding/dashboard-transition"
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#2F66C8] text-[15px] font-semibold text-white transition-colors hover:bg-[#1B4FCA]"
+          <button
+            type="button"
+            onClick={() => router.push('/onboarding/dashboard-transition')}
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] bg-[#2F66C8] text-[15px] font-semibold text-white transition-colors hover:bg-[#2454A4]"
           >
             Enter My Dashboard <ArrowRight className="h-4 w-4" />
-          </Link>
+          </button>
           <button
             type="button"
             onClick={() => setPhase('loading')}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-[#D9E1EF] bg-white text-[15px] font-medium text-[#0F172A]"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white text-[15px] font-medium text-[#2F66C8]"
           >
             <ArrowLeft className="h-4 w-4" /> Back
           </button>
         </div>
-        <div className="mt-3 flex items-start gap-1.5 text-[11px] text-[#8C97AD]">
-          <Image src={lightBulbIcon} alt="" width={13} height={13} className="mt-0.5 shrink-0 opacity-60" />
-          You can update your preferences anytime.
-        </div>
-        <div className="mt-4 border-t border-[#EEF2F8] pt-4">
-          <OnboardingFooter />
-        </div>
+        <Footer phase="success" variant="mobile" />
       </div>
     </div>
   );

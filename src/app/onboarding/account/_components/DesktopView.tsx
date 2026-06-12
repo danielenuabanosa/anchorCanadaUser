@@ -4,11 +4,12 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Eye, EyeOff, Check } from 'lucide-react';
+import { Eye, EyeOff, Check } from 'lucide-react';
 
 import { OnboardingNavbar } from '@/features/home/components/OnboardingNavbar';
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
-import { OnboardingFooter } from '@/shared/components/onboarding/OnboardingFooter';
+import { OnboardingNavButtons } from '@/shared/components/onboarding/OnboardingNavButtons';
+import { Footer } from './Footer';
 
 import mailIcon from '@assets/icons/mail.png';
 import lockIcon from '@assets/icons/lock.png';
@@ -17,7 +18,6 @@ import googleIcon from '@assets/icons/google.png';
 import shieldValidIcon from '@assets/icons/shield-valid.png';
 import mail3Icon from '@assets/icons/mail3.png';
 import boxIcon from '@assets/icons/box.png';
-import lightBulbIcon from '@assets/icons/light-bulb.png';
 import locationPinIcon from '@assets/icons/location2.png';
 import canadaFlagIcon from '@assets/icons/canada-flag.png';
 import avatarImg from '@assets/images/w1.png';
@@ -95,26 +95,22 @@ export default function DesktopView() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#EFF4FF]">
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
       <OnboardingNavbar />
 
-      <div className="mt-4 border-b border-[#D9E1EF] bg-white">
-        <div className="mx-auto max-w-5xl px-10 pb-3 pt-4">
-          <StepProgress current={4} />
-        </div>
+      <div className="mx-auto w-full max-w-[1548px] px-10 pt-10">
+        <StepProgress current={4} />
       </div>
 
-      <main className="flex-1 px-10 py-10">
-        <div className="mx-auto flex w-full max-w-5xl gap-12">
+      <main className="mx-auto w-full max-w-[1548px] flex-1 px-10 pb-16 pt-10">
+        <div className="flex w-full gap-12">
           <div className="flex min-w-0 flex-1 flex-col">
             <h1 className="font-instrument-serif text-[46px] font-normal leading-[1.1] text-[#0F172A]">
               Create Your{' '}
-              <span className="italic text-[#2F66C8]" style={{ fontFamily: 'var(--font-playfair)' }}>
-                Anchor
-              </span>
+              <span className="italic text-[#2F66C8]">Anchor</span>
               <span className="block">Account</span>
             </h1>
-            <p className="mt-3 text-[13px] leading-relaxed text-neutral-400">
+            <p className="mt-3 text-[13px] leading-relaxed text-[#8C97AD]">
               Your personalized opportunities are almost ready, secure your account to continue.
             </p>
 
@@ -131,7 +127,7 @@ export default function DesktopView() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your mail"
-                  className="w-full rounded-lg border border-[#D9E1EF] bg-[#F8FAFC] py-2 pl-10 pr-4 text-sm text-[#0F172A] placeholder-[#8C97AD] focus:outline-none focus:border-[#FFFFFF] focus:ring-1 focus:ring-[#FFFFFF]"
+                  className="anchor-field anchor-field--icon-left"
                 />
               </div>
               <p className="mt-1.5 flex items-center gap-1 text-[11px] text-emerald-600">
@@ -156,7 +152,7 @@ export default function DesktopView() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Minimum 8 characters"
-                  className="w-full rounded-lg border border-[#D9E1EF] bg-[#F8FAFC] py-2 pl-10 pr-4 text-sm text-[#0F172A] placeholder-[#8C97AD] focus:outline-none focus:border-[#FFFFFF] focus:ring-1 focus:ring-[#FFFFFF]"
+                  className="anchor-field anchor-field--icon-left anchor-field--icon-right"
                 />
                 <button
                   type="button"
@@ -206,7 +202,7 @@ export default function DesktopView() {
                   value={confirmPwd}
                   onChange={(e) => setConfirmPwd(e.target.value)}
                   placeholder="Re-enter your password"
-                  className="w-full rounded-lg border border-[#D9E1EF] bg-[#F8FAFC] py-2 pl-10 pr-4 text-sm text-[#0F172A] placeholder-[#8C97AD] focus:outline-none focus:border-[#FFFFFF] focus:ring-1 focus:ring-[#FFFFFF]"
+                  className="anchor-field anchor-field--icon-left anchor-field--icon-right"
                 />
                 <button
                   type="button"
@@ -340,33 +336,13 @@ export default function DesktopView() {
         </div>
       </main>
 
-      <div className="sticky bottom-0 border-t border-[#D9E1EF] bg-white px-10 py-5">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <Link
-            href="/onboarding/profile"
-            className="inline-flex h-10 items-center gap-2 rounded-xl border-2 border-[#D9E1EF] bg-white px-6 text-[14px] font-medium text-[#0F172A] transition-colors hover:bg-[#EFF4FF]"
-          >
-            <ArrowLeft className="h-4 w-4" /> Back
-          </Link>
-          <button
-            type="button"
-            onClick={handleContinue}
-            disabled={!canContinue}
-            className={`inline-flex h-10 items-center gap-2 rounded-xl px-8 text-[14px] font-semibold text-white transition-colors ${
-              canContinue ? 'cursor-pointer bg-[#2F66C8] hover:bg-[#1B4FCA]' : 'cursor-not-allowed bg-[#2F66C8]/40'
-            }`}
-          >
-            Create an Account <ArrowRight className="h-4 w-4" />
-          </button>
-        </div>
-        <div className="mx-auto max-w-5xl border-t border-[#EEF2F8] px-0 pt-4">
-          <div className="flex items-center gap-2 text-[12px] text-[#44516A]">
-            <Image src={lightBulbIcon} alt="" width={16} height={16} className="shrink-0 object-contain" />
-            You can edit your profile anytime in your account settings.
-          </div>
-          <OnboardingFooter />
-        </div>
-      </div>
+      <OnboardingNavButtons
+        backHref="/onboarding/profile"
+        onContinue={handleContinue}
+        continueDisabled={!canContinue}
+        continueLabel="Create an Account"
+        footer={<Footer />}
+      />
     </div>
   );
 }

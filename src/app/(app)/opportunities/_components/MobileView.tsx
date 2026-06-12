@@ -289,7 +289,7 @@ export default function OpportunitiesMobileView() {
               {/* Category */}
               <div>
                 <label className="block text-xs font-semibold text-[#44516A] mb-1.5">Category</label>
-                <select className="w-full appearance-none rounded-lg border border-[#D9E1EF] bg-[#F8FAFC] px-3 py-2.5 text-sm text-[#0F172A] focus:outline-none focus:border-[#2f66c8]">
+                <select className="anchor-select">
                   <option>All Categories</option>
                   <option>Jobs</option>
                   <option>Grants</option>
@@ -304,7 +304,7 @@ export default function OpportunitiesMobileView() {
                 <label className="block text-xs font-semibold text-[#44516A] mb-1.5">Location</label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8C97AD]" />
-                  <select className="w-full appearance-none rounded-lg border border-[#D9E1EF] bg-[#F8FAFC] py-2.5 pl-9 pr-8 text-sm text-[#0F172A] focus:outline-none focus:border-[#2f66c8]">
+                  <select className="anchor-select anchor-field--icon-left">
                     <option>Ontario, Canada</option>
                     <option>British Columbia</option>
                     <option>Alberta</option>

@@ -60,19 +60,19 @@ export default function ResetPasswordMobileView() {
               <span className="font-semibold text-[#0f172a]">New Password</span>
               <span className="text-[#ef4444]">*</span>
             </div>
-            <div className="bg-white border border-[#d9e1ef] rounded-[10px] flex items-center justify-between p-4 w-full">
-              <div className="flex gap-2.5 items-center flex-1 min-w-0">
-                <Image src={lockIcon} alt="" width={16} height={16} className="shrink-0 opacity-60" />
-                <input
-                  type={showNew ? 'text' : 'password'}
-                  value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)}
-                  placeholder="Minimum 8 characters"
-                  className="flex-1 min-w-0 text-sm text-[#0f172a] placeholder:text-[#8c97ad] bg-transparent outline-none"
-                  autoComplete="new-password"
-                />
-              </div>
-              <button type="button" onClick={() => setShowNew(v => !v)} className="text-[#8c97ad] shrink-0">
+            <div className="relative">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                <Image src={lockIcon} alt="" width={16} height={16} className="opacity-60" />
+              </span>
+              <input
+                type={showNew ? 'text' : 'password'}
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                placeholder="Minimum 8 characters"
+                className="anchor-field anchor-field--icon-left anchor-field--icon-right"
+                autoComplete="new-password"
+              />
+              <button type="button" onClick={() => setShowNew(v => !v)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8c97ad]">
                 {showNew ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               </button>
             </div>
@@ -107,19 +107,19 @@ export default function ResetPasswordMobileView() {
               <span className="font-semibold text-[#0f172a]">Confirm Password</span>
               <span className="text-[#ef4444]">*</span>
             </div>
-            <div className={`bg-white border rounded-[10px] flex items-center justify-between p-4 w-full ${confirmPassword && !passwordsMatch ? 'border-[#ef4444]' : 'border-[#d9e1ef]'}`}>
-              <div className="flex gap-2.5 items-center flex-1 min-w-0">
-                <Image src={lockIcon} alt="" width={16} height={16} className="shrink-0 opacity-60" />
-                <input
-                  type={showConfirm ? 'text' : 'password'}
-                  value={confirmPassword}
-                  onChange={e => setConfirmPassword(e.target.value)}
-                  placeholder="Re-enter your password"
-                  className="flex-1 min-w-0 text-sm text-[#0f172a] placeholder:text-[#8c97ad] bg-transparent outline-none"
-                  autoComplete="new-password"
-                />
-              </div>
-              <button type="button" onClick={() => setShowConfirm(v => !v)} className="text-[#8c97ad] shrink-0">
+            <div className="relative">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                <Image src={lockIcon} alt="" width={16} height={16} className="opacity-60" />
+              </span>
+              <input
+                type={showConfirm ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                placeholder="Re-enter your password"
+                className={`anchor-field anchor-field--icon-left anchor-field--icon-right${confirmPassword && !passwordsMatch ? ' anchor-field--error' : ''}`}
+                autoComplete="new-password"
+              />
+              <button type="button" onClick={() => setShowConfirm(v => !v)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8c97ad]">
                 {showConfirm ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               </button>
             </div>

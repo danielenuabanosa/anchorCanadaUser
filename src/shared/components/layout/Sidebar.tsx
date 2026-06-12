@@ -10,7 +10,7 @@ import {
   FileText,
   Bookmark,
   Bell,
-  Save,
+  Settings,
   ChevronLeft,
   ChevronRight,
   LogOut,
@@ -20,17 +20,16 @@ import { useUIStore } from '@/store/uiStore';
 import { useAuthStore } from '@/store/authStore';
 import { Avatar } from '@/shared/components/ui/Avatar';
 import anchorLogo from '@assets/icons/anchor-logo.png';
-import logo from '@assets/icons/logo.png';
-import sidebar_bg from '@assets/images/sidebar_bg.png';
+import w1 from '@assets/images/w1.png';
 
 const NAV_ITEMS = [
   { label: 'Home',                href: '/dashboard',     icon: Home },
-  // { label: 'Explore',             href: '/opportunities', icon: Compass },
+  { label: 'Explore',             href: '/opportunities', icon: Compass },
   { label: 'Providers',           href: '/categories',    icon: Building2 },
   { label: 'My Applications',     href: '/applications',  icon: FileText },
   { label: 'Saved Opportunities', href: '/saved',         icon: Bookmark },
   { label: 'Notifications',       href: '/notifications', icon: Bell, badge: 3 },
-  { label: 'Saved Applications',   href: '/saved-applications',      icon: Save },
+  { label: 'Settings',            href: '/settings',      icon: Settings },
 ] as const;
 
 export function Sidebar() {
@@ -66,7 +65,7 @@ export function Sidebar() {
         >
           <Link href="/dashboard" aria-label="Anchor Canada home">
             <Image
-              src={sidebarCollapsed ? logo : anchorLogo} 
+              src={anchorLogo}
               alt="Anchor Canada"
               height={36}
               priority
@@ -74,7 +73,6 @@ export function Sidebar() {
             />
           </Link>
         </div>
-
 
         {/* Nav items */}
         <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4" aria-label="Primary">
@@ -87,10 +85,10 @@ export function Sidebar() {
                 href={href}
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
-                  'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors',
+                  'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
                   isActive
                     ? 'bg-[#2f66c8] text-white'
-                    : 'text-neutral-400 hover:bg-[#2F66C8] hover:text-white',
+                    : 'text-neutral-400 hover:bg-white/8 hover:text-white',
                   sidebarCollapsed && 'justify-center px-2'
                 )}
                 title={sidebarCollapsed ? label : undefined}
@@ -98,7 +96,7 @@ export function Sidebar() {
                 <span className="relative shrink-0">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                   {badge && (
-                    <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-sm bg-red-500 text-[9px] font-bold text-white">
+                    <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white">
                       {badge}
                     </span>
                   )}
@@ -120,7 +118,7 @@ export function Sidebar() {
             <div className="relative flex flex-col p-4">
               <div className="mb-2 h-16 w-full overflow-hidden rounded-xl">
                 <Image
-                  src={sidebar_bg}
+                  src={w1}
                   alt=""
                   className="h-full w-full object-cover"
                   aria-hidden="true"
@@ -177,7 +175,7 @@ export function Sidebar() {
         {/* Collapse toggle (desktop only) */}
         <button
           onClick={toggleSidebar}
-          className="absolute -right-3 top-5 hidden h-6 w-6 items-center justify-center rounded-full border border-neutral-200 bg-white shadow-sm text-neutral-500 hover:text-neutral-700 md:flex"
+          className="absolute -right-3 top-20 hidden h-6 w-6 items-center justify-center rounded-full border border-neutral-200 bg-white shadow-sm text-neutral-500 hover:text-neutral-700 md:flex"
           aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {sidebarCollapsed ? (

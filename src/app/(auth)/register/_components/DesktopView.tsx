@@ -22,7 +22,7 @@ import flashIcon       from '@/../assets/icons/flash.png';
 import cardBg          from '@/../assets/images/lp2.png';
 import avatarImg       from '@/../assets/images/image3.png';
 
-/* ─ Role options ── ─ */
+/* - Role options -- - */
 
 const ROLES = [
   {
@@ -50,7 +50,7 @@ const ROLES = [
 
 type Role = 'individual' | 'business' | 'expert';
 
-/* ─ Password strength  ─ */
+/* - Password strength  - */
 
 function getStrength(pwd: string): { score: number; label: string; color: string } {
   let score = 0;
@@ -68,7 +68,7 @@ function getStrength(pwd: string): { score: number; label: string; color: string
   return { score, ...map[score] };
 }
 
-/* ─ Component ── ─ */
+/* - Component -- - */
 
 export default function RegisterDesktop() {
   const [step, setStep]             = useState<1 | 2>(1);
@@ -113,7 +113,7 @@ export default function RegisterDesktop() {
 
   return (
     <div className="w-full max-w-[1548px] mx-auto flex gap-10 items-start">
-      {/* ── Left column ── */}
+      {/* -- Left column -- */}
       <div className="flex flex-col gap-8 w-full max-w-[860px]">
 
         {/* Heading */}
@@ -142,7 +142,7 @@ export default function RegisterDesktop() {
           ))}
         </div>
 
-        {/* ── STEP 1 ── */}
+        {/* -- STEP 1 -- */}
         {step === 1 && (
           <form onSubmit={handleStep1} className="flex flex-col gap-5">
             {/* Name row */}
@@ -162,7 +162,7 @@ export default function RegisterDesktop() {
                       onChange={e => set(e.target.value)}
                       placeholder={ph}
                       required
-                      className="anchor-field pl-11"
+                      className="anchor-field anchor-field--icon-left"
                     />
                   </div>
                 </div>
@@ -182,7 +182,7 @@ export default function RegisterDesktop() {
                   onChange={e => setEmail(e.target.value)}
                   placeholder="Enter your email address"
                   required
-                  className="anchor-field pl-11 pr-11"
+                  className="anchor-field anchor-field--icon-left anchor-field--icon-right"
                   autoComplete="email"
                 />
                 {emailValid && (
@@ -227,7 +227,7 @@ export default function RegisterDesktop() {
           </form>
         )}
 
-        {/* ── STEP 2 ── */}
+        {/* -- STEP 2 -- */}
         {step === 2 && (
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
@@ -278,7 +278,7 @@ export default function RegisterDesktop() {
                   onChange={e => setPassword(e.target.value)}
                   placeholder="Create a password"
                   required
-                  className="anchor-field pl-11 pr-11"
+                  className="anchor-field anchor-field--icon-left anchor-field--icon-right"
                   autoComplete="new-password"
                 />
                 <button
@@ -334,7 +334,7 @@ export default function RegisterDesktop() {
                   onChange={e => setConfirmPwd(e.target.value)}
                   placeholder="Re-enter your password"
                   required
-                  className={`anchor-field pl-11 pr-11 ${
+                  className={`anchor-field anchor-field--icon-left anchor-field--icon-right ${
                     confirmPwd && !pwdMatch ? 'border-red-400 focus:border-red-400 focus:ring-red-200' : ''
                   }`}
                   autoComplete="new-password"
@@ -434,7 +434,7 @@ export default function RegisterDesktop() {
         </div>
       </div>
 
-      {/* ── Right column: preview card ── */}
+      {/* -- Right column: preview card -- */}
       <div className="flex-1 hidden xl:block">
         <div className="relative rounded-3xl overflow-hidden shadow-xl">
           <div className="relative w-full h-[540px]">

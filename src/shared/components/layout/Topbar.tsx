@@ -40,9 +40,9 @@ export function Topbar() {
       </Button>
 
       {/* Page title */}
-      <h1 className="flex-1 text-base font-semibold text-neutral-900">
+      {/* <h1 className="flex-1 text-base font-semibold text-neutral-900">
         {getTitle(pathname)}
-      </h1>
+      </h1> */}
 
       {/* Search shortcut */}
       <Link

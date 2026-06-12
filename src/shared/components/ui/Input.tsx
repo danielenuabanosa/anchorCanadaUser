@@ -2,6 +2,11 @@
 
 import { forwardRef, type InputHTMLAttributes, useId } from 'react';
 import { cn } from '@/lib/utils';
+import {
+  ANCHOR_FIELD,
+  ANCHOR_LABEL,
+  ANCHOR_LABEL_REQUIRED,
+} from '@/shared/styles/fieldStyles';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -21,17 +26,17 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="flex w-full flex-col gap-1.5">
         {label && (
-          <label htmlFor={inputId} className="text-sm font-medium text-neutral-700">
+          <label htmlFor={inputId} className={ANCHOR_LABEL}>
             {label}
             {props.required && (
-              <span className="ml-1 text-error-500" aria-hidden="true">*</span>
+              <span className={`ml-1 ${ANCHOR_LABEL_REQUIRED}`} aria-hidden="true">*</span>
             )}
           </label>
         )}
 
         <div className="relative flex items-center">
           {leftIcon && (
-            <span className="pointer-events-none absolute left-4 text-neutral-400">
+            <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8C97AD]">
               {leftIcon}
             </span>
           )}
@@ -41,16 +46,16 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             aria-describedby={error ? errorId : helperText ? helperId : undefined}
             aria-invalid={!!error}
             className={cn(
-              'anchor-field',
-              error && 'border-error-500 focus:border-error-500',
-              leftIcon && 'pl-11',
-              rightIcon && 'pr-11',
+              ANCHOR_FIELD,
+              error && 'anchor-field--error',
+              leftIcon && 'anchor-field--icon-left',
+              rightIcon && 'anchor-field--icon-right',
               className
             )}
             {...props}
           />
           {rightIcon && (
-            <span className="pointer-events-none absolute right-4 text-neutral-400">
+            <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8C97AD]">
               {rightIcon}
             </span>
           )}

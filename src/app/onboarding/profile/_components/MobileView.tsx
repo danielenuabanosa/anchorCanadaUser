@@ -8,13 +8,12 @@ import { ArrowLeft, ArrowRight, Pencil } from 'lucide-react';
 
 import { OnboardingNavbar } from '@/features/home/components/OnboardingNavbar';
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
-import { OnboardingFooter } from '@/shared/components/onboarding/OnboardingFooter';
 
 import cameraIcon from '@assets/icons/camera.png';
 import locationPinIcon from '@assets/icons/location2.png';
 import canadaFlagIcon from '@assets/icons/canada-flag.png';
-import lightBulbIcon from '@assets/icons/light-bulb.png';
 import questionIcon from '@assets/icons/question-mark.png';
+import { Footer } from './Footer';
 import cityBannerImg from '@assets/images/w1.png';
 import avatarImg from '@assets/images/w1.png';
 
@@ -159,7 +158,7 @@ export default function MobileView() {
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 placeholder="Enter your first name"
-                className="mt-1.5 w-full rounded-xl border border-[#D9E1EF] bg-white px-3.5 py-2.5 text-[13px] placeholder:text-[#8C97AD] focus:border-[#2F66C8] focus:outline-none focus:ring-1 focus:ring-[#2F66C8]/30"
+                className="mt-1.5 anchor-field"
               />
             </div>
             <div>
@@ -171,7 +170,7 @@ export default function MobileView() {
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 placeholder="Enter your last name"
-                className="mt-1.5 w-full rounded-xl border border-[#D9E1EF] bg-white px-3.5 py-2.5 text-[13px] placeholder:text-[#8C97AD] focus:border-[#2F66C8] focus:outline-none focus:ring-1 focus:ring-[#2F66C8]/30"
+                className="mt-1.5 anchor-field"
               />
             </div>
             <div>
@@ -184,7 +183,7 @@ export default function MobileView() {
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="How should people know you?"
-                className="mt-1.5 w-full rounded-xl border border-[#D9E1EF] bg-white px-3.5 py-2.5 text-[13px] placeholder:text-[#8C97AD] focus:border-[#2F66C8] focus:outline-none focus:ring-1 focus:ring-[#2F66C8]/30"
+                className="mt-1.5 anchor-field"
               />
               <p className="mt-1 text-[11px] text-[#8C97AD]">This is how your profile will appear.</p>
             </div>
@@ -243,7 +242,7 @@ export default function MobileView() {
               onChange={(e) => { if (e.target.value.length <= 80) setBio(e.target.value); }}
               placeholder="Example: Passionate about building a career in Canada."
               rows={3}
-              className="w-full resize-none rounded-xl border border-[#D9E1EF] bg-white px-3.5 py-3 text-[13px] placeholder:text-[#8C97AD] focus:border-[#2F66C8] focus:outline-none focus:ring-1 focus:ring-[#2F66C8]/30"
+              className="anchor-textarea mt-1.5"
             />
             <span className="absolute bottom-3 right-3 text-[11px] text-[#8C97AD]">{bio.length} / 80</span>
           </div>
@@ -293,24 +292,20 @@ export default function MobileView() {
             type="button"
             onClick={handleContinue}
             disabled={!canContinue}
-            className={`flex h-12 w-full items-center justify-center gap-2 rounded-xl text-[15px] font-semibold text-white transition-colors ${
-              canContinue ? 'bg-[#2F66C8] hover:bg-[#1B4FCA]' : 'bg-[#2F66C8]/50 cursor-not-allowed'
+            className={`flex h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[15px] font-semibold text-white transition-colors ${
+              canContinue ? 'bg-[#2F66C8] hover:bg-[#2454A4]' : 'cursor-not-allowed bg-[#2F66C8]/40'
             }`}
           >
             Continue <ArrowRight className="h-4 w-4" />
           </button>
           <Link
             href="/onboarding/location"
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-[#D9E1EF] bg-white text-[15px] font-medium text-[#0F172A] transition-colors hover:bg-[#EFF4FF]"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white text-[15px] font-medium text-[#2F66C8]"
           >
             <ArrowLeft className="h-4 w-4" /> Back
           </Link>
         </div>
-        <div className="mt-4 flex items-start gap-2 text-[11px] text-[#44516A]">
-          <Image src={lightBulbIcon} alt="" width={15} height={15} className="mt-0.5 shrink-0" />
-          You can edit your profile anytime in your account settings.
-        </div>
-        <OnboardingFooter />
+        <Footer variant="mobile" />
       </div>
     </div>
   );

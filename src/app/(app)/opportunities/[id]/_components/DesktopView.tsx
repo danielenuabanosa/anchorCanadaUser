@@ -9,10 +9,10 @@ import {
   ChevronRight, X, Mail, Link2,
 } from 'lucide-react';
 
-/* ─ Types  ─ */
+/* - Types  - */
 type Tab = 'overview' | 'requirements' | 'benefits' | 'organization' | 'faqs';
 
-/* ─ Mock opportunity  ─ */
+/* - Mock opportunity  - */
 const OPP = {
   id: '1',
   matchPct: 94,
@@ -69,7 +69,7 @@ const OPP = {
   ],
 };
 
-/* ─ Component  ─ */
+/* - Component  - */
 export default function OpportunityDesktop() {
   const params = useParams<{ id: string }>();
   const [activeTab, setActiveTab]     = useState<Tab>('overview');
@@ -225,7 +225,7 @@ export default function OpportunityDesktop() {
         </div>
 
         <div className="p-6">
-          {/* ── OVERVIEW ── */}
+          {/* -- OVERVIEW -- */}
           {activeTab === 'overview' && (
             <div className="grid grid-cols-5 gap-8">
               {/* Left: content */}
@@ -315,7 +315,7 @@ export default function OpportunityDesktop() {
             </div>
           )}
 
-          {/* ── REQUIREMENTS ── */}
+          {/* -- REQUIREMENTS -- */}
           {activeTab === 'requirements' && (
             <div className="max-w-2xl flex flex-col gap-4">
               <p className="text-sm text-[#44516A]">Please ensure you have the following ready before applying:</p>
@@ -341,7 +341,7 @@ export default function OpportunityDesktop() {
             </div>
           )}
 
-          {/* ── BENEFITS ── */}
+          {/* -- BENEFITS -- */}
           {activeTab === 'benefits' && (
             <div className="max-w-2xl flex flex-col gap-3">
               {opp.benefits.map(b => (
@@ -353,7 +353,7 @@ export default function OpportunityDesktop() {
             </div>
           )}
 
-          {/* ── ORGANIZATION ── */}
+          {/* -- ORGANIZATION -- */}
           {activeTab === 'organization' && (
             <div className="max-w-2xl flex flex-col gap-4">
               <div className="flex items-center gap-4 p-4 rounded-xl border border-[#EEF2F8]">
@@ -371,7 +371,7 @@ export default function OpportunityDesktop() {
             </div>
           )}
 
-          {/* ── FAQs ── */}
+          {/* -- FAQs -- */}
           {activeTab === 'faqs' && (
             <div className="max-w-2xl flex flex-col gap-3">
               {[

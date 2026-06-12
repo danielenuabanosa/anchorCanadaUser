@@ -6,7 +6,7 @@ import buildImg   from '@assets/images/build.png';
 import compassImg from '@assets/images/compass.png';
 import shieldIcon from '@assets/icons/shield-check.png';
 
-/* ─ Card data ──────────────── */
+/* - Card data ---------------- */
 const CARDS = [
   {
     title:  'Find Opportunities',
@@ -41,13 +41,13 @@ const CARDS = [
   },
 ] as const;
 
-/* ─ Component ──────────────── */
+/* - Component ---------------- */
 export function GetStartedSection() {
   return (
     <section className="bg-white px-4 py-16 sm:px-6 lg:px-10 lg:py-24">
       <div className="mx-auto max-w-6xl">
 
-        {/* ── Header ──────────── */}
+        {/* -- Header ------------ */}
         <div className="mb-12 text-center">
           <h2 className="text-[26px] font-medium leading-snug text-[#0F172A] lg:text-[32px]">
             How Would You Like To
@@ -66,7 +66,7 @@ export function GetStartedSection() {
           </p>
         </div>
 
-        {/* ── Cards grid ──────────── */}
+        {/* -- Cards grid ------------ */}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-6">
           {CARDS.map(({ title, body, cta, href, image, imgAlt, imgClass, imgWrapClass }) => (
             <div
@@ -109,7 +109,7 @@ export function GetStartedSection() {
           ))}
         </div>
 
-        {/* ── Footer trust strip ──────── */}
+        {/* -- Footer trust strip -------- */}
         <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-neutral-100 pt-6 sm:flex-row">
           <div className="flex items-center gap-2 text-[12px] text-neutral-400 lg:text-[13px]">
             <Image

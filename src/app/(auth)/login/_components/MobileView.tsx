@@ -107,18 +107,20 @@ export default function LoginMobileView() {
                 <span className="font-semibold text-[#0f172a]">Email Address</span>
                 <span className="text-[#ef4444]">*</span>
               </div>
-              <div className="bg-white border border-[#d9e1ef] rounded-[10px] flex items-center gap-2.5 p-4 w-full">
-                <Image src={mailIcon} alt="" width={16} height={16} className="shrink-0 opacity-60" />
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <Image src={mailIcon} alt="" width={16} height={16} className="opacity-60" />
+                </span>
                 <input
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder="Enter your mail"
-                  className="flex-1 min-w-0 text-sm text-[#0f172a] placeholder:text-[#8c97ad] bg-transparent outline-none"
+                  className={`anchor-field anchor-field--icon-left${emailValid ? ' anchor-field--icon-right' : ''}`}
                   autoComplete="email"
                 />
                 {emailValid && (
-                  <div className="shrink-0 bg-[#15803d] rounded-[9px] p-1 flex items-center justify-center">
+                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none shrink-0 bg-[#15803d] rounded-[9px] p-1 flex items-center justify-center">
                     <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 12 12" fill="none">
                       <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
@@ -133,20 +135,20 @@ export default function LoginMobileView() {
                 <span className="font-semibold text-[#0f172a]">Password</span>
                 <span className="text-[#ef4444]">*</span>
               </div>
-              <div className="bg-white border border-[#d9e1ef] rounded-[10px] flex items-center justify-between p-4 w-full">
-                <div className="flex gap-2.5 items-center flex-1 min-w-0">
-                  <Image src={lockIcon} alt="" width={16} height={16} className="shrink-0 opacity-60" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Minimum 8 characters"
-                    className="flex-1 min-w-0 text-sm text-[#0f172a] placeholder:text-[#8c97ad] bg-transparent outline-none"
-                    autoComplete="current-password"
-                  />
-                </div>
-                <button type="button" onClick={() => setShowPassword(v => !v)} className="text-[#8c97ad] shrink-0">
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <Image src={lockIcon} alt="" width={16} height={16} className="opacity-60" />
+                </span>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Minimum 8 characters"
+                  className="anchor-field anchor-field--icon-left anchor-field--icon-right"
+                  autoComplete="current-password"
+                />
+                <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8c97ad]">
                   {showPassword ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                 </button>
               </div>

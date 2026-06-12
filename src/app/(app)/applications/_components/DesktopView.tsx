@@ -8,7 +8,7 @@ import {
   Paperclip, Image as ImageIcon,
 } from 'lucide-react';
 
-/* ─ Types ─ ─ */
+/* - Types - - */
 
 type AppStatus =
   | 'Under Review'
@@ -77,7 +77,7 @@ interface Application {
   withdrawalReason?: string;
 }
 
-/* ─ Mock data  ─ */
+/* - Mock data  - */
 
 const APPS: Application[] = [
   {
@@ -285,7 +285,7 @@ const APPS: Application[] = [
   },
 ];
 
-/* ─ Constants ── ─ */
+/* - Constants -- - */
 
 const FILTER_TABS: { key: FilterTab; label: string }[] = [
   { key: 'All', label: 'All' },
@@ -322,7 +322,7 @@ const NEXT_STEPS: Partial<Record<AppStatus, string>> = {
   'Interview':    'Your interview is scheduled. Prepare by reviewing the company mission, values, and the role requirements.',
 };
 
-/* ─ Helper  ─ */
+/* - Helper  - */
 
 function filterApps(apps: Application[], tab: FilterTab, search: string): Application[] {
   let list = apps;
@@ -341,7 +341,7 @@ function filterApps(apps: Application[], tab: FilterTab, search: string): Applic
   return list;
 }
 
-/* ─ Progress Timeline  ─ */
+/* - Progress Timeline  - */
 
 function ProgressTimeline({ steps }: { steps: ProgressStep[] }) {
   return (
@@ -382,7 +382,7 @@ function ProgressTimeline({ steps }: { steps: ProgressStep[] }) {
   );
 }
 
-/* ─ Application Card (left panel) ───────────── */
+/* - Application Card (left panel) ------------- */
 
 function AppCard({
   app, selected, onClick,
@@ -448,7 +448,7 @@ function AppCard({
   );
 }
 
-/* ─ Detail: Overview Tab ───────────────── */
+/* - Detail: Overview Tab ----------------- */
 
 function OverviewTab({ app }: { app: Application }) {
   if (app.status === 'Accepted' && app.offerDetails) {
@@ -569,7 +569,7 @@ function OverviewTab({ app }: { app: Application }) {
   );
 }
 
-/* ─ Detail: Documents Tab ──────────────── */
+/* - Detail: Documents Tab ---------------- */
 
 function DocumentsTab({ app }: { app: Application }) {
   return (
@@ -611,7 +611,7 @@ function DocumentsTab({ app }: { app: Application }) {
   );
 }
 
-/* ─ Detail: Timeline Tab ───────────────── */
+/* - Detail: Timeline Tab ----------------- */
 
 type TimelineIconConfig = {
   icon: React.ComponentType<{ className?: string }>;
@@ -657,7 +657,7 @@ function TimelineTab({ app }: { app: Application }) {
   );
 }
 
-/* ─ Detail: Messages Tab ───────────────── */
+/* - Detail: Messages Tab ----------------- */
 
 function MessagesTab({ app }: { app: Application }) {
   const [draft, setDraft] = useState('');
@@ -705,7 +705,7 @@ function MessagesTab({ app }: { app: Application }) {
           value={draft}
           onChange={e => setDraft(e.target.value)}
           placeholder="Type a message..."
-          className="flex-1 px-3.5 py-2.5 rounded-xl border border-[#D9E1EF] text-sm text-[#0F172A] placeholder:text-[#8C97AD] focus:outline-none focus:border-[#2F66C8] focus:ring-2 focus:ring-[#2F66C8]/10 bg-white"
+          className="flex-1 anchor-field"
         />
         <button
           onClick={() => setDraft('')}
@@ -719,7 +719,7 @@ function MessagesTab({ app }: { app: Application }) {
   );
 }
 
-/* ─ Detail Panel (right) ───────────────── */
+/* - Detail Panel (right) ----------------- */
 
 function DetailPanel({ app, activeTab, setActiveTab }: {
   app: Application;
@@ -808,7 +808,7 @@ function DetailPanel({ app, activeTab, setActiveTab }: {
   );
 }
 
-/* ─ Empty state ── ─ */
+/* - Empty state -- - */
 
 function EmptyDetail() {
   return (
@@ -826,7 +826,7 @@ function EmptyDetail() {
   );
 }
 
-/* ─ Main Desktop View  ─ */
+/* - Main Desktop View  - */
 
 export default function DesktopView() {
   const [filterTab, setFilterTab] = useState<FilterTab>('All');
@@ -884,7 +884,7 @@ export default function DesktopView() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search applications..."
-              className="w-full pl-9 pr-9 py-2.5 rounded-xl border border-[#D9E1EF] text-sm text-[#0F172A] placeholder:text-[#8C97AD] focus:outline-none focus:border-[#2F66C8] focus:ring-2 focus:ring-[#2F66C8]/10 bg-[#F8FAFC]"
+              className="anchor-field anchor-field--icon-left anchor-field--icon-right"
             />
             {search && (
               <button

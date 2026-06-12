@@ -263,7 +263,7 @@ function ReportModal({ onClose }: { onClose: () => void }) {
               onChange={(e) => setMessage(e.target.value)}
               maxLength={80}
               placeholder="Enter your message here..."
-              className="w-full border border-[#d9e1ef] rounded-[6px] p-3 text-sm text-[#0f172a] placeholder-[#8c97ad] resize-none h-24 focus:outline-none focus:border-[#2f66c8]"
+              className="anchor-textarea h-24"
             />
             <span className="absolute bottom-2 right-3 text-[#8c97ad] text-xs">{message.length} / 80</span>
           </div>
@@ -320,13 +320,13 @@ export default function DesktopView() {
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="flex-1 flex items-center gap-2 border border-[#d9e1ef] rounded-[8px] px-4 py-2.5 bg-white">
-          <Search size={16} className="text-[#8c97ad]" />
+        <div className="relative flex-1">
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8c97ad]" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search jobs, grants, support..."
-            className="flex-1 text-sm text-[#0f172a] placeholder-[#8c97ad] outline-none bg-transparent"
+            className="anchor-field anchor-field--icon-left"
           />
         </div>
         <div className="flex items-center gap-3">

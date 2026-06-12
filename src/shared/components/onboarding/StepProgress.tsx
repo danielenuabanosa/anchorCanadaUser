@@ -13,21 +13,21 @@ const STEPS = [
 
 export function StepProgress({ current }: { current: number }) {
   return (
-    <div className="flex items-center gap-2 w-full">
+    <div className="flex w-full items-end gap-2.5">
       {STEPS.map((label, i) => (
-        <div key={i} className="flex flex-col items-center gap-1 flex-1">
-          <div
-            className={`h-[3px] w-full rounded-full ${
-              i <= current ? 'bg-[#2F66C8]' : 'bg-[#D9E1EF]'
-            }`}
-          />
+        <div key={i} className="flex flex-1 flex-col items-center gap-2.5">
           <span
-            className={`text-[9px] font-semibold tracking-widest hidden md:block ${
-              i <= current ? 'text-[#2F66C8]' : 'text-[#8C97AD]'
+            className={`hidden text-center text-[14px] font-medium leading-100% md:block ${
+              i === current ? 'text-[#2F66C8]' : 'text-[#8C97AD]'
             }`}
           >
             {label}
           </span>
+          <div
+            className={`h-2.5 w-full rounded-[2px] ${
+              i <= current ? 'bg-[#2F66C8]' : 'bg-[#D9E1EF]'
+            }`}
+          />
         </div>
       ))}
     </div>

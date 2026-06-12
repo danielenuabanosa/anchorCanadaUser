@@ -8,7 +8,7 @@ export const apiClient = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-/* ── Request interceptor: attach Bearer token ── */
+/* -- Request interceptor: attach Bearer token -- */
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   if (typeof window !== 'undefined') {
     const raw = localStorage.getItem('anchor_auth');
@@ -26,7 +26,7 @@ apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config;
 });
 
-/* ── Response interceptor: global error handling ── */
+/* -- Response interceptor: global error handling -- */
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {

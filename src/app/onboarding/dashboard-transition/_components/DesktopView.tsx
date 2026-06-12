@@ -44,13 +44,11 @@ export default function DashboardTransitionDesktop() {
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
       <OnboardingNavbar />
 
-      <div className="border-b border-[#D9E1EF] bg-white">
-        <div className="mx-auto max-w-5xl px-10 pb-3 pt-4">
-          <StepProgress current={7} />
-        </div>
+      <div className="mx-auto w-full max-w-[1548px] px-10 pt-10">
+        <StepProgress current={7} />
       </div>
 
-      <main className="flex flex-1 flex-col items-center justify-center px-10 py-16">
+      <main className="mx-auto flex w-full max-w-[1548px] flex-1 flex-col items-center justify-center px-10 py-16">
         <div className="w-full max-w-lg text-center">
           <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-[#EFF4FF]">
             <Image src={anchorLogo} alt="Anchor Canada" width={56} height={56} className="object-contain" />
@@ -104,7 +102,7 @@ export default function DashboardTransitionDesktop() {
 
           <Link
             href="/dashboard"
-            className="mt-8 inline-flex items-center justify-center rounded-xl bg-[#2F66C8] px-8 py-3 text-sm font-semibold text-white hover:bg-[#2454A4] transition-colors"
+            className="mt-8 inline-flex items-center justify-center rounded-[6px] bg-[#2F66C8] px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2454A4]"
           >
             Go to Dashboard
           </Link>

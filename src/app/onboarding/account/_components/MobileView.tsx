@@ -8,7 +8,7 @@ import { ArrowLeft, ArrowRight, Eye, EyeOff, Check } from 'lucide-react';
 
 import { OnboardingNavbar } from '@/features/home/components/OnboardingNavbar';
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
-import { OnboardingFooter } from '@/shared/components/onboarding/OnboardingFooter';
+import { Footer } from './Footer';
 
 import mailIcon from '@assets/icons/mail.png';
 import lockIcon from '@assets/icons/lock.png';
@@ -52,7 +52,7 @@ export default function MobileView() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#EFF4FF]">
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
       <OnboardingNavbar />
 
       <div className="px-5 pb-3 pt-4">
@@ -60,14 +60,12 @@ export default function MobileView() {
       </div>
 
       <main className="flex-1 px-5 pb-4 pt-8">
-        <h1 className="text-[27px] font-medium leading-tight text-[#0F172A]">
+        <h1 className="font-instrument-serif text-[28px] font-normal leading-tight text-[#0F172A]">
           Create Your{' '}
-          <span className="italic text-[#2F66C8]" style={{ fontFamily: 'var(--font-playfair)' }}>
-            Anchor
-          </span>
+          <span className="italic text-[#2F66C8]">Anchor</span>
           <span className="block">Account</span>
         </h1>
-        <p className="mt-2.5 text-[12px] leading-relaxed text-neutral-400">
+        <p className="mt-2.5 text-[12px] leading-relaxed text-[#8C97AD]">
           Your personalized opportunities are almost ready, secure your account to continue.
         </p>
 
@@ -84,7 +82,7 @@ export default function MobileView() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your mail"
-              className="w-full rounded-xl border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-[13px] placeholder:text-neutral-400 focus:border-[#2F66C8] focus:outline-none"
+              className="anchor-field anchor-field--icon-left"
             />
           </div>
           <p className="mt-1.5 flex items-center gap-1 text-[11px] text-emerald-600">
@@ -109,7 +107,7 @@ export default function MobileView() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Minimum 8 characters"
-              className="w-full rounded-xl border border-neutral-200 bg-white py-2.5 pl-10 pr-11 text-[13px] placeholder:text-neutral-400 focus:border-[#2F66C8] focus:outline-none"
+              className="anchor-field anchor-field--icon-left anchor-field--icon-right"
             />
             <button
               type="button"
@@ -157,7 +155,7 @@ export default function MobileView() {
               value={confirmPwd}
               onChange={(e) => setConfirmPwd(e.target.value)}
               placeholder="Re-enter your password"
-              className="w-full rounded-xl border border-neutral-200 bg-white py-2.5 pl-10 pr-11 text-[13px] placeholder:text-neutral-400 focus:border-[#2F66C8] focus:outline-none"
+              className="anchor-field anchor-field--icon-left anchor-field--icon-right"
             />
             <button
               type="button"
@@ -247,26 +245,28 @@ export default function MobileView() {
             type="button"
             onClick={handleContinue}
             disabled={!canContinue}
-            className={`flex h-12 w-full items-center justify-center gap-2 rounded-xl text-[15px] font-semibold text-white transition-colors ${
-              canContinue ? 'bg-[#2F66C8] hover:bg-[#1B4FCA]' : 'cursor-not-allowed bg-[#2F66C8]/50'
+            className={`flex h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[15px] font-semibold text-white transition-colors ${
+              canContinue ? 'bg-[#2F66C8] hover:bg-[#2454A4]' : 'cursor-not-allowed bg-[#2F66C8]/40'
             }`}
           >
             Create an Account <ArrowRight className="h-4 w-4" />
           </button>
           <Link
             href="/onboarding/profile"
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-[#D9E1EF] bg-white text-[15px] font-medium text-[#0F172A]"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white text-[15px] font-medium text-[#2F66C8]"
           >
             <ArrowLeft className="h-4 w-4" /> Back
           </Link>
         </div>
-        <p className="mt-4 text-center text-[12px] text-neutral-400">
+        <p className="mt-4 text-center text-[12px] text-[#8C97AD]">
           Already have an account?{' '}
           <Link href="/login" className="font-semibold text-[#2F66C8] underline-offset-2 hover:underline">
             Log In
           </Link>
         </p>
-        <OnboardingFooter />
+        <div className="mt-4">
+          <Footer variant="mobile" />
+        </div>
       </div>
     </div>
   );

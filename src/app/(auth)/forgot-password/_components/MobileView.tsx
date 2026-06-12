@@ -39,7 +39,7 @@ export default function ForgotPasswordMobileView() {
 
       <div className="flex flex-col gap-[60px] w-full">
         {submitted ? (
-          /* ── Success state ── */
+          /* -- Success state -- */
           <div className="flex flex-col gap-5">
             <div className="flex items-start gap-4 rounded-[10px] border border-[#D1FAE5] bg-[#ECFDF5] p-5">
               <div className="flex items-center justify-center w-[52px] h-[52px] rounded-[26px] bg-[#d1fae5] shrink-0">
@@ -65,7 +65,7 @@ export default function ForgotPasswordMobileView() {
             </Link>
           </div>
         ) : (
-          /* ── Form ── */
+          /* -- Form -- */
           <form onSubmit={handleSubmit} className="flex flex-col gap-10 w-full">
             <div className="flex flex-col gap-5 w-full">
               {/* Email field */}
@@ -74,14 +74,16 @@ export default function ForgotPasswordMobileView() {
                   <span className="font-semibold text-[#0f172a]">Email Address</span>
                   <span className="text-[#ef4444]">*</span>
                 </div>
-                <div className="bg-white border border-[#d9e1ef] rounded-[10px] flex items-center gap-2.5 p-4 w-full">
-                  <Image src={mailIcon} alt="" width={16} height={16} className="shrink-0 opacity-60" />
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <Image src={mailIcon} alt="" width={16} height={16} className="opacity-60" />
+                  </span>
                   <input
                     type="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="Enter your mail"
-                    className="flex-1 min-w-0 text-sm text-[#0f172a] placeholder:text-[#8c97ad] bg-transparent outline-none"
+                    className="anchor-field anchor-field--icon-left"
                     autoComplete="email"
                   />
                 </div>

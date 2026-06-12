@@ -80,7 +80,7 @@ export default function DashboardTransitionMobile() {
 
         <Link
           href="/dashboard"
-          className="mt-8 flex w-full items-center justify-center rounded-xl bg-[#2F66C8] py-3.5 text-sm font-semibold text-white"
+          className="mt-8 flex w-full items-center justify-center rounded-[6px] bg-[#2F66C8] py-3.5 text-sm font-semibold text-white transition-colors hover:bg-[#2454A4]"
         >
           Go to Dashboard
         </Link>

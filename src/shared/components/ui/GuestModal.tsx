@@ -4,21 +4,21 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { X, Lock, Bookmark, Send, FileText, ShieldCheck, User } from 'lucide-react';
 
-/* ─ useGuestModal hook ───────────────── */
+/* - useGuestModal hook ----------------- */
 
 export function useGuestModal() {
   const [isOpen, setIsOpen] = useState(false);
   return { isOpen, open: () => setIsOpen(true), close: () => setIsOpen(false) };
 }
 
-/* ─ Props ─ ─ */
+/* - Props - - */
 
 export interface GuestModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-/* ─ Feature bullets  ─ */
+/* - Feature bullets  - */
 
 const FEATURES = [
   {
@@ -44,7 +44,7 @@ const FEATURES = [
   },
 ] as const;
 
-/* ─ Icon Cluster Illustration ──────────────── */
+/* - Icon Cluster Illustration ---------------- */
 
 function IconCluster({ size = 'lg' }: { size?: 'lg' | 'sm' }) {
   const isLg = size === 'lg';
@@ -78,7 +78,7 @@ function IconCluster({ size = 'lg' }: { size?: 'lg' | 'sm' }) {
   );
 }
 
-/* ─ Auth buttons (shared between desktop right panel and mobile) ──── */
+/* - Auth buttons (shared between desktop right panel and mobile) ---- */
 
 function AuthButtons({ onClose }: { onClose: () => void }) {
   return (
@@ -158,7 +158,7 @@ function AuthButtons({ onClose }: { onClose: () => void }) {
   );
 }
 
-/* ─ GuestModal  ─ */
+/* - GuestModal  - */
 
 export function GuestModal({ isOpen, onClose }: GuestModalProps) {
   if (!isOpen) return null;
@@ -177,7 +177,7 @@ export function GuestModal({ isOpen, onClose }: GuestModalProps) {
         aria-hidden="true"
       />
 
-      {/* ── DESKTOP modal (md+) ── */}
+      {/* -- DESKTOP modal (md+) -- */}
       <div className="relative z-10 hidden md:flex w-full max-w-[840px] overflow-hidden rounded-2xl bg-white shadow-[0_6px_16px_0_rgba(0,0,0,0.08)]">
 
         {/* Left panel */}
@@ -245,7 +245,7 @@ export function GuestModal({ isOpen, onClose }: GuestModalProps) {
         </button>
       </div>
 
-      {/* ── MOBILE modal ── */}
+      {/* -- MOBILE modal -- */}
       <div className="relative z-10 flex md:hidden w-full max-w-[440px] flex-col overflow-y-auto rounded-2xl bg-white shadow-[0_6px_16px_0_rgba(0,0,0,0.08)] max-h-[90vh]">
         {/* Close button */}
         <button

@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
-/* ───────────────────
+/* -------------------
    ANCHOR CANADA USER APP — DESIGN SYSTEM TOKENS
    8-pt spacing grid · WCAG-AA accessible contrast
-─ ─ */
+- - */
 
 @theme inline {
-  /* ── Fonts ── */
+  /* -- Fonts -- */
   --font-sans:  var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
   --font-mono:  ui-monospace, SFMono-Regular, monospace;
 
-  /* ── Brand / Blue (Figma: #2F66C8 as primary) ── */
+  /* -- Brand / Blue (Figma: #2F66C8 as primary) -- */
   --color-brand-50:  #eff4ff;
   --color-brand-100: #dce8ff;
   --color-brand-200: #b9d2ff;
@@ -24,21 +24,21 @@
   --color-brand-900: #112b58;
   --color-brand-950: #0f172a;
 
-  /* ── Teal / Secondary ── */
+  /* -- Teal / Secondary -- */
   --color-teal-50:  #f0fdfa;
   --color-teal-100: #ccfbf1;
   --color-teal-500: #14b8a6;
   --color-teal-600: #0d9488;
   --color-teal-700: #0f766e;
 
-  /* ── Accent / Orange ── */
+  /* -- Accent / Orange -- */
   --color-accent-50:  #fff7ed;
   --color-accent-100: #ffedd5;
   --color-accent-400: #fb923c;
   --color-accent-500: #f97316;
   --color-accent-600: #ea580c;
 
-  /* ── Semantic ── */
+  /* -- Semantic -- */
   --color-success-50:  #f0fdf4;
   --color-success-500: #22c55e;
   --color-success-600: #16a34a;
@@ -51,7 +51,7 @@
   --color-error-500: #ef4444;
   --color-error-600: #dc2626;
 
-  /* ── Neutrals (Figma palette) ── */
+  /* -- Neutrals (Figma palette) -- */
   --color-neutral-0:   #ffffff;
   --color-neutral-50:  #f8fafc;    /* Bg/subtle */
   --color-neutral-100: #eef2f8;    /* Border/subtle, Primitive/Neutral/100 */
@@ -64,7 +64,7 @@
   --color-neutral-800: #1e293b;
   --color-neutral-900: #0f172a;    /* Text/primary */
 
-  /* ── Semantic Surface Aliases (Figma) ── */
+  /* -- Semantic Surface Aliases (Figma) -- */
   --color-background:     #f2f7ff;   /* Figma page bg gradient end */
   --color-surface:        #ffffff;   /* Bg/default */
   --color-surface-raised: #ffffff;   /* Surface/raised */
@@ -72,7 +72,7 @@
   --color-border:         #d9e1ef;   /* Border/default */
   --color-border-subtle:  #eef2f8;   /* Border/subtle */
 
-  /* ── Text (Figma tokens) ── */
+  /* -- Text (Figma tokens) -- */
   --color-text-primary:   #0f172a;   /* Text/primary */
   --color-text-secondary: #44516a;   /* Text/secondary */
   --color-text-tertiary:  #8c97ad;   /* Text/tertiary */
@@ -81,16 +81,16 @@
   --color-text-success:   #15803d;   /* Text/success */
   --color-text-error:     #b91c1c;   /* Text/error */
 
-  /* ── Brand Subtle ── */
+  /* -- Brand Subtle -- */
   --color-brand-subtle:   #eff4ff;   /* Bg/brand-subtle */
 
-  /* ── Sidebar ── */
+  /* -- Sidebar -- */
   --color-sidebar-bg:      #FFFFFF;
   --color-sidebar-surface: #1e293b;
   --color-sidebar-text:    #8c97ad;
   --color-sidebar-active:  #2f66c8;
 
-  /* ── Spacing (8-pt grid) ── */
+  /* -- Spacing (8-pt grid) -- */
   --spacing-0:  0px;
   --spacing-1:  4px;
   --spacing-2:  8px;
@@ -105,7 +105,7 @@
   --spacing-20: 80px;
   --spacing-24: 96px;
 
-  /* ── Radius ── */
+  /* -- Radius -- */
   --radius-none: 0px;
   --radius-sm:   4px;
   --radius-md:   8px;
@@ -114,7 +114,7 @@
   --radius-2xl:  24px;
   --radius-full: 9999px;
 
-  /* ── Shadows ── */
+  /* -- Shadows -- */
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.10), 0 1px 2px -1px rgb(0 0 0 / 0.10);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.10), 0 2px 4px -2px rgb(0 0 0 / 0.10);
@@ -122,7 +122,7 @@
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.10), 0 8px 10px -6px rgb(0 0 0 / 0.10);
   --shadow-card: 0 2px 8px 0 rgb(27 79 202 / 0.08), 0 1px 3px 0 rgb(0 0 0 / 0.06);
 
-  /* ── Typography ── */
+  /* -- Typography -- */
   --text-xs:   0.75rem;
   --text-sm:   0.875rem;
   --text-base: 1rem;
@@ -145,7 +145,7 @@
   --font-weight-extrabold: 800;
 }
 
-/* ─ Base Reset ─────────────── */
+/* - Base Reset --------------- */
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
@@ -179,57 +179,92 @@ body {
   clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
 }
 
-/* ─ Form field system ──────────── */
-.anchor-field {
+/* - Form field system (onboarding account page) ------------ */
+.anchor-field,
+.anchor-textarea,
+.anchor-select {
   width: 100%;
-  min-height: 48px;
-  border: 1px solid #d9e1f2;
-  border-radius: 14px;
-  background: #ffffff;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
-  padding: 0 16px;
-  color: #334155;
-  font-size: 13px;
+  border: 1px solid #d9e1ef;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 14px;
   line-height: 1.5;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.anchor-field::placeholder { color: #a2acbf; }
-
-.anchor-field:focus {
-  outline: none;
-  border-color: #8fb1f8;
-  box-shadow: 0 0 0 3px rgba(59, 111, 226, 0.12), 0 2px 8px rgba(15, 23, 42, 0.06);
+.anchor-field {
+  padding: 8px 16px;
 }
 
-.anchor-field:disabled {
+.anchor-field::placeholder,
+.anchor-textarea::placeholder {
+  color: #8c97ad;
+}
+
+.anchor-field:focus,
+.anchor-textarea:focus,
+.anchor-select:focus {
+  outline: none;
+  border-color: #2f66c8;
+  box-shadow: 0 0 0 1px rgba(47, 102, 200, 0.2);
+}
+
+.anchor-field--icon-left {
+  padding-left: 2.5rem;
+}
+
+.anchor-field--icon-right {
+  padding-right: 2.5rem;
+}
+
+.anchor-field--error,
+.anchor-textarea.anchor-field--error {
+  border-color: #ef4444;
+}
+
+.anchor-field--error:focus,
+.anchor-textarea.anchor-field--error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2);
+}
+
+.anchor-field:disabled,
+.anchor-textarea:disabled,
+.anchor-select:disabled {
   cursor: not-allowed;
-  color: #94a3b8;
+  opacity: 0.6;
   background: #f8fafc;
 }
 
 .anchor-textarea {
-  width: 100%;
   min-height: 120px;
   resize: vertical;
-  border: 1px solid #d9e1f2;
-  border-radius: 14px;
-  background: #ffffff;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
-  padding: 14px 16px;
-  color: #334155;
+  padding: 12px 16px;
+}
+
+.anchor-select {
+  appearance: none;
+  padding: 8px 2.5rem 8px 16px;
+  cursor: pointer;
+}
+
+.anchor-select.anchor-field--icon-left {
+  padding-left: 2.25rem;
+}
+
+.anchor-label {
+  display: block;
   font-size: 13px;
-  line-height: 1.65;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-weight: 600;
+  color: #0f172a;
 }
 
-.anchor-textarea:focus {
-  outline: none;
-  border-color: #8fb1f8;
-  box-shadow: 0 0 0 3px rgba(59, 111, 226, 0.12);
+.anchor-label-required {
+  color: #e8242b;
 }
 
-/* ─ Dashboard layout ─────────── */
+/* - Dashboard layout ----------- */
 .app-layout {
   display: flex;
   min-height: 100vh;
@@ -270,13 +305,13 @@ body {
   .app-main     { margin-left: 0; }
 }
 
-/* ─ Stat card gradient accents ──────── */
+/* - Stat card gradient accents -------- */
 .stat-card-jobs     { background: linear-gradient(135deg, #eff4ff 0%, #dce8ff 100%); border-left: 4px solid #2f66c8; }
 .stat-card-housing  { background: linear-gradient(135deg, #e8f5f0 0%, #d1fae5 100%); border-left: 4px solid #15803d; }
 .stat-card-training { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border-left: 4px solid #f59e0b; }
 .stat-card-saved    { background: linear-gradient(135deg, #f4f1fe 0%, #ede9ff 100%); border-left: 4px solid #7c3aed; }
 
-/* ─ Skeleton shimmer ──────────── */
+/* - Skeleton shimmer ------------ */
 @keyframes shimmer {
   from { background-position: -200% 0; }
   to   { background-position:  200% 0; }
@@ -287,7 +322,7 @@ body {
   animation: shimmer 1.5s infinite;
 }
 
-/* ─ Hero cursor blink ─────────── */
+/* - Hero cursor blink ----------- */
 @keyframes cursor-blink {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0; }
@@ -296,6 +331,6 @@ body {
   animation: cursor-blink 1s step-end infinite;
 }
 
-/* ─ Utility: hide scrollbar ───────── */
+/* - Utility: hide scrollbar --------- */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

@@ -2,20 +2,20 @@
 
 import { useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Pencil } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 import { OnboardingNavbar } from '@/features/home/components/OnboardingNavbar';
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
-import { OnboardingFooter } from '@/shared/components/onboarding/OnboardingFooter';
+import { OnboardingNavButtons } from '@/shared/components/onboarding/OnboardingNavButtons';
+import { Footer } from './Footer';
 
 import cameraIcon from '@assets/icons/camera.png';
 import locationPinIcon from '@assets/icons/location2.png';
 import canadaFlagIcon from '@assets/icons/canada-flag.png';
 import lightBulbIcon from '@assets/icons/light-bulb.png';
 import questionIcon from '@assets/icons/question-mark.png';
-import cityBannerImg from '@assets/images/w1.png';
+import cityBannerImg from '@assets/images/profile_bg.png';
 import avatarImg from '@assets/images/w1.png';
 
 const PRONOUN_OPTIONS = ['He / Him', 'She / Her', 'They / Them', 'Prefer not to say'];
@@ -148,48 +148,44 @@ export default function DesktopView() {
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
       <OnboardingNavbar />
 
-      {/* Steps bar */}
-      <div className="border-b border-[#D9E1EF] bg-white mt-4">
-        <div className="mx-auto max-w-5xl px-10 pb-3 pt-4">
-          <StepProgress current={3} />
-        </div>
+      <div className="mx-auto w-full max-w-[1548px] px-10 pt-10">
+        <StepProgress current={3} />
       </div>
 
-      {/* Main */}
-      <main className="flex-1 px-10 py-10">
-        <div className="mx-auto flex w-full max-w-5xl gap-12">
+      <main className="mx-auto w-full max-w-[1548px] flex-1 px-10 pb-16 pt-20">
+        <div className="flex w-full gap-12">
 
           {/* Left: form */}
           <div className="flex min-w-0 flex-1 flex-col">
-            <h1 className="font-instrument-serif text-[46px] font-normal leading-[1.1] text-[#0F172A]">
+            <h1 className="font-serif text-[60px] font-regular leading-[56px] text-[#0F172A]">
               Let&apos;s Make Anchor{' '}
-              <span className="italic text-[#2F66C8]">Yours</span>
+              <span className="italic text-[#2F66C8] font-serif text-[78.83px] leading-[73.57px]">Yours</span>
             </h1>
-            <p className="mt-3 text-[13px] leading-relaxed text-[#8C97AD]">
-              Add a few details so your opportunities, recommendations, and
+            <p className="mt-3 text-[16px] leading-100% text-[#8C97AD] font-sans font-regular">
+              Add a few details so your opportunities, recommendations, and <br/>
               community feel personal from day one.
             </p>
 
             {/* 1. Profile photo */}
             <div className="mt-8">
-              <p className="text-[15px] font-semibold text-[#0F172A]">
+              <p className="text-[28px] font-regular leading-[56px]text-[#0F172A] font-serif">
                 1. Add a profile photo{' '}
-                <span className="font-normal italic text-[#8C97AD]">(Optional)</span>
+                <span className="font-normal italic text-[#8C97AD] font-serif text-[28px] leading-[56px]">(Optional)</span>
               </p>
-              <p className="mt-1 text-[12px] text-[#8C97AD]">A photo helps build trust and community.</p>
+              <p className="mt-1 text-[16px] leading-180% text-[#8C97AD] font-sans font-regular">A photo helps build trust and community.</p>
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="mt-3 flex h-[86px] w-[86px] flex-col items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-[#D9E1EF] bg-white transition-colors hover:border-[#2F66C8] hover:bg-[#EFF4FF]"
+                className="mt-3 flex h-[140px] w-[140px] flex-col items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-[#D9E1EF] bg-white transition-colors hover:border-[#2F66C8] hover:bg-[#EFF4FF]"
               >
                 {avatarSrc ? (
                   <img src={avatarSrc} alt="avatar" className="h-full w-full object-cover" />
                 ) : (
                   <>
                     <Image src={cameraIcon} alt="Upload" width={26} height={26} className="object-contain" />
-                    <span className="mt-1.5 text-center text-[9px] leading-tight text-[#8C97AD]">
-                      Upload photo<br /><span className="text-[8px]">JPG, PNG • Max 4MB</span>
+                    <span className="mt-1.5 text-center text-[9px] leading-100% text-[#0F172A] font-sans font-medium">
+                      Upload photo<br /><span className="text-[8px] text-[#44516A] font-sans font-regular leading-100% ">JPG, PNG • Max 5MB</span>
                     </span>
                   </>
                 )}
@@ -198,37 +194,37 @@ export default function DesktopView() {
 
             {/* 2. Name */}
             <div className="mt-8">
-              <p className="text-[15px] font-semibold text-[#0F172A]">2. What&apos;s your name?</p>
+            <p className="text-[28px] font-regular leading-[56px]text-[#0F172A] font-serif">2. What&apos;s your name?</p>
               <div className="mt-3 grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[12px] font-medium text-[#0F172A]">
-                    First Name <span className="text-red-500">*</span>
+                  <label className="block text-[16px] font-medium text-[#0F172A] font-sans font-regular leading-180%">
+                    First Name <span className="text-red-500  text-[16px] font-sans font-regular leading-180%">*</span>
                   </label>
                   <input
                     type="text"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="Enter your first name"
-                    className="mt-1.5 w-full rounded-xl border border-[#D9E1EF] bg-white px-3.5 py-2.5 text-[13px] text-[#0F172A] placeholder:text-[#8C97AD] focus:border-[#2F66C8] focus:outline-none focus:ring-1 focus:ring-[#2F66C8]/30"
+                    className="mt-1.5 anchor-field"
                   />
                 </div>
                 <div>
-                  <label className="block text-[12px] font-medium text-[#0F172A]">
-                    Last Name <span className="text-red-500">*</span>
+                  <label className="block text-[16px] font-medium text-[#0F172A] font-sans font-regular leading-180%">
+                    Last Name <span className="text-red-500  text-[16px] font-sans font-regular leading-180%">*</span>
                   </label>
                   <input
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="Enter your last name"
-                    className="mt-1.5 w-full rounded-xl border border-[#D9E1EF] bg-white px-3.5 py-2.5 text-[13px] text-[#0F172A] placeholder:text-[#8C97AD] focus:border-[#2F66C8] focus:outline-none focus:ring-1 focus:ring-[#2F66C8]/30"
+                    className="mt-1.5 anchor-field"
                   />
                 </div>
               </div>
               <div className="mt-3">
                 <label className="flex items-center gap-1.5 text-[12px] font-medium text-[#0F172A]">
-                  Display Name{' '}
-                  <span className="font-normal text-[#8C97AD]">(Optional)</span>
+                  Display Name{' '} 
+                  <span className="block text-[16px] font-medium text-[#0F172A] font-sans font-regular leading-180%">(Optional)</span>
                   <Image src={questionIcon} alt="info" width={14} height={14} className="opacity-40" />
                 </label>
                 <input
@@ -236,7 +232,7 @@ export default function DesktopView() {
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="How should people know you?"
-                  className="mt-1.5 w-full rounded-xl border border-[#D9E1EF] bg-white px-3.5 py-2.5 text-[13px] text-[#0F172A] placeholder:text-[#8C97AD] focus:border-[#2F66C8] focus:outline-none focus:ring-1 focus:ring-[#2F66C8]/30"
+                  className="mt-1.5 anchor-field"
                 />
                 <p className="mt-1 text-[11px] text-[#8C97AD]">This is how your profile will appear.</p>
               </div>
@@ -244,7 +240,7 @@ export default function DesktopView() {
 
             {/* 3. Pronouns */}
             <div className="mt-8">
-              <p className="text-[15px] font-semibold text-[#0F172A]">
+               <p className="text-[28px] font-regular leading-[56px]text-[#0F172A] font-serif">
                 3. Pronouns{' '}
                 <span className="font-normal italic text-[#8C97AD]">(Optional)</span>
               </p>
@@ -273,7 +269,7 @@ export default function DesktopView() {
 
             {/* 4. Bio */}
             <div className="mt-8">
-              <p className="text-[15px] font-semibold text-[#0F172A]">
+               <p className="text-[28px] font-regular leading-[56px]text-[#0F172A] font-serif">
                 4. One line about yourself{' '}
                 <span className="font-normal italic text-[#8C97AD]">(Optional)</span>
               </p>
@@ -283,7 +279,7 @@ export default function DesktopView() {
                   onChange={(e) => { if (e.target.value.length <= 80) setBio(e.target.value); }}
                   placeholder="Example: Passionate about building a career in Canada."
                   rows={4}
-                  className="w-full resize-none rounded-xl border border-[#D9E1EF] bg-white px-3.5 py-3 text-[13px] text-[#0F172A] placeholder:text-[#8C97AD] focus:border-[#2F66C8] focus:outline-none focus:ring-1 focus:ring-[#2F66C8]/30"
+                  className="anchor-textarea mt-1.5"
                 />
                 <span className="absolute bottom-3 right-3.5 text-[11px] text-[#8C97AD]">
                   {bio.length} / 80
@@ -293,8 +289,8 @@ export default function DesktopView() {
           </div>
 
           {/* Right: live preview */}
-          <div className="w-[370px] shrink-0">
-            <div className="sticky top-24 rounded-2xl border border-[#D9E1EF] bg-white p-4 shadow-sm">
+          <div className="w-[370px] h-[1350px] shrink-0">
+            <div className="sticky top-24 rounded-md border border-[#D9E1EF]  bg-#FFFFFF p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <p className="text-[13px] font-semibold text-[#0F172A]">
                   Here&apos;s how your profile will look
@@ -316,39 +312,12 @@ export default function DesktopView() {
         </div>
       </main>
 
-      {/* Sticky bottom nav */}
-      <div className="sticky bottom-0 border-t border-[#D9E1EF] bg-white px-10 py-5">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <Link
-            href="/onboarding/location"
-            className="inline-flex h-10 items-center gap-2 rounded-xl border-2 border-[#D9E1EF] bg-white px-6 text-[14px] font-medium text-[#0F172A] transition-colors hover:bg-[#EFF4FF]"
-          >
-            <ArrowLeft className="h-4 w-4" /> Back
-          </Link>
-          <button
-            type="button"
-            onClick={handleContinue}
-            disabled={!canContinue}
-            className={`inline-flex h-10 items-center gap-2 rounded-xl px-8 text-[14px] font-semibold text-white transition-colors ${
-              canContinue
-                ? 'bg-[#2F66C8] hover:bg-[#1B4FCA] cursor-pointer'
-                : 'bg-[#2F66C8]/40 cursor-not-allowed'
-            }`}
-          >
-            Continue <ArrowRight className="h-4 w-4" />
-          </button>
-        </div>
-        <div className="mx-auto max-w-5xl border-t border-[#EEF2F8] px-0 pt-4">
-          <div className="flex items-center gap-2 text-[12px] text-[#44516A]">
-            <Image src={lightBulbIcon} alt="" width={16} height={16} className="shrink-0 object-contain" />
-            <span>
-              <strong className="font-medium text-[#0F172A]">Almost done!</strong>{' '}
-              You can edit your profile anytime in your account settings.
-            </span>
-          </div>
-          <OnboardingFooter />
-        </div>
-      </div>
+      <OnboardingNavButtons
+        backHref="/onboarding/location"
+        onContinue={handleContinue}
+        continueDisabled={!canContinue}
+        footer={<Footer />}
+      />
     </div>
   );
 }

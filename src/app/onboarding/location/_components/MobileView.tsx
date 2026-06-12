@@ -21,6 +21,7 @@ import newBrunswickFlag from '@assets/icons/New-Brunswick.png';
 import locationPinIcon from '@assets/icons/location2.png';
 import circleCheckIcon from '@assets/icons/circle-check.png';
 import lightBulbIcon from '@assets/icons/light-bulb.png';
+import { Footer } from './Footer';
 import worldImg from '@assets/images/world.png';
 import remoteImg from '@assets/images/remote.png';
 import travelImg from '@assets/images/travel.png';
@@ -85,11 +86,11 @@ function ProvinceCard({ p, selected, onToggle }: { p: ProvinceDef; selected: boo
         <RadioDot selected={selected} />
       </div>
       <Image src={p.flag} alt={p.name} width={56} height={37} className="rounded-sm object-cover" />
-      <p className="mt-2.5 pr-8 text-[13px] font-bold leading-snug text-[#0F172A]">{p.name}</p>
-      <p className="mt-1 whitespace-pre-line text-[10px] leading-relaxed text-[#8C97AD]">{p.cities}</p>
-      <div className="mt-2.5 inline-flex items-center gap-1 self-start rounded-full bg-[#EFF4FF] px-2 py-0.5">
+      <p className="mt-2.5 pr-8 text-[20px] font-regular leading-[100%] text-[#0F172A] font-serif">{p.name}</p>
+      <p className="mt-1 whitespace-pre-line text-[14px] leading-[180%] text-[#8C97AD] font-sans font-regular">{p.cities}</p>
+      <div className="mt-2.5 inline-flex items-center gap-1 self-start rounded-full bg-[#DCE7FF]   px-2 py-0.5">
         <Image src={locationPinIcon} alt="" width={10} height={10} className="object-contain" />
-        <span className="text-[9px] font-bold text-[#44516A]">{p.code}</span>
+        <span className="text-[9px] font-bold text-[#2F66C8] font-sans font-regular ">{p.code}</span>
       </div>
     </button>
   );
@@ -101,7 +102,7 @@ function SpecialCardMobile({ s, selected, onToggle }: { s: SpecialDef; selected:
       type="button"
       onClick={onToggle}
       style={{ minHeight: '160px' }}
-      className={`relative flex w-full flex-col rounded-2xl bg-white p-5 text-left transition-all ${
+      className={`relative flex w-full flex-col overflow-hidden rounded-2xl bg-white p-5 text-left transition-all ${
         selected
           ? 'border-2 border-[#2F66C8] shadow-md'
           : 'border border-[#D9E1EF] shadow-sm'
@@ -110,11 +111,11 @@ function SpecialCardMobile({ s, selected, onToggle }: { s: SpecialDef; selected:
       <div className="absolute right-3 top-3 z-10">
         <RadioDot selected={selected} />
       </div>
-      <p className="font-instrument-serif pr-8 text-[20px] font-normal italic leading-snug text-[#2F66C8]">
+      <p className="font-serif pr-8 text-[28px] font-regular italic leading-[56px] text-[#2F66C8]">
         {s.title}
       </p>
-      <p className="mt-2 max-w-[58%] text-[13px] leading-relaxed text-[#8C97AD]">{s.body}</p>
-      <div className="pointer-events-none absolute bottom-0 right-0 h-[155px] w-[200px] translate-y-[28%]">
+      <p className="mt-2 max-w-[58%] text-[14px] leading-[100%] text-[#8C97AD] font-sans font-regular">{s.body}</p>
+      <div className="pointer-events-none absolute bottom-0 right-0 h-[125px] w-[160px]">
         <Image src={s.img} alt="" fill className="object-contain object-right-bottom" />
       </div>
     </button>
@@ -198,15 +199,16 @@ export default function MobileView() {
       {/* Main content */}
       <main className="flex-1 px-5 pb-6 pt-6">
         <div className="text-center">
-          <h1 className="font-instrument-serif text-[28px] font-normal leading-tight text-[#0F172A]">
+          <h2 className="font-serif text-[48px] font-regular leading-[56px] text-[#0F172A]">
             Where Should Anchor
             <br />
+            <h2 className="font-serif text-[48px] font-regular leading-[56px] text-[#0F172A]">
             Focus Your
-            <br />
-            <span className="italic text-[#2F66C8]">Opportunities</span>
-            <span className="cursor-blink ml-px text-[#E8242B]">|</span>
-          </h1>
-          <p className="mt-3 text-[12px] leading-relaxed text-[#8C97AD]">
+            </h2>
+            <span className="italic text-[#2F66C8] text-[52px] leading-[56px] font-serif">Opportunities</span>
+            <span className="ml-px text-[#E8242B] w-[5.26px] h-[56px] inline-block">|</span>
+          </h2>
+          <p className="mt-3 text-[14px] leading-[100%] font-sans text-[#8C97AD]">
             Choose your current location, or where you&apos;d like to
             <br />
             discover opportunities. You can update this anytime.
@@ -214,15 +216,15 @@ export default function MobileView() {
         </div>
 
         {/* Search + counter */}
-        <div className="mt-6 rounded-2xl border border-[#D9E1EF] bg-white px-4 py-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <Search className="h-4 w-4 shrink-0 text-[#8C97AD]" />
+        <div className="mt-6">
+          <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8C97AD]" />
             <input
               type="text"
               placeholder="Search city, province or region..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="flex-1 bg-transparent text-[13px] text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
+              className="anchor-field anchor-field--icon-left"
             />
           </div>
           <div className="mt-3 flex items-center gap-2">
@@ -295,17 +297,14 @@ export default function MobileView() {
         </div>
       </main>
 
-      {/* Sticky bottom nav */}
       <div className="sticky bottom-0 border-t border-[#D9E1EF] bg-white px-5 pb-8 pt-4">
         <div className="flex flex-col gap-3">
           <button
             type="button"
             onClick={handleContinue}
             disabled={!hasSelected}
-            className={`flex h-[52px] w-full items-center justify-center gap-2 rounded-2xl text-[15px] font-semibold text-white transition-colors ${
-              hasSelected
-                ? 'cursor-pointer bg-[#2F66C8] hover:bg-[#1B4FCA]'
-                : 'cursor-not-allowed bg-[#2F66C8]/40'
+            className={`flex h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[15px] font-semibold text-white transition-colors ${
+              hasSelected ? 'bg-[#2F66C8] hover:bg-[#2454A4]' : 'cursor-not-allowed bg-[#2F66C8]/40'
             }`}
           >
             Continue
@@ -313,23 +312,13 @@ export default function MobileView() {
           </button>
           <Link
             href="/onboarding/interest"
-            className="flex h-[52px] w-full items-center justify-center gap-2 rounded-2xl border-2 border-[#D9E1EF] bg-white text-[15px] font-medium text-[#0F172A] transition-colors hover:bg-[#EFF4FF]"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white text-[15px] font-medium text-[#2F66C8]"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
           </Link>
         </div>
-        <div className="mt-6 flex items-start gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-[#2F66C8]">
-            <Image src={lightBulbIcon} alt="" width={14} height={14} className="object-contain" />
-          </div>
-          <div>
-            <p className="text-[13px] font-bold text-[#0F172A]">Not sure yet?</p>
-            <p className="mt-0.5 text-[12px] leading-relaxed text-[#44516A]">
-              You can update your location anytime in your account settings.
-            </p>
-          </div>
-        </div>
+        <Footer variant="mobile" />
       </div>
     </div>
   );

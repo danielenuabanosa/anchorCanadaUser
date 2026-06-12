@@ -7,8 +7,8 @@ import Link from 'next/link';
 import mailIcon from '@/../assets/icons/mail.png';
 import shieldIcon from '@/../assets/icons/shield-check.png';
 import headphonesIcon from '@/../assets/icons/hear-phone.png';
-import fpwd1 from '@/../assets/images/fpwd1.png';
-import fpwd2 from '@/../assets/images/fpwd2.png';
+import fpwd1 from '@/../assets/images/w1.png';
+import fpwd2 from '@/../assets/images/w1.png';
 
 export default function ForgotPasswordDesktopView() {
   const [email, setEmail] = useState('');
@@ -65,7 +65,7 @@ export default function ForgotPasswordDesktopView() {
     <div className="w-full max-w-[1548px] mx-auto flex flex-col gap-10">
       <div className="flex gap-10 items-start">
 
-        {/* ── Left column: form ── */}
+        {/* -- Left column: form -- */}
         <div className="flex flex-col gap-10 items-start shrink-0 w-[886px]">
 
           {/* Heading */}
@@ -81,7 +81,7 @@ export default function ForgotPasswordDesktopView() {
 
           <div className="flex flex-col gap-[60px] w-full">
             {submitted ? (
-              /* ── Success state ── */
+              /* -- Success state -- */
               <div className="flex flex-col gap-5">
                 <div className="flex items-start gap-5 rounded-[10px] border border-[#D1FAE5] bg-[#ECFDF5] p-5">
                   <div className="flex items-center justify-center w-[52px] h-[52px] rounded-[26px] bg-[#d1fae5] shrink-0">
@@ -107,7 +107,7 @@ export default function ForgotPasswordDesktopView() {
                 </Link>
               </div>
             ) : (
-              /* ── Form ── */
+              /* -- Form -- */
               <form onSubmit={handleSubmit} className="flex flex-col gap-10 w-full">
                 <div className="flex flex-col gap-10 w-[886px]">
                   {/* Email field */}
@@ -116,14 +116,16 @@ export default function ForgotPasswordDesktopView() {
                       <span className="font-semibold text-[#0f172a]">Email Address</span>
                       <span className="text-[#ef4444]">*</span>
                     </div>
-                    <div className="bg-white border border-[#d9e1ef] rounded-[10px] flex items-center gap-2.5 p-4 w-full">
-                      <Image src={mailIcon} alt="" width={18} height={18} className="shrink-0 opacity-60" />
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <Image src={mailIcon} alt="" width={18} height={18} className="opacity-60" />
+                      </span>
                       <input
                         type="email"
                         value={email}
                         onChange={e => setEmail(e.target.value)}
                         placeholder="Enter your mail"
-                        className="flex-1 min-w-0 text-base text-[#0f172a] placeholder:text-[#8c97ad] bg-transparent outline-none"
+                        className="anchor-field anchor-field--icon-left"
                         autoComplete="email"
                       />
                     </div>
@@ -201,7 +203,7 @@ export default function ForgotPasswordDesktopView() {
           </div>
         </div>
 
-        {/* ── Right column: security card ── */}
+        {/* -- Right column: security card -- */}
         <div className="flex-1 min-w-0 bg-[#eff4ff] border border-[#e0ebff] rounded-[10px] overflow-hidden flex flex-col">
           <div className="flex flex-col gap-10 px-[37px] py-[60px]">
             {/* Title + 3D image */}
@@ -240,7 +242,7 @@ export default function ForgotPasswordDesktopView() {
         </div>
       </div>
 
-      {/* ── Support footer ── */}
+      {/* -- Support footer -- */}
       <div className="border-t border-[#eef2f8] flex items-center justify-between py-10 w-full">
         <div className="flex gap-5 items-center">
           <div className="bg-[#eff4ff] rounded-[34px] flex items-center justify-center p-[17px] shrink-0 size-[68px]">

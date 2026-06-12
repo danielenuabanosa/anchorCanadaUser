@@ -1,14 +1,15 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, X, Check } from 'lucide-react';
 
 import { OnboardingNavbar } from '@/features/home/components/OnboardingNavbar';
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
-import { OnboardingFooter } from '@/shared/components/onboarding/OnboardingFooter';
+import { OnboardingNavButtons } from '@/shared/components/onboarding/OnboardingNavButtons';
+import { Footer } from './Footer';
+import { OtpInput } from '@/shared/components/onboarding/OtpInput';
 
 import mail3Icon from '@assets/icons/mail3.png';
 import sendIcon from '@assets/icons/send.png';
@@ -45,8 +46,6 @@ export default function DesktopView() {
   const [digits, setDigits] = useState<string[]>(Array(DIGITS_COUNT).fill(''));
   const [showToast, setShowToast] = useState(false);
 
-  const digitRefs = useRef<(HTMLInputElement | null)[]>([]);
-
   const filledDigits = digits.filter(Boolean).length;
   const canVerify = filledDigits === DIGITS_COUNT;
 
@@ -68,52 +67,6 @@ export default function DesktopView() {
     if (!canVerify) return;
     setShowToast(true);
     setTimeout(() => router.push('/onboarding/activation'), 1600);
-  }
-
-  const handleDigitChange = useCallback(
-    (idx: number, val: string) => {
-      const char = val.replace(/\D/g, '').slice(-1);
-      const next = [...digits];
-      next[idx] = char;
-      setDigits(next);
-      if (char && idx < DIGITS_COUNT - 1) {
-        digitRefs.current[idx + 1]?.focus();
-      }
-    },
-    [digits],
-  );
-
-  const handleDigitKeyDown = useCallback(
-    (idx: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Backspace' && !digits[idx] && idx > 0) {
-        digitRefs.current[idx - 1]?.focus();
-      }
-    },
-    [digits],
-  );
-
-  function OtpBoxes() {
-    return (
-      <div className="flex gap-2">
-        {digits.map((d, i) => (
-          <input
-            key={i}
-            ref={(el) => {
-              digitRefs.current[i] = el;
-            }}
-            type="text"
-            inputMode="numeric"
-            maxLength={1}
-            value={d}
-            onChange={(e) => handleDigitChange(i, e.target.value)}
-            onKeyDown={(e) => handleDigitKeyDown(i, e)}
-            className={`h-12 w-11 rounded-xl border-2 bg-white text-center text-[20px] font-bold text-[#0F172A] transition-colors focus:outline-none ${
-              d ? 'border-[#2F66C8] bg-[#EEF3FF]' : 'border-neutral-200 text-neutral-300'
-            }`}
-          />
-        ))}
-      </div>
-    );
   }
 
   function VerificationForm() {
@@ -149,7 +102,7 @@ export default function DesktopView() {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleSaveEmail();
                 }}
-                className="w-full rounded-xl border border-neutral-200 bg-neutral-50 py-2.5 pl-9 pr-4 text-[13px] text-[#0F172A] placeholder:text-neutral-400 focus:border-[#2F66C8] focus:outline-none"
+                className="anchor-field anchor-field--icon-left"
               />
             </div>
           </div>
@@ -177,7 +130,7 @@ export default function DesktopView() {
 
         <div>
           <p className="mb-3 text-[13px] font-semibold text-[#0F172A]">Enter the 6-digit code</p>
-          <OtpBoxes />
+          <OtpInput digits={digits} onChange={setDigits} />
           <p className="mt-2.5 flex items-center gap-1.5 text-[11px] text-neutral-400">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
               <circle cx="6" cy="6" r="5" stroke="#94A3B8" strokeWidth="1.2" />
@@ -294,7 +247,7 @@ export default function DesktopView() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#EFF4FF]">
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
       <OnboardingNavbar />
 
       {showToast && (
@@ -312,22 +265,18 @@ export default function DesktopView() {
         </div>
       )}
 
-      <div className="mt-4 border-b border-[#D9E1EF] bg-white">
-        <div className="mx-auto max-w-5xl px-10 pb-3 pt-4">
-          <StepProgress current={5} />
-        </div>
+      <div className="mx-auto w-full max-w-[1548px] px-10 pt-10">
+        <StepProgress current={5} />
       </div>
 
-      <main className="flex-1 px-10 py-10">
-        <div className="mx-auto flex w-full max-w-5xl gap-12">
+      <main className="mx-auto w-full max-w-[1548px] flex-1 px-10 pb-16 pt-10">
+        <div className="flex w-full gap-12">
           <div className="flex min-w-0 flex-1 flex-col">
             <h1 className="font-instrument-serif text-[46px] font-normal leading-[1.1] text-[#0F172A]">
               Confirm Your{' '}
-              <span className="italic text-[#2F66C8]" style={{ fontFamily: 'var(--font-playfair)' }}>
-                Email
-              </span>
+              <span className="italic text-[#2F66C8]">Email</span>
             </h1>
-            <p className="mt-3 text-[13px] leading-relaxed text-neutral-400">
+            <p className="mt-3 text-[13px] leading-relaxed text-[#8C97AD]">
               We&apos;ve sent a secure verification code to your inbox. Enter it below to activate your Anchor experience.
             </p>
 
@@ -342,33 +291,13 @@ export default function DesktopView() {
         </div>
       </main>
 
-      <div className="sticky bottom-0 border-t border-[#D9E1EF] bg-white px-10 py-5">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <Link
-            href="/onboarding/account"
-            className="inline-flex h-10 items-center gap-2 rounded-xl border-2 border-[#D9E1EF] bg-white px-6 text-[14px] font-medium text-[#0F172A] transition-colors hover:bg-[#EFF4FF]"
-          >
-            <ArrowLeft className="h-4 w-4" /> Back
-          </Link>
-          <button
-            type="button"
-            onClick={handleVerify}
-            disabled={!canVerify}
-            className={`inline-flex h-10 items-center gap-2 rounded-xl px-8 text-[14px] font-semibold text-white transition-colors ${
-              canVerify ? 'cursor-pointer bg-[#2F66C8] hover:bg-[#1B4FCA]' : 'cursor-not-allowed bg-[#2F66C8]/40'
-            }`}
-          >
-            Verify &amp; Continue <ArrowRight className="h-4 w-4" />
-          </button>
-        </div>
-        <div className="mx-auto max-w-5xl border-t border-[#EEF2F8] px-0 pt-4">
-          <div className="flex items-center gap-2 text-[12px] text-[#44516A]">
-            <Image src={lightBulbIcon} alt="" width={16} height={16} className="shrink-0 object-contain" />
-            You can edit your profile anytime in your account settings.
-          </div>
-          <OnboardingFooter />
-        </div>
-      </div>
+      <OnboardingNavButtons
+        backHref="/onboarding/account"
+        onContinue={handleVerify}
+        continueDisabled={!canVerify}
+        continueLabel="Verify & Continue"
+        footer={<Footer />}
+      />
     </div>
   );
 }

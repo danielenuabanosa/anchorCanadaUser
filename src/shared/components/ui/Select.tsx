@@ -1,6 +1,11 @@
 import { forwardRef, useId, type SelectHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronDown } from 'lucide-react';
+import {
+  ANCHOR_LABEL,
+  ANCHOR_LABEL_REQUIRED,
+  ANCHOR_SELECT,
+} from '@/shared/styles/fieldStyles';
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
@@ -19,10 +24,10 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
     return (
       <div className="flex w-full flex-col gap-1.5">
         {label && (
-          <label htmlFor={selectId} className="text-sm font-medium text-neutral-700">
+          <label htmlFor={selectId} className={ANCHOR_LABEL}>
             {label}
             {props.required && (
-              <span className="ml-1 text-error-500" aria-hidden="true">*</span>
+              <span className={`ml-1 ${ANCHOR_LABEL_REQUIRED}`} aria-hidden="true">*</span>
             )}
           </label>
         )}
@@ -33,8 +38,8 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
             aria-invalid={!!error}
             aria-describedby={error ? errorId : undefined}
             className={cn(
-              'anchor-field appearance-none pr-10',
-              error && 'border-error-500',
+              ANCHOR_SELECT,
+              error && 'anchor-field--error',
               className
             )}
             {...props}
@@ -51,7 +56,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
             ))}
           </select>
           <ChevronDown
-            className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
+            className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8C97AD]"
             aria-hidden="true"
           />
         </div>

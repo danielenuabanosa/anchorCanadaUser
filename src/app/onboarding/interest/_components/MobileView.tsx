@@ -21,7 +21,7 @@ import loveIcon from '@assets/icons/love.png';
 import bookOpenIcon from '@assets/icons/book-open.png';
 import caseIcon from '@assets/icons/case.png';
 import circleCheckIcon from '@assets/icons/circle-check.png';
-import infoIcon from '@assets/icons/info.png';
+import { Footer } from './Footer';
 
 interface InterestDef {
   id: string;
@@ -70,7 +70,7 @@ function MobileCard({
     <button
       type="button"
       onClick={onToggle}
-      className={`relative flex items-center gap-3 rounded-2xl bg-white px-3 py-3.5 text-left transition-all ${
+      className={`relative flex items-center gap-3 rounded-sm bg-[#FFFFFF] border border-[#D9E1EF] px-3 py-3.5 text-left transition-all ${
         selected
           ? 'border-2 border-[#2F66C8] shadow-md'
           : 'border border-[#D9E1EF] shadow-sm'
@@ -87,7 +87,7 @@ function MobileCard({
         <Image src={item.icon} alt="" width={18} height={18} className="object-contain" />
       </div>
 
-      <p className="truncate pr-7 text-[13px] font-semibold text-[#0F172A]">{item.name}</p>
+      <p className="truncate pr-7 text-[12px] font-regular leading-[56px] text-[#0F172A] font-serif">{item.name}</p>
     </button>
   );
 }
@@ -130,14 +130,14 @@ export default function MobileView() {
       {/* Main content */}
       <main className="flex-1 px-5 pb-6 pt-6">
         <div className="text-center">
-          <h1 className="font-instrument-serif text-[28px] font-normal leading-tight text-[#0F172A]">
+          <h1 className="font-serif text-[48px] font-normal leading-[56px] text-[#0F172A]">
             What{' '}
-            <span className="italic text-[#2F66C8]">Opportunities</span>
-            <span className="cursor-blink ml-px text-[#E8242B]">|</span>
+            <span className="italic text-[#2F66C8] font-serif text-[52px] leading-[56px]">Opportunities</span>
+            <span className=" ml-px text-[#E8242B]">|</span>
             <br />
             Matter Most To You?
           </h1>
-          <p className="mt-3 text-[12px] leading-relaxed text-[#8C97AD]">
+          <p className="mt-3 text-[14px] leading-[100%] text-[#8C97AD] font-sans">
             Select everything that matches your current goals.
             <br />
             The more you share, the better Anchor can personalize your experience.
@@ -145,20 +145,20 @@ export default function MobileView() {
         </div>
 
         {/* Search + counter */}
-        <div className="mt-6 rounded-2xl border border-[#D9E1EF] bg-white px-4 py-4 shadow-sm">
-          <div className="flex items-center gap-3">
+        <div className="mt-6 rounded-sm border border-[#D9E1EF] bg-[]#FFFFFF px-5 py-4 shadow-sm">
+          <div className="relative flex items-center gap-3">
             <Search className="h-4 w-4 shrink-0 text-[#8C97AD]" />
             <input
               type="text"
               placeholder="Search interests..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="flex-1 bg-transparent text-[13px] text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
+              className="flex-1 rounded-sm border-0 bg-[#FFFFFF] p-x-5 text-[14px] text-[#0F172A] outline-none ring-0 placeholder:text-[#8C97AD] focus:ring-0"
             />
           </div>
           <div className="mt-3">
             <div
-              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[12px] font-medium transition-colors ${
+              className={`inline-flex items-center gap-2 rounded-sm font-sans border px-4 py-2 text-[14px] font-medium transition-colors ${
                 hasSelected
                   ? 'border-[#2F66C8] text-[#2F66C8]'
                   : 'border-[#D9E1EF] text-[#8C97AD]'
@@ -189,17 +189,14 @@ export default function MobileView() {
         </div>
       </main>
 
-      {/* Sticky bottom nav */}
       <div className="sticky bottom-0 border-t border-[#D9E1EF] bg-white px-5 pb-8 pt-4">
         <div className="flex flex-col gap-3">
           <button
             type="button"
             onClick={handleContinue}
             disabled={!hasSelected}
-            className={`flex h-[52px] w-full items-center justify-center gap-2 rounded-2xl text-[15px] font-semibold text-white transition-colors ${
-              hasSelected
-                ? 'cursor-pointer bg-[#2F66C8] hover:bg-[#1B4FCA]'
-                : 'cursor-not-allowed bg-[#2F66C8]/40'
+            className={`flex h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[15px] font-semibold text-white transition-colors ${
+              hasSelected ? 'bg-[#2F66C8] hover:bg-[#2454A4]' : 'cursor-not-allowed bg-[#2F66C8]/40'
             }`}
           >
             Continue
@@ -207,24 +204,14 @@ export default function MobileView() {
           </button>
           <Link
             href="/onboarding"
-            className="flex h-[52px] w-full items-center justify-center gap-2 rounded-2xl border-2 border-[#D9E1EF] bg-white text-[15px] font-medium text-[#0F172A] transition-colors hover:bg-[#EFF4FF]"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white text-[15px] font-medium text-[#2F66C8]"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
           </Link>
         </div>
 
-        <div className="mt-6 flex items-start gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-[#2F66C8]">
-            <Image src={infoIcon} alt="" width={14} height={14} className="object-contain" />
-          </div>
-          <div>
-            <p className="text-[13px] font-bold text-[#0F172A]">Not sure what to choose?</p>
-            <p className="mt-0.5 text-[12px] leading-relaxed text-[#44516A]">
-              You can update your interests anytime in your account settings.
-            </p>
-          </div>
-        </div>
+        <Footer variant="mobile" />
       </div>
     </div>
   );

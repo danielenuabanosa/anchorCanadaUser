@@ -117,7 +117,7 @@ export default function RegisterMobile() {
                     onChange={e => setFirstName(e.target.value)}
                     placeholder="First name"
                     required
-                    className="anchor-field pl-11"
+                    className="anchor-field anchor-field--icon-left"
                   />
                 </div>
               </div>
@@ -133,7 +133,7 @@ export default function RegisterMobile() {
                     onChange={e => setLastName(e.target.value)}
                     placeholder="Last name"
                     required
-                    className="anchor-field pl-11"
+                    className="anchor-field anchor-field--icon-left"
                   />
                 </div>
               </div>
@@ -150,7 +150,7 @@ export default function RegisterMobile() {
                     onChange={e => setEmail(e.target.value)}
                     placeholder="your@email.com"
                     required
-                    className="anchor-field pl-11 pr-11"
+                    className="anchor-field anchor-field--icon-left anchor-field--icon-right"
                   />
                   {emailValid && (
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -221,7 +221,7 @@ export default function RegisterMobile() {
                     onChange={e => setPassword(e.target.value)}
                     placeholder="Create a password"
                     required
-                    className="anchor-field pl-11 pr-11"
+                    className="anchor-field anchor-field--icon-left anchor-field--icon-right"
                   />
                   <button type="button" onClick={() => setShowPwd(v => !v)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8C97AD]">
                     {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -252,7 +252,7 @@ export default function RegisterMobile() {
                     onChange={e => setConfirmPwd(e.target.value)}
                     placeholder="Re-enter password"
                     required
-                    className={`anchor-field pl-11 pr-11 ${confirmPwd && !pwdMatch ? 'border-red-400' : ''}`}
+                    className={`anchor-field anchor-field--icon-left anchor-field--icon-right ${confirmPwd && !pwdMatch ? 'anchor-field--error' : ''}`}
                   />
                   <button type="button" onClick={() => setShowCnf(v => !v)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8C97AD]">
                     {showCnf ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}

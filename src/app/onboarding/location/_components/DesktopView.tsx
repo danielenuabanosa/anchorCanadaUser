@@ -2,14 +2,14 @@
 
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, ArrowLeft, ArrowRight, Check, X, Trash2 } from 'lucide-react';
+import { Search, Check, X, Trash2 } from 'lucide-react';
 import type { StaticImageData } from 'next/image';
 
 import { OnboardingNavbar } from '@/features/home/components/OnboardingNavbar';
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
-import { OnboardingFooter } from '@/shared/components/onboarding/OnboardingFooter';
+import { OnboardingNavButtons } from '@/shared/components/onboarding/OnboardingNavButtons';
+import { Footer } from './Footer';
 
 import ontarioFlag from '@assets/icons/ontario.png';
 import bcFlag from '@assets/icons/british-columbia.png';
@@ -76,21 +76,21 @@ function ProvinceCard({ p, selected, onToggle }: { p: ProvinceDef; selected: boo
     <button
       type="button"
       onClick={onToggle}
-      className={`relative flex flex-col rounded-2xl bg-white p-4 text-left transition-all ${
+      className={`relative flex flex-col rounded-2xl bg-[#FFFFFF] p-4 text-left transition-all ${
         selected
-          ? 'border-2 border-[#2F66C8] shadow-md'
+          ? 'border-2 border-[#2F66C8] shadow-md bg-[#DCE7FF]'
           : 'border border-[#D9E1EF] shadow-sm hover:border-[#2F66C8]/30 hover:shadow-md'
       }`}
     >
       <div className="absolute right-3 top-3">
         <RadioDot selected={selected} />
       </div>
-      <Image src={p.flag} alt={p.name} width={64} height={42} className="rounded-sm object-cover" />
-      <p className="mt-3 pr-8 text-[14px] font-bold leading-snug text-[#0F172A]">{p.name}</p>
-      <p className="mt-1 whitespace-pre-line text-[11px] leading-relaxed text-[#8C97AD]">{p.cities}</p>
-      <div className="mt-3 inline-flex items-center gap-1.5 self-start rounded-full bg-[#EFF4FF] px-2.5 py-1">
+      <Image src={p.flag} alt={p.name} width={96} height={60} className="rounded-sm object-cover" />
+      <p className="mt-3 pr-8 text-[20px] font-regular leading-[56px] text-[#0F172A] font-serif">{p.name}</p>
+      <p className="mt-1 whitespace-pre-line text-[16px] leading-[180%] text-[#8C97AD] font-sans font-regular">{p.cities}</p>
+      <div className="mt-3 inline-flex items-center gap-1.5 self-start rounded-full bg-[#DCE7FF] px-2.5 py-1">
         <Image src={locationPinIcon} alt="" width={11} height={11} className="object-contain" />
-        <span className="text-[10px] font-bold text-[#44516A]">{p.code}</span>
+        <span className="text-[10.69px] font-bold text-[#44516A] font-sans font-regular">{p.code}</span>
       </div>
     </button>
   );
@@ -101,20 +101,21 @@ function SpecialCard({ s, selected, onToggle }: { s: SpecialDef; selected: boole
     <button
       type="button"
       onClick={onToggle}
-      className={`relative flex min-h-[185px] flex-col rounded-2xl bg-white p-5 text-left transition-all ${
+      
+      className={`relative flex min-h-[185px] flex-col overflow-hidden rounded-sm bg-[#FFFFFF] p-5 text-left transition-all ${
         selected
-          ? 'border-2 border-[#2F66C8] shadow-md'
+          ? 'border-2 border-[#2F66C8] shadow-md bg-[#DCE7FF]'
           : 'border border-[#D9E1EF] shadow-sm hover:border-[#2F66C8]/30 hover:shadow-md'
       }`}
     >
       <div className="absolute right-3 top-3 z-10">
         <RadioDot selected={selected} />
       </div>
-      <p className="font-instrument-serif pr-8 text-[18px] font-normal italic leading-snug text-[#2F66C8]">
+      <p className="font-serif pr-8 text-[28px] font-regular italic leading-[56px] text-[#2F66C8]">
         {s.title}
       </p>
-      <p className="mt-2 max-w-[65%] text-[12px] leading-relaxed text-[#8C97AD]">{s.body}</p>
-      <div className="pointer-events-none absolute bottom-0 right-0 h-[145px] w-[175px] translate-y-[32%]">
+      <p className="mt-2 max-w-[65%] text-[16px] leading-[100%] text-[#8C97AD] font-sans font-regular">{s.body}</p>
+      <div className="pointer-events-none absolute bottom-0 right-0 h-[120px] w-[140px]">
         <Image src={s.img} alt="" fill className="object-contain object-right-bottom" />
       </div>
     </button>
@@ -179,7 +180,7 @@ export default function DesktopView() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-[#FFFFFF] to-[#F2F7FF] to-[#f2f7ff]">
       <OnboardingNavbar onHelpClick={() => setShowTooltip((v) => !v)} />
 
       {showTooltip && (
@@ -188,24 +189,20 @@ export default function DesktopView() {
         </div>
       )}
 
-      {/* Steps bar */}
-      <div className="border-b border-[#D9E1EF] bg-white">
-        <div className="mx-auto max-w-5xl px-10 pb-3 pt-4">
-          <StepProgress current={2} />
-        </div>
+      <div className="mx-auto w-full max-w-[1548px] px-10 pt-10">
+        <StepProgress current={2} />
       </div>
 
-      {/* Main content */}
-      <main className="flex flex-1 flex-col items-center px-10 py-10">
+      <main className="mx-auto flex w-full max-w-[1548px] flex-1 flex-col items-center px-10 pb-16 pt-10">
         <div className="text-center">
-          <h1 className="font-instrument-serif text-[46px] font-normal leading-tight text-[#0F172A]">
+          <h1 className="font-serif text-[60px] font-normal leading-tight text-[#0F172A]">
             Where Should Anchor
             <br />
             Focus Your{' '}
-            <span className="italic text-[#2F66C8]">Opportunities</span>
-            <span className="cursor-blink ml-px text-[#E8242B]">|</span>
+            <span className="italic text-[#2F66C8] font-serif text-[78.83px]">Opportunities</span>
+            <span className="ml-px text-[#EF4444] w-[5.26px] h-[78.83px] inline-block">|</span>
           </h1>
-          <p className="mt-3 text-[13px] leading-relaxed text-[#8C97AD]">
+          <p className="mt-2.5 text-[16px] leading-relaxed text-[#8C97AD] font-sans">
             Choose your current location, or where you&apos;d like to discover opportunities.
             <br />
             You can update this anytime.
@@ -213,15 +210,15 @@ export default function DesktopView() {
         </div>
 
         {/* Search + counter */}
-        <div className="mt-8 flex w-full max-w-4xl items-center justify-between rounded-2xl border border-[#D9E1EF] bg-white px-5 py-3.5 shadow-sm">
-          <div className="flex flex-1 items-center gap-3">
-            <Search className="h-[15px] w-[15px] shrink-0 text-[#8C97AD]" />
+        <div className="mt-8 flex w-full max-w-[1548px] justify-between rounded-2xl border border-[#D9E1EF] bg-white px-5 py-3.5 shadow-sm">
+          <div className="relative flex-1">
+            <Search className="absolute left-0 top-1/2 h-[15px] w-[15px] -translate-y-1/2 text-[#8C97AD]" />
             <input
               type="text"
               placeholder="Search city, province or region..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="flex-1 bg-transparent text-[13px] text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
+              className="anchor-field anchor-field--icon-left w-full border-0 bg-transparent pl-7 shadow-none"
             />
           </div>
           <div className="flex items-center gap-3">
@@ -231,7 +228,7 @@ export default function DesktopView() {
                 alt=""
                 width={16}
                 height={16}
-                className={`object-contain ${hasSelected ? 'opacity-100' : 'opacity-40'}`}
+                className={`object-contain transition-opacity ${hasSelected ? 'opacity-100' : 'opacity-40'}`}
               />
               <span className="whitespace-nowrap text-[13px] font-medium">
                 {hasSelected ? `${count} locations selected` : 'None Selected'}
@@ -251,8 +248,8 @@ export default function DesktopView() {
         </div>
 
         {/* Popular Provinces */}
-        <div className="mt-8 w-full max-w-4xl">
-          <p className="mb-4 text-[14px] font-bold text-[#0F172A]">Popular Provinces</p>
+        <div className="mt-5 w-full max-w-[1548px]">
+          <p className="mb-4 text-[18px] font-semibold text-[#0F172A] font-sans leading-[100%]">Popular Provinces</p>
           <div className="grid grid-cols-4 gap-4">
             {filteredProvinces.map((p) => (
               <ProvinceCard
@@ -266,7 +263,7 @@ export default function DesktopView() {
         </div>
 
         {/* Other ways */}
-        <div className="mt-10 w-full max-w-4xl pb-16">
+        <div className="mt-10 w-full max-w-[1548px]">
           <p className="mb-4 text-[14px] font-bold text-[#0F172A]">Other ways to find opportunities</p>
           <div className="grid grid-cols-3 gap-4">
             {SPECIALS.map((s) => (
@@ -276,47 +273,26 @@ export default function DesktopView() {
                 selected={selected.has(s.id)}
                 onToggle={() => toggle(s.id)}
               />
+              
             ))}
           </div>
         </div>
+
+        {/* <div className="mt-8 flex w-full max-w-[1548px] items-center gap-2 text-[12px] text-[#44516A]">
+          <Image src={lightBulbIcon} alt="" width={16} height={16} className="shrink-0 object-contain" />
+          <span>
+            <strong className="font-medium text-[#0F172A]">Not sure yet?</strong>{' '}
+            You can update your location anytime in your account settings.
+          </span>
+        </div> */}
       </main>
 
-      {/* Bottom nav */}
-      <div className="border-t border-[#D9E1EF] bg-white">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-10 py-5">
-          <Link
-            href="/onboarding/interest"
-            className="inline-flex h-10 items-center gap-2 rounded-xl border-2 border-[#D9E1EF] bg-white px-6 text-[14px] font-medium text-[#0F172A] transition-colors hover:bg-[#EFF4FF]"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Link>
-          <button
-            type="button"
-            onClick={handleContinue}
-            disabled={!hasSelected}
-            className={`inline-flex h-10 items-center gap-2 rounded-xl px-8 text-[14px] font-semibold text-white transition-colors ${
-              hasSelected
-                ? 'cursor-pointer bg-[#2F66C8] hover:bg-[#1B4FCA]'
-                : 'cursor-not-allowed bg-[#2F66C8]/40'
-            }`}
-          >
-            Continue
-            <ArrowRight className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="mx-auto max-w-4xl border-t border-[#EEF2F8] px-10 py-4">
-          <div className="flex items-center gap-2 text-[12px] text-[#44516A]">
-            <Image src={lightBulbIcon} alt="" width={16} height={16} className="shrink-0 object-contain" />
-            <span>
-              <strong className="font-medium text-[#0F172A]">Not sure yet?</strong>{' '}
-              You can update your location anytime in your account settings.
-            </span>
-          </div>
-          <OnboardingFooter />
-        </div>
-      </div>
+      <OnboardingNavButtons
+        backHref="/onboarding/interest"
+        onContinue={handleContinue}
+        continueDisabled={!hasSelected}
+        footer={<Footer />}
+      />
     </div>
   );
 }

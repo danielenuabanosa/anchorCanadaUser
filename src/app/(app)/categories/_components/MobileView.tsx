@@ -115,13 +115,13 @@ export default function MobileView() {
         <p className="text-[#44516a] text-sm mt-1">Explore trusted organizations creating opportunities across Canada.</p>
       </div>
 
-      <div className="flex items-center gap-2 border border-[#d9e1ef] rounded-[8px] px-3 py-2.5 bg-white">
-        <Search size={14} className="text-[#8c97ad]" />
+      <div className="relative">
+        <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8c97ad]" />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search jobs, grants, support..."
-          className="flex-1 text-sm text-[#0f172a] placeholder-[#8c97ad] outline-none bg-transparent"
+          className="anchor-field anchor-field--icon-left"
         />
       </div>
 

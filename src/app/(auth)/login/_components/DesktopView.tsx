@@ -71,11 +71,11 @@ export default function LoginDesktopView() {
   ];
 
   return (
-    <div className="w-full max-w-[1548px] mx-auto flex flex-col gap-10">
+    <div className="w-full max-w-[1548px] min-w-[1200px] mx-auto flex flex-col gap-10">
       {/* Main 2-column layout */}
       <div className="flex gap-10 items-start">
 
-        {/* ── Left column: form ── */}
+        {/* -- Left column: form -- */}
         <div className="flex flex-col gap-10 items-start shrink-0 w-[886px]">
 
           {/* Demo credentials banner */}
@@ -125,20 +125,20 @@ export default function LoginDesktopView() {
                     <span className="font-semibold text-[#0f172a]">Email Address</span>
                     <span className="text-[#ef4444]">*</span>
                   </div>
-                  <div className="bg-[#FFFFFF] border border-[#d9e1ef] rounded-[10px] flex items-center gap-2.5 p-4 w-full ">
-                    <div className="shrink-0">
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
                       <Image src={mailIcon} alt="" width={18} height={18} className="opacity-60" />
-                    </div>
+                    </span>
                     <input
                       type="email"
                       value={email}
                       onChange={e => setEmail(e.target.value)}
                       placeholder="Enter your mail"
-                      className="flex-1 min-w-0 text-base text-[#0f172a] placeholder:text-[#8c97ad] bg-transparent outline-none border border-transparent "
+                      className={`anchor-field anchor-field--icon-left${emailValid ? ' anchor-field--icon-right' : ''}`}
                       autoComplete="email"
                     />
                     {emailValid && (
-                      <div className="shrink-0 bg-[#15803d] rounded-[10px] p-1.5 flex items-center justify-center">
+                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none shrink-0 bg-[#15803d] rounded-[10px] p-1.5 flex items-center justify-center">
                         <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 12 12" fill="none">
                           <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
@@ -153,20 +153,20 @@ export default function LoginDesktopView() {
                     <span className="font-semibold text-[#0f172a]">Password</span>
                     <span className="text-[#ef4444]">*</span>
                   </div>
-                  <div className="bg-[#FFFFFF] border border-[#d9e1ef] rounded-[10px] flex items-center justify-between p-4 w-full">
-                    <div className="flex gap-2.5 items-center flex-1 min-w-0">
-                      <Image src={lockIcon} alt="" width={18} height={18} className="shrink-0 opacity-60" />
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder="Minimum 8 characters"
-                        className="flex-1 min-w-0 text-base text-[#0f172a] placeholder:text-[#8c97ad] bg-transparent outline-none"
-                        autoComplete="current-password"
-                      />
-                    </div>
-                    <button type="button" onClick={() => setShowPassword(v => !v)} className="text-[#8c97ad] hover:text-[#44516a] shrink-0">
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <Image src={lockIcon} alt="" width={18} height={18} className="opacity-60" />
+                    </span>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder="Minimum 8 characters"
+                      className="anchor-field anchor-field--icon-left anchor-field--icon-right"
+                      autoComplete="current-password"
+                    />
+                    <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8c97ad] hover:text-[#44516a]">
                       {showPassword ? <Eye className="h-[18px] w-[18px]" /> : <EyeOff className="h-[18px] w-[18px]" />}
                     </button>
                   </div>
@@ -262,7 +262,7 @@ export default function LoginDesktopView() {
           </div>
         </div>
 
-        {/* ── Right column: preview card ── */}
+        {/* -- Right column: preview card -- */}
         <div className="flex-1 min-w-0 rounded-[10px] overflow-hidden relative" style={{ minHeight: '1067px' }}>
           <Image src={loginBg} alt="Toronto skyline" fill className="object-cover w-[622px] h-[1067px]" priority />
           {/* Content overlay */}
@@ -296,16 +296,17 @@ export default function LoginDesktopView() {
                 <div className="flex items-center gap-[10px]">
                   <Image src={locationIcon} alt="" width={16} height={16} className="opacity-70" />
                   <span className="text-sm text-[#8c97ad]">Toronto, Ontario, Canada</span>
+                   <Image src={canadaFlag} alt="Canada" width={32} height={20} className="object-cover rounded-sm" />
                 </div>
-                <Image src={canadaFlag} alt="Canada" width={32} height={20} className="object-cover rounded-sm" />
+               
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Bottom info bar ── */}
-      <div className="bg-[#eff4ff] flex items-center justify-between p-5 rounded-[10px] w-full">
+      {/* -- Bottom info bar -- */} 
+      <div className="bg-[#eff4ff] flex items-center justify-between p-2 rounded-[10px] w-full">
         <div className="flex gap-3 items-center">
           <Image src={lightBulbIcon} alt="" width={24} height={24} className="shrink-0" />
           <span className="text-base text-[#44516a]">You can edit your profile anytime in your account settings.</span>
@@ -320,6 +321,7 @@ export default function LoginDesktopView() {
           </Link>
         </div>
       </div>
+      
     </div>
   );
 }

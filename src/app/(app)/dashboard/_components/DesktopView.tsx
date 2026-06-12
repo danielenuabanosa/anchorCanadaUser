@@ -15,7 +15,7 @@ import ac2 from '@assets/images/w1.png';
 import ac3 from '@assets/images/w1.png';
 import ac4 from '@assets/images/w1.png';
 
-/* ─ Types  ─ */
+/* - Types  - */
 
 interface OpportunityCard {
   id: string;
@@ -30,7 +30,7 @@ interface OpportunityCard {
   logo: StaticImageData;
 }
 
-/* ─ Mock data ── ─ */
+/* - Mock data -- - */
 
 const APP_STATS = [
   { label: 'Submitted',    value: 6,  dotColor: 'bg-[#2f66c8]',   urgent: false },
@@ -92,7 +92,7 @@ const PROFILE_CHECKS = [
 
 const SAVED_LOGOS = [ac1, ac2, ac3, ac4];
 
-/* ─ Sub-components ─ ─ */
+/* - Sub-components - - */
 
 function OpportunityCardItem({ card }: { card: OpportunityCard }) {
   const [saved, setSaved] = useState(false);
@@ -155,7 +155,7 @@ function CircularProgress({ percent }: { percent: number }) {
   );
 }
 
-/* ─ Main ── ─ */
+/* - Main -- - */
 
 export default function DashboardDesktopView() {
   const { user } = useAuthStore();
@@ -166,7 +166,7 @@ export default function DashboardDesktopView() {
   return (
     <div className="flex min-h-0 gap-6">
 
-      {/* ── Left / Main  ─ */}
+      {/* -- Left / Main  - */}
       <div className="flex min-w-0 flex-1 flex-col gap-5">
 
         {/* Greeting row */}
@@ -302,7 +302,7 @@ export default function DashboardDesktopView() {
         </div>
       </div>
 
-      {/* ── Right panel  ─ */}
+      {/* -- Right panel  - */}
       <div className="w-[280px] shrink-0 space-y-4">
 
         {/* Upcoming Deadlines */}

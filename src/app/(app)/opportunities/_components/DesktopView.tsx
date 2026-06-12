@@ -30,7 +30,7 @@ interface OpportunityItem {
   logoImg?: string;
 }
 
-/* ─ Mock data ── ─ */
+/* - Mock data -- - */
 
 const CATEGORIES: Record<Category, CategoryMeta> = {
   all:       { label: 'All',       count: 1248 },
@@ -142,7 +142,7 @@ function CompanyLogo({ item }: { item: OpportunityItem }) {
   );
 }
 
-/* ─ Component ── ─ */
+/* - Component -- - */
 
 export default function OpportunitiesDesktopView() {
   const [activeCategory, setActiveCategory] = useState<Category>('all');
@@ -227,7 +227,7 @@ export default function OpportunitiesDesktopView() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Job title, skill or organization..."
-                  className="w-full rounded-lg border border-[#D9E1EF] bg-[#F8FAFC] py-2 px-3 text-sm text-[#0F172A] placeholder-[#8C97AD] focus:outline-none focus:border-[#FFFFFF] focus:ring-1 focus:ring-[#FFFFFF]"
+                  className="anchor-field"
                 />
               </div>
             </div>
@@ -236,7 +236,7 @@ export default function OpportunitiesDesktopView() {
             <div>
               <label className="block text-xs font-semibold text-[#44516A] mb-1.5">Category</label>
               <div className="relative">
-                <select className="w-full appearance-none rounded-lg border border-[#D9E1EF] bg-[#F8FAFC] py-2 px-3 text-sm text-[#0F172A] placeholder-[#8C97AD] focus:outline-none focus:border-[#FFFFFF] focus:ring-1 focus:ring-[#FFFFFF]">
+                <select className="anchor-select">
                   <option>All Categories</option>
                   <option>Jobs</option>
                   <option>Grants</option>
@@ -253,7 +253,7 @@ export default function OpportunitiesDesktopView() {
               <label className="block text-xs font-semibold text-[#44516A] mb-1.5">Location</label>
               <div className="relative mb-2">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8C97AD]" />
-                <select className="w-full appearance-none rounded-lg border border-[#D9E1EF] bg-[#F8FAFC] py-2 pl-9 pr-8 text-sm text-[#0F172A] focus:outline-none focus:border-[#2f66c8]">
+                <select className="anchor-select anchor-field--icon-left">
                   <option>Ontario, Canada</option>
                   <option>British Columbia</option>
                   <option>Alberta</option>
@@ -298,7 +298,7 @@ export default function OpportunitiesDesktopView() {
             <div>
               <label className="block text-xs font-semibold text-[#44516A] mb-1.5">Eligibility</label>
               <div className="relative">
-                <select className="w-full appearance-none rounded-lg border border-[#D9E1EF] bg-[#F8FAFC] px-3 py-2 pr-8 text-sm text-[#0F172A] focus:outline-none focus:border-[#2f66c8]">
+                <select className="anchor-select">
                   <option>All Eligibility</option>
                   <option>Newcomers</option>
                   <option>Students</option>
@@ -312,7 +312,7 @@ export default function OpportunitiesDesktopView() {
             <div>
               <label className="block text-xs font-semibold text-[#44516A] mb-1.5">Deadline</label>
               <div className="relative">
-                <select className="w-full appearance-none rounded-lg border border-[#D9E1EF] bg-[#F8FAFC] px-3 py-2 pr-8 text-sm text-[#0F172A] focus:outline-none focus:border-[#2f66c8]">
+                <select className="anchor-select">
                   <option>Anytime</option>
                   <option>Next 7 days</option>
                   <option>Next 30 days</option>

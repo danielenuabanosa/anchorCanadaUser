@@ -2,14 +2,14 @@
 
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { Search, Check } from 'lucide-react';
 import type { StaticImageData } from 'next/image';
 
 import { OnboardingNavbar } from '@/features/home/components/OnboardingNavbar';
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
-import { OnboardingFooter } from '@/shared/components/onboarding/OnboardingFooter';
+import { OnboardingNavButtons } from '@/shared/components/onboarding/OnboardingNavButtons';
+import { Footer } from './Footer';
 
 import briefcaseIcon from '@assets/icons/briefcase.png';
 import handCoinsIcon from '@assets/icons/hand-coins.png';
@@ -71,9 +71,9 @@ function InterestCard({
     <button
       type="button"
       onClick={onToggle}
-      className={`relative flex flex-col rounded-2xl bg-white p-4 text-left transition-all ${
+      className={`relative flex flex-col rounded-2xl bg-[#FFFFFF] p-4 text-left transition-all ${
         selected
-          ? 'border-2 border-[#2F66C8] shadow-md'
+          ? 'border-2 border-[#2F66C8] shadow-md bg-[#DCE7FF]'
           : 'border border-[#D9E1EF] shadow-sm hover:border-[#2F66C8]/30 hover:shadow-md'
       }`}
     >
@@ -88,12 +88,12 @@ function InterestCard({
         <Image src={item.icon} alt="" width={22} height={22} className="object-contain" />
       </div>
 
-      <p className="mt-3 pr-6 text-[13px] font-bold leading-tight text-[#0F172A]">{item.name}</p>
-      <p className="mt-1 text-[11px] leading-relaxed text-[#8C97AD]">{item.desc}</p>
+      <p className="mt-3 pr-6 text-[28px] font-regular leading-[56px] text-[#0F172A] font-serif">{item.name}</p>
+      <p className="mt-1 text-[16px] leading-100% text-[#8C97AD] font-sans  ">{item.desc}</p>
 
       {item.popular && (
         <div className="mt-2.5">
-          <span className="rounded-full bg-[#EFF4FF] px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[#2F66C8]">
+          <span className="rounded-full bg-[#EFF4FF] px-2.5 py-0.5 text-[10.69px] font-bold uppercase tracking-widest text-[#2F66C8] font-sans">
             Popular
           </span>
         </div>
@@ -129,26 +129,23 @@ export default function DesktopView() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-[#FFFFFF] to-[#F2F7FF] to-[#f2f7ff]">
       <OnboardingNavbar />
 
-      {/* Steps bar */}
-      <div className="border-b border-[#D9E1EF] bg-white">
-        <div className="mx-auto max-w-5xl px-10 pb-3 pt-4">
-          <StepProgress current={1} />
-        </div>
+      <div className="mx-auto w-full max-w-[1548px] px-10 pt-10">
+        <StepProgress current={1} />
       </div>
 
-      {/* Main content */}
-      <main className="flex flex-1 flex-col items-center px-10 py-10">
+      <main className="mx-auto flex w-full max-w-[1548px] flex-1 flex-col items-center px-10 pb-16 pt-10">
         <div className="text-center">
-          <h1 className="font-instrument-serif text-[46px] font-normal leading-tight text-[#0F172A]">
+          <h1 className="font-serif text-[60px] font-normal leading-tight text-[#0F172A]">
             What{' '}
-            <span className="italic text-[#2F66C8]">Opportunities</span>
-            <span className="cursor-blink ml-px text-[#E8242B]">|</span>
+            <span className="italic text-[#2F66C8] font-serif text-[78.83px]">Opportunities</span>
+            <span className=" ml-px text-[#EF4444] w-[5.26px] h-[78.83px] inline-block">|</span>
+            {/* <span className="cursor-blink ml-px text-[#E8242B]">|</span> */}
             {' '}Matter Most To You?
           </h1>
-          <p className="mt-2.5 text-[13px] leading-relaxed text-[#8C97AD]">
+          <p className="mt-2.5 text-[16px] leading-relaxed text-[#8C97AD] font-sans">
             Select everything that matches your current goals.
             <br />
             The more you share, the better Anchor can personalize your experience.
@@ -156,33 +153,34 @@ export default function DesktopView() {
         </div>
 
         {/* Search + counter */}
-        <div className="mt-8 flex w-full max-w-4xl items-center justify-between rounded-2xl border border-[#D9E1EF] bg-white px-5 py-3.5 shadow-sm">
-          <div className="flex flex-1 items-center gap-3">
-            <Search className="h-[15px] w-[15px] shrink-0 text-[#8C97AD]" />
-            <input
-              type="text"
-              placeholder="Search interests..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="flex-1 bg-transparent text-[13px] text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
-            />
-          </div>
-          <div className={`flex items-center gap-1.5 ${hasSelected ? 'text-[#2F66C8]' : 'text-[#8C97AD]'}`}>
-            <Image
-              src={circleCheckIcon}
-              alt=""
-              width={16}
-              height={16}
-              className={`object-contain transition-opacity ${hasSelected ? 'opacity-100' : 'opacity-40'}`}
-            />
-            <span className="whitespace-nowrap text-[13px] font-medium">
-              {hasSelected ? `${count} selected` : 'None Selected'}
-            </span>
-          </div>
-        </div>
+        <div className="mt-8 flex w-full max-w-[1548px]  justify-between rounded-2xl border border-[#D9E1EF] bg-white px-5 py-3.5 shadow-sm">
+  <div className="relative flex-1">
+    <Search className="absolute left-0 top-1/2 h-[15px] w-[15px] -translate-y-1/2 text-[#8C97AD]" />
+    <input
+      type="text"
+      placeholder="Search interests..."
+      value={query}
+      onChange={(e) => setQuery(e.target.value)}
+      className="anchor-field anchor-field--icon-left w-full border-0 bg-transparent pl-7 shadow-none"
+    />
+  </div>
+  <div className="flex items-center gap-3">
+    <div className={`flex items-center gap-1.5 ${hasSelected ? 'text-[#2F66C8]' : 'text-[#8C97AD]'}`}>
+      <Image
+        src={circleCheckIcon}
+        alt=""
+        width={16}
+        height={16}
+        className={`object-contain transition-opacity ${hasSelected ? 'opacity-100' : 'opacity-40'}`}
+      />
+      <span className="whitespace-nowrap text-[13px] font-medium">
+        {hasSelected ? `${count} selected` : 'None Selected'}
+      </span>
+    </div>
+  </div>
+</div>
 
-        {/* 5-col grid */}
-        <div className="mt-5 grid w-full max-w-4xl grid-cols-5 gap-4">
+        <div className="mt-5 grid w-full  max-w-[1548px]  grid-cols-5 gap-4">
           {filtered.map((item) => (
             <InterestCard
               key={item.id}
@@ -192,45 +190,16 @@ export default function DesktopView() {
             />
           ))}
         </div>
+
+  
       </main>
 
-      {/* Bottom nav */}
-      <div className="border-t border-[#D9E1EF] bg-white">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-10 py-5">
-          <Link
-            href="/onboarding"
-            className="inline-flex h-10 items-center gap-2 rounded-xl border-2 border-[#D9E1EF] bg-white px-6 text-[14px] font-medium text-[#0F172A] transition-colors hover:bg-[#EFF4FF]"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Link>
-          <button
-            type="button"
-            onClick={handleContinue}
-            disabled={!hasSelected}
-            className={`inline-flex h-10 items-center gap-2 rounded-xl px-8 text-[14px] font-semibold text-white transition-colors ${
-              hasSelected
-                ? 'cursor-pointer bg-[#2F66C8] hover:bg-[#1B4FCA]'
-                : 'cursor-not-allowed bg-[#2F66C8]/40'
-            }`}
-          >
-            Continue
-            <ArrowRight className="h-4 w-4" />
-          </button>
-        </div>
-
-        {/* Footer strip */}
-        <div className="mx-auto max-w-4xl border-t border-[#EEF2F8] px-10 py-4">
-          <div className="flex items-center gap-2 text-[12px] text-[#44516A]">
-            <Image src={lightBulbIcon} alt="" width={16} height={16} className="shrink-0 object-contain" />
-            <span>
-              <strong className="font-medium text-[#0F172A]">Not sure what to choose?</strong>{' '}
-              You can update your interests anytime in your account settings.
-            </span>
-          </div>
-          <OnboardingFooter />
-        </div>
-      </div>
+      <OnboardingNavButtons
+        backHref="/onboarding"
+        onContinue={handleContinue}
+        continueDisabled={!hasSelected}
+        footer={<Footer />}
+      />
     </div>
   );
 }
