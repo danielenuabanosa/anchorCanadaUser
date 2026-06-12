@@ -20,7 +20,7 @@ import scholarshipIcon from '@/../assets/icons/scholarship.png';
 import heartIcon       from '@/../assets/icons/heart-handshake.png';
 import flashIcon       from '@/../assets/icons/flash.png';
 import cardBg          from '@/../assets/images/lp2.png';
-import avatarImg       from '@/../assets/images/image3.png';
+import avatarImg       from '@/../assets/images/w1.png';
 
 /* - Role options -- - */
 
