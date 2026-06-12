@@ -20,8 +20,8 @@ import shield3Icon from '@assets/icons/shield3.png';
 import editIcon from '@assets/icons/edit.png';
 import locationPinIcon from '@assets/icons/location2.png';
 import canadaFlagIcon from '@assets/icons/canada-flag.png';
-import validBannerImg from '@assets/images/w2.png';
-import avatarImg from '@assets/images/image.png';
+import validBannerImg from '@assets/images/w1.png';
+import avatarImg from '@assets/images/w1.png';
 
 const PREVIEW_BADGES = [
   { label: 'STUDENT', bg: '#EEF3FF', text: '#2F66C8', dot: '🎓' },

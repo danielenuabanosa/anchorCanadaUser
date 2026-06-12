@@ -22,7 +22,7 @@ import canadaFlagIcon from '@assets/icons/canada-flag.png';
 import mapBgImg from '@assets/images/map-bg.png';
 import validBgImg from '@assets/images/valid-bg.png';
 import plainBg2Img from '@assets/images/plain-bg2.png';
-import avatarImg from '@assets/images/image.png';
+import avatarImg from '@assets/images/w1.png';
 
 const BRAND = '#2F66C8';
 
