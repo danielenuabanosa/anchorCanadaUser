@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/authStore';
 import { LandingNavbar } from '@/features/home/components/LandingNavbar';
 import { HeroSection } from '@/features/home/components/HeroSection';
 import { GetStartedSection } from '@/features/home/components/GetStartedSection';
+import { LandingFooter } from '@/features/home/components/LandingFooter';
 
 export default function HomePage() {
   const { isAuthenticated } = useAuthStore();
@@ -25,6 +26,7 @@ export default function HomePage() {
       <LandingNavbar />
       <HeroSection />
       <GetStartedSection />
+
     </>
   );
 }
