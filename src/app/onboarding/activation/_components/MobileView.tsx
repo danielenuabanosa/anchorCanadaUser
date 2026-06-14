@@ -152,15 +152,15 @@ export default function MobileView() {
 
   if (phase === 'loading') {
     return (
-      <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
+      <div className="min-h-screen bg-gradient-to-b from-white to-[#f2f7ff]">
         <OnboardingNavbar />
 
         <div className="px-5 pb-3 pt-4">
           <StepProgress current={6} />
         </div>
 
-        <main className="flex-1 px-5 pb-4 pt-8">
-          <h1 className="font-instrument-serif text-[26px] font-normal leading-tight text-[#0F172A]">
+        <main className="px-5 pb-4 pt-8">
+          <h1 className="font-serif text-[26px] font-normal leading-tight text-[#0F172A]">
             Personalizing Your
             <span className="block text-[28px] italic text-[#2F66C8]">Anchor</span>
             Experience
@@ -252,29 +252,29 @@ export default function MobileView() {
               <p className="text-[10px] font-semibold text-[#2F66C8]">{Math.round(Math.min(progress, 100))}%</p>
             </div>
           </div>
-        </main>
 
-        <div className="border-t border-[#D9E1EF] bg-white px-5 py-4">
-          <Footer phase="loading" variant="mobile" className="mt-0" />
-        </div>
+          <div className="mt-8 border-t border-[#D9E1EF] pt-6 pb-8">
+            <Footer phase="loading" variant="mobile" className="mt-0" />
+          </div>
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
+    <div className="min-h-screen bg-gradient-to-b from-white to-[#f2f7ff]">
       <OnboardingNavbar />
 
       <div className="px-5 pb-3 pt-4">
         <StepProgress current={6} />
       </div>
 
-      <main className="flex-1 px-5 pb-4 pt-6">
+      <main className="px-5 pb-4 pt-6">
         <div className="relative h-[160px] w-full overflow-hidden rounded-2xl">
           <Image src={validBgImg} alt="celebration" fill className="object-cover" />
         </div>
 
-        <h1 className="font-instrument-serif text-[26px] font-normal text-[#0F172A]">Welcome to Anchor! 🎉</h1>
+        <h1 className="font-serif text-[26px] font-normal text-[#0F172A]">Welcome to Anchor! 🎉</h1>
         <p className="mt-2 text-[12px] leading-relaxed text-[#8C97AD]">
           Your account is verified, your profile is ready, and your personalized opportunities are waiting.
         </p>
@@ -357,27 +357,27 @@ export default function MobileView() {
             </div>
           ))}
         </div>
-      </main>
 
-      <div className="sticky bottom-0 border-t border-[#D9E1EF] bg-white px-5 pb-8 pt-4">
-        <div className="flex flex-col gap-3">
-          <button
-            type="button"
-            onClick={() => router.push('/onboarding/dashboard-transition')}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] bg-[#2F66C8] text-[15px] font-semibold text-white transition-colors hover:bg-[#2454A4]"
-          >
-            Enter My Dashboard <ArrowRight className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setPhase('loading')}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white text-[15px] font-medium text-[#2F66C8]"
-          >
-            <ArrowLeft className="h-4 w-4" /> Back
-          </button>
+        <div className="mt-8 border-t border-[#D9E1EF] pt-6 pb-8">
+          <div className="flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={() => router.push('/onboarding/dashboard-transition')}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] bg-[#2F66C8] text-[15px] font-semibold text-white transition-colors hover:bg-[#2454A4]"
+            >
+              Enter My Dashboard <ArrowRight className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setPhase('loading')}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white text-[15px] font-medium text-[#2F66C8]"
+            >
+              <ArrowLeft className="h-4 w-4" /> Back
+            </button>
+          </div>
+          <Footer phase="success" variant="mobile" />
         </div>
-        <Footer phase="success" variant="mobile" />
-      </div>
+      </main>
     </div>
   );
 }

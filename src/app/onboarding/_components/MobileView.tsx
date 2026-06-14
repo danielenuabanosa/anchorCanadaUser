@@ -99,7 +99,7 @@ function MobileCard({
 
       <div className="space-y-4 p-4">
         <div>
-          <h3 className="font-instrument-serif text-[22px] leading-tight text-[#0F172A]">{card.title}</h3>
+          <h3 className="font-serif text-[22px] leading-tight text-[#0F172A]">{card.title}</h3>
           <p className="mt-1 text-[14px] leading-relaxed text-[#44516A]">{card.body}</p>
         </div>
 
@@ -139,19 +139,19 @@ export default function MobileView() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
+    <div className="min-h-screen bg-gradient-to-b from-white to-[#f2f7ff]">
       <OnboardingNavbar />
 
       <div className="px-5 pb-2 pt-4">
         <StepProgress current={0} />
       </div>
 
-      <main className="flex-1 px-5 pb-4 pt-8">
+      <main className="px-5 pb-4 pt-8">
         <div className="text-center">
-          <h1 className="font-instrument-serif text-[26px] leading-tight text-[#0F172A]">
+          <h1 className="font-serif text-[26px] leading-tight text-[#0F172A]">
             How Would You Like To Use
           </h1>
-          <p className="font-instrument-serif text-[30px] italic leading-tight text-[#2F66C8]">Anchor?</p>
+          <p className="font-serif text-[30px] italic leading-tight text-[#2F66C8]">Anchor?</p>
           <p className="mt-3 text-[12px] leading-relaxed text-[#8C97AD]">
             Choose the path that best matches your goals.
             <br />
@@ -169,32 +169,32 @@ export default function MobileView() {
             />
           ))}
         </div>
-      </main>
 
-      <div className="sticky bottom-0 border-t border-[#D9E1EF] bg-white px-5 pb-8 pt-4">
-        <div className="flex flex-col gap-3">
-          <button
-            type="button"
-            onClick={handleContinue}
-            disabled={!selected}
-            className={`flex h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[15px] font-semibold text-white transition-colors ${
-              selected ? 'bg-[#2F66C8] hover:bg-[#2454A4]' : 'cursor-not-allowed bg-[#2F66C8]/40'
-            }`}
-          >
-            Continue
-            <ArrowRight className="h-4 w-4" />
-          </button>
-          <Link
-            href="/"
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white text-[15px] font-medium text-[#2F66C8]"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Link>
+        <div className="mt-8 border-t border-[#D9E1EF] pt-6 pb-8">
+          <div className="flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={handleContinue}
+              disabled={!selected}
+              className={`flex h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[15px] font-semibold text-white transition-colors ${
+                selected ? 'bg-[#2F66C8] hover:bg-[#2454A4]' : 'cursor-not-allowed bg-[#2F66C8]/40'
+              }`}
+            >
+              Continue
+              <ArrowRight className="h-4 w-4" />
+            </button>
+            <Link
+              href="/"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white text-[15px] font-medium text-[#2F66C8]"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Link>
+          </div>
+
+          <Footer variant="mobile" />
         </div>
-
-        <Footer variant="mobile" />
-      </div>
+      </main>
     </div>
   );
 }

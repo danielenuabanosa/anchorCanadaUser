@@ -52,26 +52,27 @@ export default function MobileView() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
+    <div className="min-h-screen bg-gradient-to-b from-white to-[#f2f7ff]">
       <OnboardingNavbar />
 
       <div className="px-5 pb-3 pt-4">
         <StepProgress current={4} />
       </div>
 
-      <main className="flex-1 px-5 pb-4 pt-8">
-        <h1 className="font-instrument-serif text-[28px] font-normal leading-tight text-[#0F172A]">
+      <main className="px-5 pb-4 pt-8">
+        <h2 className="font-serif text-[45px] font-normal leading-[56px] text-[#0F172A] text-center">
           Create Your{' '}
-          <span className="italic text-[#2F66C8]">Anchor</span>
-          <span className="block">Account</span>
-        </h1>
-        <p className="mt-2.5 text-[12px] leading-relaxed text-[#8C97AD]">
+          <span className="italic text-[#2F66C8] font-serif text-[56px] leading-[50px]">Anchor</span>
+          <span className="block text-[48px] leading-[56px] text-center font-normal text-[#0F172A]">Account</span>
+        </h2>
+        <p className="mt-2.5 font-sans text-[14px] font-normal leading-normal text-[#8C97AD] text-center">
           Your personalized opportunities are almost ready, secure your account to continue.
         </p>
 
         <div className="mt-6">
-          <label className="block text-[13px] font-semibold text-[#0F172A]">
-            Email Address <span className="text-[#E8242B]">*</span>
+          
+          <label className="block font-sans text-[14px] font-medium leading-[180%] text-[#0F172A]">
+            Email Address  <span className="font-sans text-[14px] font-normal leading-[180%] text-[#EF4444]">*</span>
           </label>
           <div className="relative mt-2">
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2">
@@ -82,10 +83,10 @@ export default function MobileView() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your mail"
-              className="anchor-field anchor-field--icon-left"
+              className="anchor-field anchor-field--icon-left h-[50px]"
             />
           </div>
-          <p className="mt-1.5 flex items-center gap-1 text-[11px] text-emerald-600">
+          <p className="mt-1.5 flex items-center gap-1 font-sans text-[11px] text-[#16A34A]">
             <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
               <circle cx="6" cy="6" r="5" stroke="#16A34A" strokeWidth="1.5" />
               <path d="M4 6l1.5 1.5L8 4.5" stroke="#16A34A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -95,8 +96,8 @@ export default function MobileView() {
         </div>
 
         <div className="mt-5">
-          <label className="block text-[13px] font-semibold text-[#0F172A]">
-            Create Password <span className="text-[#E8242B]">*</span>
+        <label className="block font-sans text-[14px] font-medium leading-[180%] text-[#0F172A]">
+            Create Password  <span className="font-sans text-[14px] font-normal leading-[180%] text-[#EF4444]">*</span>
           </label>
           <div className="relative mt-2">
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2">
@@ -107,7 +108,7 @@ export default function MobileView() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Minimum 8 characters"
-              className="anchor-field anchor-field--icon-left anchor-field--icon-right"
+              className="anchor-field anchor-field--icon-left anchor-field--icon-right  h-[50px]"
             />
             <button
               type="button"
@@ -143,8 +144,8 @@ export default function MobileView() {
         </div>
 
         <div className="mt-5">
-          <label className="block text-[13px] font-semibold text-[#0F172A]">
-            Confirm Password <span className="text-[#E8242B]">*</span>
+        <label className="block font-sans text-[14px] font-medium leading-[180%] text-[#0F172A]">
+            Confirm Password  <span className="font-sans text-[14px] font-normal leading-[180%] text-[#EF4444]">*</span>
           </label>
           <div className="relative mt-2">
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2">
@@ -155,7 +156,7 @@ export default function MobileView() {
               value={confirmPwd}
               onChange={(e) => setConfirmPwd(e.target.value)}
               placeholder="Re-enter your password"
-              className="anchor-field anchor-field--icon-left anchor-field--icon-right"
+              className="anchor-field anchor-field--icon-left anchor-field--icon-right  h-[50px]"
             />
             <button
               type="button"
@@ -218,56 +219,56 @@ export default function MobileView() {
         </div>
 
         <div className="relative my-5 flex items-center">
-          <div className="flex-1 border-t border-neutral-200" />
-          <span className="mx-4 text-[11px] text-neutral-400">Or continue with</span>
-          <div className="flex-1 border-t border-neutral-200" />
+          <div className="flex-1 border-t border-[#D9E1EF]" />
+          <span className="mx-4 font-sans text-[11px] text-[#44516A]">Or continue with</span>
+          <div className="flex-1 border-t border-[#D9E1EF]" />
         </div>
         <button
           type="button"
-          className="flex w-full items-center justify-center gap-3 rounded-xl border-2 border-neutral-200 bg-white px-4 py-2.5 text-[13px] font-medium text-neutral-700"
+          className="flex w-full items-center justify-center gap-3 rounded-sm border border-[#D9E1EF] bg-white px-4 py-2.5 font-sans text-[13px] font-medium text-[#0F172A] h-[58.56px]"
         >
           <Image src={googleIcon} alt="Google" width={18} height={18} className="object-contain" />
           Google
         </button>
 
-        <div className="mt-4 flex items-center gap-3 rounded-2xl border border-neutral-100 bg-[#F8FAFF] px-4 py-3">
+        <div className="mt-4 flex items-center gap-3 rounded-2xl border border-[#D9E1EF] bg-[#F8FAFC] px-4 py-3 h-[101.6px]">
           <Image src={shieldValidIcon} alt="" width={28} height={28} className="shrink-0 object-contain" />
           <div>
-            <p className="text-[12px] font-semibold text-[#0F172A]">Your security is our priority</p>
-            <p className="mt-0.5 text-[10px] text-neutral-400">Your information is encrypted, secure and private.</p>
+            <p className="font-sans text-[12px] font-semibold text-[#0F172A]">Your security is our priority</p>
+            <p className="mt-0.5 font-sans text-[10px] text-[#44516A]"> Your information is encrypted, secure and private.</p>
+          </div>
+        </div>
+
+        <div className="mt-8 border-t border-[#D9E1EF] pt-6 pb-8">
+          <div className="flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={handleContinue}
+              disabled={!canContinue}
+              className={`flex h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[15px] font-semibold text-white transition-colors ${
+                canContinue ? 'bg-[#2F66C8] hover:bg-[#2454A4]' : 'cursor-not-allowed bg-[#2F66C8]/40'
+              }`}
+            >
+              Create an Account <ArrowRight className="h-4 w-4" />
+            </button>
+            <Link
+              href="/onboarding/profile"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white text-[15px] font-medium text-[#2F66C8]"
+            >
+              <ArrowLeft className="h-4 w-4" /> Back
+            </Link>
+          </div>
+          <p className="mt-4 text-center font-sans text-[12px] text-[#8C97AD]">
+            Already have an account?{' '}
+            <Link href="/login" className="font-semibold text-[#2F66C8] underline-offset-2 hover:underline">
+              Log In
+            </Link>
+          </p>
+          <div className="mt-4">
+            <Footer variant="mobile" />
           </div>
         </div>
       </main>
-
-      <div className="sticky bottom-0 border-t border-[#D9E1EF] bg-white px-5 pb-8 pt-4">
-        <div className="flex flex-col gap-3">
-          <button
-            type="button"
-            onClick={handleContinue}
-            disabled={!canContinue}
-            className={`flex h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[15px] font-semibold text-white transition-colors ${
-              canContinue ? 'bg-[#2F66C8] hover:bg-[#2454A4]' : 'cursor-not-allowed bg-[#2F66C8]/40'
-            }`}
-          >
-            Create an Account <ArrowRight className="h-4 w-4" />
-          </button>
-          <Link
-            href="/onboarding/profile"
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white text-[15px] font-medium text-[#2F66C8]"
-          >
-            <ArrowLeft className="h-4 w-4" /> Back
-          </Link>
-        </div>
-        <p className="mt-4 text-center text-[12px] text-[#8C97AD]">
-          Already have an account?{' '}
-          <Link href="/login" className="font-semibold text-[#2F66C8] underline-offset-2 hover:underline">
-            Log In
-          </Link>
-        </p>
-        <div className="mt-4">
-          <Footer variant="mobile" />
-        </div>
-      </div>
     </div>
   );
 }

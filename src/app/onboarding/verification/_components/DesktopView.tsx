@@ -272,7 +272,7 @@ export default function DesktopView() {
       <main className="mx-auto w-full max-w-[1548px] flex-1 px-10 pb-16 pt-10">
         <div className="flex w-full gap-12">
           <div className="flex min-w-0 flex-1 flex-col">
-            <h1 className="font-instrument-serif text-[46px] font-normal leading-[1.1] text-[#0F172A]">
+            <h1 className="font-serif text-[46px] font-normal leading-[1.1] text-[#0F172A]">
               Confirm Your{' '}
               <span className="italic text-[#2F66C8]">Email</span>
             </h1>

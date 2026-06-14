@@ -86,11 +86,11 @@ function ProvinceCard({ p, selected, onToggle }: { p: ProvinceDef; selected: boo
         <RadioDot selected={selected} />
       </div>
       <Image src={p.flag} alt={p.name} width={56} height={37} className="rounded-sm object-cover" />
-      <p className="mt-2.5 pr-8 text-[20px] font-regular leading-[100%] text-[#0F172A] font-serif">{p.name}</p>
-      <p className="mt-1 whitespace-pre-line text-[14px] leading-[180%] text-[#8C97AD] font-sans font-regular">{p.cities}</p>
+      <p className="mt-2.5 pr-8 text-[20px] font-normal leading-[100%] text-[#0F172A] font-serif">{p.name}</p>
+      <p className="mt-1 whitespace-pre-line text-[14px] leading-[180%] text-[#8C97AD] font-sans font-normal">{p.cities}</p>
       <div className="mt-2.5 inline-flex items-center gap-1 self-start rounded-full bg-[#DCE7FF]   px-2 py-0.5">
         <Image src={locationPinIcon} alt="" width={10} height={10} className="object-contain" />
-        <span className="text-[9px] font-bold text-[#2F66C8] font-sans font-regular ">{p.code}</span>
+        <span className="text-[9px] font-bold text-[#2F66C8] font-sans font-normal ">{p.code}</span>
       </div>
     </button>
   );
@@ -111,10 +111,10 @@ function SpecialCardMobile({ s, selected, onToggle }: { s: SpecialDef; selected:
       <div className="absolute right-3 top-3 z-10">
         <RadioDot selected={selected} />
       </div>
-      <p className="font-serif pr-8 text-[28px] font-regular italic leading-[56px] text-[#2F66C8]">
+      <p className="font-serif pr-8 text-[28px] font-normal italic leading-[56px] text-[#2F66C8]">
         {s.title}
       </p>
-      <p className="mt-2 max-w-[58%] text-[14px] leading-[100%] text-[#8C97AD] font-sans font-regular">{s.body}</p>
+      <p className="mt-2 max-w-[58%] text-[14px] leading-[100%] text-[#8C97AD] font-sans font-normal">{s.body}</p>
       <div className="pointer-events-none absolute bottom-0 right-0 h-[125px] w-[160px]">
         <Image src={s.img} alt="" fill className="object-contain object-right-bottom" />
       </div>
@@ -182,7 +182,7 @@ export default function MobileView() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
+    <div className="min-h-screen bg-gradient-to-b from-white to-[#f2f7ff]">
       <OnboardingNavbar onHelpClick={() => setShowTooltip((v) => !v)} />
 
       {showTooltip && (
@@ -197,12 +197,12 @@ export default function MobileView() {
       </div>
 
       {/* Main content */}
-      <main className="flex-1 px-5 pb-6 pt-6">
+      <main className="px-5 pb-6 pt-6">
         <div className="text-center">
-          <h2 className="font-serif text-[48px] font-regular leading-[56px] text-[#0F172A]">
+          <h2 className="font-serif text-[48px] font-normal leading-[56px] text-[#0F172A]">
             Where Should Anchor
             <br />
-            <h2 className="font-serif text-[48px] font-regular leading-[56px] text-[#0F172A]">
+            <h2 className="font-serif text-[48px] font-normal leading-[56px] text-[#0F172A]">
             Focus Your
             </h2>
             <span className="italic text-[#2F66C8] text-[52px] leading-[56px] font-serif">Opportunities</span>
@@ -295,31 +295,31 @@ export default function MobileView() {
             ))}
           </div>
         </div>
-      </main>
 
-      <div className="sticky bottom-0 border-t border-[#D9E1EF] bg-white px-5 pb-8 pt-4">
-        <div className="flex flex-col gap-3">
-          <button
-            type="button"
-            onClick={handleContinue}
-            disabled={!hasSelected}
-            className={`flex h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[15px] font-semibold text-white transition-colors ${
-              hasSelected ? 'bg-[#2F66C8] hover:bg-[#2454A4]' : 'cursor-not-allowed bg-[#2F66C8]/40'
-            }`}
-          >
-            Continue
-            <ArrowRight className="h-4 w-4" />
-          </button>
-          <Link
-            href="/onboarding/interest"
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white text-[15px] font-medium text-[#2F66C8]"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Link>
+        <div className="mt-8 border-t border-[#D9E1EF] pt-6 pb-8">
+          <div className="flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={handleContinue}
+              disabled={!hasSelected}
+              className={`flex h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[15px] font-semibold text-white transition-colors ${
+                hasSelected ? 'bg-[#2F66C8] hover:bg-[#2454A4]' : 'cursor-not-allowed bg-[#2F66C8]/40'
+              }`}
+            >
+              Continue
+              <ArrowRight className="h-4 w-4" />
+            </button>
+            <Link
+              href="/onboarding/interest"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white text-[15px] font-medium text-[#2F66C8]"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Link>
+          </div>
+          <Footer variant="mobile" />
         </div>
-        <Footer variant="mobile" />
-      </div>
+      </main>
     </div>
   );
 }

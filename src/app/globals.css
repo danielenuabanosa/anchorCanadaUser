@@ -145,6 +145,23 @@
   --font-weight-extrabold: 800;
 }
 
+/* Aliases used across Figma handoff markup */
+@utility font-regular {
+  font-weight: 400;
+}
+
+@utility font-instrument-serif {
+  font-family: var(--font-serif);
+}
+
+@utility leading-100% {
+  line-height: 100%;
+}
+
+@utility leading-180% {
+  line-height: 180%;
+}
+
 /* - Base Reset --------------- */
 *, *::before, *::after { box-sizing: border-box; }
 

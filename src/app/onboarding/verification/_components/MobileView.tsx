@@ -167,7 +167,7 @@ export default function MobileView() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
+    <div className="min-h-screen bg-gradient-to-b from-white to-[#f2f7ff]">
       <OnboardingNavbar />
 
       {showToast && (
@@ -189,8 +189,8 @@ export default function MobileView() {
         <StepProgress current={5} />
       </div>
 
-      <main className="flex-1 px-5 pb-4 pt-8">
-        <h1 className="font-instrument-serif text-[28px] font-normal leading-tight text-[#0F172A]">
+      <main className="px-5 pb-4 pt-8">
+        <h1 className="font-serif text-[28px] font-normal leading-tight text-[#0F172A]">
           Confirm Your
           <span className="block text-[32px] italic text-[#2F66C8]">Email</span>
         </h1>
@@ -264,29 +264,29 @@ export default function MobileView() {
             </div>
           )}
         </div>
-      </main>
 
-      <div className="sticky bottom-0 border-t border-[#D9E1EF] bg-white px-5 pb-8 pt-4">
-        <div className="flex flex-col gap-3">
-          <button
-            type="button"
-            onClick={handleVerify}
-            disabled={!canVerify}
-            className={`flex h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[15px] font-semibold text-white transition-colors ${
-              canVerify ? 'bg-[#2F66C8] hover:bg-[#2454A4]' : 'cursor-not-allowed bg-[#2F66C8]/40'
-            }`}
-          >
-            Verify &amp; Continue <ArrowRight className="h-4 w-4" />
-          </button>
-          <Link
-            href="/onboarding/account"
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white text-[15px] font-medium text-[#2F66C8]"
-          >
-            <ArrowLeft className="h-4 w-4" /> Back
-          </Link>
+        <div className="mt-8 border-t border-[#D9E1EF] pt-6 pb-8">
+          <div className="flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={handleVerify}
+              disabled={!canVerify}
+              className={`flex h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[15px] font-semibold text-white transition-colors ${
+                canVerify ? 'bg-[#2F66C8] hover:bg-[#2454A4]' : 'cursor-not-allowed bg-[#2F66C8]/40'
+              }`}
+            >
+              Verify &amp; Continue <ArrowRight className="h-4 w-4" />
+            </button>
+            <Link
+              href="/onboarding/account"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white text-[15px] font-medium text-[#2F66C8]"
+            >
+              <ArrowLeft className="h-4 w-4" /> Back
+            </Link>
+          </div>
+          <Footer variant="mobile" />
         </div>
-        <Footer variant="mobile" />
-      </div>
+      </main>
     </div>
   );
 }

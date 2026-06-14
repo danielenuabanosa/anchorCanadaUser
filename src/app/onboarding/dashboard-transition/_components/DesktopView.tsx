@@ -59,9 +59,9 @@ export default function DashboardTransitionDesktop() {
             <span className="text-sm font-medium text-[#2F66C8]">Almost there</span>
           </div>
 
-          <h1 className="font-instrument-serif text-[48px] leading-tight text-[#0F172A]">
+          <h1 className="font-serif text-[48px] leading-tight text-[#0F172A]">
             Welcome to
-            <span className="block font-instrument-serif text-[52px] italic text-[#2F66C8]">
+            <span className="block font-serif text-[52px] italic text-[#2F66C8]">
               Anchor Canada
             </span>
           </h1>

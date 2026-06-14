@@ -164,7 +164,7 @@ export default function DesktopView() {
 
         <main className="mx-auto flex w-full max-w-[1548px] flex-1 flex-col items-center px-10 py-12">
             <div className="mb-8 text-center">
-              <h1 className="font-instrument-serif text-[46px] font-normal leading-[1.1] text-[#0F172A]">
+              <h1 className="font-serif text-[46px] font-normal leading-[1.1] text-[#0F172A]">
                 Personalizing Your{' '}
                 <span className="italic text-[#2F66C8]">Anchor</span>{' '}
                 Experience
@@ -290,7 +290,7 @@ export default function DesktopView() {
               <Image src={validBgImg} alt="celebration" fill className="object-cover" />
             </div>
 
-            <h1 className="mt-6 font-instrument-serif text-[46px] font-normal leading-[1.1] text-[#0F172A]">
+            <h1 className="mt-6 font-serif text-[46px] font-normal leading-[1.1] text-[#0F172A]">
               Welcome to Anchor! 🎉
             </h1>
             <p className="mt-3 text-[14px] leading-relaxed text-[#8C97AD]">

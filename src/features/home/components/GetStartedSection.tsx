@@ -42,7 +42,7 @@ export function GetStartedSection() {
 
         {/* -- Header ------------ */}
         <div className="mb-12 text-center">
-          <h2 className="text-[36px] font-regular leading-[56px] text-[#0F172A] lg:text-[48px] font-serif">
+          <h2 className="text-[36px] font-normal leading-[56px] text-[#0F172A] lg:text-[48px] font-serif">
             How Would You Like To
           </h2>
           
@@ -50,7 +50,7 @@ export function GetStartedSection() {
              Get Started{' '}
              <Image src={folderIcon} alt="Folder icon" width={40} height={40} className="ml-1 w-[32.2px] h-[32.2px] lg:w-[40px] lg:h-[40px] mt-[14px] lg:mt-[11px]"/>
           </span>
-          <p className="mt-3 text-[14px] lg:text-[16px] text-[#8C97AD]  font-sans font-[400] leading-100%">
+          <p className="mt-3 text-[14px] lg:text-[16px] text-[#8C97AD]  font-sans font-[400] leading-[100%]">
             You can switch paths anytime.
           </p>
         </div>
@@ -69,12 +69,12 @@ export function GetStartedSection() {
                 >
                   {title}
                 </h2>
-                <p className="mt-3 text-[14px] lg:text-[16px] leading-100% text-[#8C97AD] lg:text-[16px]">
+                <p className="mt-3 text-[14px] lg:text-[16px] leading-[100%] text-[#8C97AD] lg:text-[16px]">
                   {body}
                 </p>
                 <Link
                   href={href}
-                  className="mt-5 inline-flex items-center gap-1.5 rounded-sm border border-[#D9E1EF] bg-[#FFFFF] px-4 py-2 text-[12px] font-regular text-[#2F66C8] "
+                  className="mt-5 inline-flex items-center gap-1.5 rounded-sm border border-[#D9E1EF] bg-[#FFFFF] px-4 py-2 text-[12px] font-normal text-[#2F66C8] "
                 >
                   {cta}
                   <ArrowRight className="h-3.5 w-3.5" />

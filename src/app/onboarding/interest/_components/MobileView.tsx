@@ -87,7 +87,7 @@ function MobileCard({
         <Image src={item.icon} alt="" width={18} height={18} className="object-contain" />
       </div>
 
-      <p className="truncate pr-7 text-[12px] font-regular leading-[56px] text-[#0F172A] font-serif">{item.name}</p>
+      <p className="truncate pr-7 text-[12px] font-normal leading-[56px] text-[#0F172A] font-serif">{item.name}</p>
     </button>
   );
 }
@@ -119,7 +119,7 @@ export default function MobileView() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
+    <div className="min-h-screen bg-gradient-to-b from-white to-[#f2f7ff]">
       <OnboardingNavbar />
 
       {/* Steps bar */}
@@ -128,7 +128,7 @@ export default function MobileView() {
       </div>
 
       {/* Main content */}
-      <main className="flex-1 px-5 pb-6 pt-6">
+      <main className="px-5 pb-6 pt-6">
         <div className="text-center">
           <h1 className="font-serif text-[48px] font-normal leading-[56px] text-[#0F172A]">
             What{' '}
@@ -187,32 +187,32 @@ export default function MobileView() {
             />
           ))}
         </div>
-      </main>
 
-      <div className="sticky bottom-0 border-t border-[#D9E1EF] bg-white px-5 pb-8 pt-4">
-        <div className="flex flex-col gap-3">
-          <button
-            type="button"
-            onClick={handleContinue}
-            disabled={!hasSelected}
-            className={`flex h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[15px] font-semibold text-white transition-colors ${
-              hasSelected ? 'bg-[#2F66C8] hover:bg-[#2454A4]' : 'cursor-not-allowed bg-[#2F66C8]/40'
-            }`}
-          >
-            Continue
-            <ArrowRight className="h-4 w-4" />
-          </button>
-          <Link
-            href="/onboarding"
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white text-[15px] font-medium text-[#2F66C8]"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Link>
+        <div className="mt-8 border-t border-[#D9E1EF] pt-6 pb-8">
+          <div className="flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={handleContinue}
+              disabled={!hasSelected}
+              className={`flex h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[15px] font-semibold text-white transition-colors ${
+                hasSelected ? 'bg-[#2F66C8] hover:bg-[#2454A4]' : 'cursor-not-allowed bg-[#2F66C8]/40'
+              }`}
+            >
+              Continue
+              <ArrowRight className="h-4 w-4" />
+            </button>
+            <Link
+              href="/onboarding"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white text-[15px] font-medium text-[#2F66C8]"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Link>
+          </div>
+
+          <Footer variant="mobile" />
         </div>
-
-        <Footer variant="mobile" />
-      </div>
+      </main>
     </div>
   );
 }

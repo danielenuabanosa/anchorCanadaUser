@@ -88,8 +88,8 @@ function InterestCard({
         <Image src={item.icon} alt="" width={22} height={22} className="object-contain" />
       </div>
 
-      <p className="mt-3 pr-6 text-[28px] font-regular leading-[56px] text-[#0F172A] font-serif">{item.name}</p>
-      <p className="mt-1 text-[16px] leading-100% text-[#8C97AD] font-sans  ">{item.desc}</p>
+      <p className="mt-3 pr-6 text-[28px] font-normal leading-[56px] text-[#0F172A] font-serif">{item.name}</p>
+      <p className="mt-1 text-[16px] leading-[100%] text-[#8C97AD] font-sans  ">{item.desc}</p>
 
       {item.popular && (
         <div className="mt-2.5">

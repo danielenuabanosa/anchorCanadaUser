@@ -80,22 +80,22 @@ export default function DesktopView() {
 
           {/* Left: form */}
           <div className="flex w-[886px]  max-w-[886px] flex-1 flex-col">
-            <h1 className="font-serif text-[60px] font-regular leading-[56px] text-[#0F172A]">
+            <h1 className="font-serif text-[60px] font-normal leading-[56px] text-[#0F172A]">
               Let&apos;s Make Anchor{' '}
-              <span className="italic text-[#2F66C8] font-serif text-[78.83px] leading-[73.57px]">Yours</span>
+              <span className="font-serif text-[78.83px] italic leading-[73.57px] text-[#2F66C8]">Yours</span>
             </h1>
-            <p className="mt-3 text-[16px] leading-100% text-[#8C97AD] font-sans font-regular">
+            <p className="mt-3 font-sans text-[16px] font-normal leading-[100%] text-[#8C97AD]">
               Add a few details so your opportunities, recommendations, and <br/>
               community feel personal from day one.
             </p>
 
             {/* 1. Profile photo */}
             <div className="mt-8">
-              <p className="text-[28px] font-regular leading-[56px]text-[#0F172A] font-serif">
+              <p className="font-serif text-[28px] font-normal leading-[56px] text-[#0F172A]">
                 1. Add a profile photo{' '}
-                <span className="font-normal italic text-[#8C97AD] font-serif text-[28px] leading-[56px]">(Optional)</span>
+                <span className="font-serif text-[28px] font-normal italic leading-[56px] text-[#8C97AD]">(Optional)</span>
               </p>
-              <p className="mt-1 text-[16px] leading-180% text-[#8C97AD] font-sans font-regular">A photo helps build trust and community.</p>
+              <p className="mt-1 font-sans text-[16px] font-normal leading-[180%] text-[#8C97AD]">A photo helps build trust and community.</p>
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
               <button
                 type="button"
@@ -107,8 +107,8 @@ export default function DesktopView() {
                 ) : (
                   <>
                     <Image src={cameraIcon} alt="Upload" width={26} height={26} className="object-contain" />
-                    <span className="mt-1.5 text-center text-[9px] leading-100% text-[#0F172A] font-sans font-medium">
-                      Upload photo<br /><span className="text-[8px] text-[#44516A] font-sans font-regular leading-100% ">JPG, PNG • Max 5MB</span>
+                    <span className="mt-1.5 text-center font-sans text-[9px] font-medium leading-[100%] text-[#0F172A]">
+                      Upload photo<br /><span className="font-sans text-[8px] font-normal leading-[100%] text-[#44516A]">JPG, PNG • Max 5MB</span>
                     </span>
                   </>
                 )}
@@ -117,37 +117,37 @@ export default function DesktopView() {
 
             {/* 2. Name */}
             <div className="mt-8">
-            <p className="text-[28px] font-regular leading-[56px]text-[#0F172A] font-serif">2. What&apos;s your name?</p>
+            <p className="font-serif text-[28px] font-normal leading-[56px] text-[#0F172A]">2. What&apos;s your name?</p>
               <div className="mt-3 grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[16px] font-medium text-[#0F172A] font-sans font-regular leading-180%">
-                    First Name <span className="text-red-500  text-[16px] font-sans font-regular leading-180%">*</span>
+                  <label className="block font-sans text-[16px] font-medium leading-[180%] text-[#0F172A]">
+                    First Name <span className="font-sans text-[16px] font-normal leading-[180%] text-[#EF4444]">*</span>
                   </label>
                   <input
                     type="text"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="Enter your first name"
-                    className="mt-1.5 anchor-field"
+                    className="mt-1.5 anchor-field h-[53px"
                   />
                 </div>
                 <div>
-                  <label className="block text-[16px] font-medium text-[#0F172A] font-sans font-regular leading-180%">
-                    Last Name <span className="text-red-500  text-[16px] font-sans font-regular leading-180%">*</span>
+                  <label className="block font-sans text-[16px] font-medium leading-[180%] text-[#0F172A]">
+                    Last Name <span className="font-sans text-[16px] font-normal leading-[180%] text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="Enter your last name"
-                    className="mt-1.5 anchor-field"
+                    className="mt-1.5 anchor-field h-[53px"
                   />
                 </div>
               </div>
               <div className="mt-3">
                 <label className="flex items-center gap-1.5 text-[12px] font-medium text-[#0F172A]">
                   Display Name{' '} 
-                  <span className="block text-[16px] font-medium text-[#0F172A] font-sans font-regular leading-180%">(Optional)</span>
+                  <span className="block font-sans text-[16px] font-medium leading-[180%] text-[#0F172A]">(Optional)</span>
                   <Image src={questionIcon} alt="info" width={14} height={14} className="opacity-40" />
                 </label>
                 <input
@@ -155,7 +155,7 @@ export default function DesktopView() {
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="How should people know you?"
-                  className="mt-1.5 anchor-field"
+                  className="mt-1.5 anchor-field h-[53px"
                 />
                 <p className="mt-1 text-[11px] text-[#8C97AD]">This is how your profile will appear.</p>
               </div>
@@ -163,7 +163,7 @@ export default function DesktopView() {
 
             {/* 3. Pronouns */}
             <div className="mt-8">
-               <p className="text-[28px] font-regular leading-[56px]text-[#0F172A] font-serif">
+               <p className="font-serif text-[28px] font-normal leading-[56px] text-[#0F172A]">
                 3. Pronouns{' '}
                 <span className="font-normal italic text-[#8C97AD]">(Optional)</span>
               </p>
@@ -176,7 +176,7 @@ export default function DesktopView() {
                     value={customPronoun}
                     onChange={(e) => { setCustomPronoun(e.target.value); setPronoun(e.target.value); }}
                     placeholder="Type pronouns…"
-                    className="rounded-full border border-[#2F66C8] bg-[#EFF4FF] px-4 py-1.5 text-[13px] text-[#2F66C8] focus:outline-none"
+                    className="rounded-full border border-[#2F66C8] bg-[#EFF4FF] px-4 py-1.5 text-[13px] text-[#2F66C8] focus:outline-none h-[53px"
                   />
                 ) : (
                   <button
@@ -192,7 +192,7 @@ export default function DesktopView() {
 
             {/* 4. Bio */}
             <div className="mt-8">
-               <p className="text-[28px] font-regular leading-[56px]text-[#0F172A] font-serif">
+               <p className="font-serif text-[28px] font-normal leading-[56px] text-[#0F172A]">
                 4. One line about yourself{' '}
                 <span className="font-normal italic text-[#8C97AD]">(Optional)</span>
               </p>

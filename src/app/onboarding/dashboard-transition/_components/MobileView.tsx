@@ -38,19 +38,19 @@ export default function DashboardTransitionMobile() {
   const activeStep = Math.min(Math.floor(progress / 20), STEPS.length - 1);
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
+    <div className="min-h-screen bg-gradient-to-b from-white to-[#f2f7ff]">
       <OnboardingNavbar />
 
       <div className="px-5 pb-2 pt-4">
         <StepProgress current={7} />
       </div>
 
-      <main className="flex flex-1 flex-col items-center justify-center px-5 py-10 text-center">
+      <main className="flex flex-col items-center px-5 py-10 text-center">
         <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#EFF4FF]">
           <Image src={anchorLogo} alt="Anchor Canada" width={48} height={48} />
         </div>
 
-        <h1 className="font-instrument-serif text-[28px] leading-tight text-[#0F172A]">
+        <h1 className="font-serif text-[28px] leading-tight text-[#0F172A]">
           Welcome to
           <span className="block text-[32px] italic text-[#2F66C8]">Anchor Canada</span>
         </h1>

@@ -141,7 +141,7 @@ export function HeroSection() {
 
             {/* Heading */}
             <h3 className="mt-3 leading-[1.12] text-[#0F172A] text-center">
-              <span className="block text-[36px] font-regular leading-[56px] font-serif font-[400] text-[#0F172A]">Your Next</span>
+              <span className="block text-[36px] font-normal leading-[56px] font-serif font-[400] text-[#0F172A]">Your Next</span>
               <span className="block">
                 <span className="text-[52px] leading-[56px] font-serif font-[400] italic text-[#1B4FCA]">
                   Opportunities
@@ -151,7 +151,7 @@ export function HeroSection() {
                   className="cursor-blink ml-0.5 inline-block h-[32px] w-[2px] rounded-sm bg-[#E8242B] align-middle"
                 />
               </span>
-              <span className="block text-[36px] font-regular leading-[56px] font-serif font-[400] text-[#0F172A]">Starts Here</span>
+              <span className="block text-[36px] font-normal leading-[56px] font-serif font-[400] text-[#0F172A]">Starts Here</span>
             </h3>
 
             {/* Body */}
@@ -204,7 +204,7 @@ export function HeroSection() {
           {/* --- LEFT PANEL --------------------------------- */}
           <div>
             <span className="inline-block bg-[#FFFFFF] border border-[#D9E1EF] rounded-md px-8 py-2 ">
-              <p className="text-[14px] font-semibold  leading-100% uppercase tracking-[0.2em] text-[#2F66C8] font-sans">
+              <p className="text-[14px] font-semibold  leading-[100%] uppercase tracking-[0.2em] text-[#2F66C8] font-sans">
                 Welcome to Anchor Canada
               </p>
             </span>
@@ -221,7 +221,7 @@ export function HeroSection() {
               <span className="block text-[60px] text-[#0F172A] font-serif font-[400] leading-[56px]">Starts Here</span>
             </h1>
 
-            <p className="mt-5 max-w-[688px] text-[16px] leading-100% text-[#8C97AD]">
+            <p className="mt-5 max-w-[688px] text-[16px] leading-[100%] text-[#8C97AD]">
               Whether you&apos;re searching for jobs, grants, training, housing support, or ways to
               create impact. Anchor helps you move forward with confidence
             </p>

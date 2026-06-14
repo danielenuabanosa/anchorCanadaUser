@@ -5,23 +5,13 @@ import Image from 'next/image';
 import locationPinIcon from '@assets/icons/location2.png';
 import canadaFlagIcon from '@assets/icons/canada-flag.png';
 import lightBulbIcon from '@assets/icons/light-bulb.png';
-import graduationIcon from '@assets/icons/graduation-cap.png';
-import flashIcon from '@assets/icons/flash.png';
-import briefcaseIcon from '@assets/icons/briefcase.png';
 import cityBannerImg from '@assets/images/profile_bg.png';
 import avatarImg from '@assets/images/w1.png';
 
-const PREVIEW_BADGES = [
-  { label: 'STUDENT', bg: '#F0EBFF', text: '#7C3AED', icon: graduationIcon },
-  { label: 'NEWCOMER', bg: '#EEF3FF', text: '#2F66C8', icon: flashIcon },
-  { label: 'ENTREPRENEUR', bg: '#E6F7EF', text: '#059669', icon: briefcaseIcon },
-] as const;
-
-const FOCUS_CHIPS = [
-  { label: 'Finding Employment', bg: '#EEF3FF', text: '#2F66C8' },
-  { label: 'Accessing Funding', bg: '#E6F7EF', text: '#059669' },
-  { label: 'Support my community', bg: '#F0EBFF', text: '#7C3AED' },
-] as const;
+import {
+  FOCUS_CHIPS,
+  PREVIEW_BADGES,
+} from '@/shared/components/onboarding/profilePreviewData';
 
 interface ProfilePreviewCardProps {
   displayName: string;
@@ -72,7 +62,7 @@ export function ProfilePreviewCard({
         >
           Hello, {displayName}! 👋
         </p>
-        <p className={`mt-1 text-[#8C97AD] ${compact ? 'text-[14px] leading-100%' : 'text-[13px]'}`}>{pronounLabel}</p>
+        <p className={`mt-1 font-sans text-[#8C97AD] ${compact ? 'text-[14px] leading-[100%]' : 'text-[13px]'}`}>{pronounLabel}</p>
 
         <div className={`flex flex-wrap justify-center ${compact ? 'mt-2 gap-1' : 'mt-3 gap-1.5'}`}>
           {PREVIEW_BADGES.map((badge) => (

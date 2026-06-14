@@ -86,11 +86,11 @@ function ProvinceCard({ p, selected, onToggle }: { p: ProvinceDef; selected: boo
         <RadioDot selected={selected} />
       </div>
       <Image src={p.flag} alt={p.name} width={96} height={60} className="rounded-sm object-cover" />
-      <p className="mt-3 pr-8 text-[20px] font-regular leading-[56px] text-[#0F172A] font-serif">{p.name}</p>
-      <p className="mt-1 whitespace-pre-line text-[16px] leading-[180%] text-[#8C97AD] font-sans font-regular">{p.cities}</p>
+      <p className="mt-3 pr-8 text-[20px] font-normal leading-[56px] text-[#0F172A] font-serif">{p.name}</p>
+      <p className="mt-1 whitespace-pre-line text-[16px] leading-[180%] text-[#8C97AD] font-sans font-normal">{p.cities}</p>
       <div className="mt-3 inline-flex items-center gap-1.5 self-start rounded-full bg-[#DCE7FF] px-2.5 py-1">
         <Image src={locationPinIcon} alt="" width={11} height={11} className="object-contain" />
-        <span className="text-[10.69px] font-bold text-[#44516A] font-sans font-regular">{p.code}</span>
+        <span className="text-[10.69px] font-bold text-[#44516A] font-sans font-normal">{p.code}</span>
       </div>
     </button>
   );
@@ -111,10 +111,10 @@ function SpecialCard({ s, selected, onToggle }: { s: SpecialDef; selected: boole
       <div className="absolute right-3 top-3 z-10">
         <RadioDot selected={selected} />
       </div>
-      <p className="font-serif pr-8 text-[28px] font-regular italic leading-[56px] text-[#2F66C8]">
+      <p className="font-serif pr-8 text-[28px] font-normal italic leading-[56px] text-[#2F66C8]">
         {s.title}
       </p>
-      <p className="mt-2 max-w-[65%] text-[16px] leading-[100%] text-[#8C97AD] font-sans font-regular">{s.body}</p>
+      <p className="mt-2 max-w-[65%] text-[16px] leading-[100%] text-[#8C97AD] font-sans font-normal">{s.body}</p>
       <div className="pointer-events-none absolute bottom-0 right-0 h-[120px] w-[140px]">
         <Image src={s.img} alt="" fill className="object-contain object-right-bottom" />
       </div>

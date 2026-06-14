@@ -9,7 +9,7 @@ interface OnboardingNavbarProps {
 
 export function OnboardingNavbar({ onHelpClick }: OnboardingNavbarProps = {}) {
   return (
-    <header className="sticky top-0 z-50 border-b border-[#D9E1EF]/80 bg-white/95 backdrop-blur-[5px]">
+    <header className="relative z-10 border-b border-[#D9E1EF]/80 bg-white md:sticky md:top-0 md:z-50 md:backdrop-blur-[5px]">
       <div className="mx-auto flex max-w-[1728px] items-center justify-between px-5 py-6 md:px-10 md:py-10">
         <Link href="/" aria-label="Anchor Canada home">
           <Image
