@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Compass, Building2, Briefcase, User } from 'lucide-react';
+import { Home, Compass, Building2, Briefcase, Bookmark } from 'lucide-react';
 
 const NAV_ITEMS = [
   { href: '/dashboard',     icon: Home,      label: 'Home' },
   { href: '/opportunities', icon: Compass,   label: 'Explore' },
   { href: '/categories',    icon: Building2, label: 'Providers' },
   { href: '/applications',  icon: Briefcase, label: 'Applications' },
-  { href: '/profile',       icon: User,      label: 'Profile' },
+  { href: '/saved',         icon: Bookmark,  label: 'Saved' },
 ] as const;
 
 export function BottomNav() {

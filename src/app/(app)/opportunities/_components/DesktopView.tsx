@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import {
   Search, MapPin, ChevronDown, Bookmark, CheckCircle2,
-  Share2, SlidersHorizontal, RotateCcw, Compass, Calendar,
+  Share2, RotateCcw, Shield, Calendar,
   ArrowRight, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 
@@ -29,8 +29,6 @@ interface OpportunityItem {
   logoColor: string;
   logoImg?: string;
 }
-
-/* - Mock data -- - */
 
 const CATEGORIES: Record<Category, CategoryMeta> = {
   all:       { label: 'All',       count: 1248 },
@@ -112,12 +110,12 @@ const POPULAR_SEARCHES = [
 ];
 
 const CATEGORY_BADGE: Record<string, string> = {
-  Internship: 'bg-[#eff4ff] text-[#2f66c8]',
-  Grant:      'bg-[#d1fae5] text-[#15803d]',
-  Job:        'bg-[#f4f1fe] text-[#7c3aed]',
-  Volunteer:  'bg-[#d1fae5] text-[#15803d]',
-  Housing:    'bg-[#fff7ed] text-[#c2410c]',
-  Training:   'bg-[#fdf4ff] text-[#9333ea]',
+  Internship: 'bg-[#FFF7ED] text-[#C2410C]',
+  Grant:      'bg-[#D1FAE5] text-[#15803D]',
+  Job:        'bg-[#EFF4FF] text-[#2F66C8]',
+  Volunteer:  'bg-[#FCE7F3] text-[#BE185D]',
+  Housing:    'bg-[#FFF7ED] text-[#C2410C]',
+  Training:   'bg-[#FDF4FF] text-[#9333EA]',
 };
 
 function CompanyLogo({ item }: { item: OpportunityItem }) {
@@ -127,14 +125,14 @@ function CompanyLogo({ item }: { item: OpportunityItem }) {
       <img
         src={item.logoImg}
         alt={item.company}
-        className="h-[60px] w-[60px] rounded-xl object-contain border border-[#eef2f8] bg-white p-1.5 shrink-0"
+        className="h-[60px] w-[60px] shrink-0 rounded-xl border border-[#EEF2F8] bg-white object-contain p-1.5"
         onError={() => setImgError(true)}
       />
     );
   }
   return (
     <div
-      className="h-[60px] w-[60px] rounded-xl flex items-center justify-center text-white font-bold text-xl shrink-0"
+      className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-xl text-xl font-bold text-white"
       style={{ backgroundColor: item.logoColor }}
     >
       {item.logoLetter}
@@ -142,7 +140,37 @@ function CompanyLogo({ item }: { item: OpportunityItem }) {
   );
 }
 
-/* - Component -- - */
+function CategoryTab({
+  label,
+  count,
+  active,
+  onClick,
+}: {
+  label: string;
+  count: number;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${
+        active
+          ? 'bg-[#2F66C8] text-white'
+          : 'border border-[#D9E1EF] bg-white text-[#44516A] hover:border-[#2F66C8] hover:text-[#2F66C8]'
+      }`}
+    >
+      {label}
+      <span
+        className={`rounded-full px-1.5 py-0.5 text-xs ${
+          active ? 'bg-white/20 text-white' : 'bg-[#F8FAFC] text-[#8C97AD]'
+        }`}
+      >
+        {count.toLocaleString()}
+      </span>
+    </button>
+  );
+}
 
 export default function OpportunitiesDesktopView() {
   const [activeCategory, setActiveCategory] = useState<Category>('all');
@@ -164,77 +192,66 @@ export default function OpportunitiesDesktopView() {
 
   return (
     <div className="min-h-0">
-
       {/* Page header */}
-      <div className="mb-5">
-        <h1 className="font-['Instrument_Serif'] text-[28px] font-normal text-[#0F172A] leading-tight">
-          Explore Opportunities
-        </h1>
-        <p className="mt-1 text-sm text-[#44516A]">
-          Find jobs, grants, housing, training and more across Canada.
-        </p>
-      </div>
-
-      {/* Category tabs + action buttons */}
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-2">
-          {(Object.entries(CATEGORIES) as [Category, CategoryMeta][]).map(([key, meta]) => (
-            <button
-              key={key}
-              onClick={() => setActiveCategory(key)}
-              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-                activeCategory === key
-                  ? 'bg-[#2f66c8] text-white'
-                  : 'bg-white text-[#44516A] border border-[#D9E1EF] hover:border-[#2f66c8] hover:text-[#2f66c8]'
-              }`}
-            >
-              {meta.label}
-              {' '}
-              <span className={`text-xs ${activeCategory === key ? 'text-blue-200' : 'text-[#8C97AD]'}`}>
-                {meta.count.toLocaleString()}
-              </span>
-            </button>
-          ))}
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="font-serif text-[36px] leading-[56px] text-[#0F172A]">
+            Explore Opportunities
+          </h1>
+          <p className="text-base text-[#44516A]">
+            Find jobs, grants, housing, training and more across Canada.
+          </p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 rounded-lg border border-[#D9E1EF] bg-white px-3 py-1.5 text-sm font-medium text-[#44516A] hover:border-[#2f66c8] hover:text-[#2f66c8] transition-colors">
-            <Bookmark className="h-4 w-4" />
+          <button className="flex items-center gap-2 rounded-md border border-[#D9E1EF] bg-white px-4 py-2.5 text-sm font-medium text-[#44516A] transition hover:border-[#2F66C8] hover:text-[#2F66C8]">
+            <Bookmark className="h-[18px] w-[18px]" />
             Save Search
           </button>
-          <button className="flex items-center gap-1.5 rounded-lg border border-[#D9E1EF] bg-white px-3 py-1.5 text-sm font-medium text-[#44516A] hover:border-[#2f66c8] hover:text-[#2f66c8] transition-colors">
-            <Share2 className="h-4 w-4" />
+          <button className="flex items-center gap-2 rounded-md border border-[#D9E1EF] bg-white px-4 py-2.5 text-sm font-medium text-[#44516A] transition hover:border-[#2F66C8] hover:text-[#2F66C8]">
+            <Share2 className="h-[18px] w-[18px]" />
             Share
           </button>
         </div>
       </div>
 
-      {/* 3-column layout */}
-      <div className="flex gap-5 items-start">
+      {/* Category tabs */}
+      <div className="mb-5 flex flex-wrap gap-2.5">
+        {(Object.entries(CATEGORIES) as [Category, CategoryMeta][]).map(([key, meta]) => (
+          <CategoryTab
+            key={key}
+            label={meta.label}
+            count={meta.count}
+            active={activeCategory === key}
+            onClick={() => setActiveCategory(key)}
+          />
+        ))}
+      </div>
 
-        {/* Left sidebar filters */}
-        <aside className="hidden lg:block w-[250px] shrink-0">
-          <div className="rounded-xl border border-[#D9E1EF] bg-white p-5 shadow-[0_2px_8px_0_rgba(0,0,0,0.05)] space-y-5">
+      {/* 3-column layout */}
+      <div className="flex items-start gap-5">
+        {/* Filters sidebar */}
+        <aside className="hidden w-[320px] shrink-0 lg:block">
+          <div className="space-y-5 rounded-[10px] border border-[#EEF2F8] bg-white p-5">
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-sm text-[#0F172A]">Filters</span>
-              <button className="text-xs text-[#2f66c8] font-medium hover:underline">Clear all</button>
+              <span className="text-lg font-medium text-[#0F172A]">Filters</span>
+              <button className="text-xs font-medium text-[#2F66C8] hover:underline">Clear all</button>
             </div>
 
-            {/* Keyword */}
             <div>
-              <label className="block text-xs font-semibold text-[#44516A] mb-1.5">Keyboard</label>
+              <label className="anchor-label mb-2 text-xs text-[#44516A]">Keyword</label>
               <div className="relative">
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Job title, skill or organization..."
-                  className="anchor-field"
+                  className="anchor-field pr-10"
                 />
+                <Search className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8C97AD]" />
               </div>
             </div>
 
-            {/* Category */}
             <div>
-              <label className="block text-xs font-semibold text-[#44516A] mb-1.5">Category</label>
+              <label className="anchor-label mb-2 text-xs text-[#44516A]">Category</label>
               <div className="relative">
                 <select className="anchor-select">
                   <option>All Categories</option>
@@ -244,38 +261,36 @@ export default function OpportunitiesDesktopView() {
                   <option>Training</option>
                   <option>Volunteer</option>
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8C97AD]" />
+                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8C97AD]" />
               </div>
             </div>
 
-            {/* Location */}
             <div>
-              <label className="block text-xs font-semibold text-[#44516A] mb-1.5">Location</label>
-              <div className="relative mb-2">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8C97AD]" />
+              <label className="anchor-label mb-2 text-xs text-[#44516A]">Location</label>
+              <div className="relative mb-3">
+                <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8C97AD]" />
                 <select className="anchor-select anchor-field--icon-left">
                   <option>Ontario, Canada</option>
                   <option>British Columbia</option>
                   <option>Alberta</option>
                   <option>Quebec</option>
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8C97AD]" />
+                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8C97AD]" />
               </div>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex cursor-pointer items-center gap-2">
                 <input
                   type="checkbox"
                   checked={remoteOnly}
                   onChange={(e) => setRemoteOnly(e.target.checked)}
-                  className="h-4 w-4 rounded border-[#D9E1EF] text-[#2f66c8] focus:ring-[#2f66c8]"
+                  className="h-[18px] w-[18px] rounded border-[#D9E1EF] text-[#2F66C8] focus:ring-[#2F66C8]"
                 />
                 <span className="text-sm text-[#44516A]">Remote / Work from anywhere</span>
               </label>
             </div>
 
-            {/* Employment type */}
             <div>
-              <label className="block text-xs font-semibold text-[#44516A] mb-1.5">Location</label>
-              <div className="space-y-2">
+              <label className="anchor-label mb-2 text-xs text-[#44516A]">Job Type</label>
+              <div className="space-y-2.5">
                 {[
                   { label: 'Full-time',  count: 312 },
                   { label: 'Part-time',  count: 178 },
@@ -283,20 +298,19 @@ export default function OpportunitiesDesktopView() {
                   { label: 'Contract',   count: 98  },
                   { label: 'Volunteer',  count: 64  },
                 ].map((item) => (
-                  <label key={item.label} className="flex items-center justify-between cursor-pointer group">
-                    <div className="flex items-center gap-2">
-                      <input type="checkbox" className="h-4 w-4 rounded border-[#D9E1EF] text-[#2f66c8] focus:ring-[#2f66c8]" />
+                  <label key={item.label} className="group flex cursor-pointer items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <input type="checkbox" className="h-[18px] w-[18px] rounded border-[#D9E1EF] text-[#2F66C8] focus:ring-[#2F66C8]" />
                       <span className="text-sm text-[#44516A] group-hover:text-[#0F172A]">{item.label}</span>
                     </div>
-                    <span className="text-xs text-[#8C97AD]">({item.count})</span>
+                    <span className="text-sm text-[#8C97AD]">({item.count})</span>
                   </label>
                 ))}
               </div>
             </div>
 
-            {/* Eligibility */}
             <div>
-              <label className="block text-xs font-semibold text-[#44516A] mb-1.5">Eligibility</label>
+              <label className="anchor-label mb-2 text-xs text-[#44516A]">Eligibility</label>
               <div className="relative">
                 <select className="anchor-select">
                   <option>All Eligibility</option>
@@ -304,95 +318,91 @@ export default function OpportunitiesDesktopView() {
                   <option>Students</option>
                   <option>Youth (16-30)</option>
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8C97AD]" />
+                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8C97AD]" />
               </div>
             </div>
 
-            {/* Deadline */}
             <div>
-              <label className="block text-xs font-semibold text-[#44516A] mb-1.5">Deadline</label>
+              <label className="anchor-label mb-2 text-xs text-[#44516A]">Deadline</label>
               <div className="relative">
-                <select className="anchor-select">
+                <select className="anchor-select pr-16">
                   <option>Anytime</option>
                   <option>Next 7 days</option>
                   <option>Next 30 days</option>
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8C97AD]" />
-                <Calendar className="pointer-events-none absolute right-8 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8C97AD]" />
+                <Calendar className="pointer-events-none absolute right-8 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8C97AD]" />
+                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8C97AD]" />
               </div>
             </div>
 
-            {/* Apply */}
-            <button className="w-full rounded-xl bg-[#2f66c8] py-2.5 text-sm font-medium text-white hover:bg-[#2558b0] transition-colors">
+            <button className="w-full rounded-md bg-[#2F66C8] py-3 text-sm font-medium text-white transition hover:bg-[#2558B0]">
               Apply Filters
             </button>
-            <button className="flex items-center gap-1.5 mx-auto text-sm text-[#44516A] hover:text-[#2f66c8] transition-colors">
+            <button className="mx-auto flex items-center gap-1.5 text-sm text-[#44516A] transition hover:text-[#2F66C8]">
               <RotateCcw className="h-3.5 w-3.5" />
               Reset Filters
             </button>
           </div>
         </aside>
 
-        {/* Center results */}
-        <div className="flex-1 min-w-0 space-y-4">
-          {/* Results header */}
+        {/* Results */}
+        <div className="min-w-0 flex-1 space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-sm text-[#44516A]">
-              <span className="font-semibold text-[#0F172A]">1,248</span> opportunities found
+              <span className="font-medium text-[#0F172A]">1,248</span> opportunities found
             </p>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <span className="text-sm text-[#44516A]">Sort by</span>
-              <button className="flex items-center gap-1 text-sm font-medium text-[#0F172A] hover:text-[#2f66c8] rounded-lg border border-[#D9E1EF] bg-white px-2.5 py-1.5">
+              <button className="flex items-center gap-1 rounded-md border border-[#D9E1EF] bg-white px-3 py-2 text-sm font-medium text-[#0F172A] hover:text-[#2F66C8]">
                 Most Relevant
                 <ChevronDown className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>
 
-          {/* Cards */}
           <div className="space-y-3">
             {MOCK_OPPORTUNITIES.map((opp) => (
-              <div key={opp.id} className="rounded-xl border border-[#D9E1EF] bg-white p-5 hover:shadow-md transition-shadow shadow-[0_2px_8px_0_rgba(0,0,0,0.05)]">
+              <div
+                key={opp.id}
+                className="rounded-[10px] border border-[#EEF2F8] bg-white p-5 transition-shadow hover:shadow-[0_2px_8px_0_rgba(0,0,0,0.05)]"
+              >
                 <div className="flex gap-4">
                   <CompanyLogo item={opp} />
-                  <div className="flex-1 min-w-0">
-                    {/* Badges + bookmark */}
-                    <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-2 flex items-start justify-between gap-2">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${CATEGORY_BADGE[opp.category]}`}>
+                        <span className={`rounded px-2 py-1 text-xs font-semibold ${CATEGORY_BADGE[opp.category]}`}>
                           {opp.category}
                         </span>
                         {opp.isNew && (
-                          <span className="rounded-full bg-[#dcfce7] px-2.5 py-0.5 text-xs font-bold text-[#16a34a] uppercase tracking-wide">
+                          <span className="rounded bg-[#EFF4FF] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-[#2F66C8]">
                             NEW
                           </span>
                         )}
                         {opp.isFeatured && (
-                          <span className="rounded-full bg-[#fef3c7] px-2.5 py-0.5 text-xs font-bold text-[#b45309] uppercase tracking-wide">
+                          <span className="rounded bg-[#FEF3C7] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-[#B45309]">
                             ✦ FEATURED
                           </span>
                         )}
                       </div>
                       <button
                         onClick={() => toggleBookmark(opp.id)}
-                        className="text-[#8C97AD] hover:text-[#2f66c8] transition-colors shrink-0"
+                        className="shrink-0 text-[#8C97AD] transition-colors hover:text-[#2F66C8]"
                         aria-label="Bookmark"
                       >
-                        <Bookmark className={`h-5 w-5 ${savedBookmarks.has(opp.id) ? 'fill-[#2f66c8] text-[#2f66c8]' : ''}`} />
+                        <Bookmark className={`h-5 w-5 ${savedBookmarks.has(opp.id) ? 'fill-[#2F66C8] text-[#2F66C8]' : ''}`} />
                       </button>
                     </div>
 
-                    {/* Title */}
                     <Link href={`/opportunities/${opp.id}`}>
-                      <h3 className="text-[15px] font-semibold text-[#0F172A] hover:text-[#2f66c8] transition-colors mb-1">
+                      <h3 className="mb-1 text-base font-medium text-[#0F172A] transition-colors hover:text-[#2F66C8]">
                         {opp.title}
                       </h3>
                     </Link>
 
-                    {/* Company + details */}
-                    <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm text-[#44516A] mb-3">
+                    <div className="mb-3 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm text-[#44516A]">
                       <span className="font-medium">{opp.company}</span>
-                      {opp.verified && <CheckCircle2 className="h-3.5 w-3.5 text-[#2f66c8] shrink-0" />}
+                      {opp.verified && <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[#2F66C8]" />}
                       <span className="text-[#D9E1EF]">•</span>
                       <span>{opp.workMode}</span>
                       <span className="text-[#D9E1EF]">•</span>
@@ -405,25 +415,28 @@ export default function OpportunitiesDesktopView() {
                       )}
                     </div>
 
-                    {/* Footer */}
-                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                       <p className="text-xs text-[#8C97AD]">
                         Posted {opp.postedDaysAgo}d ago
                         <span className="mx-1.5 text-[#D9E1EF]">•</span>
-                        <span className={urgentClose(opp.closesInDays) ? 'text-red-500 font-semibold' : ''}>
+                        <span className={urgentClose(opp.closesInDays) ? 'font-medium text-[#B91C1C]' : ''}>
                           Closes in {opp.closesInDays} days
                         </span>
                       </p>
-                      <Link href={
-                        opp.category === 'Volunteer' || opp.isFeatured
-                          ? `/opportunities/${opp.id}`
-                          : `/opportunities/${opp.id}/apply`
-                      }>
-                        <button className={`rounded-lg px-4 py-1.5 text-sm font-medium transition-colors ${
+                      <Link
+                        href={
                           opp.category === 'Volunteer' || opp.isFeatured
-                            ? 'border border-[#D9E1EF] bg-white text-[#0F172A] hover:border-[#2f66c8] hover:text-[#2f66c8]'
-                            : 'bg-[#2f66c8] text-white hover:bg-[#2558b0]'
-                        }`}>
+                            ? `/opportunities/${opp.id}`
+                            : `/opportunities/${opp.id}/apply`
+                        }
+                      >
+                        <button
+                          className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                            opp.category === 'Volunteer' || opp.isFeatured
+                              ? 'border border-[#D9E1EF] bg-white text-[#0F172A] hover:border-[#2F66C8] hover:text-[#2F66C8]'
+                              : 'bg-[#2F66C8] text-white hover:bg-[#2558B0]'
+                          }`}
+                        >
                           {opp.category === 'Volunteer' || opp.isFeatured ? 'View Details' : 'Apply Now'}
                         </button>
                       </Link>
@@ -439,7 +452,7 @@ export default function OpportunitiesDesktopView() {
             <button
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm text-[#44516A] border border-[#D9E1EF] bg-white hover:border-[#2f66c8] hover:text-[#2f66c8] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center rounded-md border border-[#D9E1EF] bg-white px-3 py-1.5 text-sm text-[#44516A] transition hover:border-[#2F66C8] hover:text-[#2F66C8] disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -447,22 +460,22 @@ export default function OpportunitiesDesktopView() {
               <button
                 key={n}
                 onClick={() => setCurrentPage(n)}
-                className={`rounded-lg w-9 h-9 text-sm font-medium transition-colors ${
+                className={`h-9 w-9 rounded-md text-sm font-medium transition-colors ${
                   currentPage === n
-                    ? 'bg-[#2f66c8] text-white'
-                    : 'border border-[#D9E1EF] bg-white text-[#44516A] hover:border-[#2f66c8] hover:text-[#2f66c8]'
+                    ? 'bg-[#2F66C8] text-white'
+                    : 'border border-[#D9E1EF] bg-white text-[#44516A] hover:border-[#2F66C8] hover:text-[#2F66C8]'
                 }`}
               >
                 {n}
               </button>
             ))}
-            <span className="px-1 text-[#8C97AD] text-sm">···</span>
+            <span className="px-1 text-sm text-[#8C97AD]">···</span>
             <button
               onClick={() => setCurrentPage(12)}
-              className={`rounded-lg w-9 h-9 text-sm font-medium transition-colors ${
+              className={`h-9 w-9 rounded-md text-sm font-medium transition-colors ${
                 currentPage === 12
-                  ? 'bg-[#2f66c8] text-white'
-                  : 'border border-[#D9E1EF] bg-white text-[#44516A] hover:border-[#2f66c8] hover:text-[#2f66c8]'
+                  ? 'bg-[#2F66C8] text-white'
+                  : 'border border-[#D9E1EF] bg-white text-[#44516A] hover:border-[#2F66C8] hover:text-[#2F66C8]'
               }`}
             >
               12
@@ -470,7 +483,7 @@ export default function OpportunitiesDesktopView() {
             <button
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm text-[#44516A] border border-[#D9E1EF] bg-white hover:border-[#2f66c8] hover:text-[#2f66c8] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-1 rounded-md border border-[#D9E1EF] bg-white px-3 py-1.5 text-sm text-[#44516A] transition hover:border-[#2F66C8] hover:text-[#2F66C8] disabled:cursor-not-allowed disabled:opacity-40"
             >
               Next <ChevronRight className="h-4 w-4" />
             </button>
@@ -478,16 +491,14 @@ export default function OpportunitiesDesktopView() {
         </div>
 
         {/* Right sidebar */}
-        <aside className="hidden xl:block w-[240px] shrink-0 space-y-4">
-
-          {/* Popular Searches */}
-          <div className="rounded-xl border border-[#D9E1EF] bg-white p-5 shadow-[0_2px_8px_0_rgba(0,0,0,0.05)]">
-            <h3 className="mb-3 text-sm font-semibold text-[#0F172A]">Popular Searches</h3>
-            <ul className="space-y-2.5">
+        <aside className="hidden w-[368px] shrink-0 space-y-4 xl:block">
+          <div className="rounded-[10px] border border-[#EEF2F8] bg-white p-5">
+            <h3 className="mb-4 text-base font-medium text-[#0F172A]">Popular Searches</h3>
+            <ul className="space-y-3">
               {POPULAR_SEARCHES.map((term) => (
                 <li key={term}>
-                  <button className="flex items-center gap-2 text-sm text-[#44516A] hover:text-[#2f66c8] transition-colors w-full text-left">
-                    <Search className="h-3.5 w-3.5 shrink-0 text-[#8C97AD]" />
+                  <button className="flex w-full items-center gap-3 text-left text-sm text-[#44516A] transition hover:text-[#2F66C8]">
+                    <Search className="h-5 w-5 shrink-0 text-[#8C97AD]" />
                     {term}
                   </button>
                 </li>
@@ -495,38 +506,37 @@ export default function OpportunitiesDesktopView() {
             </ul>
           </div>
 
-          {/* Refine card */}
-          <div className="rounded-xl border border-[#D9E1EF] bg-white p-5 shadow-[0_2px_8px_0_rgba(0,0,0,0.05)]">
-            <h3 className="mb-3 text-sm font-semibold text-[#0F172A]">Refine your results</h3>
-            {/* Sliders illustration */}
-            <div className="mb-4 flex flex-col gap-2 py-3">
+          <div className="rounded-[10px] border border-[#EEF2F8] bg-[#EFF4FF] p-5">
+            <h3 className="mb-4 text-base font-medium text-[#0F172A]">Refine your results</h3>
+            <div className="mb-4 flex flex-col items-center gap-3 py-4">
               {[65, 40, 80].map((w, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <div className="h-0.5 flex-1 bg-[#EEF2F8] rounded-full relative">
-                    <div className="absolute top-1/2 -translate-y-1/2 h-3 w-3 rounded-full border-2 border-[#2f66c8] bg-white" style={{ left: `${w}%` }} />
-                  </div>
+                <div key={i} className="relative h-1.5 w-[100px] rounded-full bg-[#D9E1EF]">
+                  <div
+                    className="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full border-2 border-[#2F66C8] bg-white"
+                    style={{ left: `${w}%`, transform: 'translate(-50%, -50%)' }}
+                  />
+                  <div className="absolute left-0 top-0 h-full rounded-full bg-[#2F66C8]" style={{ width: `${w}%` }} />
                 </div>
               ))}
             </div>
-            <p className="mb-3 text-xs text-[#44516A] leading-relaxed">
+            <p className="mb-4 text-xs leading-relaxed text-[#44516A]">
               Use filters to find opportunities that match your goals and preferences.
             </p>
-            <button className="w-full rounded-lg border border-[#D9E1EF] py-2 text-xs font-medium text-[#0F172A] hover:border-[#2f66c8] hover:text-[#2f66c8] transition-colors">
+            <button className="w-full rounded-md border border-[#D9E1EF] bg-white py-2.5 text-xs font-medium text-[#0F172A] transition hover:border-[#2F66C8] hover:text-[#2F66C8]">
               Learn how filters work
             </button>
           </div>
 
-          {/* Tip */}
-          <div className="rounded-xl border border-[#D9E1EF] bg-white p-5 shadow-[0_2px_8px_0_rgba(0,0,0,0.05)]">
-            <div className="mb-2 flex items-center gap-2">
-              <Compass className="h-4 w-4 text-[#2f66c8]" />
-              <span className="text-xs font-semibold text-[#0F172A]">Tip</span>
+          <div className="rounded-[10px] border border-[#EEF2F8] bg-[#EFF4FF] p-5">
+            <div className="mb-3 flex items-center gap-2">
+              <Shield className="h-5 w-5 text-[#2F66C8]" />
+              <span className="text-sm font-medium text-[#0F172A]">Tip</span>
             </div>
-            <p className="mb-3 text-xs text-[#44516A] leading-relaxed">
+            <p className="mb-4 text-xs leading-relaxed text-[#44516A]">
               Completing your profile can increase your match accuracy and recommendations.
             </p>
-            <Link href="/profile" className="flex items-center gap-1 text-xs font-semibold text-[#2f66c8] hover:underline">
-              Complete Profile <ArrowRight className="h-3 w-3" />
+            <Link href="/profile" className="inline-flex items-center gap-2 text-xs font-semibold text-[#2F66C8] hover:underline">
+              Complete Profile <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </aside>

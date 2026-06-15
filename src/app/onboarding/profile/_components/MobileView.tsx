@@ -56,39 +56,44 @@ export default function MobileView() {
       </div>
 
       <main className="px-5 pb-4 pt-6">
-        <h1 className="font-serif text-[28px] font-normal leading-tight text-[#0F172A]">
-          Let&apos;s Make Anchor
-          <span className="block font-serif text-[32px] italic text-[#2F66C8]">Yours</span>
-        </h1>
-        <p className="mt-2.5 text-[12px] leading-relaxed text-[#8C97AD]">
-          Add a few details so your opportunities, recommendations, and community feel personal from day one.
-        </p>
-
-        <div className="mt-6">
-          <p className="text-[14px] font-semibold text-[#0F172A]">
-            1. Add a profile photo{' '}
-            <span className="font-normal text-[#8C97AD]">(Optional)</span>
+        <div className="text-center">
+          <h1 className="font-serif text-[48px] font-normal leading-[56px] text-[#0F172A]">
+            Let&apos;s Make Anchor
+          </h1>
+          <p className="font-serif text-[52px] italic leading-[56px] text-[#2F66C8]">Yours</p>
+          <p className="mt-2.5 font-sans text-[14px] leading-normal text-[#8C97AD]">
+            Add a few details so your opportunities, recommendations, and community feel personal from day one.
           </p>
-          <p className="mt-0.5 text-[11px] text-[#8C97AD]">A photo helps build trust and community.</p>
+        </div>
+
+        <div className="mt-8">
+          <p className="font-serif text-[20px] leading-[56px] text-[#0F172A]">
+            1. Add a profile photo{' '}
+            <span className="text-[#8C97AD]">(Optional)</span>
+          </p>
+          <p className="font-sans text-[14px] leading-[180%] text-[#44516A]">A photo helps build trust and community.</p>
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="mt-3 flex h-20 w-20 flex-col items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-[#D9E1EF] bg-white transition-colors hover:border-[#2F66C8]"
+            className="mt-3 flex h-[100px] w-[100px] flex-col items-center justify-center overflow-hidden rounded-full border border-dashed border-[#B6CCFF] bg-[#EFF4FF] transition-colors hover:border-[#2F66C8]"
           >
             {avatarSrc ? (
               <img src={avatarSrc} alt="avatar" className="h-full w-full object-cover" />
             ) : (
               <>
-                <Image src={cameraIcon} alt="Upload" width={22} height={22} className="object-contain" />
-                <span className="mt-1 text-center text-[9px] text-[#8C97AD]">Upload photo</span>
+                <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-[#DCE7FF]">
+                  <Image src={cameraIcon} alt="Upload" width={17} height={17} className="object-contain" />
+                </span>
+                <span className="mt-1 text-center font-sans text-[10px] font-medium text-[#0F172A]">Upload photo</span>
+                <span className="font-sans text-[9px] text-[#44516A]">JPG, PNG • Max 5MB</span>
               </>
             )}
           </button>
         </div>
 
-        <div className="mt-6">
-          <p className="text-[14px] font-semibold text-[#0F172A]">2. What&apos;s your name?</p>
+        <div className="mt-8">
+          <p className="font-serif text-[20px] leading-[56px] text-[#0F172A]">2. What&apos;s your name?</p>
           <div className="mt-3 flex flex-col gap-3">
             <div>
               <label className="block text-[12px] font-medium text-[#0F172A]">
@@ -131,21 +136,21 @@ export default function MobileView() {
           </div>
         </div>
 
-        <div className="mt-6">
-          <p className="text-[14px] font-semibold text-[#0F172A]">
+        <div className="mt-8">
+          <p className="font-serif text-[20px] leading-[56px] text-[#0F172A]">
             3. Pronouns{' '}
-            <span className="font-normal italic text-[#8C97AD]">(Optional)</span>
+            <span className="text-[#8C97AD]">(Optional)</span>
           </p>
-          <div className="mt-2.5 flex flex-wrap gap-2">
+          <div className="mt-2.5 flex flex-wrap gap-2.5">
             {PRONOUN_OPTIONS.map((p) => (
               <button
                 key={p}
                 type="button"
                 onClick={() => { setPronoun(p); setCustomMode(false); }}
-                className={`rounded-full border px-3.5 py-1.5 text-[12px] font-medium transition-colors ${
+                className={`rounded-[10px] border px-4 py-2.5 font-sans text-[14px] font-medium transition-colors ${
                   pronoun === p && !customMode
                     ? 'border-[#2F66C8] bg-[#EFF4FF] text-[#2F66C8]'
-                    : 'border-[#D9E1EF] bg-white text-[#44516A]'
+                    : 'border-[#D9E1EF] bg-white text-[#0F172A]'
                 }`}
               >
                 {p}
@@ -164,7 +169,7 @@ export default function MobileView() {
               <button
                 type="button"
                 onClick={() => { setCustomMode(true); setPronoun(null); }}
-                className="flex items-center gap-1.5 rounded-full border border-[#D9E1EF] bg-white px-3.5 py-1.5 text-[12px] font-medium text-[#44516A]"
+                className="flex items-center gap-1.5 rounded-[10px] border border-[#D9E1EF] bg-white px-4 py-2.5 font-sans text-[14px] font-medium text-[#0F172A]"
               >
                 <Pencil className="h-3 w-3" /> Custom
               </button>
@@ -172,10 +177,10 @@ export default function MobileView() {
           </div>
         </div>
 
-        <div className="mt-6">
-          <p className="text-[14px] font-semibold text-[#0F172A]">
+        <div className="mt-8">
+          <p className="font-serif text-[20px] leading-[56px] text-[#0F172A]">
             4. One line about yourself{' '}
-            <span className="font-normal italic text-[#8C97AD]">(Optional)</span>
+            <span className="text-[#8C97AD]">(Optional)</span>
           </p>
           <div className="relative mt-2.5">
             <textarea
@@ -189,30 +194,36 @@ export default function MobileView() {
           </div>
         </div>
 
-        <div className="mt-5">
+        <div className="mt-8 rounded-[10px] border border-[#D9E1EF] bg-white p-5">
           <button
             type="button"
             onClick={() => setPreviewOpen(!previewOpen)}
-            className="flex w-full items-center justify-between rounded-2xl border border-[#D9E1EF] bg-white px-4 py-3 shadow-sm"
+            className="flex w-full flex-col gap-4"
           >
-            <div className="flex items-center gap-3">
-              <div className="relative h-9 w-9 overflow-hidden rounded-full border-2 border-[#D9E1EF] bg-[#FFF9EC]">
-                {avatarSrc ? (
-                  <img src={avatarSrc} alt="avatar" className="h-full w-full object-cover" />
-                ) : (
-                  <Image src={avatarImg} alt="avatar" fill className="object-cover" />
-                )}
-              </div>
-              <div className="text-left">
-                <p className="text-[13px] font-semibold text-[#0F172A]">Hello, {displayedName}! 👋</p>
-                <div className="flex items-center gap-1 text-[11px] text-[#8C97AD]">
-                  <Image src={locationPinIcon} alt="" width={10} height={10} className="opacity-50" />
-                  Toronto, Ontario, Canada
-                  <Image src={canadaFlagIcon} alt="" width={13} height={9} className="rounded-sm object-cover" />
-                </div>
-              </div>
-            </div>
-            <ArrowRight className={`h-4 w-4 text-[#8C97AD] transition-transform ${previewOpen ? 'rotate-90' : ''}`} />
+            <span className="flex items-center gap-1.5 font-sans text-[14px] font-medium text-[#15803D]">
+              <span className="h-3.5 w-3.5 rounded-full bg-[#D1FAE5]" />
+              Live Preview
+            </span>
+            <span className="flex w-full items-center justify-between">
+              <span className="flex items-center gap-4">
+                <span className="relative h-[60px] w-[60px] overflow-hidden rounded-full border-2 border-[#D9E1EF] bg-[#FFF9EC]">
+                  {avatarSrc ? (
+                    <img src={avatarSrc} alt="avatar" className="h-full w-full object-cover" />
+                  ) : (
+                    <Image src={avatarImg} alt="avatar" fill className="object-cover" />
+                  )}
+                </span>
+                <span className="text-left">
+                  <span className="block font-serif text-[20px] text-[#0F172A]">Hello, {displayedName}! 👋</span>
+                  <span className="mt-1 flex items-center gap-1 font-sans text-[12px] text-[#8C97AD]">
+                    <Image src={locationPinIcon} alt="" width={14} height={14} className="opacity-50" />
+                    Toronto, Ontario, Canada
+                    <Image src={canadaFlagIcon} alt="" width={24} height={15} className="rounded-sm object-cover" />
+                  </span>
+                </span>
+              </span>
+              <ArrowRight className={`h-4 w-4 text-[#8C97AD] transition-transform ${previewOpen ? 'rotate-90' : ''}`} />
+            </span>
           </button>
           {previewOpen && (
             <div className="mt-2">

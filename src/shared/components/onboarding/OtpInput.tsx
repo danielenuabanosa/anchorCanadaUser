@@ -6,9 +6,10 @@ interface OtpInputProps {
   digits: string[];
   onChange: (digits: string[]) => void;
   length?: number;
+  variant?: 'desktop' | 'mobile';
 }
 
-export function OtpInput({ digits, onChange, length = 6 }: OtpInputProps) {
+export function OtpInput({ digits, onChange, length = 6, variant = 'desktop' }: OtpInputProps) {
   const refs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleChange = useCallback(
@@ -33,23 +34,42 @@ export function OtpInput({ digits, onChange, length = 6 }: OtpInputProps) {
     [digits],
   );
 
+  const inputClass =
+    variant === 'desktop'
+      ? 'size-[60px] shrink-0 rounded-[10px] border border-[#D9E1EF] bg-white text-center font-sans text-[16px] font-normal text-[#0F172A] outline-none transition focus:border-[#2F66C8] focus:ring-1 focus:ring-[#2F66C8]/20'
+      : 'h-[50px] min-w-0 flex-1 rounded-[10px] border border-[#D9E1EF] bg-white text-center font-sans text-[16px] font-normal text-[#0F172A] outline-none transition focus:border-[#2F66C8] focus:ring-1 focus:ring-[#2F66C8]/20';
+
+  const containerClass =
+    variant === 'desktop'
+      ? 'flex items-center justify-center gap-[10px]'
+      : 'flex w-full items-center gap-[10px]';
+
   return (
-    <div className="flex items-center justify-center gap-2 md:gap-3">
+    <div className={containerClass}>
       {digits.slice(0, length).map((d, i) => (
-        <input
-          key={i}
-          ref={(el) => {
-            refs.current[i] = el;
-          }}
-          type="text"
-          inputMode="numeric"
-          maxLength={1}
-          value={d}
-          onChange={(e) => handleChange(i, e.target.value)}
-          onKeyDown={(e) => handleKeyDown(i, e)}
-          className="h-11 w-10 rounded-lg border border-[#D9E1EF] bg-[#F8FAFC] text-center text-lg font-semibold text-[#0F172A] outline-none transition focus:border-[#2F66C8] focus:ring-1 focus:ring-[#2F66C8]/20 md:h-12 md:w-11"
-          aria-label={`Digit ${i + 1}`}
-        />
+        <span key={i} className="contents">
+          {i === 3 && (
+            <span
+              className={`shrink-0 text-[#D9E1EF] ${variant === 'desktop' ? 'w-5 text-center' : 'w-3 text-center'}`}
+              aria-hidden
+            >
+              —
+            </span>
+          )}
+          <input
+            ref={(el) => {
+              refs.current[i] = el;
+            }}
+            type="text"
+            inputMode="numeric"
+            maxLength={1}
+            value={d}
+            onChange={(e) => handleChange(i, e.target.value)}
+            onKeyDown={(e) => handleKeyDown(i, e)}
+            className={inputClass}
+            aria-label={`Digit ${i + 1}`}
+          />
+        </span>
       ))}
     </div>
   );

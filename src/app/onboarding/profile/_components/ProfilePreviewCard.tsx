@@ -32,13 +32,11 @@ export function ProfilePreviewCard({
 
   return (
     <div
-      className={`flex flex-col overflow-hidden rounded-2xl border border-[#D9E1EF] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.06)] ${
-        compact ? '' : 'h-[875.7px]'
-      }`}
+      className={`flex flex-col overflow-hidden rounded-2xl border border-[#D9E1EF] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.06)]`}
     >
       <div className={`relative w-full shrink-0 ${bannerHeight}`}>
         <div className={`absolute inset-0 overflow-hidden ${compact ? 'rounded-t-2xl' : 'rounded-t-2xl'}`}>
-          <Image src={cityBannerImg} alt="city skyline" fill className=" w-[542px] h-[242px]" priority />
+          <Image src={cityBannerImg} alt="city skyline" fill className="object-cover" priority />
         </div>
         <div className="absolute bottom-0 left-1/2 z-10 -translate-x-1/2 translate-y-1/2">
           <div
@@ -46,7 +44,7 @@ export function ProfilePreviewCard({
           >
             {avatarSrc ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarSrc} alt="avatar" className="h-full w-full object-cover" />
+              <img src={avatarSrc} alt="avatar" className="h-full w-full " />
             ) : (
               <Image src={avatarImg} alt="avatar" fill className="object-cover" sizes="72px" />
             )}

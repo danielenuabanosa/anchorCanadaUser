@@ -18,7 +18,7 @@ const DEMO_CREDENTIALS = {
   password: 'Demo@1234',
   user: {
     id: 'demo-001',
-    name: 'Sarah Sullivan',
+    name: 'Jacob Sullivan',
     email: 'demo@anchorcanada.ca',
     role: 'individual' as const,
   },

@@ -99,12 +99,12 @@ const MOCK_OPPORTUNITIES: OpportunityItem[] = [
 ];
 
 const CATEGORY_BADGE: Record<string, string> = {
-  Internship: 'bg-[#eff4ff] text-[#2f66c8]',
-  Grant:      'bg-[#d1fae5] text-[#15803d]',
-  Job:        'bg-[#f4f1fe] text-[#7c3aed]',
-  Volunteer:  'bg-[#d1fae5] text-[#15803d]',
-  Housing:    'bg-[#fff7ed] text-[#c2410c]',
-  Training:   'bg-[#fdf4ff] text-[#9333ea]',
+  Internship: 'bg-[#FFF7ED] text-[#C2410C]',
+  Grant:      'bg-[#D1FAE5] text-[#15803D]',
+  Job:        'bg-[#EFF4FF] text-[#2F66C8]',
+  Volunteer:  'bg-[#FCE7F3] text-[#BE185D]',
+  Housing:    'bg-[#FFF7ED] text-[#C2410C]',
+  Training:   'bg-[#FDF4FF] text-[#9333EA]',
 };
 
 function CompanyLogo({ item }: { item: OpportunityItem }) {
@@ -114,14 +114,14 @@ function CompanyLogo({ item }: { item: OpportunityItem }) {
       <img
         src={item.logoImg}
         alt={item.company}
-        className="h-12 w-12 rounded-xl object-contain border border-[#EEF2F8] bg-white p-1 shrink-0"
+        className="h-12 w-12 shrink-0 rounded-xl border border-[#EEF2F8] bg-white object-contain p-1"
         onError={() => setImgError(true)}
       />
     );
   }
   return (
     <div
-      className="h-12 w-12 rounded-xl flex items-center justify-center text-white font-bold text-base shrink-0"
+      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-base font-bold text-white"
       style={{ backgroundColor: item.logoColor }}
     >
       {item.logoLetter}
@@ -133,6 +133,7 @@ export default function OpportunitiesMobileView() {
   const [activeCategory, setActiveCategory] = useState<Category>('all');
   const [savedBookmarks, setSavedBookmarks] = useState<Set<string>>(new Set());
   const [filterOpen, setFilterOpen] = useState(false);
+  const [query, setQuery] = useState('');
 
   const toggleBookmark = (id: string) => {
     setSavedBookmarks((prev) => {
@@ -145,23 +146,43 @@ export default function OpportunitiesMobileView() {
   const urgentClose = (days: number) => days <= 7;
 
   return (
-    <div className="flex flex-col min-h-0 pb-20">
+    <div className="flex min-h-0 flex-col pb-24">
+      {/* Search hero */}
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8C97AD]" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search jobs, grants, support…"
+          className="anchor-field w-full pl-10 pr-12"
+        />
+        <button
+          onClick={() => setFilterOpen(true)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#44516A]"
+          aria-label="Open filters"
+        >
+          <SlidersHorizontal className="h-5 w-5" />
+        </button>
+      </div>
 
       {/* Category tabs */}
-      <div className="mb-4 -mx-1 flex gap-2 overflow-x-auto px-1 pb-1 scrollbar-hide">
+      <div className="-mx-1 mb-4 flex gap-2 overflow-x-auto px-1 pb-1 scrollbar-hide">
         {CATEGORIES.map(({ key, label, count }) => (
           <button
             key={key}
             onClick={() => setActiveCategory(key)}
-            className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
+            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-medium transition-colors ${
               activeCategory === key
-                ? 'bg-[#2f66c8] text-white'
-                : 'bg-white text-[#44516A] border border-[#D9E1EF]'
+                ? 'bg-[#2F66C8] text-white'
+                : 'border border-[#D9E1EF] bg-white text-[#44516A]'
             }`}
           >
             {label}
-            {' '}
-            <span className={`${activeCategory === key ? 'text-blue-200' : 'text-[#8C97AD]'}`}>
+            <span
+              className={`rounded-full px-1.5 py-0.5 text-[10px] ${
+                activeCategory === key ? 'bg-white/20 text-white' : 'bg-[#F8FAFC] text-[#8C97AD]'
+              }`}
+            >
               {count.toLocaleString()}
             </span>
           </button>
@@ -171,59 +192,56 @@ export default function OpportunitiesMobileView() {
       {/* Results header */}
       <div className="mb-3 flex items-center justify-between">
         <p className="text-xs text-[#44516A]">
-          <span className="font-semibold text-[#0F172A]">1,248</span> opportunities found
+          <span className="font-medium text-[#0F172A]">1,248</span> opportunities found
         </p>
-        <button className="flex items-center gap-1 rounded-lg border border-[#D9E1EF] bg-white px-2.5 py-1.5 text-xs font-medium text-[#0F172A]">
+        <button className="flex items-center gap-1 rounded-md border border-[#D9E1EF] bg-white px-2.5 py-1.5 text-xs font-medium text-[#0F172A]">
           Most Relevant
           <ChevronDown className="h-3 w-3" />
         </button>
       </div>
 
-      {/* Opportunity cards */}
+      {/* Cards */}
       <div className="space-y-3">
         {MOCK_OPPORTUNITIES.map((opp) => (
-          <div key={opp.id} className="rounded-xl border border-[#D9E1EF] bg-white p-4 shadow-[0_2px_8px_0_rgba(0,0,0,0.05)]">
-            {/* Category badge + bookmark */}
+          <div key={opp.id} className="rounded-[10px] border border-[#EEF2F8] bg-white p-4">
             <div className="mb-3 flex items-center justify-between">
-              <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${CATEGORY_BADGE[opp.category]}`}>
+              <span className={`rounded px-2 py-1 text-xs font-semibold ${CATEGORY_BADGE[opp.category]}`}>
                 {opp.category}
               </span>
               <button
                 onClick={() => toggleBookmark(opp.id)}
-                className="text-[#8C97AD] hover:text-[#2f66c8] transition-colors"
+                className="text-[#8C97AD] transition-colors hover:text-[#2F66C8]"
                 aria-label="Bookmark"
               >
-                <Bookmark className={`h-4 w-4 ${savedBookmarks.has(opp.id) ? 'fill-[#2f66c8] text-[#2f66c8]' : ''}`} />
+                <Bookmark className={`h-4 w-4 ${savedBookmarks.has(opp.id) ? 'fill-[#2F66C8] text-[#2F66C8]' : ''}`} />
               </button>
             </div>
 
-            {/* Logo + content */}
             <div className="flex items-start gap-3">
               <CompanyLogo item={opp} />
-              <div className="flex-1 min-w-0">
+              <div className="min-w-0 flex-1">
                 <Link href={`/opportunities/${opp.id}`}>
-                  <h3 className="text-sm font-semibold text-[#0F172A] mb-0.5 hover:text-[#2f66c8] transition-colors">
+                  <h3 className="mb-0.5 text-sm font-medium text-[#0F172A] transition-colors hover:text-[#2F66C8]">
                     {opp.title}
                   </h3>
                 </Link>
-                <div className="flex flex-wrap items-center gap-x-1 gap-y-0.5 text-xs text-[#44516A] mb-1">
+                <div className="mb-1 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-xs text-[#44516A]">
                   <span className="font-medium">{opp.company}</span>
-                  {opp.verified && <CheckCircle2 className="h-3 w-3 text-[#2f66c8] shrink-0" />}
+                  {opp.verified && <CheckCircle2 className="h-3 w-3 shrink-0 text-[#2F66C8]" />}
                 </div>
-                <p className="text-xs text-[#8C97AD] mb-2">
+                <p className="mb-2 text-xs text-[#8C97AD]">
                   {opp.workMode} • {opp.location}
                   {opp.salary && ` • ${opp.salary}`}
                 </p>
 
-                {/* Badges */}
-                <div className="flex flex-wrap gap-1.5 mb-3">
+                <div className="mb-3 flex flex-wrap gap-1.5">
                   {opp.isNew && (
-                    <span className="rounded-full bg-[#dcfce7] px-2 py-0.5 text-[10px] font-bold text-[#16a34a] uppercase">
+                    <span className="rounded bg-[#EFF4FF] px-2 py-0.5 text-[10px] font-bold uppercase text-[#2F66C8]">
                       NEW
                     </span>
                   )}
                   {opp.isFeatured && (
-                    <span className="rounded-full bg-[#fef3c7] px-2 py-0.5 text-[10px] font-bold text-[#b45309] uppercase">
+                    <span className="rounded bg-[#FEF3C7] px-2 py-0.5 text-[10px] font-bold uppercase text-[#B45309]">
                       ✦ FEATURED
                     </span>
                   )}
@@ -231,24 +249,27 @@ export default function OpportunitiesMobileView() {
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="flex items-center justify-between gap-2 mt-3">
+            <div className="mt-3 flex items-center justify-between gap-2">
               <p className="text-[11px] text-[#8C97AD]">
                 Posted {opp.postedDaysAgo}d ago •{' '}
-                <span className={urgentClose(opp.closesInDays) ? 'text-red-500 font-semibold' : ''}>
+                <span className={urgentClose(opp.closesInDays) ? 'font-medium text-[#B91C1C]' : ''}>
                   Closes in {opp.closesInDays} days
                 </span>
               </p>
-              <Link href={
-                opp.category === 'Volunteer' || opp.isFeatured
-                  ? `/opportunities/${opp.id}`
-                  : `/opportunities/${opp.id}/apply`
-              }>
-                <button className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+              <Link
+                href={
                   opp.category === 'Volunteer' || opp.isFeatured
-                    ? 'border border-[#D9E1EF] bg-white text-[#0F172A] hover:border-[#2f66c8] hover:text-[#2f66c8]'
-                    : 'bg-[#2f66c8] text-white hover:bg-[#2558b0]'
-                }`}>
+                    ? `/opportunities/${opp.id}`
+                    : `/opportunities/${opp.id}/apply`
+                }
+              >
+                <button
+                  className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                    opp.category === 'Volunteer' || opp.isFeatured
+                      ? 'border border-[#D9E1EF] bg-white text-[#0F172A]'
+                      : 'bg-[#2F66C8] text-white'
+                  }`}
+                >
                   {opp.category === 'Volunteer' || opp.isFeatured ? 'View Details' : 'Apply Now'}
                 </button>
               </Link>
@@ -257,38 +278,39 @@ export default function OpportunitiesMobileView() {
         ))}
       </div>
 
-      {/* Bottom sticky filter bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 flex gap-3 border-t border-[#EEF2F8] bg-white px-4 py-3 shadow-[0_-2px_8px_0_rgba(0,0,0,0.05)]">
+      {/* Sticky filter bar */}
+      <div className="fixed bottom-[68px] left-0 right-0 z-30 flex gap-3 px-4 md:hidden">
         <button
           onClick={() => setFilterOpen(true)}
-          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#2f66c8] py-3 text-sm font-medium text-white"
+          className="flex flex-1 items-center justify-center gap-2 rounded-md bg-[#2F66C8] py-3 text-sm font-medium text-white shadow-lg"
         >
           <SlidersHorizontal className="h-4 w-4" />
           Filters
-          <span className="ml-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-bold text-[#2f66c8]">3</span>
+          <span className="ml-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-bold text-[#2F66C8]">
+            3
+          </span>
         </button>
-        <button className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[#D9E1EF] bg-white py-3 text-sm font-medium text-[#44516A]">
+        <button className="flex flex-1 items-center justify-center gap-2 rounded-md border border-[#D9E1EF] bg-white py-3 text-sm font-medium text-[#44516A] shadow-lg">
           <Bookmark className="h-4 w-4" />
           Save Search
         </button>
       </div>
 
-      {/* Filter Sheet */}
+      {/* Filter sheet */}
       {filterOpen && (
         <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/40" onClick={() => setFilterOpen(false)} />
-          <div className="absolute bottom-0 left-0 right-0 rounded-t-2xl bg-white p-5 max-h-[85vh] overflow-y-auto">
+          <div className="absolute bottom-0 left-0 right-0 max-h-[85vh] overflow-y-auto rounded-t-2xl bg-white p-5">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-base font-semibold text-[#0F172A]">Filters</h3>
+              <h3 className="text-base font-medium text-[#0F172A]">Filters</h3>
               <button onClick={() => setFilterOpen(false)} className="text-[#8C97AD]">
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             <div className="space-y-4">
-              {/* Category */}
               <div>
-                <label className="block text-xs font-semibold text-[#44516A] mb-1.5">Category</label>
+                <label className="anchor-label mb-2 text-xs text-[#44516A]">Category</label>
                 <select className="anchor-select">
                   <option>All Categories</option>
                   <option>Jobs</option>
@@ -299,11 +321,10 @@ export default function OpportunitiesMobileView() {
                 </select>
               </div>
 
-              {/* Location */}
               <div>
-                <label className="block text-xs font-semibold text-[#44516A] mb-1.5">Location</label>
+                <label className="anchor-label mb-2 text-xs text-[#44516A]">Location</label>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8C97AD]" />
+                  <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8C97AD]" />
                   <select className="anchor-select anchor-field--icon-left">
                     <option>Ontario, Canada</option>
                     <option>British Columbia</option>
@@ -313,13 +334,12 @@ export default function OpportunitiesMobileView() {
                 </div>
               </div>
 
-              {/* Employment type */}
               <div>
-                <label className="block text-xs font-semibold text-[#44516A] mb-2">Employment Type</label>
+                <label className="anchor-label mb-2 text-xs text-[#44516A]">Job Type</label>
                 <div className="space-y-2.5">
                   {['Full-time', 'Part-time', 'Internship', 'Contract', 'Volunteer'].map((t) => (
-                    <label key={t} className="flex items-center gap-3 cursor-pointer">
-                      <input type="checkbox" className="h-4 w-4 rounded border-[#D9E1EF] text-[#2f66c8] focus:ring-[#2f66c8]" />
+                    <label key={t} className="flex cursor-pointer items-center gap-3">
+                      <input type="checkbox" className="h-[18px] w-[18px] rounded border-[#D9E1EF] text-[#2F66C8] focus:ring-[#2F66C8]" />
                       <span className="text-sm text-[#44516A]">{t}</span>
                     </label>
                   ))}
@@ -329,14 +349,14 @@ export default function OpportunitiesMobileView() {
 
             <div className="mt-6 flex gap-3">
               <button
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-[#D9E1EF] py-3 text-sm font-medium text-[#44516A]"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-[#D9E1EF] py-3 text-sm font-medium text-[#44516A]"
                 onClick={() => setFilterOpen(false)}
               >
                 <RotateCcw className="h-4 w-4" />
                 Reset
               </button>
               <button
-                className="flex-[2] rounded-xl bg-[#2f66c8] py-3 text-sm font-medium text-white"
+                className="flex-[2] rounded-md bg-[#2F66C8] py-3 text-sm font-medium text-white"
                 onClick={() => setFilterOpen(false)}
               >
                 Apply Filters

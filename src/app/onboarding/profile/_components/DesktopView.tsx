@@ -84,7 +84,7 @@ export default function DesktopView() {
               Let&apos;s Make Anchor{' '}
               <span className="font-serif text-[78.83px] italic leading-[73.57px] text-[#2F66C8]">Yours</span>
             </h1>
-            <p className="mt-3 font-sans text-[16px] font-normal leading-[100%] text-[#8C97AD]">
+            <p className="mt-3 font-sans text-[16px] font-normal leading-normal text-[#8C97AD]">
               Add a few details so your opportunities, recommendations, and <br/>
               community feel personal from day one.
             </p>
@@ -128,7 +128,7 @@ export default function DesktopView() {
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="Enter your first name"
-                    className="mt-1.5 anchor-field h-[53px"
+                    className="mt-1.5 anchor-field h-[53px]"
                   />
                 </div>
                 <div>
@@ -140,14 +140,14 @@ export default function DesktopView() {
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="Enter your last name"
-                    className="mt-1.5 anchor-field h-[53px"
+                    className="mt-1.5 anchor-field h-[53px]"
                   />
                 </div>
               </div>
               <div className="mt-3">
-                <label className="flex items-center gap-1.5 text-[12px] font-medium text-[#0F172A]">
-                  Display Name{' '} 
-                  <span className="block font-sans text-[16px] font-medium leading-[180%] text-[#0F172A]">(Optional)</span>
+                <label className="flex items-center gap-1.5 font-sans text-[16px] font-medium leading-[180%] text-[#0F172A]">
+                  Display Name{' '}
+                  <span className="font-normal text-[#8C97AD]">(Optional)</span>
                   <Image src={questionIcon} alt="info" width={14} height={14} className="opacity-40" />
                 </label>
                 <input
@@ -176,7 +176,7 @@ export default function DesktopView() {
                     value={customPronoun}
                     onChange={(e) => { setCustomPronoun(e.target.value); setPronoun(e.target.value); }}
                     placeholder="Type pronouns…"
-                    className="rounded-full border border-[#2F66C8] bg-[#EFF4FF] px-4 py-1.5 text-[13px] text-[#2F66C8] focus:outline-none h-[53px"
+                    className="rounded-full border border-[#2F66C8] bg-[#EFF4FF] px-4 py-1.5 text-[13px] text-[#2F66C8] focus:outline-none h-[53px]"
                   />
                 ) : (
                   <button
