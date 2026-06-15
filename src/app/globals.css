@@ -289,10 +289,14 @@ body {
 }
 
 .app-sidebar {
-  position: relative;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
   flex-shrink: 0;
   width: 360px;
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
+  overflow-y: auto;
   background-color: var(--color-sidebar-bg);
   transition: width 0.3s ease;
 }
@@ -304,7 +308,6 @@ body {
 .app-main {
   flex: 1;
   min-width: 0;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }

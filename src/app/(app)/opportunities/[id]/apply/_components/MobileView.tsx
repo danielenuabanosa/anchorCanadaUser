@@ -1,7 +1,6 @@
 'use client';
 
 import { Suspense, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { DEFAULT_FILES, INTERNAL_QUESTIONS, OPP } from './data';
 import { useApplyRouting } from './useApplyRouting';
@@ -23,9 +22,9 @@ import {
   stepLabelFor,
 } from './shared';
 
-function ApplyMobileContent() {
-  const router = useRouter();
-  const { flow, step, totalSteps, progressPct, opportunityId, goToStep, goBack } = useApplyRouting();
+function ApplyMobileContent({ mode = 'page' }: { mode?: 'overlay' | 'page' }) {
+  const { flow, step, totalSteps, progressPct, opportunityId, goToStep, goBack, closeApply } =
+    useApplyRouting(mode);
 
   const [files, setFiles] = useState<Record<string, string>>({ ...DEFAULT_FILES });
   const [answers, setAnswers] = useState<Record<string, string>>(
@@ -79,7 +78,7 @@ function ApplyMobileContent() {
         <EntryChecklistStep
           opportunityId={opportunityId}
           onContinue={() => goToStep(2)}
-          onCancel={() => router.push(`/opportunities/${opportunityId}`)}
+          onCancel={closeApply}
         />
       );
     }
@@ -188,6 +187,14 @@ function ApplyMobileContent() {
         }}
       />
     </div>
+  );
+}
+
+export function ApplyMobileOverlay() {
+  return (
+    <Suspense fallback={null}>
+      <ApplyMobileContent mode="overlay" />
+    </Suspense>
   );
 }
 

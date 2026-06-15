@@ -1,16 +1,19 @@
-import { Suspense } from 'react';
-import DesktopView from './_components/DesktopView';
-import MobileView from './_components/MobileView';
+import { redirect } from 'next/navigation';
 
-export default function ApplyPage() {
-  return (
-    <Suspense fallback={null}>
-      <div className="hidden md:block w-full">
-        <DesktopView />
-      </div>
-      <div className="block md:hidden w-full">
-        <MobileView />
-      </div>
-    </Suspense>
-  );
+type ApplyPageProps = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ flow?: string; step?: string }>;
+};
+
+export default async function ApplyPage({ params, searchParams }: ApplyPageProps) {
+  const { id } = await params;
+  const sp = await searchParams;
+
+  const qs = new URLSearchParams({
+    apply: '1',
+    flow: sp.flow ?? 'internal',
+    step: sp.step ?? '1',
+  });
+
+  redirect(`/opportunities/${id}?${qs.toString()}`);
 }

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import {
   ArrowLeft, MapPin, Bookmark, Share2, Check,
   CalendarDays, Users, Clock, Briefcase, ChevronDown,
@@ -12,6 +12,8 @@ import {
   Link2, MessageCircle, Camera, MoreHorizontal,
 } from 'lucide-react';
 import shopifyLogo from '@assets/images/w1.png';
+import { ApplyDesktopOverlay } from '../apply/_components/DesktopView';
+import { buildApplyHref } from '../apply/_components/useApplyRouting';
 
 type Tab = 'overview' | 'requirements' | 'benefits' | 'organization' | 'faqs';
 type ApplyFlow = 'internal' | 'external' | 'express';
@@ -333,13 +335,15 @@ function SimilarCard({ item }: { item: (typeof OPP.similar)[0] }) {
 
 export default function OpportunityDesktop() {
   const params = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [saved, setSaved] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showAllReqs, setShowAllReqs] = useState(false);
 
   const opp = OPP;
-  const applyHref = `/opportunities/${params.id}/apply?flow=${opp.applyFlow}`;
+  const applyHref = buildApplyHref(params.id, opp.applyFlow);
+  const isApplying = searchParams.get('apply') === '1';
 
   return (
     <div className="flex flex-col gap-10">
@@ -621,6 +625,7 @@ export default function OpportunityDesktop() {
       </div>
 
       <ShareModal open={showShare} onClose={() => setShowShare(false)} opp={opp} opportunityId={params.id} />
+      {isApplying && <ApplyDesktopOverlay />}
     </div>
   );
 }

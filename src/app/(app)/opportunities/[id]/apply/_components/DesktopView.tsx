@@ -1,7 +1,6 @@
 'use client';
 
 import { Suspense, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { DEFAULT_FILES, INTERNAL_QUESTIONS, OPP } from './data';
 import { useApplyRouting } from './useApplyRouting';
 import {
@@ -21,9 +20,8 @@ import {
   SelfReportedTrackingModal,
 } from './shared';
 
-function ApplyDesktopContent() {
-  const router = useRouter();
-  const { flow, step, opportunityId, goToStep, goBack } = useApplyRouting();
+function ApplyDesktopContent({ mode = 'page' }: { mode?: 'overlay' | 'page' }) {
+  const { flow, step, opportunityId, goToStep, goBack, closeApply } = useApplyRouting(mode);
 
   const [files, setFiles] = useState<Record<string, string>>({ ...DEFAULT_FILES });
   const [answers, setAnswers] = useState<Record<string, string>>(
@@ -74,7 +72,7 @@ function ApplyDesktopContent() {
         <EntryChecklistStep
           opportunityId={opportunityId}
           onContinue={handleEntryContinue}
-          onCancel={() => router.push(`/opportunities/${opportunityId}`)}
+          onCancel={closeApply}
         />
       );
     }
@@ -172,6 +170,14 @@ function ApplyDesktopContent() {
         }}
       />
     </>
+  );
+}
+
+export function ApplyDesktopOverlay() {
+  return (
+    <Suspense fallback={null}>
+      <ApplyDesktopContent mode="overlay" />
+    </Suspense>
   );
 }
 

@@ -18,7 +18,9 @@ function parseStep(value: string | null): ApplyStep {
   return 1;
 }
 
-export function useApplyRouting() {
+export type ApplyRoutingMode = 'overlay' | 'page';
+
+export function useApplyRouting(mode: ApplyRoutingMode = 'page') {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -27,17 +29,23 @@ export function useApplyRouting() {
   const step = parseStep(searchParams.get('step'));
   const totalSteps = FLOW_STEPS[flow];
 
-  const basePath = `/opportunities/${params.id}/apply`;
+  const basePath =
+    mode === 'overlay' ? `/opportunities/${params.id}` : `/opportunities/${params.id}/apply`;
+
+  const closeApply = useCallback(() => {
+    router.push(`/opportunities/${params.id}`);
+  }, [params.id, router]);
 
   const navigate = useCallback(
     (nextFlow: FlowType, nextStep: ApplyStep, extra?: Record<string, string>) => {
       const qs = new URLSearchParams({ flow: nextFlow, step: String(nextStep) });
+      if (mode === 'overlay') qs.set('apply', '1');
       if (extra) {
         Object.entries(extra).forEach(([k, v]) => qs.set(k, v));
       }
       router.push(`${basePath}?${qs.toString()}`);
     },
-    [basePath, router],
+    [basePath, mode, router],
   );
 
   const goToStep = useCallback(
@@ -50,8 +58,8 @@ export function useApplyRouting() {
       goToStep((step - 1) as ApplyStep);
       return;
     }
-    router.push(`/opportunities/${params.id}`);
-  }, [goToStep, params.id, router, step]);
+    closeApply();
+  }, [closeApply, goToStep, step]);
 
   const progressPct = (step / totalSteps) * 100;
 
@@ -64,6 +72,12 @@ export function useApplyRouting() {
     navigate,
     goToStep,
     goBack,
+    closeApply,
     opportunityId: params.id,
   };
+}
+
+export function buildApplyHref(opportunityId: string, flow: FlowType, step: ApplyStep = 1) {
+  const qs = new URLSearchParams({ apply: '1', flow, step: String(step) });
+  return `/opportunities/${opportunityId}?${qs.toString()}`;
 }

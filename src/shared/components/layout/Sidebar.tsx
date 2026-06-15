@@ -46,7 +46,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'app-sidebar hidden min-h-screen flex-col border-r border-[#EEF2F8] bg-white md:flex',
+        'app-sidebar hidden h-screen flex-col border-r border-[#EEF2F8] bg-white md:flex',
         sidebarCollapsed && 'app-sidebar-collapsed',
       )}
       aria-label="Main navigation"
