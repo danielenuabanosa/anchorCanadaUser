@@ -1,4 +1,4 @@
-name: Deploy User Portal
+name: Deploy Provider Portal
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 jobs:
   deploy:
     name: Build and Deploy
-    runs-on: user-portal-production
+    runs-on: provider-portal-production
 
     steps:
       - name: Checkout code
@@ -31,23 +31,23 @@ jobs:
 
       - name: Deploy standalone build
         run: |
-          rm -rf /var/www/user-portal/*
-          cp -r .next/standalone/. /var/www/user-portal/
-          cp -r public /var/www/user-portal/public
-          mkdir -p /var/www/user-portal/.next
-          cp -r .next/static /var/www/user-portal/.next/static
-          cp .env.production /var/www/user-portal/.env.production
+          rm -rf /var/www/provider-portal/*
+          cp -r .next/standalone/. /var/www/provider-portal/
+          cp -r public /var/www/provider-portal/public
+          mkdir -p /var/www/provider-portal/.next
+          cp -r .next/static /var/www/provider-portal/.next/static
+          cp .env.production /var/www/provider-portal/.env.production
 
       - name: Reload PM2
         run: |
-          pm2 reload /var/www/ecosystem/user-portal.config.js \
+          pm2 reload /var/www/ecosystem/provider-portal.config.js \
             --env production 2>/dev/null || \
-          pm2 start /var/www/ecosystem/user-portal.config.js \
+          pm2 start /var/www/ecosystem/provider-portal.config.js \
             --env production
           pm2 save
 
       - name: Health check
         run: |
           sleep 3
-          pm2 status user-portal
-          curl -s -o /dev/null -w "HTTP Status: %{http_code}" http://localhost:3001
+          pm2 status provider-portal
+          curl -s -o /dev/null -w "HTTP Status: %{http_code}" http://localhost:3002
