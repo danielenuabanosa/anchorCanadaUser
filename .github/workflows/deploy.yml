@@ -29,13 +29,16 @@ jobs:
       - name: Build
         run: npm run build
 
+     
       - name: Deploy standalone build
         run: |
           rm -rf /var/www/provider-portal/*
           cp -r .next/standalone/. /var/www/provider-portal/
-          cp -r public /var/www/provider-portal/public
-          mkdir -p /var/www/provider-portal/.next
-          cp -r .next/static /var/www/provider-portal/.next/static
+          mkdir -p /var/www/provider-portal/.next/static
+          cp -r .next/static/. /var/www/provider-portal/.next/static/
+          if [ -d "public" ]; then
+            cp -r public /var/www/provider-portal/public
+          fi
           cp .env.production /var/www/provider-portal/.env.production
 
       - name: Reload PM2
