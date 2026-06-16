@@ -4,11 +4,11 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import mailIcon from '@/../assets/icons/mail.png';
-import shieldIcon from '@/../assets/icons/shield-check.png';
-import headphonesIcon from '@/../assets/icons/hear-phone.png';
-import validLockImg from '@/../assets/images/valid-lock.png';
-import cityImg from '@/../assets/images/city.png';
+import mailIcon from '@assets/icons/mail.png';
+import shieldIcon from '@assets/icons/shield-check.png';
+import headphonesIcon from '@assets/icons/hear-phone.png';
+import validLockImg from '@assets/images/valid-lock.png';
+import cityImg from '@assets/images/city.png';
 
 export default function ForgotPasswordDesktopView() {
   const [email, setEmail] = useState('');
@@ -75,7 +75,7 @@ export default function ForgotPasswordDesktopView() {
               <span className="font-serif italic text-[78px] leading-[73px] text-[#2f66c8]">Account</span>
             </div>
             <p className="text-base text-[#8c97ad]">
-              Enter the email connected to your Anchor account and we&apos;ll send secure recovery instructions.
+              Enter the email connected to your provider account and we&apos;ll send secure recovery instructions.
             </p>
           </div>
 
@@ -211,7 +211,7 @@ export default function ForgotPasswordDesktopView() {
               <div className="flex flex-col gap-2 flex-1">
                 <h2 className="font-serif text-[36px] leading-[56px] text-[#0f172a]">Your Account is<br />Safe With Us</h2>
                 <p className="text-base text-[#44516a]">
-                  We use bank-level security to keep your information and opportunities protected.
+                  We use bank-level security to keep your provider information and listings protected.
                 </p>
               </div>
               <div className="shrink-0 w-[162px] h-[200px] relative">

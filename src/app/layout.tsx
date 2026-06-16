@@ -21,10 +21,10 @@ const instrumentSerif = Instrument_Serif({
 export const metadata: Metadata = {
   title: {
     template: '%s | Anchor Canada',
-    default: 'Anchor Canada — Your Opportunity Hub',
+    default: 'Anchor Canada — Provider Portal',
   },
   description:
-    'Discover jobs, housing, training, funding, and community support across Canada — all in one place.',
+    'Register your organization, publish opportunities, and reach newcomers across Canada.',
   openGraph: {
     siteName: 'Anchor Canada',
     type: 'website',

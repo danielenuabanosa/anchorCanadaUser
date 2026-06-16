@@ -4,8 +4,8 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import mailIcon from '@/../assets/icons/mail.png';
-import shieldIcon from '@/../assets/icons/shield-check.png';
+import mailIcon from '@assets/icons/mail.png';
+import shieldIcon from '@assets/icons/shield-check.png';
 
 export default function ForgotPasswordMobileView() {
   const [email, setEmail] = useState('');
@@ -33,7 +33,7 @@ export default function ForgotPasswordMobileView() {
           <span className="font-serif italic text-[52px] leading-[56px] text-[#2f66c8]">Account</span>
         </div>
         <p className="text-sm text-[#8c97ad]">
-          Enter the email connected to your Anchor account and we&apos;ll send secure recovery instructions.
+          Enter the email connected to your provider account and we&apos;ll send secure recovery instructions.
         </p>
       </div>
 
@@ -176,7 +176,7 @@ export default function ForgotPasswordMobileView() {
             <Image src={shieldIcon} alt="" width={26} height={26} />
           </div>
           <p className="text-xs text-[#44516a] flex-1">
-            We use bank-level security to protect your information and opportunities.
+            We use bank-level security to protect your provider information and listings.
           </p>
         </div>
       </div>

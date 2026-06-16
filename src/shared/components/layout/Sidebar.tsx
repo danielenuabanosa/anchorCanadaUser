@@ -4,12 +4,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
-  Home,
-  Compass,
-  Building2,
-  Briefcase,
-  Bookmark,
-  Bell,
+  LayoutDashboard,
+  LayoutList,
+  FileText,
+  BarChart3,
+  Users,
   Settings,
   ChevronRight,
   ChevronsLeft,
@@ -19,37 +18,43 @@ import { cn } from '@/lib/utils';
 import { useUIStore } from '@/store/uiStore';
 import { useAuthStore } from '@/store/authStore';
 import { Avatar } from '@/shared/components/ui/Avatar';
-import anchorLogo from '@assets/icons/anchor-logo.png';
+import anchorLogo from '@assets/icons/anchor-logo-full.png';
 import sidebarBgImg from '@assets/images/sidebar_bg.png';
-import avatarImg from '@assets/images/w1.png';
+import orgAvatar from '@assets/images/prov-sickkids.png';
 
 const NAV_ITEMS = [
-  { label: 'Home', href: '/dashboard', icon: Home },
-  { label: 'Explore', href: '/opportunities', icon: Compass },
-  { label: 'Providers', href: '/categories', icon: Building2 },
-  { label: 'My Applications', href: '/applications', icon: Briefcase },
-  { label: 'Saved Opportunities', href: '/saved', icon: Bookmark },
-  { label: 'Notifications', href: '/notifications', icon: Bell, badge: 3 },
-  { label: 'Settings', href: '/settings', icon: Settings },
+  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Opportunities', href: '/dashboard#listings', icon: LayoutList },
+  { label: 'Applications', href: '/dashboard#applications', icon: FileText, badge: 18 },
+  { label: 'Analytics', href: '/dashboard#analytics', icon: BarChart3 },
+  { label: 'Team', href: '/dashboard#team', icon: Users },
+  { label: 'Settings', href: '/dashboard#settings', icon: Settings },
 ] as const;
+
+function isNavActive(pathname: string, href: string) {
+  if (href.startsWith('/dashboard#')) {
+    return pathname === '/dashboard';
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function Sidebar() {
   const pathname = usePathname();
   const { sidebarCollapsed, toggleSidebar } = useUIStore();
   const { user, isAuthenticated } = useAuthStore();
 
-  const displayName = user?.name ?? 'Jacob Sullivan';
-  const avatarSrc = user?.avatarUrl ?? avatarImg.src;
+  const displayName = user?.name ?? 'Toronto Community Health';
+  const avatarSrc = user?.avatarUrl ?? orgAvatar.src;
 
   if (!isAuthenticated) return null;
 
   return (
     <aside
       className={cn(
-        'app-sidebar hidden h-screen flex-col border-r border-[#EEF2F8] bg-white md:flex',
+        'app-sidebar relative hidden h-screen flex-col border-r border-[#EEF2F8] bg-white md:flex',
         sidebarCollapsed && 'app-sidebar-collapsed',
       )}
-      aria-label="Main navigation"
+      aria-label="Provider navigation"
     >
       <div
         className={cn(
@@ -57,7 +62,7 @@ export function Sidebar() {
           sidebarCollapsed ? 'justify-center' : 'justify-between',
         )}
       >
-        <Link href="/dashboard" aria-label="Anchor Canada home">
+        <Link href="/dashboard" aria-label="Anchor Canada Provider Portal">
           <Image
             src={anchorLogo}
             alt="Anchor Canada"
@@ -78,10 +83,19 @@ export function Sidebar() {
         )}
       </div>
 
+      {!sidebarCollapsed && (
+        <div className="border-b border-[#EEF2F8] px-5 py-3">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#8C97AD]">
+            Provider Portal
+          </p>
+        </div>
+      )}
+
       <nav className="space-y-1 px-5 py-5" aria-label="Primary">
         {NAV_ITEMS.map(({ label, href, icon: Icon, ...rest }) => {
-          const badge = 'badge' in rest ? (rest as { badge?: number }).badge : undefined;
-          const isActive = pathname === href || pathname.startsWith(`${href}/`);
+          const badge = 'badge' in rest ? rest.badge : undefined;
+          const isActive = isNavActive(pathname, href);
+
           return (
             <Link
               key={href}
@@ -101,7 +115,12 @@ export function Sidebar() {
                 <>
                   <span className="flex-1">{label}</span>
                   {badge ? (
-                    <span className="flex h-6 min-w-6 items-center justify-center rounded-xl bg-[#2F66C8] px-1.5 text-base text-white">
+                    <span
+                      className={cn(
+                        'flex h-6 min-w-6 items-center justify-center rounded-xl px-1.5 text-base',
+                        isActive ? 'bg-white/20 text-white' : 'bg-[#2F66C8] text-white',
+                      )}
+                    >
                       {badge}
                     </span>
                   ) : null}
@@ -126,10 +145,10 @@ export function Sidebar() {
             <div className="relative z-10">
               <p className="font-serif text-[28px] leading-[56px] text-[#0F172A]">Need help?</p>
               <p className="mb-6 text-base text-[#44516A]">
-                Our team is here to help you complete your application
+                Our team can help you manage listings and review applications
               </p>
               <Link
-                href="/support"
+                href="/dashboard#support"
                 className="inline-flex items-center gap-3 text-sm font-semibold text-[#2F66C8] hover:underline"
               >
                 Contact Support
@@ -140,9 +159,14 @@ export function Sidebar() {
         </div>
       )}
 
-      <div className={cn('mt-auto shrink-0 border-t border-[#EEF2F8] p-5', sidebarCollapsed && 'flex justify-center')}>
+      <div
+        className={cn(
+          'mt-auto shrink-0 border-t border-[#EEF2F8] p-5',
+          sidebarCollapsed && 'flex justify-center',
+        )}
+      >
         <Link
-          href="/profile"
+          href="/dashboard#profile"
           className={cn(
             'flex items-center rounded-[10px] border border-[#EEF2F8] transition hover:bg-[#F8FAFC]',
             sidebarCollapsed
@@ -160,7 +184,7 @@ export function Sidebar() {
             {!sidebarCollapsed && (
               <div className="min-w-0">
                 <p className="truncate text-base font-medium text-[#0F172A]">{displayName}</p>
-                <p className="text-xs text-[#2F66C8]">View Profile</p>
+                <p className="text-xs text-[#2F66C8]">Organization Profile</p>
               </div>
             )}
           </div>

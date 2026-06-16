@@ -163,7 +163,7 @@ export function HeroSection() {
             {/* CTAs */}
             <div className="mt-8 flex items-center gap-4">
               <Link
-                href="/register"
+                href="/onboarding"
                 className="inline-flex h-12 items-center justify-center gap-2.5 rounded-sm bg-[#2F66C8] px-7 text-[12px] text-[#FFFFFF]"
               >
                 Get Started
@@ -229,7 +229,7 @@ export function HeroSection() {
             {/* CTAs */}
             <div className="mt-8 flex items-center gap-4">
               <Link
-                href="/register"
+                href="/onboarding"
                 className="inline-flex h-12 items-center justify-center gap-2.5 rounded-sm bg-[#2F66C8] px-7 text-[16px]  text-[#FFFFFF] "
               >
                 Get Started

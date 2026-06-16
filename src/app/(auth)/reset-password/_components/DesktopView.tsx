@@ -6,9 +6,9 @@ import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import lockIcon from '@/../assets/icons/lock2.png';
-import validLockIcon from '@/../assets/images/valid-lock.png';
-import cityImg from '@/../assets/images/city.png';
+import lockIcon from '@assets/icons/lock2.png';
+import validLockIcon from '@assets/images/valid-lock.png';
+import cityImg from '@assets/images/city.png';
 
 interface Req { label: string; test: (p: string) => boolean; }
 
@@ -20,16 +20,16 @@ const requirements: Req[] = [
 ];
 
 const savedItems = [
-  { label: 'Saved Opportunities', desc: 'Your jobs, grants and programs stay protected.', iconBg: 'bg-[#e1ebfe]', icon: <svg className="w-6 h-6 text-[#2f66c8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> },
-  { label: 'Application History', desc: 'All your activity and progress remain safe.', iconBg: 'bg-[#e3f3ee]', icon: <svg className="w-6 h-6 text-[#15803d]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13l2 2 4-4"/></svg> },
-  { label: 'Profile Data', desc: 'Your personal information is encrypted and secure.', iconBg: 'bg-[#e5e0fd]', icon: <svg className="w-6 h-6 text-[#7c3aed]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4" strokeLinecap="round"/></svg> },
-  { label: 'Personalized Recommendations', desc: "We'll continue matching you with the right opportunities.", iconBg: 'bg-[#f5ddea]', icon: <svg className="w-6 h-6 text-[#be185d]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> },
+  { label: 'Active Listings', desc: 'Your published opportunities stay protected.', iconBg: 'bg-[#e1ebfe]', icon: <svg className="w-6 h-6 text-[#2f66c8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> },
+  { label: 'Application Pipeline', desc: 'All applicant submissions remain secure.', iconBg: 'bg-[#e3f3ee]', icon: <svg className="w-6 h-6 text-[#15803d]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13l2 2 4-4"/></svg> },
+  { label: 'Provider Profile', desc: 'Your organization details are encrypted and secure.', iconBg: 'bg-[#e5e0fd]', icon: <svg className="w-6 h-6 text-[#7c3aed]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4" strokeLinecap="round"/></svg> },
+  { label: 'Analytics & Insights', desc: 'Your performance data stays private and protected.', iconBg: 'bg-[#f5ddea]', icon: <svg className="w-6 h-6 text-[#be185d]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg> },
 ];
 
 const footerItems = [
   { label: 'Secure & Encrypted', desc: 'Your information is protected with bank-level encryption', iconBg: 'bg-[#eff4ff]', icon: <svg className="w-[34px] h-[34px] text-[#2f66c8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> },
   { label: 'Private & Confidential', desc: "We'll never share your data with anyone.", iconBg: 'bg-[#eff4ff]', icon: <svg className="w-[34px] h-[34px] text-[#2f66c8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> },
-  { label: 'Proudly Canadian', desc: 'Built in Canada for people across the country.', iconBg: 'bg-[#eff4ff]', icon: <svg className="w-[34px] h-[34px] text-[#2f66c8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> },
+  { label: 'Proudly Canadian', desc: 'Built in Canada for providers across the country.', iconBg: 'bg-[#eff4ff]', icon: <svg className="w-[34px] h-[34px] text-[#2f66c8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> },
 ];
 
 export default function ResetPasswordDesktopView() {
@@ -66,7 +66,7 @@ export default function ResetPasswordDesktopView() {
               <span className="font-serif text-[60px] leading-[56px] text-[#0f172a]">Create Your</span>
               <span className="font-serif italic text-[78px] leading-[73px] text-[#2f66c8]">New Password</span>
             </div>
-            <p className="text-base text-[#8c97ad]">Choose a secure password to regain access to your Anchor account.</p>
+            <p className="text-base text-[#8c97ad]">Choose a secure password to regain access to your provider account.</p>
           </div>
 
           <div className="flex flex-col gap-[60px] w-full">

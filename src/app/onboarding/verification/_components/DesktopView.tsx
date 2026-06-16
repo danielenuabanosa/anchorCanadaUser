@@ -16,6 +16,7 @@ import {
 } from '@/shared/components/onboarding/profilePreviewData';
 
 import mail3Icon from '@assets/icons/mail3.png';
+import hearPhoneIcon from '@assets/icons/hear-phone.png';
 import sendIcon from '@assets/icons/send.png';
 import boxIcon from '@assets/icons/box.png';
 import lightBulbIcon from '@assets/icons/light-bulb.png';
@@ -27,12 +28,12 @@ import canadaFlagIcon from '@assets/icons/canada-flag.png';
 import shieldValidIcon from '@assets/icons/shield-valid.png';
 import validBannerImg from '@assets/images/valid-bg.png';
 import validLockIcon from '@assets/images/valid-lock.png';
-import avatarImg from '@assets/images/w1.png';
+import orgLogoImg from '@assets/images/prov-utoronto.png';
 
 const NEXT_UP_ITEMS = [
-  { icon: boxIcon, title: 'Dashboard Access', desc: 'Explore your personalized dashboard.' },
-  { icon: lightBulbIcon, title: 'Personalized Matches', desc: 'Get opportunities tailored for you.' },
-  { icon: starIcon, title: 'Saved Opportunities', desc: 'Keep and track of what matters.' },
+  { icon: boxIcon, title: 'Provider Dashboard', desc: 'Manage your published opportunities.' },
+  { icon: lightBulbIcon, title: 'Publish Opportunities', desc: 'Post jobs, grants, and training programs.' },
+  { icon: starIcon, title: 'Team Collaboration', desc: 'Invite colleagues to help manage listings.' },
 ] as const;
 
 const DIGITS_COUNT = 6;
@@ -50,9 +51,12 @@ function DividerLabel({ children }: { children: React.ReactNode }) {
 export default function DesktopView() {
   const router = useRouter();
 
-  const [emailMode, setEmailMode] = useState(false);
-  const [userEmail, setUserEmail] = useState('jacob.sullivan@gmail.com');
-  const [savedEmail, setSavedEmail] = useState('jacob.sullivan@gmail.com');
+  const [verifyMethod, setVerifyMethod] = useState<'email' | 'phone'>('email');
+  const [editMode, setEditMode] = useState(false);
+  const [userEmail, setUserEmail] = useState('contact@organization.ca');
+  const [savedEmail, setSavedEmail] = useState('contact@organization.ca');
+  const [userPhone, setUserPhone] = useState('(416) 555-0100');
+  const [savedPhone, setSavedPhone] = useState('(416) 555-0100');
   const [digits, setDigits] = useState<string[]>(Array(DIGITS_COUNT).fill(''));
   const [showToast, setShowToast] = useState(false);
 
@@ -66,36 +70,46 @@ export default function DesktopView() {
     }
   }, [showToast]);
 
-  function handleSaveEmail() {
-    if (!userEmail.trim()) return;
-    setSavedEmail(userEmail.trim());
-    setEmailMode(false);
+  function handleSaveContact() {
+    if (verifyMethod === 'email') {
+      if (!userEmail.trim()) return;
+      setSavedEmail(userEmail.trim());
+    } else {
+      if (!userPhone.trim()) return;
+      setSavedPhone(userPhone.trim());
+    }
+    setEditMode(false);
     setDigits(Array(DIGITS_COUNT).fill(''));
   }
 
   function handleVerify() {
     if (!canVerify) return;
     setShowToast(true);
-    setTimeout(() => router.push('/onboarding/activation'), 1600);
+    setTimeout(() => router.push('/onboarding/team'), 1600);
   }
 
-  function EmailCard() {
-    if (emailMode) {
+  function ContactCard() {
+    const isEmail = verifyMethod === 'email';
+    const icon = isEmail ? mail3Icon : hearPhoneIcon;
+    const label = isEmail ? 'Email Address' : 'Phone Number';
+    const saved = isEmail ? savedEmail : savedPhone;
+
+    if (editMode) {
       return (
         <div className="flex w-full flex-col gap-5 rounded-[10px] border border-[#D9E1EF] bg-white p-5 shadow-[0_2px_4px_rgba(0,0,0,0.05)]">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-5">
               <div className="flex size-[68px] shrink-0 items-center justify-center rounded-full bg-[#EFF4FF] p-[17px]">
-                <Image src={mail3Icon} alt="" width={34} height={34} className="object-contain" />
+                <Image src={icon} alt="" width={34} height={34} className="object-contain" />
               </div>
               <div>
-                <p className="font-sans text-[18px] font-semibold text-[#0F172A]">Email Address</p>
-                <p className="mt-1 font-sans text-[16px] text-[#44516A]">Provide email to 6-digit send code</p>
+                <p className="font-sans text-[18px] font-semibold text-[#0F172A]">{label}</p>
+                <p className="mt-1 font-sans text-[16px] text-[#44516A]">Provide {isEmail ? 'email' : 'phone'} to send 6-digit code</p>
               </div>
             </div>
             <button
               type="button"
-              onClick={handleSaveEmail}
+              onClick={handleSaveContact}
               className="flex shrink-0 items-center gap-2.5 font-sans text-[16px] text-[#2F66C8] transition-opacity hover:opacity-75"
             >
               Save &amp; Send
@@ -113,15 +127,15 @@ export default function DesktopView() {
           </div>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2">
-              <Image src={mail3Icon} alt="" width={18} height={18} className="opacity-60" />
+              <Image src={icon} alt="" width={18} height={18} className="opacity-60" />
             </span>
             <input
-              type="email"
-              value={userEmail}
-              onChange={(e) => setUserEmail(e.target.value)}
-              placeholder="Enter your email address"
+              type={isEmail ? 'email' : 'tel'}
+              value={isEmail ? userEmail : userPhone}
+              onChange={(e) => isEmail ? setUserEmail(e.target.value) : setUserPhone(e.target.value)}
+              placeholder={isEmail ? 'Enter your email address' : 'Enter your phone number'}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSaveEmail();
+                if (e.key === 'Enter') handleSaveContact();
               }}
               className="anchor-field anchor-field--icon-left h-[53px] rounded-[10px] border-[#2F66C8] focus:border-[#2F66C8]"
             />
@@ -134,16 +148,16 @@ export default function DesktopView() {
       <div className="flex w-full items-center justify-between rounded-[10px] border border-[#D9E1EF] bg-white p-5 shadow-[0_2px_4px_rgba(0,0,0,0.05)]">
         <div className="flex items-center gap-5">
           <div className="flex size-[68px] shrink-0 items-center justify-center rounded-full bg-[#EFF4FF] p-[17px]">
-            <Image src={mail3Icon} alt="" width={34} height={34} className="object-contain" />
+            <Image src={icon} alt="" width={34} height={34} className="object-contain" />
           </div>
           <div>
             <p className="font-sans text-[18px] font-semibold text-[#0F172A]">Sent To:</p>
-            <p className="mt-1 font-sans text-[16px] text-[#44516A]">{savedEmail}</p>
+            <p className="mt-1 font-sans text-[16px] text-[#44516A]">{saved}</p>
           </div>
         </div>
         <button
           type="button"
-          onClick={() => setEmailMode(true)}
+          onClick={() => setEditMode(true)}
           className="flex items-center gap-2.5 font-sans text-[16px] text-[#2F66C8] transition-opacity hover:opacity-75"
         >
           Edit
@@ -156,7 +170,28 @@ export default function DesktopView() {
   function VerificationForm() {
     return (
       <div className="flex w-full flex-col gap-10">
-        <EmailCard />
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => { setVerifyMethod('email'); setEditMode(false); setDigits(Array(DIGITS_COUNT).fill('')); }}
+            className={`rounded-[6px] px-5 py-2.5 font-sans text-[14px] font-medium transition-colors ${
+              verifyMethod === 'email' ? 'bg-[#2F66C8] text-white' : 'border border-[#D9E1EF] bg-white text-[#44516A]'
+            }`}
+          >
+            Verify by Email
+          </button>
+          <button
+            type="button"
+            onClick={() => { setVerifyMethod('phone'); setEditMode(false); setDigits(Array(DIGITS_COUNT).fill('')); }}
+            className={`rounded-[6px] px-5 py-2.5 font-sans text-[14px] font-medium transition-colors ${
+              verifyMethod === 'phone' ? 'bg-[#2F66C8] text-white' : 'border border-[#D9E1EF] bg-white text-[#44516A]'
+            }`}
+          >
+            Verify by Phone
+          </button>
+        </div>
+
+        <ContactCard />
 
         <div className="flex flex-col items-center gap-2.5">
           <p className="font-sans text-[16px] font-semibold leading-[1.8] text-[#0F172A]">
@@ -194,9 +229,9 @@ export default function DesktopView() {
             <Image src={shield3Icon} alt="" width={34} height={34} className="object-contain" />
           </div>
           <div>
-            <p className="font-sans text-[18px] font-semibold text-[#0F172A]">Your security matters</p>
+            <p className="font-sans text-[18px] font-semibold text-[#0F172A]">Your organization&apos;s security matters</p>
             <p className="mt-1 font-sans text-[16px] text-[#44516A]">
-              We verify every account to keep opportunities real, safe, and spam-free.
+              We verify every provider to keep opportunities real, safe, and trustworthy.
             </p>
           </div>
         </div>
@@ -217,12 +252,12 @@ export default function DesktopView() {
         <div className="px-6 pb-6 pt-2">
           <div className="text-center">
             <p className="font-sans text-[20px] font-semibold leading-[1.6] text-[#0F172A]">🎉 Almost There!</p>
-            <p className="mt-2 font-sans text-[14px] text-[#44516A]">Your profile is ready and waiting.</p>
+            <p className="mt-2 font-sans text-[14px] text-[#44516A]">Your organization profile is ready.</p>
           </div>
 
           <div className="mt-4 flex flex-col items-center py-4">
-            <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-[#FFF9EC] shadow-sm">
-              <Image src={avatarImg} alt="avatar" fill className="object-cover" sizes="96px" />
+            <div className="relative h-24 w-24 overflow-hidden rounded-2xl border-4 border-white bg-white shadow-sm">
+              <Image src={orgLogoImg} alt="Organization logo" fill className="object-contain p-2" sizes="96px" />
             </div>
             <p className="mt-4 font-serif text-[28px] leading-none text-[#0F172A]">{DEFAULT_PROFILE.displayName}</p>
             <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
@@ -299,8 +334,12 @@ export default function DesktopView() {
             </div>
           </div>
           <div>
-            <p className="font-sans text-[16px] font-medium text-[#0F172A]">Email Verified!</p>
-            <p className="font-sans text-[14px] text-[#8C97AD]">Email verified successfully.</p>
+            <p className="font-sans text-[16px] font-medium text-[#0F172A]">
+              {verifyMethod === 'email' ? 'Email Verified!' : 'Phone Verified!'}
+            </p>
+            <p className="font-sans text-[14px] text-[#8C97AD]">
+              {verifyMethod === 'email' ? 'Email verified successfully.' : 'Phone verified successfully.'}
+            </p>
           </div>
           <button
             type="button"
@@ -313,19 +352,19 @@ export default function DesktopView() {
       )}
 
       <div className="mx-auto w-full max-w-[1548px] px-10 pt-10">
-        <StepProgress current={5} />
+        <StepProgress current={4} />
       </div>
 
       <main className="mx-auto w-full max-w-[1548px] flex-1 px-10 pb-16 pt-20">
         <div className="flex w-full items-start gap-10">
           <div className="flex w-[886px] max-w-[886px] flex-1 flex-col">
             <h1 className="font-serif text-[60px] font-normal leading-[56px] text-[#0F172A]">
-              Confirm Your{' '}
-              <span className="font-serif italic text-[#2F66C8]">Email</span>
+              Verify Your{' '}
+              <span className="font-serif italic text-[#2F66C8]">Organization</span>
             </h1>
             <div className="mt-6 font-sans text-[16px] text-[#8C97AD]">
-              <p>We&apos;ve sent a secure verification code to your inbox.</p>
-              <p>Enter it below to activate your Anchor experience.</p>
+              <p>We&apos;ve sent a secure verification code to your email or phone.</p>
+              <p>Enter it below to verify your organization and continue setup.</p>
             </div>
 
             <div className="mt-10">
@@ -342,7 +381,7 @@ export default function DesktopView() {
       </main>
 
       <OnboardingNavButtons
-        backHref="/onboarding/account"
+        backHref="/onboarding/organization-info"
         onContinue={handleVerify}
         continueDisabled={!canVerify}
         continueLabel="Verify & Continue"

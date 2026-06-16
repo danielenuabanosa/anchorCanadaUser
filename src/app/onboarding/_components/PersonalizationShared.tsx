@@ -7,8 +7,7 @@ import { ArrowRight, Check, Loader2 } from 'lucide-react';
 
 import caseIcon from '@assets/icons/case.png';
 import grantIcon from '@assets/icons/grant-funding.png';
-import loveIcon from '@assets/icons/love.png';
-import graduationIcon from '@assets/icons/graduation-cap.png';
+import briefcaseIcon from '@assets/icons/briefcase.png';
 import heartHandshake from '@assets/icons/heart-handshake.png';
 import start3Icon from '@assets/icons/start3.png';
 import star2Icon from '@assets/icons/star2.png';
@@ -19,28 +18,28 @@ import lockIcon from '@assets/icons/lock.png';
 import mapBgImg from '@assets/images/map-bg.png';
 import validBgImg from '@assets/images/valid-bg.png';
 import plainBg2Img from '@assets/images/plain-bg2.png';
-import avatarImg from '@assets/images/w1.png';
+import orgLogoImg from '@assets/images/prov-utoronto.png';
 
-import { PREVIEW_BADGES, DEFAULT_PROFILE } from '@/shared/components/onboarding/profilePreviewData';
+import { PREVIEW_BADGES, FOCUS_CHIPS, DEFAULT_PROFILE } from '@/shared/components/onboarding/profilePreviewData';
 import { cn } from '@/lib/utils';
 
 export const FEED_STEPS = [
-  { label: 'Profile synced', sub: 'Your profile has been securely saved.' },
-  { label: 'Location detected', sub: 'Toronto, Ontario, Canada 🍁' },
-  { label: 'Interests matched', sub: 'Entrepreneurship, Grants, Community' },
-  { label: 'Finding opportunities in Toronto…', sub: 'Scanning verified opportunities in your area.' },
-  { label: 'Matching grants for entrepreneurs…', sub: 'Checking programs you may qualify for' },
-  { label: 'Connecting community resources…', sub: 'Finding services and support near you.' },
-  { label: 'Preparing your dashboard…', sub: 'Almost ready!' },
+  { label: 'Organization synced', sub: 'Your organization details have been securely saved.' },
+  { label: 'Categories configured', sub: 'Jobs, Grants, Training, Community' },
+  { label: 'Verification complete', sub: 'Your organization is verified on Anchor.' },
+  { label: 'Setting up publishing tools…', sub: 'Preparing your opportunity management dashboard.' },
+  { label: 'Configuring reach analytics…', sub: 'Track how Canadians discover your listings.' },
+  { label: 'Preparing team access…', sub: 'Admin and editor permissions are ready.' },
+  { label: 'Launching provider portal…', sub: 'Almost ready!' },
 ] as const;
 
 export const MAP_CARDS = [
   {
     icon: caseIcon,
     bg: '#E0E9FE',
-    title: 'UX Design Internship',
+    title: 'Software Developer Role',
     loc: 'Toronto, ON',
-    badge: 'New Match',
+    badge: 'Ready to Publish',
     badgeBg: '#DCE8FD',
     badgeText: '#0012E5',
     style: { top: '4%', left: '18%' },
@@ -48,29 +47,29 @@ export const MAP_CARDS = [
   {
     icon: grantIcon,
     bg: '#E7F5EF',
-    title: 'Startup Grant Program',
+    title: 'Community Grant Program',
     loc: 'Ontario',
-    badge: 'Highly Matched',
+    badge: 'Draft Saved',
     badgeBg: '#E7F5ED',
     badgeText: '#046F47',
     style: { top: '8%', right: '2%' },
   },
   {
-    icon: loveIcon,
+    icon: heartHandshake,
     bg: '#FCE7EB',
-    title: 'Community Support',
-    loc: 'Downtown Toronto',
-    badge: 'Recommended',
+    title: 'Volunteer Training',
+    loc: 'Canada-wide',
+    badge: 'Scheduled',
     badgeBg: '#F1ECFC',
     badgeText: '#4E28B8',
     style: { bottom: '22%', left: '2%' },
   },
   {
-    icon: graduationIcon,
+    icon: briefcaseIcon,
     bg: '#FEF1DC',
-    title: 'Scholarships for Newcomers',
-    loc: 'Canada-wide',
-    badge: 'New Match',
+    title: 'Internship Program',
+    loc: 'Toronto, ON',
+    badge: 'Ready to Publish',
     badgeBg: '#FDF2DD',
     badgeText: '#D86B02',
     style: { bottom: '2%', right: '2%' },
@@ -78,10 +77,10 @@ export const MAP_CARDS = [
 ] as const;
 
 export const FEATURE_CARDS = [
-  { icon: caseIcon, bg: '#EFF4FF', title: 'Personalized Jobs', desc: 'Opportunities matched to your goals and skills.' },
-  { icon: grantIcon, bg: '#E2F2EB', title: 'Grants & Funding', desc: 'Programs you qualify for, all in one place.' },
-  { icon: heartHandshake, bg: '#F0EEFD', title: 'Community Support', desc: 'Connect with services and people near you.' },
-  { icon: loveIcon, bg: '#FCE7EB', title: 'Saved Opportunities', desc: 'Save, track and manage what means to you.' },
+  { icon: caseIcon, bg: '#EFF4FF', title: 'Publish Opportunities', desc: 'Post jobs, grants, training, and community programs.' },
+  { icon: grantIcon, bg: '#E2F2EB', title: 'Manage Listings', desc: 'Edit, schedule, and track all your published opportunities.' },
+  { icon: heartHandshake, bg: '#F0EEFD', title: 'Team Collaboration', desc: 'Invite colleagues to help manage your organization.' },
+  { icon: briefcaseIcon, bg: '#FCE7EB', title: 'Reach Analytics', desc: 'See how Canadians discover and engage with your listings.' },
 ] as const;
 
 export const PROGRESS_ITEMS: Array<{
@@ -89,10 +88,10 @@ export const PROGRESS_ITEMS: Array<{
   sub: string;
   cta?: boolean;
 }> = [
-  { label: 'Profile created', sub: 'Great start!' },
+  { label: 'Organization registered', sub: 'Great start!' },
   { label: 'Email verified', sub: "You're all set" },
-  { label: 'Personalized for you', sub: 'Personalized for you' },
-  { label: 'Dashboard ready', sub: "Let's explore!", cta: true },
+  { label: 'Categories configured', sub: 'Ready to publish' },
+  { label: 'Provider dashboard ready', sub: "Let's go!", cta: true },
 ];
 
 const TOTAL_DURATION = 7000;
@@ -173,11 +172,11 @@ export function PersonalizationHeading({ compact = false }: { compact?: boolean 
   if (compact) {
     return (
       <div className="text-center">
-        <p className="font-serif text-[36px] leading-[56px] text-[#0F172A]">Personalizing Your</p>
-        <p className="font-serif text-[52px] italic leading-[56px] text-[#2F66C8]">Anchor</p>
-        <p className="font-serif text-[36px] leading-[56px] text-[#0F172A]">Experience</p>
+        <p className="font-serif text-[36px] leading-[56px] text-[#0F172A]">Setting Up Your</p>
+        <p className="font-serif text-[52px] italic leading-[56px] text-[#2F66C8]">Provider</p>
+        <p className="font-serif text-[36px] leading-[56px] text-[#0F172A]">Portal</p>
         <p className="mt-2.5 font-sans text-[14px] leading-normal text-[#8C97AD]">
-          We&apos;re matching opportunities based on your goals, interests, and location.
+          We&apos;re configuring your dashboard based on your organization type and categories.
         </p>
       </div>
     );
@@ -186,12 +185,12 @@ export function PersonalizationHeading({ compact = false }: { compact?: boolean 
   return (
     <div className="text-center">
       <h1 className="flex flex-wrap items-baseline justify-center gap-x-2 gap-y-0 font-serif text-[60px] leading-[56px] text-[#0F172A]">
-        <span>Personalizing Your</span>
-        <span className="italic text-[#2F66C8]">Anchor</span>
-        <span>Experience</span>
+        <span>Setting Up Your</span>
+        <span className="italic text-[#2F66C8]">Provider</span>
+        <span>Portal</span>
       </h1>
       <p className="mt-6 font-sans text-[16px] text-[#8C97AD]">
-        We&apos;re matching opportunities based on your goals, interests, and location.
+        We&apos;re configuring your dashboard based on your organization type and categories.
       </p>
     </div>
   );
@@ -254,7 +253,7 @@ export function LiveFeedPanel({
     >
       <div className="mb-8 inline-flex items-center gap-2 rounded bg-[#EFF4FF] px-1.5 py-1">
         <Image src={start3Icon} alt="" width={16} height={16} className="object-contain" />
-        <p className="text-[14px] font-medium text-[#2F66C8]">Live personalization feed</p>
+        <p className="text-[14px] font-medium text-[#2F66C8]">Live setup feed</p>
       </div>
 
       <div className="flex flex-col">
@@ -328,7 +327,7 @@ export function ProgressBarSection({
       </div>
       <div className="min-w-0 flex-1">
         <p className={cn('font-semibold text-[#0F172A]', compact ? 'text-[14px]' : 'text-[16px]')}>
-          Preparing your first recommendations…
+          Setting up your provider dashboard…
         </p>
         <div className="mt-3 flex items-center gap-4">
           <div className="h-3.5 flex-1 overflow-hidden rounded-full bg-[#EEF2F8]">
@@ -362,7 +361,7 @@ export function VerificationShieldFooter({
         <div className="flex items-start gap-3">
           <Image src={shieldCheckIcon} alt="" width={40} height={40} className="shrink-0 object-contain" />
           <p className="text-[14px] leading-normal text-[#44516A]">
-            Only verified opportunities and resources are shown on Anchor.
+            Only verified organizations can publish opportunities on Anchor.
           </p>
         </div>
         <Link
@@ -381,7 +380,7 @@ export function VerificationShieldFooter({
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <Image src={shieldCheckIcon} alt="" width={24} height={24} className="shrink-0 object-contain" />
-          <p className="text-[16px] text-[#44516A]">Only verified opportunities and resources are shown on Anchor.</p>
+          <p className="text-[16px] text-[#44516A]">Only verified organizations can publish opportunities on Anchor.</p>
         </div>
         <Link
           href="/privacy"
@@ -429,7 +428,7 @@ export function WelcomeHero({ compact = false }: { compact?: boolean }) {
           compact ? 'text-[48px] leading-[56px]' : 'text-[60px] leading-[56px]',
         )}
       >
-        Welcome to Anchor! 🎉
+        Welcome to Anchor Provider! 🎉
       </h1>
       <p
         className={cn(
@@ -437,13 +436,13 @@ export function WelcomeHero({ compact = false }: { compact?: boolean }) {
           compact ? 'text-[14px]' : 'text-[16px]',
         )}
       >
-        Your account is verified, your profile is ready, and your personalized opportunities are waiting.
+        Your organization is verified, your profile is ready, and your provider dashboard is waiting.
       </p>
     </div>
   );
 }
 
-export function ProfileActiveCard({ compact = false }: { compact?: boolean }) {
+export function OrganizationActiveCard({ compact = false }: { compact?: boolean }) {
   return (
     <div
       className={cn(
@@ -452,16 +451,19 @@ export function ProfileActiveCard({ compact = false }: { compact?: boolean }) {
       )}
     >
       <div className="inline-flex items-center gap-1.5 rounded bg-[#ECFDF5] px-1.5 py-1">
-        <Image src={graduationIcon} alt="" width={16} height={16} className="object-contain" />
-        <p className="text-[14px] font-medium text-[#15803D]">Your profile is now active.</p>
+        <Image src={shieldCheckIcon} alt="" width={16} height={16} className="object-contain" />
+        <p className="text-[14px] font-medium text-[#15803D]">Your organization is now active.</p>
       </div>
       <div className="mt-5 flex items-center gap-5">
-        <div className={cn('relative shrink-0 overflow-hidden rounded-full', compact ? 'h-20 w-20' : 'h-40 w-40')}>
-          <Image src={avatarImg} alt="avatar" fill className="object-cover" />
+        <div className={cn('relative shrink-0 overflow-hidden rounded-2xl border-2 border-white bg-white shadow-sm', compact ? 'h-20 w-20' : 'h-28 w-28')}>
+          <Image src={orgLogoImg} alt="Organization logo" fill className="object-contain p-2" />
         </div>
         <div className="min-w-0">
           <p className={cn('font-serif text-[#0F172A]', compact ? 'text-[20px]' : 'text-[36px] leading-[56px]')}>
             {DEFAULT_PROFILE.displayName}
+          </p>
+          <p className={cn('font-sans text-[#8C97AD]', compact ? 'text-[12px]' : 'text-[14px]')}>
+            {DEFAULT_PROFILE.pronounLabel}
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
             {PREVIEW_BADGES.map((badge) => (
@@ -472,6 +474,17 @@ export function ProfileActiveCard({ compact = false }: { compact?: boolean }) {
               >
                 <Image src={badge.icon} alt="" width={10} height={10} className="object-contain" />
                 {badge.label}
+              </span>
+            ))}
+          </div>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {FOCUS_CHIPS.map((chip) => (
+              <span
+                key={chip.label}
+                className="rounded-full px-2.5 py-0.5 font-sans text-[10px] font-medium"
+                style={{ background: chip.bg, color: chip.text }}
+              >
+                {chip.label}
               </span>
             ))}
           </div>
@@ -486,6 +499,9 @@ export function ProfileActiveCard({ compact = false }: { compact?: boolean }) {
   );
 }
 
+/** @deprecated Use OrganizationActiveCard */
+export const ProfileActiveCard = OrganizationActiveCard;
+
 export function OpportunityBanner({ compact = false }: { compact?: boolean }) {
   if (compact) return null;
 
@@ -493,14 +509,14 @@ export function OpportunityBanner({ compact = false }: { compact?: boolean }) {
     <div className="flex h-[240px] overflow-hidden rounded-[20px] border border-[#EEF2F8] bg-[#EFF4FF]">
       <div className="flex flex-1 items-start gap-5 p-5 md:p-10">
         <div className="flex h-[68px] w-[68px] shrink-0 items-center justify-center rounded-full bg-white">
-          <Image src={locationPinIcon} alt="" width={34} height={34} className="object-contain" />
+          <Image src={briefcaseIcon} alt="" width={34} height={34} className="object-contain" />
         </div>
         <div>
           <p className="font-serif text-[28px] leading-[1.4] text-[#0F172A]">
-            We&apos;re already finding opportunities for you.
+            Your publishing tools are ready.
           </p>
           <p className="mt-3 text-[16px] text-[#8C97AD]">
-            Based on your profile, we&apos;ve started matching opportunities in Toronto
+            Based on your categories, you can start posting opportunities to Canadians today.
           </p>
         </div>
       </div>
@@ -564,7 +580,7 @@ export function FeatureGridWithProgress({
           compact ? 'text-[16px]' : 'text-[20px] leading-[1.6]',
         )}
       >
-        Here&apos;s what&apos;s waiting for you
+        Here&apos;s what&apos;s waiting for your organization
       </p>
 
       <div className={cn('grid grid-cols-2 gap-3', compact ? 'mt-5' : 'mt-10 gap-5')}>
@@ -627,7 +643,7 @@ export function PreferencesFooter({
       <div className={cn('rounded-[10px] bg-[#EFF4FF] p-5', className)}>
         <div className="flex items-center gap-3">
           <Image src={lockIcon} alt="" width={24} height={24} className="shrink-0 object-contain" />
-          <p className="text-[14px] text-[#44516A]">You can update your preferences anytime.</p>
+          <p className="text-[14px] text-[#44516A]">Your organization profile can be updated anytime in settings.</p>
         </div>
       </div>
     );
@@ -637,7 +653,7 @@ export function PreferencesFooter({
     <div className={cn('rounded-[10px] bg-[#EFF4FF] p-5', className)}>
       <div className="flex items-center gap-3 text-[16px] text-[#44516A]">
         <Image src={lockIcon} alt="" width={24} height={24} className="shrink-0 object-contain" />
-        You can update your preferences anytime.
+        Your organization profile can be updated anytime in settings.
       </div>
     </div>
   );

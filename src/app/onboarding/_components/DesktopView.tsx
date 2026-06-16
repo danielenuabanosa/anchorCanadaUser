@@ -11,12 +11,12 @@ import { StepProgress } from '@/shared/components/onboarding/StepProgress';
 import { OnboardingNavButtons } from '@/shared/components/onboarding/OnboardingNavButtons';
 import { Footer } from './Footer';
 
-import card1Img from '@assets/images/card1.png';
+import card2Img from '@assets/images/card2.png';
 import card3Img from '@assets/images/card3.png';
-import userIcon from '@assets/icons/user.png';
+import briefcaseIcon from '@assets/icons/briefcase.png';
 import eyeIcon from '@assets/icons/eye.png';
 
-type JourneyId = 'onboard' | 'explore';
+type JourneyId = 'register' | 'explore';
 
 interface CardDef {
   id: JourneyId;
@@ -34,29 +34,29 @@ interface CardDef {
 
 const CARDS: CardDef[] = [
   {
-    id: 'onboard',
-    title: 'Start Onboarding',
-    body: 'Discover jobs, grants, training, housing, and community support.',
-    tags: ['Jobs', 'Grants', 'Training', 'Support'],
+    id: 'register',
+    title: 'Register as Provider',
+    body: 'Publish jobs, grants, training, and community opportunities to Canadians nationwide.',
+    tags: ['Jobs', 'Grants', 'Training', 'Community'],
     tagBg: '#EFF4FF',
     tagColor: '#2F66C8',
-    statIconSrc: userIcon,
+    statIconSrc: briefcaseIcon,
     statIconBg: 'bg-[#EFF4FF]',
-    statBold: '10,000+ opportunities discovered',
-    statMuted: 'every week by people like you.',
-    image: card1Img,
+    statBold: 'Reach thousands of Canadians',
+    statMuted: 'looking for opportunities every week.',
+    image: card2Img,
   },
   {
     id: 'explore',
     title: 'Explore First',
-    body: 'Browse opportunities, stories, and resources before using the platform.',
+    body: 'Browse the provider portal, resources, and tools before registering your organization.',
     tags: ['Browse', 'Learn', 'Discover'],
     tagBg: '#F5F0FC',
     tagColor: '#6C34C7',
     statIconSrc: eyeIcon,
     statIconBg: 'bg-[#F5F0FC]',
     statBold: 'Explore freely with no commitment.',
-    statMuted: "Create an account when you're ready.",
+    statMuted: 'Register when your organization is ready to publish.',
     image: card3Img,
   },
 ];
@@ -100,17 +100,15 @@ function SelectionCard({
       <div className="flex h-[273px] flex-col justify-between p-5">
         <div className="flex flex-col gap-7">
           <div>
-            <h3 className="font-serif text-[28px] leading-[56px] text-[#0F172A]">
-              {card.title}
-            </h3>
-            <p className="text-[16px] leading-normal text-[#44516A] font-sans">{card.body}</p>
+            <h3 className="font-serif text-[28px] leading-[56px] text-[#0F172A]">{card.title}</h3>
+            <p className="font-sans text-[16px] leading-normal text-[#44516A]">{card.body}</p>
           </div>
 
           <div className="flex flex-wrap gap-2.5">
             {card.tags.map((tag) => (
               <span
                 key={tag}
-                className="rounded-[4px] px-1 py-0.5 text-[14px] font-sans"
+                className="rounded-[4px] px-1 py-0.5 font-sans text-[14px]"
                 style={{ backgroundColor: card.tagBg, color: card.tagColor }}
               >
                 {tag}
@@ -124,8 +122,8 @@ function SelectionCard({
             <Image src={card.statIconSrc} alt="" width={29} height={29} className="object-contain" />
           </div>
           <div>
-            <p className="text-[16px] font-medium text-[#0F172A] font-sans">{card.statBold}</p>
-            <p className="text-[14px] text-[#44516A] font-sans">{card.statMuted}</p>
+            <p className="font-sans text-[16px] font-medium text-[#0F172A]">{card.statBold}</p>
+            <p className="font-sans text-[14px] text-[#44516A]">{card.statMuted}</p>
           </div>
         </div>
       </div>
@@ -139,12 +137,12 @@ export default function DesktopView() {
 
   function handleContinue() {
     if (!selected) return;
-    router.push('/onboarding/interest');
+    router.push('/onboarding/organization-type');
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#EFF4FF]">
-      <OnboardingNavbar /> 
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
+      <OnboardingNavbar />
 
       <div className="mx-auto w-full max-w-[1548px] px-10 pt-10">
         <StepProgress current={0} />
@@ -158,8 +156,8 @@ export default function DesktopView() {
           <p className="font-serif text-[78px] font-normal italic leading-[74px] text-[#2F66C8]">
             Anchor?
           </p>
-          <p className="mt-6 text-[16px] text-[#8C97AD] font-sans">
-            Choose the path that best matches your goals.
+          <p className="mt-6 font-sans text-[16px] text-[#8C97AD]">
+            Choose the path that best matches your organization&apos;s goals.
             <br />
             You can switch anytime.
           </p>

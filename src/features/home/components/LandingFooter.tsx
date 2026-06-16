@@ -21,7 +21,7 @@ const NAV = [
   {
     heading: 'For Providers',
     links: [
-      { label: 'Become a Provider', href: '/register?role=business' },
+      { label: 'Become a Provider', href: '/onboarding' },
       { label: 'Provider Resources', href: '/providers' },
       { label: 'How it Works', href: '/#how-it-works' },
       { label: 'Partner With Us', href: '/contact' },

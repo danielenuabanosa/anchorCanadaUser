@@ -6,8 +6,8 @@ import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import lockIcon from '@/../assets/icons/lock2.png';
-import shieldIcon from '@/../assets/icons/shield-check.png';
+import lockIcon from '@assets/icons/lock2.png';
+import shieldIcon from '@assets/icons/shield-check.png';
 
 interface Req { label: string; test: (p: string) => boolean; }
 
@@ -48,7 +48,7 @@ export default function ResetPasswordMobileView() {
           <span className="font-serif text-[48px] leading-[56px] text-[#0f172a]">Create Your</span>
           <span className="font-serif italic text-[52px] leading-[56px] text-[#2f66c8]">New Password</span>
         </div>
-        <p className="text-sm text-[#8c97ad]">Choose a secure password to regain access to your Anchor account.</p>
+        <p className="text-sm text-[#8c97ad]">Choose a secure password to regain access to your provider account.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-10 w-full">

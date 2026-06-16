@@ -85,12 +85,12 @@ function AuthButtons({ onClose }: { onClose: () => void }) {
     <>
       {/* Create account CTA */}
       <Link
-        href="/register"
+        href="/onboarding"
         onClick={onClose}
         className="mb-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[#2f66c8] py-3 text-sm font-medium text-white shadow-sm transition hover:bg-[#2558b0]"
       >
         <User className="h-4 w-4" />
-        Create an account
+        Create a provider account
       </Link>
 
       {/* Log in CTA */}

@@ -14,7 +14,7 @@ const CARDS = [
     title:  'Find Opportunities',
     body:   'Discover jobs, grants, training and community support tailored to your journey.',
     cta:    'Continue',
-    href:   '/register',
+    href:   '/onboarding',
     image:  searchImg,
     imgAlt: 'Magnifying glass illustration',
     /* how the image sits inside the card */
@@ -25,7 +25,7 @@ const CARDS = [
     title:  'Publish Opportunities',
     body:   'Share opportunities and connect with the people who need them most.',
     cta:    'Continue',
-    href:   '/register?role=business',
+    href:   '/onboarding',
     image:  buildImg,
     imgAlt: 'Building illustration',
     imgClass: 'w-[150px] lg:w-[165px] h-[261.4994812011719px] lg:h-[287px] ',

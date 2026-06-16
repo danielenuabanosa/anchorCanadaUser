@@ -9,14 +9,14 @@ import type { StaticImageData } from 'next/image';
 
 import { OnboardingNavbar } from '@/features/home/components/OnboardingNavbar';
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
-
-import card1Img from '@assets/images/card1.png';
-import card3Img from '@assets/images/card3.png';
-import userIcon from '@assets/icons/user.png';
-import eyeIcon from '@assets/icons/eye.png';
 import { Footer } from './Footer';
 
-type JourneyId = 'onboard' | 'explore';
+import card2Img from '@assets/images/card2.png';
+import card3Img from '@assets/images/card3.png';
+import briefcaseIcon from '@assets/icons/briefcase.png';
+import eyeIcon from '@assets/icons/eye.png';
+
+type JourneyId = 'register' | 'explore';
 
 interface CardDef {
   id: JourneyId;
@@ -34,29 +34,29 @@ interface CardDef {
 
 const CARDS: CardDef[] = [
   {
-    id: 'onboard',
-    title: 'Start Onboarding',
-    body: 'Discover jobs, grants, training, housing, and community support.',
-    tags: ['Jobs', 'Grants', 'Training', 'Support'],
+    id: 'register',
+    title: 'Register as Provider',
+    body: 'Publish jobs, grants, training, and community opportunities to Canadians nationwide.',
+    tags: ['Jobs', 'Grants', 'Training', 'Community'],
     tagBg: '#EFF4FF',
     tagColor: '#2F66C8',
-    statIconSrc: userIcon,
+    statIconSrc: briefcaseIcon,
     statIconBg: 'bg-[#EFF4FF]',
-    statBold: '10,000+ opportunities discovered',
-    statMuted: 'every week by people like you.',
-    image: card1Img,
+    statBold: 'Reach thousands of Canadians',
+    statMuted: 'looking for opportunities every week.',
+    image: card2Img,
   },
   {
     id: 'explore',
     title: 'Explore First',
-    body: 'Browse opportunities, stories, and resources before using the platform.',
+    body: 'Browse the provider portal, resources, and tools before registering your organization.',
     tags: ['Browse', 'Learn', 'Discover'],
     tagBg: '#F5F0FC',
     tagColor: '#6C34C7',
     statIconSrc: eyeIcon,
     statIconBg: 'bg-[#F5F0FC]',
     statBold: 'Explore freely with no commitment.',
-    statMuted: "Create an account when you're ready.",
+    statMuted: 'Register when your organization is ready to publish.',
     image: card3Img,
   },
 ];
@@ -100,14 +100,14 @@ function MobileCard({
       <div className="space-y-4 p-4">
         <div>
           <h3 className="font-serif text-[22px] leading-tight text-[#0F172A]">{card.title}</h3>
-          <p className="mt-1 text-[14px] leading-relaxed text-[#44516A]">{card.body}</p>
+          <p className="mt-1 font-sans text-[14px] leading-relaxed text-[#44516A]">{card.body}</p>
         </div>
 
         <div className="flex flex-wrap gap-2">
           {card.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-[4px] px-1 py-0.5 text-[12px]"
+              className="rounded-[4px] px-1 py-0.5 font-sans text-[12px]"
               style={{ backgroundColor: card.tagBg, color: card.tagColor }}
             >
               {tag}
@@ -120,8 +120,8 @@ function MobileCard({
             <Image src={card.statIconSrc} alt="" width={18} height={18} className="object-contain" />
           </div>
           <div>
-            <p className="text-[13px] font-medium text-[#0F172A]">{card.statBold}</p>
-            <p className="text-[12px] text-[#44516A]">{card.statMuted}</p>
+            <p className="font-sans text-[13px] font-medium text-[#0F172A]">{card.statBold}</p>
+            <p className="font-sans text-[12px] text-[#44516A]">{card.statMuted}</p>
           </div>
         </div>
       </div>
@@ -135,7 +135,7 @@ export default function MobileView() {
 
   function handleContinue() {
     if (!selected) return;
-    router.push('/onboarding/interest');
+    router.push('/onboarding/organization-type');
   }
 
   return (
@@ -152,8 +152,8 @@ export default function MobileView() {
             How Would You Like To Use
           </h1>
           <p className="font-serif text-[30px] italic leading-tight text-[#2F66C8]">Anchor?</p>
-          <p className="mt-3 text-[12px] leading-relaxed text-[#8C97AD]">
-            Choose the path that best matches your goals.
+          <p className="mt-3 font-sans text-[12px] leading-relaxed text-[#8C97AD]">
+            Choose the path that best matches your organization&apos;s goals.
             <br />
             You can switch anytime.
           </p>
@@ -170,7 +170,7 @@ export default function MobileView() {
           ))}
         </div>
 
-        <div className="mt-8 border-t border-[#D9E1EF] pt-6 pb-8">
+        <div className="mt-8 border-t border-[#D9E1EF] pb-8 pt-6">
           <div className="flex flex-col gap-3">
             <button
               type="button"

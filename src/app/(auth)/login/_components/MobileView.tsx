@@ -7,20 +7,20 @@ import { useRouter } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 
-import mailIcon from '@/../assets/icons/mail.png';
-import lockIcon from '@/../assets/icons/lock2.png';
-import shieldIcon from '@/../assets/icons/shield-check.png';
-import googleIcon from '@/../assets/icons/google.png';
-import lightBulbIcon from '@/../assets/icons/light-bulb.png';
+import mailIcon from '@assets/icons/mail.png';
+import lockIcon from '@assets/icons/lock2.png';
+import shieldIcon from '@assets/icons/shield-check.png';
+import googleIcon from '@assets/icons/google.png';
+import lightBulbIcon from '@assets/icons/light-bulb.png';
 
 const DEMO_CREDENTIALS = {
-  email: 'demo@anchorcanada.ca',
+  email: 'demo@provider.anchorcanada.ca',
   password: 'Demo@1234',
   user: {
-    id: 'demo-001',
-    name: 'Jacob Sullivan',
-    email: 'demo@anchorcanada.ca',
-    role: 'individual' as const,
+    id: 'demo-provider-001',
+    name: 'Sarah Mitchell',
+    email: 'demo@provider.anchorcanada.ca',
+    role: 'provider' as const,
   },
 };
 
@@ -50,7 +50,7 @@ export default function LoginMobileView() {
       email.toLowerCase() === DEMO_CREDENTIALS.email &&
       password === DEMO_CREDENTIALS.password
     ) {
-      setAuth(DEMO_CREDENTIALS.user, 'demo-token-anchor-2026');
+      setAuth(DEMO_CREDENTIALS.user, 'demo-token-provider-2026');
       router.push('/dashboard');
     } else {
       setError('Invalid email or password. Use the demo credentials below.');
@@ -68,12 +68,12 @@ export default function LoginMobileView() {
         </svg>
         <div className="text-xs text-[#44516A] flex-1">
           <p className="font-semibold text-[#2f66c8] mb-0.5">Demo credentials</p>
-          <p>Email: <span className="font-mono font-semibold text-[#0F172A]">demo@anchorcanada.ca</span></p>
+          <p>Email: <span className="font-mono font-semibold text-[#0F172A]">demo@provider.anchorcanada.ca</span></p>
           <p>Password: <span className="font-mono font-semibold text-[#0F172A]">Demo@1234</span></p>
         </div>
         <button
           type="button"
-          onClick={() => { setEmail('demo@anchorcanada.ca'); setPassword('Demo@1234'); }}
+          onClick={() => { setEmail(DEMO_CREDENTIALS.email); setPassword(DEMO_CREDENTIALS.password); }}
           className="shrink-0 px-2.5 py-1.5 rounded-lg bg-[#2f66c8] text-white text-xs font-semibold hover:bg-[#2454a4] transition-colors"
         >Auto-fill</button>
       </div>
@@ -84,7 +84,7 @@ export default function LoginMobileView() {
           <span className="font-serif text-[48px] leading-[56px] text-[#0f172a]">Welcome</span>
           <span className="font-serif italic text-[52px] leading-[56px] text-[#2f66c8]">Back 👋</span>
         </div>
-        <p className="text-sm text-[#8c97ad]">Your personalized opportunities are waiting.</p>
+        <p className="text-sm text-[#8c97ad]">Sign in to manage your listings and connect with applicants.</p>
       </div>
 
       <div className="flex flex-col gap-[60px] w-full">
@@ -223,7 +223,7 @@ export default function LoginMobileView() {
               </svg>
             ) : (
               <>
-                Enter Anchor
+                Enter Provider Portal
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -231,7 +231,7 @@ export default function LoginMobileView() {
             )}
           </button>
           <Link
-            href="/"
+            href="/guest"
             className="bg-white border border-[#d9e1ef] rounded-[6px] flex items-center justify-center gap-2.5 px-6 py-4 text-sm text-[#2f66c8] w-full hover:bg-[#f8fafc] transition-colors"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -246,12 +246,12 @@ export default function LoginMobileView() {
       <div className="bg-[#eff4ff] flex flex-col gap-5 items-center p-5 rounded-[10px] w-full">
         <div className="flex gap-3 items-start w-full">
           <Image src={lightBulbIcon} alt="" width={40} height={40} className="shrink-0" />
-          <p className="text-sm text-[#44516a]">You can edit your profile anytime in your account settings.</p>
+          <p className="text-sm text-[#44516a]">You can edit your organization profile anytime in account settings.</p>
         </div>
         <div className="flex gap-3 items-center">
-          <span className="text-sm text-[#8c97ad]">New to Anchor?</span>
-          <Link href="/register" className="flex items-center gap-2 text-sm font-medium text-[#2f66c8] hover:underline">
-            Create Account
+          <span className="text-sm text-[#8c97ad]">New provider?</span>
+          <Link href="/onboarding" className="flex items-center gap-2 text-sm font-medium text-[#2f66c8] hover:underline">
+            Create Provider Account
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>

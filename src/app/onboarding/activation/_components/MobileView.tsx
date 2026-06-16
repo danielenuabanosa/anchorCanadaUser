@@ -12,7 +12,7 @@ import {
   MapWithCards,
   PersonalizationHeading,
   PreferencesFooter,
-  ProfileActiveCard,
+  OrganizationActiveCard,
   ProgressBarSection,
   usePersonalizationProgress,
   VerificationShieldFooter,
@@ -58,7 +58,7 @@ function ActivationWelcomeMobile({
 
       <main className="flex flex-col gap-5 px-5 pb-10 pt-4">
         <WelcomeHero compact />
-        <ProfileActiveCard compact />
+        <OrganizationActiveCard compact />
         <FeatureGridWithProgress compact showDescriptions={false} />
 
         <div className="mt-3 flex flex-col gap-3">
@@ -67,7 +67,7 @@ function ActivationWelcomeMobile({
             onClick={onContinue}
             className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] bg-[#2F66C8] text-[14px] font-normal text-white transition-colors hover:bg-[#2454A4]"
           >
-            Enter My Dashboard
+            Enter Provider Dashboard
             <ArrowRight className="h-4 w-4" />
           </button>
           <button
@@ -106,7 +106,7 @@ export default function MobileView() {
         setLoadingKey((k) => k + 1);
         setPhase('loading');
       }}
-      onContinue={() => router.push('/onboarding/dashboard-transition')}
+      onContinue={() => router.push('/dashboard')}
     />
   );
 }

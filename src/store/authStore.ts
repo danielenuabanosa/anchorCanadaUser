@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type UserRole = 'individual' | 'business' | 'expert';
+export type UserRole = 'individual' | 'business' | 'expert' | 'provider';
 
 export interface AuthUser {
   id: string;
@@ -39,7 +39,7 @@ export const useAuthStore = create<AuthState>()(
         ),
     }),
     {
-      name: 'anchor_auth',
+      name: 'anchor_provider_auth',
       partialize: (state) => ({
         user: state.user,
         token: state.token,

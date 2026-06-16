@@ -1,21 +1,21 @@
-import graduationIcon from '@assets/icons/graduation-cap.png';
-import flashIcon from '@assets/icons/flash.png';
 import briefcaseIcon from '@assets/icons/briefcase.png';
+import shieldCheckIcon from '@assets/icons/shield-check.png';
+import grantIcon from '@assets/icons/grant-funding.png';
 
 export const PREVIEW_BADGES = [
-  { label: 'STUDENT', bg: '#F0EBFF', text: '#7C3AED', icon: graduationIcon },
-  { label: 'NEWCOMER', bg: '#EEF3FF', text: '#2F66C8', icon: flashIcon },
-  { label: 'ENTREPRENEUR', bg: '#E6F7EF', text: '#059669', icon: briefcaseIcon },
+  { label: 'NON-PROFIT', bg: '#E6F7EF', text: '#059669', icon: shieldCheckIcon },
+  { label: 'PROVIDER', bg: '#EEF3FF', text: '#2F66C8', icon: briefcaseIcon },
+  { label: 'VERIFIED', bg: '#F0EBFF', text: '#7C3AED', icon: grantIcon },
 ] as const;
 
 export const FOCUS_CHIPS = [
-  { label: 'Finding Employment', bg: '#EEF3FF', text: '#2F66C8' },
-  { label: 'Accessing Funding', bg: '#E6F7EF', text: '#059669' },
-  { label: 'Support my community', bg: '#F0EBFF', text: '#7C3AED' },
+  { label: 'Jobs & Internships', bg: '#EEF3FF', text: '#2F66C8' },
+  { label: 'Grants & Funding', bg: '#E6F7EF', text: '#059669' },
+  { label: 'Training Programs', bg: '#F0EBFF', text: '#7C3AED' },
 ] as const;
 
 export const DEFAULT_PROFILE = {
-  displayName: 'Jacob Sullivan',
-  pronounLabel: 'He / Him',
+  displayName: 'University of Toronto',
+  pronounLabel: 'Educational Institution',
   location: 'Toronto, Ontario, Canada',
 } as const;

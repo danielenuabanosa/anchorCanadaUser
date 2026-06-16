@@ -13,7 +13,7 @@ import {
   OpportunityBanner,
   PersonalizationHeading,
   PreferencesFooter,
-  ProfileActiveCard,
+  OrganizationActiveCard,
   ProgressBarSection,
   usePersonalizationProgress,
   VerificationShieldFooter,
@@ -69,7 +69,7 @@ function ActivationWelcomeDesktop({
         <div className="flex w-full gap-10">
           <div className="flex min-w-0 flex-1 flex-col gap-10">
             <WelcomeHero />
-            <ProfileActiveCard />
+            <OrganizationActiveCard />
             <OpportunityBanner />
           </div>
 
@@ -84,7 +84,7 @@ function ActivationWelcomeDesktop({
       <OnboardingNavButtons
         onBack={onBack}
         onContinue={onContinue}
-        continueLabel="Enter My Dashboard"
+        continueLabel="Enter Provider Dashboard"
         footer={<PreferencesFooter />}
       />
     </div>
@@ -111,7 +111,7 @@ export default function DesktopView() {
         setLoadingKey((k) => k + 1);
         setPhase('loading');
       }}
-      onContinue={() => router.push('/onboarding/dashboard-transition')}
+      onContinue={() => router.push('/dashboard')}
     />
   );
 }

@@ -7,26 +7,26 @@ import { useRouter } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 
-import mailIcon from '@/../assets/icons/mail.png';
-import lockIcon from '@/../assets/icons/lock2.png';
-import shieldIcon from '@/../assets/icons/shield-check.png';
-import googleIcon from '@/../assets/icons/google.png';
-import lightBulbIcon from '@/../assets/icons/light-bulb.png';
-import briefcaseIcon from '@/../assets/icons/briefcase.png';
-import grantIcon from '@/../assets/icons/grant-funding.png';
-import saveIcon from '@/../assets/icons/save.png';
-import locationIcon from '@/../assets/icons/location.png';
-import canadaFlag from '@/../assets/icons/canada-flag.png';
-import loginBg from '@/../assets/images/login-toronto-bg.png';
+import mailIcon from '@assets/icons/mail.png';
+import lockIcon from '@assets/icons/lock2.png';
+import shieldIcon from '@assets/icons/shield-check.png';
+import googleIcon from '@assets/icons/google.png';
+import lightBulbIcon from '@assets/icons/light-bulb.png';
+import briefcaseIcon from '@assets/icons/briefcase.png';
+import chatIcon from '@assets/icons/chat.png';
+import eyeIcon from '@assets/icons/eye.png';
+import locationIcon from '@assets/icons/location.png';
+import canadaFlag from '@assets/icons/canada-flag.png';
+import loginBg from '@assets/images/login-toronto-bg.png';
 
 const DEMO_CREDENTIALS = {
-  email: 'demo@anchorcanada.ca',
+  email: 'demo@provider.anchorcanada.ca',
   password: 'Demo@1234',
   user: {
-    id: 'demo-001',
-    name: 'Jacob Sullivan',
-    email: 'demo@anchorcanada.ca',
-    role: 'individual' as const,
+    id: 'demo-provider-001',
+    name: 'Sarah Mitchell',
+    email: 'demo@provider.anchorcanada.ca',
+    role: 'provider' as const,
     avatarUrl: undefined,
   },
 };
@@ -57,7 +57,7 @@ export default function LoginDesktopView() {
       email.toLowerCase() === DEMO_CREDENTIALS.email &&
       password === DEMO_CREDENTIALS.password
     ) {
-      setAuth(DEMO_CREDENTIALS.user, 'demo-token-anchor-2026');
+      setAuth(DEMO_CREDENTIALS.user, 'demo-token-provider-2026');
       router.push('/dashboard');
     } else {
       setError('Invalid email or password. Use the demo credentials below.');
@@ -66,9 +66,9 @@ export default function LoginDesktopView() {
   }
 
   const stats = [
-    { icon: briefcaseIcon, count: 3, label: 'New job matches', iconBg: 'bg-[#eff4ff]' },
-    { icon: grantIcon, count: 2, label: 'Grant opportunities', iconBg: 'bg-[#e8f5f0]' },
-    { icon: saveIcon, count: 1, label: 'Saved opportunity update', iconBg: 'bg-[#f4f1fe]' },
+    { icon: briefcaseIcon, count: 12, label: 'Active listings', iconBg: 'bg-[#eff4ff]' },
+    { icon: chatIcon, count: 47, label: 'Applications received', iconBg: 'bg-[#e8f5f0]' },
+    { icon: eyeIcon, count: 324, label: 'Profile views', iconBg: 'bg-[#f4f1fe]' },
   ];
 
   return (
@@ -86,12 +86,12 @@ export default function LoginDesktopView() {
             </svg>
             <div className="text-xs text-[#44516A] flex-1">
               <p className="font-semibold text-[#2f66c8] mb-0.5">Demo credentials</p>
-              <p>Email: <span className="font-mono font-semibold text-[#0F172A]">demo@anchorcanada.ca</span>
+              <p>Email: <span className="font-mono font-semibold text-[#0F172A]">demo@provider.anchorcanada.ca</span>
                 &nbsp;·&nbsp; Password: <span className="font-mono font-semibold text-[#0F172A]">Demo@1234</span></p>
             </div>
             <button
               type="button"
-              onClick={() => { setEmail('demo@anchorcanada.ca'); setPassword('Demo@1234'); }}
+              onClick={() => { setEmail(DEMO_CREDENTIALS.email); setPassword(DEMO_CREDENTIALS.password); }}
               className="shrink-0 px-3 py-1.5 rounded-lg bg-[#2f66c8] text-white text-xs font-semibold hover:bg-[#2454a4] transition-colors"
             >Auto-fill</button>
           </div>
@@ -103,7 +103,7 @@ export default function LoginDesktopView() {
               <span className="font-serif italic text-[78px] leading-[73px] text-[#2f66c8]">Back </span>
               <span className="font-serif  text-[78px] leading-[73px] text-[#2f66c8]"> 👋</span>
             </div>
-            <p className="text-base text-[#8c97ad]">Your personalized opportunities are waiting.</p>
+            <p className="text-base text-[#8c97ad]">Sign in to manage your listings and connect with applicants.</p>
           </div>
 
           <div className="flex flex-col gap-[60px] w-full">
@@ -232,7 +232,7 @@ export default function LoginDesktopView() {
             {/* Action buttons */}
             <div className="flex items-center justify-between w-full">
               <Link
-                href="/"
+                href="/guest"
                 className="bg-white border border-[#d9e1ef] rounded-[6px] flex items-center gap-2.5 px-6 py-4 text-base text-[#2f66c8] hover:bg-[#f8fafc] transition-colors"
               >
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -252,7 +252,7 @@ export default function LoginDesktopView() {
                   </svg>
                 ) : (
                   <>
-                    Enter Anchor
+                    Enter Provider Portal
                     <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
@@ -271,7 +271,7 @@ export default function LoginDesktopView() {
             {/* Welcome text */}
             <div className="flex flex-col gap-2">
               <p className="text-[#0f172a] text-xl font-medium">👋 Welcome back,</p>
-              <p className="font-serif text-[36px] leading-[56px] text-[#0f172a]">Jacob Sullivan</p>
+              <p className="font-serif text-[36px] leading-[56px] text-[#0f172a]">{DEMO_CREDENTIALS.user.name}</p>
               <p className="text-base text-[#44516a]">Here&apos;s what&apos;s new since your last visit.</p>
             </div>
             {/* Stats card */}
@@ -310,12 +310,12 @@ export default function LoginDesktopView() {
       <div className="bg-[#eff4ff] flex items-center justify-between p-2 rounded-[10px] w-full">
         <div className="flex gap-3 items-center">
           <Image src={lightBulbIcon} alt="" width={24} height={24} className="shrink-0" />
-          <span className="text-base text-[#44516a]">You can edit your profile anytime in your account settings.</span>
+          <span className="text-base text-[#44516a]">You can edit your organization profile anytime in account settings.</span>
         </div>
         <div className="flex gap-3 items-center">
-          <span className="text-base text-[#8c97ad]">New to Anchor?</span>
-          <Link href="/register" className="flex items-center gap-3 text-base font-medium text-[#2f66c8] hover:underline">
-            Create Account
+          <span className="text-base text-[#8c97ad]">New provider?</span>
+          <Link href="/onboarding" className="flex items-center gap-3 text-base font-medium text-[#2f66c8] hover:underline">
+            Create Provider Account
             <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>

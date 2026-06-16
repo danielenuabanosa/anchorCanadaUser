@@ -3,15 +3,15 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-import canadaFlag from '@/../assets/icons/canada-flag.png';
+import canadaFlag from '@assets/icons/canada-flag.png';
 import confettiBg from '@assets/images/valid-bg.png';
-import shieldSuccess from '@/../assets/images/rpwds-shield-3d.png';
+import shieldSuccess from '@assets/images/rpwds-shield-3d.png';
 
 const checklistItems = [
   'Password updated successfully',
   'Previous recovery link has expired',
   'Account protection is restored',
-  'Personalized access is re-enabled',
+  'Provider portal access is re-enabled',
 ];
 
 const footerItems = [
@@ -22,7 +22,7 @@ const footerItems = [
   },
   {
     label: 'Proudly Canadian',
-    desc: 'Built in Canada for people across the country.',
+    desc: 'Built in Canada for providers across the country.',
     icon: <svg className="w-[34px] h-[34px] text-[#2f66c8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
   },
   {
@@ -51,7 +51,7 @@ export default function ResetPasswordSuccessDesktopView() {
       <div className="flex flex-col items-center gap-6 text-center">
         <h1 className="font-serif text-[60px] leading-[56px] text-[#0f172a]">You&apos;re Back In! 🎉</h1>
         <p className="text-base text-[#8c97ad] max-w-[480px]">
-          Your password has been updated and your Anchor account is secure again.
+          Your password has been updated and your provider account is secure again.
         </p>
       </div>
 
@@ -99,7 +99,7 @@ export default function ResetPasswordSuccessDesktopView() {
       {/* Action buttons */}
       <div className="flex items-center justify-between w-full">
         <Link
-          href="/"
+          href="/guest"
           className="bg-white border border-[#d9e1ef] rounded-[6px] flex items-center gap-2.5 px-6 py-4 text-base text-[#2f66c8] hover:bg-[#f8fafc] transition-colors"
         >
           <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -111,7 +111,7 @@ export default function ResetPasswordSuccessDesktopView() {
           href="/login"
           className="bg-[#2f66c8] rounded-[6px] flex items-center gap-2.5 px-6 py-4 text-base text-white hover:bg-[#2454a4] transition-colors"
         >
-          Return to Anchor
+          Return to Provider Portal
           <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>

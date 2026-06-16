@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import anchorLogo from '@/../assets/icons/anchor-logo.png';
+import anchorLogo from '@assets/icons/anchor-logo.png';
 
 export const metadata: Metadata = {
-  title: { template: '%s | Anchor Canada', default: 'Sign in' },
+  title: { template: '%s | Provider Portal', default: 'Provider Portal' },
 };
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {

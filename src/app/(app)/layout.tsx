@@ -32,7 +32,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         )}
       >
         <Topbar />
-        <main className="flex-1 p-4 pb-24 md:p-6 md:pb-6">{children}</main>
+        <main className="flex-1 p-4 pb-[88px] md:p-6 md:pb-6">{children}</main>
         <BottomNav />
       </div>
     </div>

@@ -16,6 +16,7 @@ import {
 } from '@/shared/components/onboarding/profilePreviewData';
 
 import mail3Icon from '@assets/icons/mail3.png';
+import hearPhoneIcon from '@assets/icons/hear-phone.png';
 import sendIcon from '@assets/icons/send.png';
 import shield3Icon from '@assets/icons/shield3.png';
 import shieldValidIcon from '@assets/icons/shield-valid.png';
@@ -24,7 +25,7 @@ import locationPinIcon from '@assets/icons/location2.png';
 import canadaFlagIcon from '@assets/icons/canada-flag.png';
 import validLockIcon from '@assets/images/valid-lock.png';
 import validBannerImg from '@assets/images/valid-bg.png';
-import avatarImg from '@assets/images/w1.png';
+import orgLogoImg from '@assets/images/prov-utoronto.png';
 
 const DIGITS_COUNT = 6;
 
@@ -41,15 +42,19 @@ function DividerLabel({ children }: { children: React.ReactNode }) {
 export default function MobileView() {
   const router = useRouter();
 
-  const [emailMode, setEmailMode] = useState(false);
-  const [userEmail, setUserEmail] = useState('jacob.sullivan@gmail.com');
-  const [savedEmail, setSavedEmail] = useState('jacob.sullivan@gmail.com');
+  const [verifyMethod, setVerifyMethod] = useState<'email' | 'phone'>('email');
+  const [editMode, setEditMode] = useState(false);
+  const [userEmail, setUserEmail] = useState('contact@organization.ca');
+  const [savedEmail, setSavedEmail] = useState('contact@organization.ca');
+  const [userPhone, setUserPhone] = useState('(416) 555-0100');
+  const [savedPhone, setSavedPhone] = useState('(416) 555-0100');
   const [digits, setDigits] = useState<string[]>(Array(DIGITS_COUNT).fill(''));
   const [showToast, setShowToast] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
 
   const filledDigits = digits.filter(Boolean).length;
   const canVerify = filledDigits === DIGITS_COUNT;
+  const isEmail = verifyMethod === 'email';
 
   useEffect(() => {
     if (showToast) {
@@ -58,36 +63,47 @@ export default function MobileView() {
     }
   }, [showToast]);
 
-  function handleSaveEmail() {
-    if (!userEmail.trim()) return;
-    setSavedEmail(userEmail.trim());
-    setEmailMode(false);
+  function handleSaveContact() {
+    if (isEmail) {
+      if (!userEmail.trim()) return;
+      setSavedEmail(userEmail.trim());
+    } else {
+      if (!userPhone.trim()) return;
+      setSavedPhone(userPhone.trim());
+    }
+    setEditMode(false);
     setDigits(Array(DIGITS_COUNT).fill(''));
   }
 
   function handleVerify() {
     if (!canVerify) return;
     setShowToast(true);
-    setTimeout(() => router.push('/onboarding/activation'), 1600);
+    setTimeout(() => router.push('/onboarding/team'), 1600);
   }
 
-  function EmailCard() {
-    if (emailMode) {
+  function ContactCard() {
+    const icon = isEmail ? mail3Icon : hearPhoneIcon;
+    const label = isEmail ? 'Email Address:' : 'Phone Number:';
+    const saved = isEmail ? savedEmail : savedPhone;
+
+    if (editMode) {
       return (
         <div className="flex w-full flex-col gap-5 rounded-[10px] border border-[#D9E1EF] bg-white p-5 shadow-[0_2px_4px_rgba(0,0,0,0.05)]">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3.5">
               <div className="flex size-[46px] shrink-0 items-center justify-center rounded-full bg-[#EFF4FF] p-[11.5px]">
-                <Image src={mail3Icon} alt="" width={23} height={23} className="object-contain" />
+                <Image src={icon} alt="" width={23} height={23} className="object-contain" />
               </div>
               <div>
-                <p className="font-sans text-[16px] font-semibold text-[#0F172A]">Email Address:</p>
-                <p className="mt-1 font-sans text-[14px] text-[#44516A]">Provide email to 6-digit send code</p>
+                <p className="font-sans text-[16px] font-semibold text-[#0F172A]">{label}</p>
+                <p className="mt-1 font-sans text-[14px] text-[#44516A]">
+                  Provide {isEmail ? 'email to send' : 'phone to send'} 6-digit code
+                </p>
               </div>
             </div>
             <button
               type="button"
-              onClick={handleSaveEmail}
+              onClick={handleSaveContact}
               className="flex shrink-0 items-center gap-2 font-sans text-[14px] text-[#2F66C8]"
             >
               Save
@@ -104,15 +120,15 @@ export default function MobileView() {
           </div>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2">
-              <Image src={mail3Icon} alt="" width={16} height={16} className="opacity-60" />
+              <Image src={icon} alt="" width={16} height={16} className="opacity-60" />
             </span>
             <input
-              type="email"
-              value={userEmail}
-              onChange={(e) => setUserEmail(e.target.value)}
-              placeholder="Enter your email address"
+              type={isEmail ? 'email' : 'tel'}
+              value={isEmail ? userEmail : userPhone}
+              onChange={(e) => (isEmail ? setUserEmail(e.target.value) : setUserPhone(e.target.value))}
+              placeholder={isEmail ? 'Enter your email address' : 'Enter your phone number'}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSaveEmail();
+                if (e.key === 'Enter') handleSaveContact();
               }}
               className="anchor-field anchor-field--icon-left h-[50px] rounded-[10px]"
             />
@@ -125,16 +141,16 @@ export default function MobileView() {
       <div className="flex w-full items-center justify-between rounded-[10px] border border-[#D9E1EF] bg-white p-5 shadow-[0_2px_4px_rgba(0,0,0,0.05)]">
         <div className="flex min-w-0 items-center gap-3.5">
           <div className="flex size-[46px] shrink-0 items-center justify-center rounded-full bg-[#EFF4FF] p-[11.5px]">
-            <Image src={mail3Icon} alt="" width={23} height={23} className="object-contain" />
+            <Image src={icon} alt="" width={23} height={23} className="object-contain" />
           </div>
           <div className="min-w-0">
             <p className="font-sans text-[16px] font-semibold text-[#0F172A]">Sent To:</p>
-            <p className="truncate font-sans text-[14px] text-[#44516A]">{savedEmail}</p>
+            <p className="truncate font-sans text-[14px] text-[#44516A]">{saved}</p>
           </div>
         </div>
         <button
           type="button"
-          onClick={() => setEmailMode(true)}
+          onClick={() => setEditMode(true)}
           className="ml-2 flex shrink-0 items-center gap-2 font-sans text-[14px] text-[#2F66C8]"
         >
           Edit
@@ -156,8 +172,12 @@ export default function MobileView() {
             </div>
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-sans text-[16px] font-medium text-[#0F172A]">Email Verified!</p>
-            <p className="font-sans text-[14px] text-[#8C97AD]">Email verified successfully.</p>
+            <p className="font-sans text-[16px] font-medium text-[#0F172A]">
+              {isEmail ? 'Email Verified!' : 'Phone Verified!'}
+            </p>
+            <p className="font-sans text-[14px] text-[#8C97AD]">
+              {isEmail ? 'Email verified successfully.' : 'Phone verified successfully.'}
+            </p>
           </div>
           <button type="button" onClick={() => setShowToast(false)} className="text-[#8C97AD]">
             <X className="h-4 w-4" />
@@ -166,21 +186,56 @@ export default function MobileView() {
       )}
 
       <div className="px-5 pb-3 pt-4">
-        <StepProgress current={5} />
+        <StepProgress current={4} />
       </div>
 
       <main className="px-5 pb-4 pt-8">
         <div className="flex flex-col items-center text-center">
-          <h1 className="font-serif text-[48px] font-normal leading-[56px] text-[#0F172A]">Confirm Your</h1>
-          <p className="font-serif text-[52px] italic leading-[56px] text-[#2F66C8]">Email</p>
+          <h1 className="font-serif text-[48px] font-normal leading-[56px] text-[#0F172A]">Verify Your</h1>
+          <p className="font-serif text-[52px] italic leading-[56px] text-[#2F66C8]">Organization</p>
           <div className="mt-2.5 font-sans text-[14px] text-[#8C97AD]">
-            <p>We&apos;ve sent a secure verification code to your inbox.</p>
-            <p>Enter it below to activate your Anchor experience.</p>
+            <p>We&apos;ve sent a secure verification code to your inbox or phone.</p>
+            <p>Enter it below to verify your organization.</p>
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col gap-5">
-          <EmailCard />
+        <div className="mt-10 flex gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setVerifyMethod('email');
+              setEditMode(false);
+              setDigits(Array(DIGITS_COUNT).fill(''));
+            }}
+            className={`flex flex-1 items-center justify-center gap-2 rounded-[10px] border py-3.5 font-sans text-[14px] font-medium shadow-[0_2px_4px_rgba(0,0,0,0.05)] ${
+              verifyMethod === 'email'
+                ? 'border-[#2F66C8] bg-white text-[#2F66C8]'
+                : 'border-[#D9E1EF] bg-white text-[#44516A]'
+            }`}
+          >
+            <Image src={mail3Icon} alt="" width={18} height={18} className="object-contain opacity-80" />
+            Email
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setVerifyMethod('phone');
+              setEditMode(false);
+              setDigits(Array(DIGITS_COUNT).fill(''));
+            }}
+            className={`flex flex-1 items-center justify-center gap-2 rounded-[10px] border py-3.5 font-sans text-[14px] font-medium shadow-[0_2px_4px_rgba(0,0,0,0.05)] ${
+              verifyMethod === 'phone'
+                ? 'border-[#2F66C8] bg-white text-[#2F66C8]'
+                : 'border-[#D9E1EF] bg-white text-[#44516A]'
+            }`}
+          >
+            <Image src={hearPhoneIcon} alt="" width={18} height={18} className="object-contain opacity-80" />
+            Phone
+          </button>
+        </div>
+
+        <div className="mt-5 flex flex-col gap-5">
+          <ContactCard />
 
           <div className="flex flex-col gap-2.5">
             <p className="font-sans text-[14px] font-semibold leading-[1.8] text-[#0F172A]">
@@ -218,9 +273,9 @@ export default function MobileView() {
               <Image src={shield3Icon} alt="" width={26} height={26} className="object-contain" />
             </div>
             <div>
-              <p className="font-sans text-[16px] font-semibold text-[#0F172A]">Your security matters</p>
+              <p className="font-sans text-[16px] font-semibold text-[#0F172A]">Your organization&apos;s security matters</p>
               <p className="mt-1 font-sans text-[14px] text-[#44516A]">
-                We verify every account to keep opportunities real, safe, and spam-free.
+                We verify every provider to keep opportunities real, safe, and trustworthy.
               </p>
             </div>
           </div>
@@ -239,7 +294,7 @@ export default function MobileView() {
               Verify &amp; Continue <ArrowRight className="h-4 w-4" />
             </button>
             <Link
-              href="/onboarding/account"
+              href="/onboarding/organization-info"
               className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white font-sans text-[14px] text-[#2F66C8]"
             >
               <ArrowLeft className="h-4 w-4" /> Back
@@ -255,12 +310,12 @@ export default function MobileView() {
             className="flex w-full items-center justify-between rounded-[10px] border border-[#D9E1EF] bg-white p-5 shadow-[0_2px_4px_rgba(0,0,0,0.05)]"
           >
             <div className="flex items-center gap-4">
-              <div className="relative size-[60px] shrink-0 overflow-hidden rounded-full border-2 border-white bg-[#FFF9EC]">
-                <Image src={avatarImg} alt="avatar" fill className="object-cover" sizes="60px" />
+              <div className="relative size-[60px] shrink-0 overflow-hidden rounded-2xl border-2 border-white bg-white">
+                <Image src={orgLogoImg} alt="Organization logo" fill className="object-contain p-1.5" sizes="60px" />
               </div>
               <div className="text-left">
                 <p className="font-serif text-[20px] text-[#0F172A]">🎉 Almost There!</p>
-                <p className="font-sans text-[12px] text-[#44516A]">Your profile is ready.</p>
+                <p className="font-sans text-[12px] text-[#44516A]">Your organization profile is ready.</p>
               </div>
             </div>
             <ChevronRight
@@ -278,8 +333,8 @@ export default function MobileView() {
               </div>
               <div className="p-4">
                 <div className="flex flex-col items-center text-center">
-                  <div className="relative h-16 w-16 overflow-hidden rounded-full border-2 border-white bg-[#FFF9EC]">
-                    <Image src={avatarImg} alt="avatar" fill className="object-cover" sizes="64px" />
+                  <div className="relative h-16 w-16 overflow-hidden rounded-2xl border-2 border-white bg-white">
+                    <Image src={orgLogoImg} alt="Organization logo" fill className="object-contain p-1.5" sizes="64px" />
                   </div>
                   <p className="mt-3 font-serif text-[24px] text-[#0F172A]">{DEFAULT_PROFILE.displayName}</p>
                   <div className="mt-2 flex flex-wrap justify-center gap-1.5">

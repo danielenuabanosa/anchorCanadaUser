@@ -3,15 +3,15 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-import canadaFlag from '@/../assets/icons/canada-flag.png';
+import canadaFlag from '@assets/icons/canada-flag.png';
 import confettiBg from '@assets/images/valid-bg.png';
-import shieldSuccess from '@/../assets/images/rpwds-shield-3d.png';
+import shieldSuccess from '@assets/images/rpwds-shield-3d.png';
 
 const checklistItems = [
   'Password updated successfully',
   'Previous recovery link has expired',
   'Account protection is restored',
-  'Personalized access is re-enabled',
+  'Provider portal access is re-enabled',
 ];
 
 export default function ResetPasswordSuccessMobileView() {
@@ -32,7 +32,7 @@ export default function ResetPasswordSuccessMobileView() {
       <div className="flex flex-col items-center gap-4 text-center">
         <h1 className="font-serif text-[48px] leading-[56px] text-[#0f172a]">You&apos;re Back In! 🎉</h1>
         <p className="text-sm text-[#8c97ad]">
-          Your password has been updated and your Anchor account is secure again.
+          Your password has been updated and your provider account is secure again.
         </p>
       </div>
 
@@ -80,13 +80,13 @@ export default function ResetPasswordSuccessMobileView() {
           href="/login"
           className="bg-[#2f66c8] rounded-[6px] flex items-center justify-center gap-2.5 px-6 py-4 text-sm text-white w-full hover:bg-[#2454a4] transition-colors"
         >
-          Return to Anchor
+          Return to Provider Portal
           <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </Link>
         <Link
-          href="/"
+          href="/guest"
           className="bg-white border border-[#d9e1ef] rounded-[6px] flex items-center justify-center gap-2.5 px-6 py-4 text-sm text-[#2f66c8] w-full hover:bg-[#f8fafc] transition-colors"
         >
           <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
