@@ -59,6 +59,17 @@ export default function ForgotPasswordDesktopView() {
         </svg>
       ),
     },
+    {
+      label: 'Device Protection',
+      desc: 'We\'ll notify you if we detect any unusual activity.',
+      iconBg: 'bg-[#f9ece7]',
+      icon: (
+        <svg className="w-6 h-6 text-[#ea580c]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 20h8M12 16v4"/>
+          <path d="M9 11l2 2 4-4" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ),
+    },
   ];
 
   return (
@@ -75,7 +86,7 @@ export default function ForgotPasswordDesktopView() {
               <span className="font-serif italic text-[78px] leading-[73px] text-[#2f66c8]">Account</span>
             </div>
             <p className="text-base text-[#8c97ad]">
-              Enter the email connected to your provider account and we&apos;ll send secure recovery instructions.
+              Enter the email connected to your Anchor account and we&apos;ll send secure recovery instructions.
             </p>
           </div>
 
@@ -211,7 +222,7 @@ export default function ForgotPasswordDesktopView() {
               <div className="flex flex-col gap-2 flex-1">
                 <h2 className="font-serif text-[36px] leading-[56px] text-[#0f172a]">Your Account is<br />Safe With Us</h2>
                 <p className="text-base text-[#44516a]">
-                  We use bank-level security to keep your provider information and listings protected.
+                  We use bank-level security to keep your information and opportunities protected.
                 </p>
               </div>
               <div className="shrink-0 w-[162px] h-[200px] relative">
@@ -243,8 +254,8 @@ export default function ForgotPasswordDesktopView() {
       </div>
 
       {/* -- Support footer -- */}
-      <div className="border-t border-[#eef2f8] flex items-center justify-between py-10 w-full">
-        <div className="flex gap-5 items-center">
+      <div className="border-t border-[#eef2f8] flex items-center gap-10 py-10 w-full">
+        <div className="flex gap-5 items-center flex-1">
           <div className="bg-[#eff4ff] rounded-[34px] flex items-center justify-center p-[17px] shrink-0 size-[68px]">
             <Image src={headphonesIcon} alt="" width={34} height={34} />
           </div>
@@ -253,11 +264,24 @@ export default function ForgotPasswordDesktopView() {
             <span className="text-sm text-[#44516a]">Our support team is here for you.</span>
           </div>
         </div>
-        <div className="flex flex-col gap-1 text-sm">
+        <div className="h-[70px] w-px bg-[#d9e1ef] shrink-0" />
+        <div className="flex flex-col gap-1 text-sm flex-1">
           <span className="text-[#44516a]">Mon – Fri: 9:00 AM – 6:00 PM EST</span>
           <a href="mailto:support@anchorcanada.ca" className="font-medium text-[#2f66c8] hover:underline">
             support@anchorcanada.ca
           </a>
+        </div>
+        <div className="h-[70px] w-px bg-[#d9e1ef] shrink-0" />
+        <div className="flex gap-5 items-center flex-1">
+          <div className="bg-[#eff4ff] rounded-[34px] flex items-center justify-center p-[17px] shrink-0 size-[68px]">
+            <svg className="w-[34px] h-[34px] text-[#2f66c8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="font-semibold text-base text-[#0f172a]">Live chat</span>
+            <span className="text-sm text-[#44516a]">Available on our website</span>
+          </div>
         </div>
       </div>
     </div>

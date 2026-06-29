@@ -503,7 +503,25 @@ export function OrganizationActiveCard({ compact = false }: { compact?: boolean 
 export const ProfileActiveCard = OrganizationActiveCard;
 
 export function OpportunityBanner({ compact = false }: { compact?: boolean }) {
-  if (compact) return null;
+  if (compact) {
+    return (
+      <div className="overflow-hidden rounded-[12px] border border-[#EEF2F8] bg-[#EFF4FF] p-4">
+        <div className="flex items-start gap-3">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white">
+            <Image src={briefcaseIcon} alt="" width={24} height={24} className="object-contain" />
+          </div>
+          <div>
+            <p className="font-serif text-[18px] leading-tight text-[#0F172A]">
+              Your publishing tools are ready.
+            </p>
+            <p className="mt-2 font-sans text-[13px] leading-relaxed text-[#8C97AD]">
+              Based on your categories, you can start posting opportunities to Canadians today.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-[240px] overflow-hidden rounded-[20px] border border-[#EEF2F8] bg-[#EFF4FF]">

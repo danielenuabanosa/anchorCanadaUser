@@ -44,15 +44,15 @@ export default function ResetPasswordMobileView() {
 
       {/* Heading */}
       <div className="flex flex-col gap-2.5 items-center text-center">
-        <div className="flex gap-2.5 items-baseline whitespace-nowrap">
-          <span className="font-serif text-[48px] leading-[56px] text-[#0f172a]">Create Your</span>
-          <span className="font-serif italic text-[52px] leading-[56px] text-[#2f66c8]">New Password</span>
+        <div className="flex flex-col gap-2.5 items-center leading-[56px]">
+          <span className="font-serif text-[48px] text-[#0f172a]">Create Your</span>
+          <span className="font-serif text-[52px] italic text-[#2f66c8]">New Password</span>
         </div>
-        <p className="text-sm text-[#8c97ad]">Choose a secure password to regain access to your provider account.</p>
+        <p className="text-sm text-[#8c97ad]">Choose a secure password to regain access to your Anchor account.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-10 w-full">
-        <div className="flex flex-col gap-5 w-full">
+        <div className="flex flex-col gap-10 w-full">
 
           {/* New password */}
           <div className="flex flex-col gap-2.5">
@@ -76,29 +76,6 @@ export default function ResetPasswordMobileView() {
                 {showNew ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               </button>
             </div>
-          </div>
-
-          {/* Password requirements */}
-          <div className="flex flex-col gap-4">
-            {requirements.map(({ label, test }) => {
-              const met = test(newPassword);
-              return (
-                <div key={label} className="flex items-center gap-3 h-6">
-                  <div className={`rounded-full flex items-center justify-center p-1 shrink-0 size-5 ${met ? 'bg-[#22c55e]' : 'bg-[#d9e1ef]'}`}>
-                    {met ? (
-                      <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 12 12" fill="none">
-                        <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    ) : (
-                      <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 12 12" fill="none">
-                        <path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                      </svg>
-                    )}
-                  </div>
-                  <span className={`text-xs ${met ? 'text-[#22c55e]' : 'text-[#44516a]'}`}>{label}</span>
-                </div>
-              );
-            })}
           </div>
 
           {/* Confirm password */}
@@ -128,49 +105,89 @@ export default function ResetPasswordMobileView() {
             )}
           </div>
 
-          {/* Security card */}
-          <div className="bg-white rounded-[10px] flex gap-5 items-center p-5 w-full">
-            <div className="bg-[#eff4ff] rounded-[26px] flex items-center justify-center p-[13px] shrink-0 size-[52px]">
-              <Image src={shieldIcon} alt="" width={26} height={26} />
-            </div>
-            <div className="flex flex-col gap-1 flex-1">
-              <span className="font-semibold text-sm text-[#0f172a]">Your password is secure.</span>
-              <span className="text-xs text-[#44516a]">Changes take effect immediately.</span>
-            </div>
+          {/* Password requirements */}
+          <div className="flex flex-col gap-4">
+            <span className="font-semibold text-sm text-[#0f172a]">Password requirements</span>
+            {requirements.map(({ label, test }) => {
+              const met = test(newPassword);
+              return (
+                <div key={label} className="flex items-center gap-3 h-6">
+                  <div className={`rounded-full flex items-center justify-center p-1 shrink-0 size-5 ${met ? 'bg-[#22c55e]' : 'bg-[#d9e1ef]'}`}>
+                    {met ? (
+                      <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 12 12" fill="none">
+                        <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    ) : (
+                      <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 12 12" fill="none">
+                        <path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
+                    )}
+                  </div>
+                  <span className={`text-xs ${met ? 'text-[#22c55e]' : 'text-[#44516a]'}`}>{label}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
         {/* Buttons */}
-        <div className="flex flex-col gap-5 w-full">
-          <button
-            type="submit"
-            disabled={!canSubmit || isSubmitting}
-            className="bg-[#2f66c8] rounded-[6px] flex items-center justify-center gap-2.5 px-6 py-4 text-sm text-white w-full hover:bg-[#2454a4] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {isSubmitting ? (
-              <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0"/>
-              </svg>
-            ) : (
-              <>
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        <div className="flex flex-col gap-2.5 w-full">
+          <div className="flex flex-col gap-5 w-full">
+            <button
+              type="submit"
+              disabled={!canSubmit || isSubmitting}
+              className="bg-[#2f66c8] rounded-[6px] flex items-center justify-center gap-2.5 px-6 py-4 text-sm text-white w-full hover:bg-[#2454a4] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? (
+                <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0"/>
                 </svg>
-                Update Password
-              </>
-            )}
-          </button>
-          <Link
-            href="/login"
-            className="bg-white border border-[#d9e1ef] rounded-[6px] flex items-center justify-center gap-2.5 px-6 py-4 text-sm text-[#2f66c8] w-full hover:bg-[#f8fafc] transition-colors"
-          >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/>
+              ) : (
+                <>
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  Update Password
+                </>
+              )}
+            </button>
+            <Link
+              href="/login"
+              className="bg-white border border-[#d9e1ef] rounded-[6px] flex items-center justify-center gap-2.5 px-6 py-4 text-sm text-[#2f66c8] w-full hover:bg-[#f8fafc] transition-colors"
+            >
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Back
+            </Link>
+          </div>
+          <div className="flex items-center justify-center gap-1.5">
+            <svg className="h-3.5 w-3.5 text-[#8c97ad] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
             </svg>
-            Back to Sign In
-          </Link>
+            <span className="text-xs text-[#8c97ad]">Your new password takes effect immediately.</span>
+          </div>
         </div>
       </form>
+
+      {/* Security card */}
+      <div className="bg-white rounded-[10px] flex gap-5 items-start p-5 w-full">
+        <div className="bg-[#eff4ff] rounded-[26px] flex items-center justify-center p-[13px] shrink-0 size-[52px]">
+          <Image src={shieldIcon} alt="" width={26} height={26} />
+        </div>
+        <div className="flex flex-col gap-1 flex-1">
+          <span className="font-semibold text-sm text-[#0f172a]">Keeping Your Account Secure</span>
+          <span className="text-sm text-[#44516a]">Your data is encrypted and protected with bank-level security.</span>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-center gap-3 text-sm">
+        <svg className="h-5 w-5 text-[#44516a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        <span className="text-[#44516a]">Need help?</span>
+        <a href="mailto:support@anchorcanada.ca" className="text-[#2f66c8] hover:underline">Contact Support</a>
+      </div>
     </div>
   );
 }

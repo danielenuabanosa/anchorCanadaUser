@@ -3,207 +3,166 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import type { ElementType } from 'react';
 import {
   LayoutDashboard,
-  LayoutList,
+  BadgeCheck,
   FileText,
   BarChart3,
   Users,
+  MessageSquare,
+  Bell,
+  Building2,
   Settings,
+  HelpCircle,
+  LogOut,
   ChevronRight,
-  ChevronsLeft,
-  ArrowRight,
+  CircleCheckBig,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useUIStore } from '@/store/uiStore';
+import { useRouteHash } from '@/shared/hooks/useRouteHash';
+import { isNavActive } from '@/shared/lib/navActive';
 import { useAuthStore } from '@/store/authStore';
 import { Avatar } from '@/shared/components/ui/Avatar';
 import anchorLogo from '@assets/icons/anchor-logo-full.png';
-import sidebarBgImg from '@assets/images/sidebar_bg.png';
 import orgAvatar from '@assets/images/prov-sickkids.png';
 
 const NAV_ITEMS = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Opportunities', href: '/dashboard#listings', icon: LayoutList },
-  { label: 'Applications', href: '/dashboard#applications', icon: FileText, badge: 18 },
+  { label: 'Opportunities', href: '/opportunities', icon: BadgeCheck },
+  { label: 'Applications', href: '/applications', icon: FileText },
+  { label: 'Providers Team', href: '/team', icon: Users },
   { label: 'Analytics', href: '/dashboard#analytics', icon: BarChart3 },
-  { label: 'Team', href: '/dashboard#team', icon: Users },
+  { label: 'Messages', href: '/dashboard#messages', icon: MessageSquare, badge: 3 },
+  { label: 'Notifications', href: '/dashboard#notifications', icon: Bell, badge: 12 },
+  { label: 'Organization Profile', href: '/dashboard#profile', icon: Building2 },
   { label: 'Settings', href: '/dashboard#settings', icon: Settings },
 ] as const;
 
-function isNavActive(pathname: string, href: string) {
-  if (href.startsWith('/dashboard#')) {
-    return pathname === '/dashboard';
-  }
-  return pathname === href || pathname.startsWith(`${href}/`);
+const BOTTOM_NAV = [
+  { label: 'Help Center', href: '/dashboard#support', icon: HelpCircle },
+  { label: 'Logout', href: '/login', icon: LogOut },
+] as const;
+
+function NavItem({
+  label,
+  href,
+  icon: Icon,
+  badge,
+  active,
+}: {
+  label: string;
+  href: string;
+  icon: ElementType;
+  badge?: number;
+  active: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? 'page' : undefined}
+      className={cn(
+        'relative flex h-14 w-full max-w-[320px] items-center gap-4 rounded-[10px] px-4 transition-colors',
+        active ? 'bg-[#2F66C8] text-white' : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white',
+      )}
+    >
+      <Icon className="h-6 w-6 shrink-0" strokeWidth={1.75} aria-hidden />
+      <span className="flex-1 text-base font-medium leading-[21px]">{label}</span>
+      {badge ? (
+        <span
+          className={cn(
+            'flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-sm font-medium',
+            active ? 'bg-white/20 text-white' : 'bg-[#2F66C8] text-white',
+          )}
+        >
+          {badge}
+        </span>
+      ) : null}
+    </Link>
+  );
 }
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { sidebarCollapsed, toggleSidebar } = useUIStore();
+  const hash = useRouteHash();
   const { user, isAuthenticated } = useAuthStore();
 
-  const displayName = user?.name ?? 'Toronto Community Health';
+  const orgName = user?.name ?? 'Maple Future Nonprofit';
   const avatarSrc = user?.avatarUrl ?? orgAvatar.src;
 
   if (!isAuthenticated) return null;
 
   return (
     <aside
-      className={cn(
-        'app-sidebar relative hidden h-screen flex-col border-r border-[#EEF2F8] bg-white md:flex',
-        sidebarCollapsed && 'app-sidebar-collapsed',
-      )}
+      className="app-sidebar relative z-30 hidden h-screen w-[360px] shrink-0 flex-col bg-[#0F172A] md:flex"
       aria-label="Provider navigation"
     >
-      <div
-        className={cn(
-          'flex h-[86px] shrink-0 items-center border-b border-[#EEF2F8] px-5',
-          sidebarCollapsed ? 'justify-center' : 'justify-between',
-        )}
-      >
-        <Link href="/dashboard" aria-label="Anchor Canada Provider Portal">
+      {/* Figma Frame 26 — logo + Provider Portal label, 110px */}
+      <div className="flex h-[110px] shrink-0 flex-col justify-center px-5">
+        <Link href="/dashboard" aria-label="Anchor Canada Provider Portal" className="inline-flex w-fit">
           <Image
             src={anchorLogo}
             alt="Anchor Canada"
+            width={153}
             height={50}
             priority
-            className={cn('w-auto', sidebarCollapsed ? 'h-8' : 'h-[50px]')}
+            className="h-[50px] w-auto"
           />
         </Link>
-        {!sidebarCollapsed && (
-          <button
-            type="button"
-            onClick={toggleSidebar}
-            className="flex h-[34px] w-[34px] items-center justify-center rounded-md border border-[#EEF2F8] text-[#44516A] transition hover:bg-[#F8FAFC]"
-            aria-label="Collapse sidebar"
-          >
-            <ChevronsLeft className="h-[18px] w-[18px]" />
-          </button>
-        )}
+        <p className="mt-1 pl-[51px] text-[13px] leading-[13px] text-[#8C97AD]">Provider Portal</p>
       </div>
 
-      {!sidebarCollapsed && (
-        <div className="border-b border-[#EEF2F8] px-5 py-3">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#8C97AD]">
-            Provider Portal
-          </p>
+      {/* Primary nav — Figma 320×56 items, 10px gap */}
+      <nav className="flex flex-1 flex-col px-5" aria-label="Primary">
+        <div className="flex flex-col gap-2.5">
+          {NAV_ITEMS.map(({ label, href, icon, ...rest }) => {
+            const badge = 'badge' in rest ? rest.badge : undefined;
+            return (
+              <NavItem
+                key={href}
+                label={label}
+                href={href}
+                icon={icon}
+                badge={badge}
+                active={isNavActive(pathname, href, hash)}
+              />
+            );
+          })}
         </div>
-      )}
 
-      <nav className="space-y-1 px-5 py-5" aria-label="Primary">
-        {NAV_ITEMS.map(({ label, href, icon: Icon, ...rest }) => {
-          const badge = 'badge' in rest ? rest.badge : undefined;
-          const isActive = isNavActive(pathname, href);
-
-          return (
-            <Link
+        <div className="mt-auto flex flex-col gap-2.5 pb-4 pt-6">
+          {BOTTOM_NAV.map(({ label, href, icon }) => (
+            <NavItem
               key={href}
+              label={label}
               href={href}
-              aria-current={isActive ? 'page' : undefined}
-              className={cn(
-                'flex items-center gap-5 rounded-[10px] px-4 py-4 text-base font-medium transition-colors',
-                isActive
-                  ? 'bg-[#2F66C8] text-white'
-                  : 'text-[#44516A] hover:bg-[#F8FAFC]',
-                sidebarCollapsed && 'justify-center px-2',
-              )}
-              title={sidebarCollapsed ? label : undefined}
-            >
-              <Icon className="h-6 w-6 shrink-0" aria-hidden="true" />
-              {!sidebarCollapsed && (
-                <>
-                  <span className="flex-1">{label}</span>
-                  {badge ? (
-                    <span
-                      className={cn(
-                        'flex h-6 min-w-6 items-center justify-center rounded-xl px-1.5 text-base',
-                        isActive ? 'bg-white/20 text-white' : 'bg-[#2F66C8] text-white',
-                      )}
-                    >
-                      {badge}
-                    </span>
-                  ) : null}
-                </>
-              )}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {!sidebarCollapsed && (
-        <div className="mx-5 mb-5 shrink-0">
-          <div className="relative flex h-[240px] flex-col justify-end overflow-hidden rounded-[10px] border border-[#D9E1EF] p-5">
-            <Image src={sidebarBgImg} alt="" fill className="object-cover" aria-hidden="true" />
-            <div
-              className="absolute inset-0 rounded-[10px]"
-              style={{
-                background:
-                  'linear-gradient(188deg, rgba(255,255,255,0) 39%, rgb(239,244,255) 60%)',
-              }}
+              icon={icon}
+              active={isNavActive(pathname, href, hash)}
             />
-            <div className="relative z-10">
-              <p className="font-serif text-[28px] leading-[56px] text-[#0F172A]">Need help?</p>
-              <p className="mb-6 text-base text-[#44516A]">
-                Our team can help you manage listings and review applications
-              </p>
-              <Link
-                href="/dashboard#support"
-                className="inline-flex items-center gap-3 text-sm font-semibold text-[#2F66C8] hover:underline"
-              >
-                Contact Support
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
+          ))}
 
-      <div
-        className={cn(
-          'mt-auto shrink-0 border-t border-[#EEF2F8] p-5',
-          sidebarCollapsed && 'flex justify-center',
-        )}
-      >
-        <Link
-          href="/dashboard#profile"
-          className={cn(
-            'flex items-center rounded-[10px] border border-[#EEF2F8] transition hover:bg-[#F8FAFC]',
-            sidebarCollapsed
-              ? 'justify-center p-2 shadow-none'
-              : 'justify-between px-2.5 py-4 shadow-[0_2px_8px_0_rgba(0,0,0,0.05)]',
-          )}
-        >
-          <div className="flex min-w-0 items-center gap-3.5">
+          {/* Figma Frame 38 — org identity card #1C2436 */}
+          <Link
+            href="/dashboard#profile"
+            className="mt-2 flex h-[78px] w-full max-w-[320px] items-center gap-3 rounded-[10px] bg-[#1C2436] px-4 transition hover:bg-[#243047]"
+          >
             <Avatar
               src={avatarSrc}
-              fallback={displayName}
+              fallback={orgName}
               size="sm"
               className="h-[46px] w-[46px] shrink-0"
             />
-            {!sidebarCollapsed && (
-              <div className="min-w-0">
-                <p className="truncate text-base font-medium text-[#0F172A]">{displayName}</p>
-                <p className="text-xs text-[#2F66C8]">Organization Profile</p>
-              </div>
-            )}
-          </div>
-          {!sidebarCollapsed && (
-            <ChevronRight className="h-6 w-6 shrink-0 text-[#8C97AD]" />
-          )}
-        </Link>
-      </div>
-
-      {sidebarCollapsed && (
-        <button
-          type="button"
-          onClick={toggleSidebar}
-          className="absolute -right-3 top-24 hidden h-6 w-6 items-center justify-center rounded-full border border-[#D9E1EF] bg-white text-[#44516A] shadow-sm hover:text-[#0F172A] md:flex"
-          aria-label="Expand sidebar"
-        >
-          <ChevronRight className="h-3 w-3" />
-        </button>
-      )}
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-base font-medium leading-[21px] text-white">{orgName}</p>
+              <p className="mt-0.5 flex items-center gap-1.5 text-[13px] leading-4 text-[#8C97AD]">
+                <CircleCheckBig className="h-3 w-3 shrink-0 text-[#2F66C8]" strokeWidth={2.5} />
+                Verified Organization
+              </p>
+            </div>
+            <ChevronRight className="h-6 w-6 shrink-0 text-[#64748B]" strokeWidth={1.75} />
+          </Link>
+        </div>
+      </nav>
     </aside>
   );
 }

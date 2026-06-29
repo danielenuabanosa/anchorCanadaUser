@@ -2,11 +2,11 @@
 
 const STEPS = [
   'JOURNEY',
-  'ORG TYPE',
+  'TYPE',
   'CATEGORIES',
-  'ORG INFO',
+  'ORGANIZATION',
   'VERIFICATION',
-  'TEAM',
+  'TEAM SETUP',
   'ACTIVATION',
 ];
 
@@ -17,7 +17,7 @@ export function StepProgress({ current }: { current: number }) {
         <div key={label} className="flex flex-1 flex-col items-center gap-2.5">
           <span
             className={`hidden text-center text-[14px] font-medium leading-[100%] md:block ${
-              i === current ? 'text-[#2F66C8]' : 'text-[#8C97AD]'
+              i <= current ? 'text-[#2F66C8]' : 'text-[#8C97AD]'
             }`}
           >
             {label}

@@ -24,7 +24,8 @@ export function RegisterForm() {
 
   const { mutate: signUp, isPending, error } = useRegister();
 
-  const onSubmit = ({ confirmPassword: _cp, ...dto }: RegisterInput) => signUp(dto);
+  const onSubmit = ({ confirmPassword: _cp, role: _role, ...dto }: RegisterInput) =>
+    signUp({ ...dto, role: 'provider' });
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5" noValidate>

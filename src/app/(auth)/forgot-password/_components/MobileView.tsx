@@ -33,7 +33,7 @@ export default function ForgotPasswordMobileView() {
           <span className="font-serif italic text-[52px] leading-[56px] text-[#2f66c8]">Account</span>
         </div>
         <p className="text-sm text-[#8c97ad]">
-          Enter the email connected to your provider account and we&apos;ll send secure recovery instructions.
+          Enter the email connected to your Anchor account and we&apos;ll send secure recovery instructions.
         </p>
       </div>
 
@@ -157,11 +157,12 @@ export default function ForgotPasswordMobileView() {
         <div className="flex items-center justify-center py-5 border-b border-[#eef2f8]">
           <span className="font-semibold text-base text-[#0f172a]">Your Account is Safe With Us</span>
         </div>
-        <div className="flex">
+        <div className="grid grid-cols-2">
           {[
             { label: 'Encrypted\nAccess', iconBg: 'bg-[#e3f3ee]', icon: <svg className="w-6 h-6 text-[#15803d]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> },
             { label: 'Verified\nIdentity', iconBg: 'bg-[#e1ebfe]', icon: <svg className="w-6 h-6 text-[#2f66c8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M16 11l2 2 4-4" strokeLinecap="round"/></svg> },
             { label: 'Secure\nRecovery', iconBg: 'bg-[#e5e0fd]', icon: <svg className="w-6 h-6 text-[#7c3aed]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4" strokeLinecap="round"/></svg> },
+            { label: 'Device\nProtection', iconBg: 'bg-[#f9ece7]', icon: <svg className="w-6 h-6 text-[#ea580c]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 20h8M12 16v4"/><path d="M9 11l2 2 4-4" strokeLinecap="round"/></svg> },
           ].map(feat => (
             <div key={feat.label} className="flex flex-1 flex-col items-center gap-5 px-5 py-[26px]">
               <div className={`${feat.iconBg} rounded-[10px] flex items-center justify-center p-2.5 size-[60px] shrink-0`}>
@@ -176,7 +177,7 @@ export default function ForgotPasswordMobileView() {
             <Image src={shieldIcon} alt="" width={26} height={26} />
           </div>
           <p className="text-xs text-[#44516a] flex-1">
-            We use bank-level security to protect your provider information and listings.
+            We use bank-level security to protect your information and opportunities.
           </p>
         </div>
       </div>

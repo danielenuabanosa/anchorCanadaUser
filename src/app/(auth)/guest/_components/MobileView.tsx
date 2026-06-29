@@ -5,10 +5,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
+import { GUEST_PROVIDER_TOKEN } from '@/lib/providerSession';
 
+import { AuthSignupBar } from '@/features/auth/components/AuthSignupBar';
+import { SocialAuthButtons } from '@/features/auth/components/SocialAuthButtons';
 import shieldIcon from '@assets/icons/shield-check.png';
-import googleIcon from '@assets/icons/google.png';
-import lightBulbIcon from '@assets/icons/light-bulb.png';
 
 const GUEST_USER = {
   id: 'guest-provider-001',
@@ -25,7 +26,7 @@ export default function GuestMobileView() {
   async function handleContinueAsGuest() {
     setIsContinuing(true);
     await new Promise((r) => setTimeout(r, 600));
-    setAuth(GUEST_USER, 'guest-token-provider-2026');
+    setAuth(GUEST_USER, GUEST_PROVIDER_TOKEN);
     router.push('/dashboard');
   }
 
@@ -37,7 +38,7 @@ export default function GuestMobileView() {
           <span className="font-serif text-[52px] italic leading-[56px] text-[#2f66c8]">Portal</span>
         </div>
         <p className="text-sm text-[#8c97ad]">
-          Preview the Provider Portal without full registration. Browse tools and explore before you onboard.
+          Preview the provider workspace without signing in. Explore tools and decide when you&apos;re ready to onboard.
         </p>
       </div>
 
@@ -66,14 +67,7 @@ export default function GuestMobileView() {
           </div>
 
           <div className="flex flex-col gap-5">
-            <div className="flex items-center gap-5">
-              <div className="h-px flex-1 bg-[#d9e1ef]" />
-              <span className="whitespace-nowrap text-sm text-[#44516a]">Or continue with</span>
-              <div className="h-px flex-1 bg-[#d9e1ef]" />
-            </div>
-            <div className="flex w-full cursor-pointer items-center justify-center rounded-[6px] border border-[#d9e1ef] bg-white px-6 py-4 transition-colors hover:bg-[#f8fafc]">
-              <Image src={googleIcon} alt="Google" width={24} height={24} />
-            </div>
+            <SocialAuthButtons variant="mobile" />
           </div>
         </div>
 
@@ -115,23 +109,10 @@ export default function GuestMobileView() {
         </div>
       </div>
 
-      <div className="flex w-full flex-col items-center gap-5 rounded-[10px] bg-[#eff4ff] p-5">
-        <div className="flex w-full items-start gap-3">
-          <Image src={lightBulbIcon} alt="" width={40} height={40} className="shrink-0" />
-          <p className="text-sm text-[#44516a]">
-            Ready to publish listings? Complete onboarding to unlock full provider features.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-[#8c97ad]">New provider?</span>
-          <Link href="/onboarding" className="flex items-center gap-2 text-sm font-medium text-[#2f66c8] hover:underline">
-            Start Onboarding
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </Link>
-        </div>
-      </div>
+      <AuthSignupBar
+        variant="mobile"
+        message="Ready to publish listings? Complete onboarding to unlock full provider features."
+      />
     </div>
   );
 }

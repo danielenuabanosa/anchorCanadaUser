@@ -1,95 +1,24 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, ArrowLeft, ArrowRight, Check } from 'lucide-react';
-import type { StaticImageData } from 'next/image';
+import { Search, ArrowLeft, ArrowRight } from 'lucide-react';
 
 import { OnboardingNavbar } from '@/features/home/components/OnboardingNavbar';
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
-import { Footer } from './Footer';
-
-import briefcaseIcon from '@assets/icons/briefcase.png';
-import handCoinsIcon from '@assets/icons/hand-coins.png';
-import graduationIcon from '@assets/icons/graduation-cap.png';
-import locationIcon from '@assets/icons/location2.png';
-import userGreenIcon from '@assets/icons/user-green.png';
-import scholarshipIcon from '@assets/icons/scholarship.png';
-import caseIcon from '@assets/icons/case.png';
-import loveIcon from '@assets/icons/love.png';
+import { OnboardingInfoBar } from '@/features/onboarding/components/OnboardingInfoBar';
+import { ProviderOptionCard } from '@/features/onboarding/components/ProviderOptionCard';
+import { OPPORTUNITY_CATEGORIES } from '@/features/onboarding/lib/onboardingData';
+import { useProviderOnboardingStore } from '@/store/onboardingStore';
 import circleCheckIcon from '@assets/icons/circle-check.png';
-
-interface CategoryDef {
-  id: string;
-  name: string;
-  icon: StaticImageData;
-  circleBg: string;
-}
-
-const CATEGORIES: CategoryDef[] = [
-  { id: 'jobs', name: 'Jobs', icon: briefcaseIcon, circleBg: '#EEF3FF' },
-  { id: 'grants', name: 'Grants', icon: handCoinsIcon, circleBg: '#DFFAF3' },
-  { id: 'training', name: 'Training', icon: graduationIcon, circleBg: '#F0EBFF' },
-  { id: 'housing', name: 'Housing', icon: locationIcon, circleBg: '#FFF0EC' },
-  { id: 'community', name: 'Community Support', icon: userGreenIcon, circleBg: '#E6F7EF' },
-  { id: 'scholarships', name: 'Scholarships', icon: scholarshipIcon, circleBg: '#FFF0F6' },
-  { id: 'internships', name: 'Internships', icon: caseIcon, circleBg: '#F3EEFF' },
-  { id: 'volunteer', name: 'Volunteer', icon: loveIcon, circleBg: '#E6F7EF' },
-];
-
-function RadioDot({ selected }: { selected: boolean }) {
-  return (
-    <div
-      className={`flex h-[20px] w-[20px] shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-        selected ? 'border-[#2F66C8] bg-[#2F66C8]' : 'border-[#D9E1EF] bg-white'
-      }`}
-    >
-      {selected && <Check className="h-3 w-3 text-white" strokeWidth={3.5} />}
-    </div>
-  );
-}
-
-function MobileCard({
-  item,
-  selected,
-  onToggle,
-}: {
-  item: CategoryDef;
-  selected: boolean;
-  onToggle: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onToggle}
-      className={`relative flex items-center gap-3 rounded-sm border px-3 py-3.5 text-left transition-all ${
-        selected
-          ? 'border-2 border-[#2F66C8] bg-[#DCE7FF] shadow-md'
-          : 'border-[#D9E1EF] bg-white shadow-sm'
-      }`}
-    >
-      <div className="absolute right-2.5 top-2.5">
-        <RadioDot selected={selected} />
-      </div>
-
-      <div
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
-        style={{ backgroundColor: item.circleBg }}
-      >
-        <Image src={item.icon} alt="" width={18} height={18} className="object-contain" />
-      </div>
-
-      <p className="truncate pr-7 font-serif text-[12px] font-normal leading-[56px] text-[#0F172A]">{item.name}</p>
-    </button>
-  );
-}
 
 export default function MobileView() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [query, setQuery] = useState('');
   const router = useRouter();
+  const setOnboardingData = useProviderOnboardingStore((s) => s.setOnboardingData);
 
   function toggle(id: string) {
     setSelected((prev) => {
@@ -100,7 +29,7 @@ export default function MobileView() {
   }
 
   const filtered = useMemo(
-    () => CATEGORIES.filter((i) => i.name.toLowerCase().includes(query.toLowerCase())),
+    () => OPPORTUNITY_CATEGORIES.filter((item) => item.title.toLowerCase().includes(query.toLowerCase())),
     [query],
   );
 
@@ -109,6 +38,7 @@ export default function MobileView() {
 
   function handleContinue() {
     if (!hasSelected) return;
+    setOnboardingData({ categories: Array.from(selected) });
     router.push('/onboarding/organization-info');
   }
 
@@ -127,12 +57,12 @@ export default function MobileView() {
             <span className="font-serif text-[52px] italic leading-[56px] text-[#2F66C8]">Opportunities</span>
             <span className="ml-px text-[#E8242B]">|</span>
             <br />
-            Will You Publish?
+            Will You Create?
           </h1>
           <p className="mt-3 font-sans text-[14px] leading-[100%] text-[#8C97AD]">
-            Select all categories your organization offers.
+            Select the categories that best match your organization&apos;s focus areas.
             <br />
-            This helps us set up your provider dashboard.
+            These selections help you personalize your provider dashboard and publishing experience.
           </p>
         </div>
 
@@ -141,15 +71,15 @@ export default function MobileView() {
             <Search className="h-4 w-4 shrink-0 text-[#8C97AD]" />
             <input
               type="text"
-              placeholder="Search categories..."
+              placeholder="Search interests..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="flex-1 rounded-sm border-0 bg-white text-[14px] text-[#0F172A] outline-none ring-0 placeholder:text-[#8C97AD] focus:ring-0"
+              className="flex-1 rounded-sm border-0 bg-white text-[14px] text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
             />
           </div>
           <div className="mt-3">
             <div
-              className={`inline-flex items-center gap-2 rounded-sm border px-4 py-2 font-sans text-[14px] font-medium transition-colors ${
+              className={`inline-flex items-center gap-2 rounded-sm border px-4 py-2 font-sans text-[14px] font-medium ${
                 hasSelected ? 'border-[#2F66C8] text-[#2F66C8]' : 'border-[#D9E1EF] text-[#8C97AD]'
               }`}
             >
@@ -165,13 +95,15 @@ export default function MobileView() {
           </div>
         </div>
 
-        <div className="mt-5 grid grid-cols-2 gap-3">
+        <div className="mt-5 grid grid-cols-1 gap-4">
           {filtered.map((item) => (
-            <MobileCard
+            <ProviderOptionCard
               key={item.id}
               item={item}
               selected={selected.has(item.id)}
-              onToggle={() => toggle(item.id)}
+              onSelect={() => toggle(item.id)}
+              compact
+              showFooter={false}
             />
           ))}
         </div>
@@ -198,7 +130,7 @@ export default function MobileView() {
             </Link>
           </div>
 
-          <Footer variant="mobile" />
+          <OnboardingInfoBar variant="mobile" message="You can update these anytime in your provider settings." />
         </div>
       </main>
     </div>

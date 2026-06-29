@@ -5,24 +5,15 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
+import { authService } from '@/features/auth/services/auth.service';
+import { getApiErrorMessage } from '@/lib/apiError';
 import { useAuthStore } from '@/store/authStore';
 
 import mailIcon from '@assets/icons/mail.png';
 import lockIcon from '@assets/icons/lock2.png';
 import shieldIcon from '@assets/icons/shield-check.png';
-import googleIcon from '@assets/icons/google.png';
-import lightBulbIcon from '@assets/icons/light-bulb.png';
-
-const DEMO_CREDENTIALS = {
-  email: 'demo@provider.anchorcanada.ca',
-  password: 'Demo@1234',
-  user: {
-    id: 'demo-provider-001',
-    name: 'Sarah Mitchell',
-    email: 'demo@provider.anchorcanada.ca',
-    role: 'provider' as const,
-  },
-};
+import { AuthSignupBar } from '@/features/auth/components/AuthSignupBar';
+import { SocialAuthButtons } from '@/features/auth/components/SocialAuthButtons';
 
 export default function LoginMobileView() {
   const [email, setEmail] = useState('');
@@ -45,15 +36,12 @@ export default function LoginMobileView() {
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
-    await new Promise(r => setTimeout(r, 800));
-    if (
-      email.toLowerCase() === DEMO_CREDENTIALS.email &&
-      password === DEMO_CREDENTIALS.password
-    ) {
-      setAuth(DEMO_CREDENTIALS.user, 'demo-token-provider-2026');
+    try {
+      const result = await authService.login({ email, password });
+      setAuth(result.user, result.token);
       router.push('/dashboard');
-    } else {
-      setError('Invalid email or password. Use the demo credentials below.');
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'Invalid email or password.'));
       setIsSubmitting(false);
     }
   }
@@ -61,30 +49,13 @@ export default function LoginMobileView() {
   return (
     <div className="w-full max-w-[400px] mx-auto flex flex-col gap-10">
 
-      {/* Demo credentials banner */}
-      <div className="flex items-center gap-3 rounded-[10px] border border-[#2f66c8]/20 bg-[#EFF4FF] px-4 py-3">
-        <svg className="h-4 w-4 text-[#2f66c8] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
-        </svg>
-        <div className="text-xs text-[#44516A] flex-1">
-          <p className="font-semibold text-[#2f66c8] mb-0.5">Demo credentials</p>
-          <p>Email: <span className="font-mono font-semibold text-[#0F172A]">demo@provider.anchorcanada.ca</span></p>
-          <p>Password: <span className="font-mono font-semibold text-[#0F172A]">Demo@1234</span></p>
-        </div>
-        <button
-          type="button"
-          onClick={() => { setEmail(DEMO_CREDENTIALS.email); setPassword(DEMO_CREDENTIALS.password); }}
-          className="shrink-0 px-2.5 py-1.5 rounded-lg bg-[#2f66c8] text-white text-xs font-semibold hover:bg-[#2454a4] transition-colors"
-        >Auto-fill</button>
-      </div>
-
       {/* Heading */}
       <div className="flex flex-col gap-2.5 items-center text-center">
         <div className="flex gap-2.5 items-baseline whitespace-nowrap">
           <span className="font-serif text-[48px] leading-[56px] text-[#0f172a]">Welcome</span>
           <span className="font-serif italic text-[52px] leading-[56px] text-[#2f66c8]">Back 👋</span>
         </div>
-        <p className="text-sm text-[#8c97ad]">Sign in to manage your listings and connect with applicants.</p>
+        <p className="text-sm text-[#8c97ad]">Your personalized opportunities are waiting.</p>
       </div>
 
       <div className="flex flex-col gap-[60px] w-full">
@@ -180,9 +151,11 @@ export default function LoginMobileView() {
                 </div>
               </label>
               <Link href="/forgot-password" className="text-sm font-medium text-[#2f66c8] hover:underline whitespace-nowrap mt-0.5">
-                Forgot your password?
+                Forgot you password?
               </Link>
             </div>
+
+            <SocialAuthButtons variant="mobile" />
 
             {/* Security card */}
             <div className="bg-white rounded-[10px] flex gap-5 items-center p-5 w-full">
@@ -192,18 +165,6 @@ export default function LoginMobileView() {
               <div className="flex flex-col gap-1 flex-1">
                 <span className="font-semibold text-base text-[#0f172a]">Secure, encrypted, and protected.</span>
                 <span className="text-sm text-[#44516a]">Your data is safe with bank-level encryption.</span>
-              </div>
-            </div>
-
-            {/* Or continue with */}
-            <div className="flex flex-col gap-5">
-              <div className="flex items-center gap-5">
-                <div className="flex-1 h-px bg-[#d9e1ef]" />
-                <span className="text-sm text-[#44516a] whitespace-nowrap">Or continue with</span>
-                <div className="flex-1 h-px bg-[#d9e1ef]" />
-              </div>
-              <div className="bg-white border border-[#d9e1ef] rounded-[6px] flex items-center justify-center px-6 py-4 w-full cursor-pointer hover:bg-[#f8fafc] transition-colors">
-                <Image src={googleIcon} alt="Google" width={24} height={24} />
               </div>
             </div>
           </form>
@@ -223,7 +184,7 @@ export default function LoginMobileView() {
               </svg>
             ) : (
               <>
-                Enter Provider Portal
+                Enter Anchor
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -242,22 +203,7 @@ export default function LoginMobileView() {
         </div>
       </div>
 
-      {/* Bottom info */}
-      <div className="bg-[#eff4ff] flex flex-col gap-5 items-center p-5 rounded-[10px] w-full">
-        <div className="flex gap-3 items-start w-full">
-          <Image src={lightBulbIcon} alt="" width={40} height={40} className="shrink-0" />
-          <p className="text-sm text-[#44516a]">You can edit your organization profile anytime in account settings.</p>
-        </div>
-        <div className="flex gap-3 items-center">
-          <span className="text-sm text-[#8c97ad]">New provider?</span>
-          <Link href="/onboarding" className="flex items-center gap-2 text-sm font-medium text-[#2f66c8] hover:underline">
-            Create Provider Account
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </Link>
-        </div>
-      </div>
+      <AuthSignupBar variant="mobile" />
     </div>
   );
 }

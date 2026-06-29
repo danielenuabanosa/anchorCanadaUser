@@ -1,187 +1,309 @@
-import type { StaticImageData } from 'next/image';
 import type { ElementType } from 'react';
 import {
+  ArrowUp,
+  Briefcase,
+  ChartBarStacked,
+  ChartColumnBig,
+  Clock,
+  Download,
+  Eye,
   FileText,
-  LayoutList,
-  UserCheck,
+  Heart,
+  Pencil,
+  Plus,
+  Star,
+  Upload,
+  UserPlus,
+  UserRound,
   Users,
 } from 'lucide-react';
+import type { StaticImageData } from 'next/image';
 import avatar1 from '@assets/images/profile-avatar.png';
 import avatar2 from '@assets/images/profile-google.png';
 import avatar3 from '@assets/images/profile-georgebrown.png';
-import provSickkids from '@assets/images/prov-sickkids.png';
-import provUtoronto from '@assets/images/prov-utoronto.png';
-import provWwf from '@assets/images/prov-wwf.png';
-import provYmca from '@assets/images/prov-ymca.png';
 
 export const PROVIDER_STATS = [
   {
     label: 'Active Listings',
-    value: 8,
-    change: '+2 this month',
-    dotColor: 'bg-[#2F66C8]',
-    barColor: 'bg-[#2F66C8]',
+    value: 24,
+    changePct: '8%',
+    changePctMobile: '3%',
+    icon: Briefcase,
+    iconBg: 'bg-[#E8F1FE]',
+    iconColor: 'text-[#2F66C8]',
   },
   {
-    label: 'Total Applications',
-    value: 142,
-    change: '+18 this week',
-    dotColor: 'bg-amber-400',
-    barColor: 'bg-amber-400',
+    label: 'Total Applicants',
+    value: '1,284',
+    changePct: '12%',
+    changePctMobile: '12%',
+    icon: FileText,
+    iconBg: 'bg-[#E4F5E6]',
+    iconColor: 'text-[#15803D]',
   },
   {
-    label: 'Profile Views',
-    value: '2.4k',
-    change: '+12% vs last month',
-    dotColor: 'bg-[#0F172A]',
-    barColor: 'bg-[#0F172A]',
+    label: 'Engagement Rate',
+    value: '82%',
+    changePct: '6%',
+    changePctMobile: '5%',
+    icon: ChartBarStacked,
+    iconBg: 'bg-[#EFE6FD]',
+    iconColor: 'text-[#7C3AED]',
   },
   {
-    label: 'Response Rate',
-    value: '94%',
-    change: 'Above average',
-    dotColor: 'bg-[#22C55E]',
-    barColor: 'bg-[#22C55E]',
+    label: 'Active Members',
+    value: 12,
+    changePct: '2%',
+    changePctMobile: '2%',
+    icon: Users,
+    iconBg: 'bg-[#FEF4DD]',
+    iconColor: 'text-[#D97706]',
   },
 ] as const;
 
 export const QUICK_ACTIONS = [
-  { label: 'Post Opportunity', href: '#listings/new', icon: 'plus' as const },
-  { label: 'View Applications', href: '#applications', icon: 'briefcase' as const },
-  { label: 'Edit Profile', href: '#profile', icon: 'user' as const },
-  { label: 'Invite Team', href: '#team', icon: 'users' as const },
+  {
+    label: 'Create Opportunity',
+    href: '/opportunities/create/type',
+    icon: Plus,
+    cardClass: 'bg-[#EFF4FF] border-[#DCE7FF]',
+    iconWrapClass: 'bg-[#E3EBFE]',
+    iconColor: 'text-[#1130C7]',
+    textColor: 'text-[#1130C7]',
+  },
+  {
+    label: 'Invite Team Members',
+    href: '/dashboard#team',
+    icon: UserPlus,
+    cardClass: 'bg-[#F2F9F2] border-[#DCEDE3]',
+    iconWrapClass: 'bg-[#E0F2E2]',
+    iconColor: 'text-[#0B5114]',
+    textColor: 'text-[#0B5114]',
+  },
+  {
+    label: 'View Analytics',
+    href: '/dashboard#analytics',
+    icon: ChartColumnBig,
+    cardClass: 'bg-[#F7F4FE] border-[#E4DFF9]',
+    iconWrapClass: 'bg-[#EEE7FC]',
+    iconColor: 'text-[#240AB3]',
+    textColor: 'text-[#240AB3]',
+  },
+  {
+    label: 'Download Reports',
+    href: '/dashboard#reports',
+    icon: Download,
+    cardClass: 'bg-[#FEF8EC] border-[#FDF1DC]',
+    iconWrapClass: 'bg-[#FFF4DC]',
+    iconColor: 'text-[#F37C06]',
+    textColor: 'text-[#F37C06]',
+  },
 ] as const;
 
+export const PERFORMANCE_METRICS = [
+  { label: 'Views', value: '18,642', change: '15%', icon: Eye },
+  { label: 'Saves', value: '2,845', change: '10%', icon: Heart },
+  { label: 'Applications', value: '1,284', change: '12%', icon: UserRound },
+  { label: 'Conv. Rates', value: '6.9%', change: '0.8%', icon: Clock },
+] as const;
+
+export const PERFORMANCE_CHART = [
+  { label: 'Jan', views: 28000, saves: 12000, applications: 8000 },
+  { label: 'Feb', views: 32000, saves: 14000, applications: 9500 },
+  { label: 'Mar', views: 35000, saves: 16000, applications: 11000 },
+  { label: 'Apr', views: 38000, saves: 18000, applications: 12500 },
+  { label: 'May', views: 36000, saves: 17000, applications: 11500 },
+  { label: 'Jun', views: 40000, saves: 20000, applications: 14000 },
+] as const;
+
+export type OpportunityStatus = 'Active' | 'Draft' | 'Closed';
 export type ApplicationStatus = 'New' | 'Under Review' | 'Shortlisted' | 'Rejected';
+
+export interface ActiveOpportunity {
+  id: string;
+  name: string;
+  status: OpportunityStatus;
+  applications: number;
+  postedDate: string;
+  deadline: string;
+}
 
 export interface RecentApplication {
   id: string;
   applicant: string;
-  opportunity: string;
+  appliedFor: string;
   status: ApplicationStatus;
-  appliedAt: string;
+  timeLabel: string;
   avatar: StaticImageData;
 }
+
+export interface TeamActivityItem {
+  id: string;
+  member: string;
+  action: string;
+  time: string;
+  icon: ElementType;
+  iconBg: string;
+  iconBorder: string;
+  iconColor: string;
+}
+
+export const ACTIVE_OPPORTUNITIES: ActiveOpportunity[] = [
+  {
+    id: '1',
+    name: 'Community Youth Mentorship Program',
+    status: 'Active',
+    applications: 124,
+    postedDate: 'May 18, 2026',
+    deadline: 'Jun 18, 2026',
+  },
+  {
+    id: '2',
+    name: 'Digital Skills Training Initiative',
+    status: 'Active',
+    applications: 98,
+    postedDate: 'May 15, 2026',
+    deadline: 'Jun 30, 2026',
+  },
+  {
+    id: '3',
+    name: 'Environmental Conservation Grant',
+    status: 'Active',
+    applications: 56,
+    postedDate: 'May 18, 2026',
+    deadline: 'Jun 18, 2026',
+  },
+  {
+    id: '4',
+    name: 'Community Event Sponsorship',
+    status: 'Draft',
+    applications: 0,
+    postedDate: 'May 22, 2026',
+    deadline: 'Jun 10, 2026',
+  },
+  {
+    id: '5',
+    name: 'Senior Support Services Program',
+    status: 'Closed',
+    applications: 87,
+    postedDate: 'Apr 28, 2026',
+    deadline: 'May 20, 2026',
+  },
+];
 
 export const RECENT_APPLICATIONS: RecentApplication[] = [
   {
     id: '1',
-    applicant: 'Sarah Chen',
-    opportunity: 'Community Health Intern',
+    applicant: 'Felicia Khan',
+    appliedFor: 'Digital Skills Training Initiative',
     status: 'New',
-    appliedAt: '2026-06-16T09:30:00Z',
+    timeLabel: '2mins ago',
     avatar: avatar1,
   },
   {
     id: '2',
-    applicant: 'Marcus Williams',
-    opportunity: 'Youth Outreach Coordinator',
+    applicant: 'James Wilson',
+    appliedFor: 'Community Youth Mentorship Program',
     status: 'Under Review',
-    appliedAt: '2026-06-15T14:20:00Z',
+    timeLabel: '1hr ago',
     avatar: avatar2,
   },
   {
     id: '3',
-    applicant: 'Priya Patel',
-    opportunity: 'Mental Health Support Grant',
+    applicant: 'Andrea Garcia',
+    appliedFor: 'Environmental Conservation Grant',
     status: 'Shortlisted',
-    appliedAt: '2026-06-14T11:00:00Z',
+    timeLabel: '1hr ago',
     avatar: avatar3,
   },
   {
     id: '4',
-    applicant: 'James Okafor',
-    opportunity: 'Community Health Intern',
+    applicant: 'David Chen',
+    appliedFor: 'Community Event Sponsorship',
     status: 'New',
-    appliedAt: '2026-06-13T16:45:00Z',
+    timeLabel: '2hrs ago',
     avatar: avatar1,
   },
   {
     id: '5',
-    applicant: 'Emily Zhang',
-    opportunity: 'Volunteer Program Lead',
+    applicant: 'Sarah Johnson',
+    appliedFor: 'Senior Support Services Program',
     status: 'Under Review',
-    appliedAt: '2026-06-12T10:15:00Z',
+    timeLabel: '3hrs ago',
     avatar: avatar2,
   },
 ];
 
-export const PERFORMANCE_BARS = [
-  { label: 'Mon', views: 45, applications: 12 },
-  { label: 'Tue', views: 62, applications: 18 },
-  { label: 'Wed', views: 38, applications: 9 },
-  { label: 'Thu', views: 71, applications: 22 },
-  { label: 'Fri', views: 55, applications: 15 },
-  { label: 'Sat', views: 28, applications: 6 },
-  { label: 'Sun', views: 33, applications: 8 },
-] as const;
-
-export const RECENT_ACTIVITY = [
+export const TEAM_ACTIVITY: TeamActivityItem[] = [
   {
     id: '1',
-    title: 'New application received',
-    description: 'Sarah Chen applied to Community Health Intern',
-    time: '2 hours ago',
-    iconBg: 'bg-[#EBF1FE]',
+    member: 'Sarah Johnson',
+    action: 'updated Community Grant listing',
+    time: '20mins ago',
+    icon: Pencil,
+    iconBg: 'bg-[#EBDEFD]',
+    iconBorder: 'border-[#DFD2F9]',
+    iconColor: 'text-[#6821CD]',
   },
   {
     id: '2',
-    title: 'Listing published',
-    description: 'Youth Outreach Coordinator is now live',
-    time: '5 hours ago',
-    iconBg: 'bg-[#D1FAE5]',
+    member: 'David Miller',
+    action: 'reviewed 14 applicants for Mentorship Program',
+    time: '1hr ago',
+    icon: Users,
+    iconBg: 'bg-[#FFF6EA]',
+    iconBorder: 'border-[#FFE8C7]',
+    iconColor: 'text-[#D97706]',
   },
   {
     id: '3',
-    title: 'Team member joined',
-    description: 'Dr. Anita Rao accepted your invite',
-    time: '1 day ago',
-    iconBg: 'bg-[#F4F1FE]',
+    member: 'Aisha Patel',
+    action: 'published Digital Skills Training Initiative',
+    time: '2hrs ago',
+    icon: Upload,
+    iconBg: 'bg-[#F5EDFD]',
+    iconBorder: 'border-[#E8DFFB]',
+    iconColor: 'text-[#7C3AED]',
   },
   {
     id: '4',
-    title: 'Application shortlisted',
-    description: 'Priya Patel moved to shortlist',
-    time: '2 days ago',
-    iconBg: 'bg-[#FFEDD5]',
+    member: 'Michael Brown',
+    action: 'shortlisted 6 applicants for Conservation Grant',
+    time: '3hrs ago',
+    icon: Star,
+    iconBg: 'bg-[#FFF6EA]',
+    iconBorder: 'border-[#FFE8C7]',
+    iconColor: 'text-[#D97706]',
   },
   {
     id: '5',
-    title: 'Profile viewed 48 times',
-    description: 'Your organization profile gained traction',
-    time: '3 days ago',
-    iconBg: 'bg-[#EFF4FF]',
+    member: 'Emily Clark',
+    action: 'invited a new team member to our workspace',
+    time: '4hrs ago',
+    icon: UserPlus,
+    iconBg: 'bg-[#E8F6ED]',
+    iconBorder: 'border-[#DCEDE3]',
+    iconColor: 'text-[#15803D]',
   },
-] as const;
+];
 
-export const ORG_PROFILE_CHECKS = [
-  { label: 'Organization Information', done: true },
-  { label: 'Categories & Focus Areas', done: true },
-  { label: 'Team Members', done: true },
-  { label: 'Verification Documents', done: false },
-  { label: 'Logo & Branding', done: false },
-] as const;
-
-export const PARTNER_LOGOS = [provSickkids, provUtoronto, provWwf, provYmca] as const;
-
-export const STATUS_STYLES: Record<ApplicationStatus, string> = {
-  New: 'bg-[#EBF1FE] text-[#2F66C8]',
-  'Under Review': 'bg-[#FFEDD5] text-[#C2410C]',
-  Shortlisted: 'bg-[#D1FAE5] text-[#15803D]',
-  Rejected: 'bg-[#FEE2E2] text-[#B91C1C]',
+export const ORG_STATUS = {
+  verification: 'Verified',
+  profileComplete: 92,
+  memberSince: 'May 20, 2026',
 };
 
-export const ACTIVITY_ICONS: ElementType[] = [FileText, LayoutList, Users, UserCheck, LayoutList];
+export const STATUS_STYLES: Record<ApplicationStatus, string> = {
+  New: 'bg-[#EFF4FF] border border-[#DCE7FF] text-[#2F66C8]',
+  'Under Review': 'bg-[#ECFDF5] border border-[#D1FAE5] text-[#15803D]',
+  Shortlisted: 'bg-[#FFFBEB] border border-[#FEF3C7] text-[#B45309]',
+  Rejected: 'bg-[#FEF2F2] border border-[#FEE2E2] text-[#B91C1C]',
+};
 
-export function getTimeGreeting() {
-  const h = new Date().getHours();
-  if (h < 12) return 'Good Morning,';
-  if (h < 17) return 'Good afternoon,';
-  return 'Good evening,';
-}
+export const OPPORTUNITY_STATUS_STYLES: Record<OpportunityStatus, string> = {
+  Active: 'bg-[#ECFDF5] text-[#15803D]',
+  Draft: 'bg-[#FFFBEB] text-[#B45309]',
+  Closed: 'bg-[#FEF2F2] text-[#B91C1C]',
+};
 
-export function statHasValue(value: string | number) {
-  if (typeof value === 'number') return value > 0;
-  const numeric = parseFloat(String(value).replace(/[^0-9.]/g, ''));
-  return Number.isFinite(numeric) && numeric > 0;
-}
+export { ArrowUp };

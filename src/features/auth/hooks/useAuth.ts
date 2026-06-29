@@ -25,8 +25,12 @@ export function useRegister() {
 
   return useMutation({
     mutationFn: (dto: Omit<RegisterDto, 'confirmPassword'>) => authService.register(dto),
-    onSuccess: ({ user, token }) => {
-      setAuth(user, token);
+    onSuccess: (result) => {
+      if ('requiresEmailConfirmation' in result) {
+        router.push(`/onboarding/verify-email?email=${encodeURIComponent(result.email)}`);
+        return;
+      }
+      setAuth(result.user, result.token);
       router.push('/dashboard');
     },
   });

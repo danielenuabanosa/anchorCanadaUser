@@ -1,92 +1,25 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
-import type { StaticImageData } from 'next/image';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 import { OnboardingNavbar } from '@/features/home/components/OnboardingNavbar';
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
-import { Footer } from './Footer';
-
-import heartHandshakeIcon from '@assets/icons/heart-handshake.png';
-import briefcaseIcon from '@assets/icons/briefcase2.png';
-import shieldIcon from '@assets/icons/shield.png';
-import graduationIcon from '@assets/icons/graduation-cap.png';
-import userGreenIcon from '@assets/icons/user-green.png';
-import folderIcon from '@assets/icons/folder.png';
-
-interface OrgTypeDef {
-  id: string;
-  name: string;
-  icon: StaticImageData;
-  circleBg: string;
-}
-
-const ORG_TYPES: OrgTypeDef[] = [
-  { id: 'nonprofit', name: 'Non-profit', icon: heartHandshakeIcon, circleBg: '#E6F7EF' },
-  { id: 'business', name: 'Business / Corporation', icon: briefcaseIcon, circleBg: '#EEF3FF' },
-  { id: 'government', name: 'Government', icon: shieldIcon, circleBg: '#FFF6E0' },
-  { id: 'education', name: 'Educational Institution', icon: graduationIcon, circleBg: '#F0EBFF' },
-  { id: 'community', name: 'Community Organization', icon: userGreenIcon, circleBg: '#DFFAF3' },
-  { id: 'other', name: 'Other', icon: folderIcon, circleBg: '#FFF0EC' },
-];
-
-function RadioDot({ selected }: { selected: boolean }) {
-  return (
-    <div
-      className={`flex h-[20px] w-[20px] shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-        selected ? 'border-[#2F66C8] bg-[#2F66C8]' : 'border-[#D9E1EF] bg-white'
-      }`}
-    >
-      {selected && <Check className="h-3 w-3 text-white" strokeWidth={3.5} />}
-    </div>
-  );
-}
-
-function MobileCard({
-  item,
-  selected,
-  onSelect,
-}: {
-  item: OrgTypeDef;
-  selected: boolean;
-  onSelect: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={`relative flex items-center gap-3 rounded-sm border px-3 py-3.5 text-left transition-all ${
-        selected
-          ? 'border-2 border-[#2F66C8] bg-[#DCE7FF] shadow-md'
-          : 'border-[#D9E1EF] bg-white shadow-sm'
-      }`}
-    >
-      <div className="absolute right-2.5 top-2.5">
-        <RadioDot selected={selected} />
-      </div>
-
-      <div
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
-        style={{ backgroundColor: item.circleBg }}
-      >
-        <Image src={item.icon} alt="" width={18} height={18} className="object-contain" />
-      </div>
-
-      <p className="truncate pr-7 font-serif text-[12px] font-normal leading-[56px] text-[#0F172A]">{item.name}</p>
-    </button>
-  );
-}
+import { OnboardingInfoBar } from '@/features/onboarding/components/OnboardingInfoBar';
+import { ProviderOptionCard } from '@/features/onboarding/components/ProviderOptionCard';
+import { ORG_TYPES } from '@/features/onboarding/lib/onboardingData';
+import { useProviderOnboardingStore } from '@/store/onboardingStore';
 
 export default function MobileView() {
   const [selected, setSelected] = useState<string | null>(null);
   const router = useRouter();
+  const setOnboardingData = useProviderOnboardingStore((s) => s.setOnboardingData);
 
   function handleContinue() {
     if (!selected) return;
+    setOnboardingData({ organizationType: selected });
     router.push('/onboarding/categories');
   }
 
@@ -107,19 +40,18 @@ export default function MobileView() {
             Are You?
           </h1>
           <p className="mt-3 font-sans text-[14px] leading-[100%] text-[#8C97AD]">
-            Select the category that best describes your organization.
-            <br />
-            This helps us tailor your provider experience.
+            Help us personalize your provider experience and opportunity management tools.
           </p>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-3">
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {ORG_TYPES.map((item) => (
-            <MobileCard
+            <ProviderOptionCard
               key={item.id}
               item={item}
               selected={selected === item.id}
               onSelect={() => setSelected(item.id)}
+              compact
             />
           ))}
         </div>
@@ -146,7 +78,10 @@ export default function MobileView() {
             </Link>
           </div>
 
-          <Footer variant="mobile" />
+          <OnboardingInfoBar
+            variant="mobile"
+            message="Your organization type helps personalize your provider dashboard and workflows."
+          />
         </div>
       </main>
     </div>

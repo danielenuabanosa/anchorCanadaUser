@@ -1,15 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import type { AuthUser, ProviderProfile } from '@/features/auth/types';
 
-export type UserRole = 'individual' | 'business' | 'expert' | 'provider';
-
-export interface AuthUser {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  avatarUrl?: string;
-}
+export type { AuthUser, ProviderProfile };
+export type UserRole = AuthUser['role'];
 
 interface AuthState {
   user: AuthUser | null;

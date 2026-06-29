@@ -1,37 +1,109 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import { OnboardingNavbar } from '@/features/home/components/OnboardingNavbar';
+import { OnboardingInfoBar } from '@/features/onboarding/components/OnboardingInfoBar';
+import {
+  ORG_INFO_INFO_MESSAGE,
+  ORG_INFO_SUBTITLE,
+  ORG_SIZES,
+  OPERATING_REGIONS,
+  SOCIAL_FIELDS,
+} from '@/features/onboarding/lib/organizationInfoData';
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
 import { OnboardingNavButtons } from '@/shared/components/onboarding/OnboardingNavButtons';
-import { CANADIAN_PROVINCES } from '@/shared/constants';
-import { Footer } from './Footer';
-import { OrgPreviewCard } from './OrgPreviewCard';
+import { useProviderOnboardingStore } from '@/store/onboardingStore';
+import {
+  FieldLabel,
+  FileUploadZone,
+  IconInput,
+  IconSelect,
+  SectionHeader,
+  SocialUrlInput,
+} from './FormFields';
+import { TrustPanel } from './TrustPanel';
 
+import infoIcon from '@assets/icons/info.png';
+import briefcaseIcon from '@assets/icons/briefcase2.png';
 import mailIcon from '@assets/icons/mail.png';
+import globeIcon from '@assets/icons/compass.png';
+import phoneIcon from '@assets/icons/hear-phone.png';
+import bookIcon from '@assets/icons/book-open.png';
+import usersIcon from '@assets/icons/user.png';
 import locationIcon from '@assets/icons/location2.png';
-import hearPhoneIcon from '@assets/icons/hear-phone.png';
+import imageIcon from '@assets/icons/image.png';
+import shareIcon from '@assets/icons/send.png';
+import linkedinIcon from '@assets/icons/linkedin.png';
+import xIcon from '@assets/icons/x.png';
+import facebookIcon from '@assets/icons/facebook.png';
+import instagramIcon from '@assets/icons/instagram.png';
+
+const SOCIAL_ICONS = {
+  linkedin: linkedinIcon,
+  twitter: xIcon,
+  facebook: facebookIcon,
+  instagram: instagramIcon,
+} as const;
+
+type UploadState = {
+  fileName?: string;
+  progress?: number;
+  previewUrl?: string;
+};
+
+function simulateUpload(setState: (state: UploadState) => void, file: File) {
+  setState({ fileName: file.name, progress: 0, previewUrl: URL.createObjectURL(file) });
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += 17;
+    if (progress >= 100) {
+      clearInterval(interval);
+      setState({ fileName: file.name, progress: 100, previewUrl: URL.createObjectURL(file) });
+      return;
+    }
+    setState({ fileName: file.name, progress, previewUrl: URL.createObjectURL(file) });
+  }, 200);
+}
 
 export default function DesktopView() {
   const router = useRouter();
+  const setOnboardingData = useProviderOnboardingStore((s) => s.setOnboardingData);
 
   const [orgName, setOrgName] = useState('');
-  const [website, setWebsite] = useState('');
-  const [description, setDescription] = useState('');
-  const [address, setAddress] = useState('');
-  const [city, setCity] = useState('');
-  const [province, setProvince] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const [website, setWebsite] = useState('');
+  const [phone, setPhone] = useState('');
+  const [description, setDescription] = useState('');
+  const [orgSize, setOrgSize] = useState('');
+  const [operatingRegion, setOperatingRegion] = useState('');
+  const [logo, setLogo] = useState<UploadState>({});
+  const [cover, setCover] = useState<UploadState>({});
+  const [social, setSocial] = useState({ linkedin: '', twitter: '', facebook: '', instagram: '' });
 
-  const canContinue = orgName.trim() !== '' && email.trim() !== '';
+  const canContinue =
+    orgName.trim() !== '' &&
+    email.trim() !== '' &&
+    website.trim() !== '' &&
+    phone.trim() !== '' &&
+    description.trim() !== '' &&
+    orgSize !== '' &&
+    operatingRegion !== '' &&
+    logo.progress === 100;
 
   function handleContinue() {
-    if (canContinue) router.push('/onboarding/verification');
+    if (!canContinue) return;
+    setOnboardingData({
+      organizationName: orgName.trim(),
+      organizationEmail: email.trim(),
+      organizationWebsite: website.trim(),
+      organizationDescription: description.trim(),
+      organizationPhone: phone.trim(),
+      organizationProvince: operatingRegion,
+      verificationEmail: email.trim().toLowerCase(),
+    });
+    router.push('/onboarding/verification');
   }
 
   return (
@@ -42,169 +114,182 @@ export default function DesktopView() {
         <StepProgress current={3} />
       </div>
 
-      <main className="mx-auto w-full max-w-[1548px] flex-1 px-10 pb-16 pt-20">
-        <div className="flex w-full gap-12">
-          <div className="flex w-[886px] max-w-[886px] flex-1 flex-col">
+      <main className="mx-auto w-full max-w-[1548px] flex-1 px-10 pb-16 pt-10">
+        <div className="flex flex-col items-center gap-[100px]">
+          <div className="flex flex-col items-center gap-6 text-center">
             <h1 className="font-serif text-[60px] font-normal leading-[56px] text-[#0F172A]">
               Tell Us About Your{' '}
               <span className="font-serif text-[78.83px] italic leading-[73.57px] text-[#2F66C8]">Organization</span>
             </h1>
-            <p className="mt-3 font-sans text-[16px] font-normal leading-normal text-[#8C97AD]">
-              Add your organization details so people can find and trust your opportunities.
-            </p>
-
-            <div className="mt-10 flex flex-col gap-6">
-              <div>
-                <label className="block font-sans text-[16px] font-medium leading-[180%] text-[#0F172A]">
-                  Organization Name <span className="text-[#EF4444]">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={orgName}
-                  onChange={(e) => setOrgName(e.target.value)}
-                  placeholder="Enter organization name"
-                  className="mt-1.5 anchor-field h-[53px]"
-                />
-              </div>
-
-              <div>
-                <label className="block font-sans text-[16px] font-medium leading-[180%] text-[#0F172A]">
-                  Website
-                </label>
-                <input
-                  type="url"
-                  value={website}
-                  onChange={(e) => setWebsite(e.target.value)}
-                  placeholder="https://yourorganization.ca"
-                  className="mt-1.5 anchor-field h-[53px]"
-                />
-              </div>
-
-              <div>
-                <label className="block font-sans text-[16px] font-medium leading-[180%] text-[#0F172A]">
-                  Description
-                </label>
-                <textarea
-                  value={description}
-                  onChange={(e) => { if (e.target.value.length <= 300) setDescription(e.target.value); }}
-                  placeholder="Describe your organization and mission"
-                  rows={4}
-                  className="anchor-textarea mt-1.5"
-                />
-              </div>
-
-              <div>
-                <label className="block font-sans text-[16px] font-medium leading-[180%] text-[#0F172A]">
-                  Address
-                </label>
-                <div className="relative mt-1.5">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2">
-                    <Image src={locationIcon} alt="" width={16} height={16} className="opacity-50" />
-                  </span>
-                  <input
-                    type="text"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Street address"
-                    className="anchor-field anchor-field--icon-left h-[53px]"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block font-sans text-[16px] font-medium leading-[180%] text-[#0F172A]">City</label>
-                  <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder="City"
-                    className="mt-1.5 anchor-field h-[53px]"
-                  />
-                </div>
-                <div>
-                  <label className="block font-sans text-[16px] font-medium leading-[180%] text-[#0F172A]">Province</label>
-                  <select
-                    value={province}
-                    onChange={(e) => setProvince(e.target.value)}
-                    className="mt-1.5 anchor-field h-[53px]"
-                  >
-                    <option value="">Select province</option>
-                    {CANADIAN_PROVINCES.map((p) => (
-                      <option key={p.value} value={p.value}>{p.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block font-sans text-[16px] font-medium leading-[180%] text-[#0F172A]">Postal Code</label>
-                  <input
-                    type="text"
-                    value={postalCode}
-                    onChange={(e) => setPostalCode(e.target.value)}
-                    placeholder="A1A 1A1"
-                    className="mt-1.5 anchor-field h-[53px]"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-sans text-[16px] font-medium leading-[180%] text-[#0F172A]">Phone</label>
-                  <div className="relative mt-1.5">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2">
-                      <Image src={hearPhoneIcon} alt="" width={16} height={16} className="opacity-50" />
-                    </span>
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="(555) 555-5555"
-                      className="anchor-field anchor-field--icon-left h-[53px]"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block font-sans text-[16px] font-medium leading-[180%] text-[#0F172A]">
-                    Email <span className="text-[#EF4444]">*</span>
-                  </label>
-                  <div className="relative mt-1.5">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2">
-                      <Image src={mailIcon} alt="" width={16} height={16} className="opacity-50" />
-                    </span>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="contact@organization.ca"
-                      className="anchor-field anchor-field--icon-left h-[53px]"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <p className="max-w-[772px] font-sans text-[16px] text-[#8C97AD]">{ORG_INFO_SUBTITLE}</p>
           </div>
 
-          <div className="w-[622px] shrink-0">
-            <div className="sticky top-24 rounded-2xl border border-[#D9E1EF] bg-white p-5 shadow-[0_2px_12px_rgba(15,23,42,0.06)]">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-[15px] font-semibold leading-snug text-[#0F172A]">
-                  Here&apos;s how your organization will look
-                </p>
-                <span className="flex shrink-0 items-center gap-1.5 text-[12px] font-medium text-emerald-600">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                  Live Preview
-                </span>
-              </div>
-              <div className="mt-4">
-                <OrgPreviewCard
-                  orgName={orgName}
-                  description={description}
-                  city={city}
-                  province={CANADIAN_PROVINCES.find((p) => p.value === province)?.label ?? province}
-                  email={email}
-                />
+          <div className="flex w-full items-start gap-5">
+            <div className="flex min-w-0 flex-1 flex-col gap-[60px]">
+              <div className="flex flex-col gap-5">
+                <div className="flex gap-5">
+                  <div className="flex w-[670px] flex-col gap-5">
+                    <div className="rounded-[10px] border border-[#EEF2F8] bg-white p-5">
+                      <SectionHeader number={1} title="Basic Information" icon={infoIcon} />
+                      <div className="mt-5 flex flex-col gap-5">
+                        <div className="grid grid-cols-2 gap-5">
+                          <div>
+                            <FieldLabel label="Organization Name" required />
+                            <IconInput
+                              icon={briefcaseIcon}
+                              value={orgName}
+                              onChange={setOrgName}
+                              placeholder="Enter organization name"
+                              className="mt-2.5"
+                            />
+                          </div>
+                          <div>
+                            <FieldLabel label="Organization Email" required />
+                            <IconInput
+                              icon={mailIcon}
+                              type="email"
+                              value={email}
+                              onChange={setEmail}
+                              placeholder="name@yourorganization.ca"
+                              className="mt-2.5"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-5">
+                          <div>
+                            <FieldLabel label="Organization Website" required />
+                            <IconInput
+                              icon={globeIcon}
+                              type="url"
+                              value={website}
+                              onChange={setWebsite}
+                              placeholder="https://yourorganization.ca"
+                              className="mt-2.5"
+                            />
+                          </div>
+                          <div>
+                            <FieldLabel label="Phone Number" required />
+                            <IconInput
+                              icon={phoneIcon}
+                              type="tel"
+                              value={phone}
+                              onChange={setPhone}
+                              placeholder="(123) 456-7890"
+                              className="mt-2.5"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-[10px] border border-[#EEF2F8] bg-white p-5">
+                      <SectionHeader number={2} title="Organization Details" icon={bookIcon} />
+                      <div className="mt-5 flex flex-col gap-5">
+                        <div>
+                          <FieldLabel label="Organization Description" required />
+                          <textarea
+                            value={description}
+                            onChange={(e) => {
+                              if (e.target.value.length <= 500) setDescription(e.target.value);
+                            }}
+                            placeholder="Briefly describe your mission, what your organization does, and the communities you serve."
+                            rows={5}
+                            className="anchor-textarea mt-2.5 min-h-[193px] rounded-[10px]"
+                          />
+                          <p className="mt-2.5 text-right font-sans text-[16px] text-[#8C97AD]">
+                            {description.length} / 500
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-5">
+                          <div>
+                            <FieldLabel label="Organization Size" required />
+                            <IconSelect
+                              icon={usersIcon}
+                              value={orgSize}
+                              onChange={setOrgSize}
+                              placeholder="Select organization size"
+                              options={ORG_SIZES}
+                              className="mt-2.5"
+                            />
+                          </div>
+                          <div>
+                            <FieldLabel label="Operating Region" required />
+                            <IconSelect
+                              icon={locationIcon}
+                              value={operatingRegion}
+                              onChange={setOperatingRegion}
+                              placeholder="Select operating region"
+                              options={OPERATING_REGIONS}
+                              className="mt-2.5"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-1 flex-col rounded-[10px] border border-[#EEF2F8] bg-white p-5">
+                    <SectionHeader number={3} title="Branding" icon={imageIcon} />
+                    <div className="mt-5 flex flex-1 flex-col gap-5">
+                      <div className="flex flex-1 flex-col">
+                        <FieldLabel label="Organization Logo" required />
+                        <p className="mt-1 font-sans text-[14px] text-[#8C97AD]">
+                          This will appear on your public profile and opportunities
+                        </p>
+                        <FileUploadZone
+                          className="mt-2.5"
+                          helperLines={[
+                            'Drag and drop your logo here',
+                            'or click to browse',
+                            'PNG or JPG or SVG (Max 2MB)',
+                          ]}
+                          fileName={logo.fileName}
+                          progress={logo.progress}
+                          previewUrl={logo.previewUrl}
+                          onFileSelect={(file) => simulateUpload(setLogo, file)}
+                          onRemove={() => setLogo({})}
+                        />
+                      </div>
+                      <div className="flex flex-1 flex-col">
+                        <FieldLabel label="Cover Banner" optional />
+                        <p className="mt-1 font-sans text-[14px] text-[#8C97AD]">Recommended size: 1200 x 400px</p>
+                        <FileUploadZone
+                          className="mt-2.5"
+                          helperLines={[
+                            'Drag and drop banner here',
+                            'or click to browse',
+                            'PNG or JPG (Max 5MB)',
+                          ]}
+                          fileName={cover.fileName}
+                          progress={cover.progress}
+                          previewUrl={cover.previewUrl}
+                          onFileSelect={(file) => simulateUpload(setCover, file)}
+                          onRemove={() => setCover({})}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-[10px] border border-[#EEF2F8] bg-white p-5">
+                  <SectionHeader number={4} title="Social & Online Presence" optional icon={shareIcon} />
+                  <div className="mt-5 grid grid-cols-2 gap-5">
+                    {SOCIAL_FIELDS.map((field) => (
+                      <SocialUrlInput
+                        key={field.id}
+                        icon={SOCIAL_ICONS[field.id]}
+                        label={field.label}
+                        value={social[field.id]}
+                        onChange={(value) => setSocial((prev) => ({ ...prev, [field.id]: value }))}
+                        placeholder={field.placeholder}
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
+
+            <TrustPanel />
           </div>
         </div>
       </main>
@@ -213,7 +298,7 @@ export default function DesktopView() {
         backHref="/onboarding/categories"
         onContinue={handleContinue}
         continueDisabled={!canContinue}
-        footer={<Footer />}
+        footer={<OnboardingInfoBar message={ORG_INFO_INFO_MESSAGE} />}
       />
     </div>
   );

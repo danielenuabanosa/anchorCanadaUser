@@ -1,23 +1,31 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { OnboardingNavbar } from '@/features/home/components/OnboardingNavbar';
+import { OnboardingInfoBar } from '@/features/onboarding/components/OnboardingInfoBar';
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
 import {
-  FeatureGridWithProgress,
   LiveFeedPanel,
   MapWithCards,
   PersonalizationHeading,
-  PreferencesFooter,
-  OrganizationActiveCard,
   ProgressBarSection,
   usePersonalizationProgress,
   VerificationShieldFooter,
-  WelcomeHero,
 } from '@/app/onboarding/_components/PersonalizationShared';
+import { finishActivation } from '@/features/provider/lib/completeOnboarding';
+import {
+  ACTIVATION_INFO_MESSAGE,
+  ActivationActionButtons,
+  ActivationFeatureCards,
+  ActivationHeading,
+  ActivationHeroIllustration,
+  OrganizationStatusPanel,
+  RecommendedStepsPanel,
+} from './ActivationShared';
+
+import boxIcon from '@assets/icons/box.png';
 
 function ActivationLoadingMobile({ onComplete }: { onComplete: () => void }) {
   const { progress, stepStatus } = usePersonalizationProgress(onComplete);
@@ -41,13 +49,7 @@ function ActivationLoadingMobile({ onComplete }: { onComplete: () => void }) {
   );
 }
 
-function ActivationWelcomeMobile({
-  onBack,
-  onContinue,
-}: {
-  onBack: () => void;
-  onContinue: () => void;
-}) {
+function ActivationWelcomeMobile({ onContinue }: { onContinue: () => void }) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-[#f2f7ff]">
       <OnboardingNavbar />
@@ -56,32 +58,33 @@ function ActivationWelcomeMobile({
         <StepProgress current={6} />
       </div>
 
-      <main className="flex flex-col gap-5 px-5 pb-10 pt-4">
-        <WelcomeHero compact />
-        <OrganizationActiveCard compact />
-        <FeatureGridWithProgress compact showDescriptions={false} />
+      <main className="flex flex-col gap-10 px-5 pb-6 pt-10">
+        <ActivationHeading compact />
 
-        <div className="mt-3 flex flex-col gap-3">
-          <button
-            type="button"
-            onClick={onContinue}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] bg-[#2F66C8] text-[14px] font-normal text-white transition-colors hover:bg-[#2454A4]"
-          >
-            Enter Provider Dashboard
-            <ArrowRight className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={onBack}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white text-[14px] text-[#2F66C8]"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </button>
+        <div className="flex flex-col gap-[60px]">
+          <div className="flex flex-col gap-5">
+            <ActivationHeroIllustration compact />
+            <ActivationFeatureCards compact />
+          </div>
+
+          <div className="flex flex-col gap-5">
+            <OrganizationStatusPanel compact />
+            <RecommendedStepsPanel compact />
+          </div>
+
+          <ActivationActionButtons compact onDashboard={onContinue} />
         </div>
-
-        <PreferencesFooter variant="mobile" />
       </main>
+
+      <div className="px-5 pb-10 pt-4">
+        <OnboardingInfoBar
+          variant="mobile"
+          message={ACTIVATION_INFO_MESSAGE}
+          icon={boxIcon}
+          linkText=""
+          linkHref="/dashboard"
+        />
+      </div>
     </div>
   );
 }
@@ -90,6 +93,17 @@ export default function MobileView() {
   const router = useRouter();
   const [phase, setPhase] = useState<'loading' | 'welcome'>('loading');
   const [loadingKey, setLoadingKey] = useState(0);
+  const [error, setError] = useState('');
+
+  async function handleGoToDashboard() {
+    setError('');
+    try {
+      await finishActivation();
+      router.push('/dashboard');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not complete onboarding.');
+    }
+  }
 
   if (phase === 'loading') {
     return (
@@ -101,12 +115,13 @@ export default function MobileView() {
   }
 
   return (
-    <ActivationWelcomeMobile
-      onBack={() => {
-        setLoadingKey((k) => k + 1);
-        setPhase('loading');
-      }}
-      onContinue={() => router.push('/dashboard')}
-    />
+    <>
+      {error ? (
+        <div className="fixed bottom-6 left-5 right-5 z-50 rounded-[10px] border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600">
+          {error}
+        </div>
+      ) : null}
+      <ActivationWelcomeMobile onContinue={handleGoToDashboard} />
+    </>
   );
 }
