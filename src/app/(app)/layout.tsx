@@ -7,9 +7,12 @@ import { Topbar } from '@/shared/components/layout/Topbar';
 import { OpportunityManagementTopbar } from '@/shared/components/layout/OpportunityManagementTopbar';
 import { BottomNav } from '@/shared/components/layout/BottomNav';
 import { useAuthStore } from '@/store/authStore';
+import { isStaticMode } from '@/lib/staticMode';
 import { cn } from '@/lib/utils';
+import { isProviderHubRoute, isHubListPage, usesOpportunityManagementTopbar } from '@/shared/lib/hubRoutes';
 
 function resolveTopbar(pathname: string) {
+  if (pathname === '/logout') return null;
   if (pathname.startsWith('/opportunities/create')) {
     return (
       <div className="md:hidden">
@@ -17,7 +20,7 @@ function resolveTopbar(pathname: string) {
       </div>
     );
   }
-  if (pathname.startsWith('/opportunities') || pathname.startsWith('/applications') || pathname.startsWith('/team')) {
+  if (usesOpportunityManagementTopbar(pathname)) {
     return (
       <>
         <div className="md:hidden">
@@ -44,25 +47,26 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!hydrated) return;
+    if (isStaticMode()) return;
     if (!isAuthenticated) {
       router.push('/login');
     }
   }, [hydrated, isAuthenticated, router]);
 
-  if (!hydrated || !isAuthenticated) return null;
+  if (!hydrated) return null;
+  if (!isStaticMode() && !isAuthenticated) return null;
 
   const topbar = resolveTopbar(pathname);
   const isBuilder = pathname.startsWith('/opportunities/create');
-  const isOppManagementHub =
-    pathname === '/opportunities' || pathname === '/applications' || pathname === '/team';
+  const isOppManagementHub = isHubListPage(pathname);
   const isDetailPage =
     /^\/opportunities\/[^/]+$/.test(pathname) || /^\/applications\/[^/]+$/.test(pathname);
   const useHubBackground =
     !isBuilder &&
     (pathname.startsWith('/dashboard') ||
-      pathname.startsWith('/opportunities') ||
-      pathname.startsWith('/applications') ||
-      pathname.startsWith('/team'));
+      pathname === '/settings' ||
+      pathname === '/messages' ||
+      isProviderHubRoute(pathname));
 
   return (
     <div className="app-layout">
@@ -72,17 +76,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <main
           className={cn(
             'flex-1',
-            isBuilder
-              ? 'p-0 pb-[88px] md:pb-0'
-              : isOppManagementHub || isDetailPage
-                ? 'px-5 pt-0 pb-[88px] md:p-6 md:pb-6'
-                : 'px-5 py-4 pb-[88px] md:p-6 md:pb-6',
-            useHubBackground && 'bg-white md:bg-[#F2F7FF]',
+            pathname === '/logout' && 'p-0',
+            pathname !== '/logout' &&
+              (isBuilder
+                ? 'p-0 pb-[88px] md:pb-0'
+                : isOppManagementHub || isDetailPage
+                  ? 'px-5 pt-0 pb-[88px] md:p-6 md:pb-6'
+                  : 'px-5 py-4 pb-[88px] md:p-6 md:pb-6'),
+            useHubBackground && pathname !== '/logout' && 'bg-white md:bg-[#F2F7FF]',
           )}
         >
           {children}
         </main>
-        <BottomNav />
+        {pathname !== '/logout' ? <BottomNav /> : null}
       </div>
     </div>
   );

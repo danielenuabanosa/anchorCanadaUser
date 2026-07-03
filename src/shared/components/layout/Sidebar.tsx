@@ -23,6 +23,7 @@ import { cn } from '@/lib/utils';
 import { useRouteHash } from '@/shared/hooks/useRouteHash';
 import { isNavActive } from '@/shared/lib/navActive';
 import { useAuthStore } from '@/store/authStore';
+import { isStaticMode } from '@/lib/staticMode';
 import { Avatar } from '@/shared/components/ui/Avatar';
 import anchorLogo from '@assets/icons/anchor-logo-full.png';
 import orgAvatar from '@assets/images/prov-sickkids.png';
@@ -32,16 +33,16 @@ const NAV_ITEMS = [
   { label: 'Opportunities', href: '/opportunities', icon: BadgeCheck },
   { label: 'Applications', href: '/applications', icon: FileText },
   { label: 'Providers Team', href: '/team', icon: Users },
-  { label: 'Analytics', href: '/dashboard#analytics', icon: BarChart3 },
-  { label: 'Messages', href: '/dashboard#messages', icon: MessageSquare, badge: 3 },
-  { label: 'Notifications', href: '/dashboard#notifications', icon: Bell, badge: 12 },
-  { label: 'Organization Profile', href: '/dashboard#profile', icon: Building2 },
-  { label: 'Settings', href: '/dashboard#settings', icon: Settings },
+  { label: 'Analytics', href: '/analytics', icon: BarChart3 },
+  { label: 'Messages', href: '/messages', icon: MessageSquare, badge: 3 },
+  { label: 'Notifications', href: '/notifications', icon: Bell, badge: 12 },
+  { label: 'Organization Profile', href: '/organization-profile', icon: Building2 },
+  { label: 'Settings', href: '/settings', icon: Settings },
 ] as const;
 
 const BOTTOM_NAV = [
-  { label: 'Help Center', href: '/dashboard#support', icon: HelpCircle },
-  { label: 'Logout', href: '/login', icon: LogOut },
+  { label: 'Help Center', href: '/help', icon: HelpCircle },
+  { label: 'Logout', href: '/logout', icon: LogOut },
 ] as const;
 
 function NavItem({
@@ -90,7 +91,7 @@ export function Sidebar() {
   const orgName = user?.name ?? 'Maple Future Nonprofit';
   const avatarSrc = user?.avatarUrl ?? orgAvatar.src;
 
-  if (!isAuthenticated) return null;
+  if (!isStaticMode() && !isAuthenticated) return null;
 
   return (
     <aside
@@ -143,7 +144,7 @@ export function Sidebar() {
 
           {/* Figma Frame 38 — org identity card #1C2436 */}
           <Link
-            href="/dashboard#profile"
+            href="/organization-profile"
             className="mt-2 flex h-[78px] w-full max-w-[320px] items-center gap-3 rounded-[10px] bg-[#1C2436] px-4 transition hover:bg-[#243047]"
           >
             <Avatar

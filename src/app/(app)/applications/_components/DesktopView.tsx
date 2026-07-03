@@ -9,9 +9,9 @@ import {
   ChevronRight,
   Download,
   Ellipsis,
-  Search,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { HubFilterBar } from '@/shared/components/hub/HubFilterBar';
 import { HubStatCard } from '@/app/(app)/opportunities/_components/HubStatCard';
 import { useProviderApplications } from '@/features/provider/hooks/useProviderHubData';
 import {
@@ -29,6 +29,7 @@ import {
   ExportApplicationsModal,
   RowActionsMenu,
 } from './ApplicationHubModals';
+import { ApplicationFilterModal } from './ApplicationFilterModal';
 
 const PAGE_SIZE = 10;
 
@@ -39,6 +40,7 @@ export default function DesktopView() {
   const [page, setPage] = useState(1);
   const [exportOpen, setExportOpen] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
   const [menuRowId, setMenuRowId] = useState<string | null>(null);
   const router = useRouter();
   const { rows: apiApplicants, loading, error } = useProviderApplications();
@@ -94,7 +96,7 @@ export default function DesktopView() {
         <button
           type="button"
           onClick={() => setExportOpen(true)}
-          className="inline-flex items-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white px-4 py-3 text-base font-medium text-[#0F172A]"
+          className="inline-flex items-center gap-2.5 rounded-[6px] border border-[#D9E1EF] bg-white px-4 py-2.5 text-base font-medium text-[#0F172A]"
         >
           <Download className="h-[18px] w-[18px]" />
           Export Report
@@ -107,36 +109,17 @@ export default function DesktopView() {
         ))}
       </div>
 
-      <div className="rounded-[10px] border border-[#EEF2F8] bg-white p-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative min-w-[200px] flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8C97AD]" />
-            <input
-              type="search"
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
-              placeholder="Search applicants..."
-              className="h-[42px] w-full rounded-[6px] border border-[#D9E1EF] bg-white pl-10 pr-3 text-sm text-[#0F172A] outline-none focus:border-[#2F66C8]"
-            />
-          </div>
-          {FILTER_LABELS.map((label) => (
-            <button
-              key={label}
-              type="button"
-              className="inline-flex items-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white px-3 py-2 text-sm text-[#44516A]"
-            >
-              {label}
-              <ChevronDown className="h-4 w-4" />
-            </button>
-          ))}
-          <button type="button" className="ml-auto text-sm font-medium text-[#2F66C8] hover:underline">
-            Clear Filters
-          </button>
-        </div>
-      </div>
+      <HubFilterBar
+        searchPlaceholder="Search applicants..."
+        searchValue={search}
+        onSearchChange={(value) => {
+          setSearch(value);
+          setPage(1);
+        }}
+        filters={FILTER_LABELS}
+        onFilterClick={() => setFilterOpen(true)}
+        onClear={() => setSearch('')}
+      />
 
       <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white">
         <div className="flex gap-2.5 overflow-x-auto border-b border-[#EEF2F8] px-2.5">
@@ -160,30 +143,31 @@ export default function DesktopView() {
           ))}
         </div>
 
-        <div className="flex items-center justify-between border-b border-[#EEF2F8] px-5 py-3">
-          <p className="text-sm text-[#44516A]">{selected.size} selected</p>
+        <div className="flex items-center justify-between border-b border-[#EEF2F8] px-5 py-2.5">
+          <p className="text-sm text-[#8C97AD]">{selected.size} selected</p>
           <div className="flex items-center gap-3">
             {selected.size > 0 ? (
               <button
                 type="button"
                 onClick={() => setAssignOpen(true)}
-                className="text-sm font-medium text-[#2F66C8] hover:underline"
+                className="text-sm font-medium text-[#2F66C8]"
               >
                 Assign Reviewer
               </button>
             ) : null}
+            <span className="text-sm text-[#44516A]">Sort by:</span>
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 text-sm text-[#44516A]"
+              className="inline-flex h-[45px] items-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white px-3 text-sm text-[#0F172A]"
             >
-              Sort by: Newest Applied
-              <ChevronDown className="h-4 w-4" />
+              Newest Applied
+              <ChevronDown className="h-3.5 w-3.5" />
             </button>
-            {loading ? <p className="text-sm text-[#8C97AD]">Loading applications…</p> : null}
+            {loading ? <p className="text-sm text-[#8C97AD]">Loading…</p> : null}
           </div>
         </div>
 
-        <div className="hidden border-b border-[#EEF2F8] px-5 md:grid md:grid-cols-[40px_1.2fr_1.2fr_140px_120px_140px_60px] md:gap-2.5">
+        <div className="hidden border-b border-[#EEF2F8] px-5 md:grid md:grid-cols-[40px_1fr_1fr_200px_140px_1fr_100px] md:gap-2.5">
           <div className="flex items-center py-3.5">
             <input
               type="checkbox"
@@ -199,69 +183,71 @@ export default function DesktopView() {
           ))}
         </div>
 
-        <div className="divide-y divide-[#EEF2F8] px-5">
+        <div className="px-5">
           {pageRows.map((row) => (
             <div
               key={row.id}
-              className="grid grid-cols-1 gap-3 py-4 md:grid-cols-[40px_1.2fr_1.2fr_140px_120px_140px_60px] md:items-center md:gap-2.5"
+              className="grid grid-cols-1 gap-3 border-b border-[#EEF2F8] py-0 last:border-b-0 md:grid-cols-[40px_1fr_1fr_200px_140px_1fr_100px] md:items-center md:gap-2.5 md:py-0"
             >
-              <div className="flex items-center">
+              <div className="flex h-[60px] items-center">
                 <input
                   type="checkbox"
                   checked={selected.has(row.id)}
                   onChange={() => toggleRow(row.id)}
-                  className="h-4 w-4 rounded border-[#D9E1EF] text-[#2F66C8]"
+                  className="h-[18px] w-[18px] rounded border-[#D9E1EF] bg-[#EEF2F8] text-[#2F66C8]"
                 />
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex h-[60px] items-center gap-2.5">
                 <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full">
                   <Image src={row.avatar} alt="" width={40} height={40} className="h-full w-full object-cover" />
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate text-base font-medium text-[#0F172A]">{row.applicant}</p>
-                  <p className="truncate text-sm text-[#8C97AD]">{row.location}</p>
+                  <p className="truncate text-sm font-medium text-[#0F172A]">{row.applicant}</p>
+                  <p className="truncate text-xs text-[#8C97AD]">{row.location}</p>
                 </div>
               </div>
-              <div className="min-w-0">
-                <p className="truncate text-base text-[#44516A]">{row.opportunity}</p>
+              <div className="flex h-[60px] min-w-0 flex-col justify-center">
+                <p className="truncate text-sm text-[#0F172A]">{row.opportunity}</p>
                 <span
                   className={cn(
-                    'mt-1 inline-flex rounded-[4px] px-1.5 py-0.5 text-xs font-medium',
+                    'mt-1 inline-flex w-fit rounded-[2px] px-1 py-0.5 text-xs',
                     OPPORTUNITY_TYPE_STYLES[row.opportunityType],
                   )}
                 >
                   {row.opportunityType}
                 </span>
               </div>
-              <div>
-                <p className="text-base text-[#44516A]">{row.appliedAt}</p>
-                {row.appliedTime ? <p className="text-sm text-[#8C97AD]">{row.appliedTime}</p> : null}
+              <div className="flex h-[60px] flex-col justify-center">
+                <p className="text-sm text-[#0F172A]">{row.appliedAt}</p>
+                {row.appliedTime ? <p className="text-xs text-[#8C97AD]">{row.appliedTime}</p> : null}
               </div>
-              <span
-                className={cn(
-                  'inline-flex w-fit rounded-[6px] px-1.5 py-0.5 text-sm font-medium',
-                  STATUS_STYLES[row.status],
-                )}
-              >
-                {row.status}
-              </span>
-              <div className="flex items-center gap-2">
+              <div className="flex h-[60px] items-center">
+                <span
+                  className={cn(
+                    'inline-flex w-fit rounded px-1.5 py-0.5 text-sm font-medium',
+                    STATUS_STYLES[row.status],
+                  )}
+                >
+                  {row.status}
+                </span>
+              </div>
+              <div className="flex h-[60px] items-center gap-2">
                 {row.reviewerAvatar ? (
                   <Image
                     src={row.reviewerAvatar}
                     alt=""
-                    width={28}
-                    height={28}
-                    className="h-7 w-7 rounded-full object-cover"
+                    width={24}
+                    height={24}
+                    className="h-6 w-6 rounded-full object-cover"
                   />
                 ) : null}
-                <p className="truncate text-sm text-[#44516A]">{row.reviewer ?? '—'}</p>
+                <p className="truncate text-sm font-medium text-[#0F172A]">{row.reviewer ?? '—'}</p>
               </div>
-              <div className="relative flex items-center gap-2">
+              <div className="relative flex h-[60px] items-center">
                 <button
                   type="button"
                   onClick={() => setMenuRowId(menuRowId === row.id ? null : row.id)}
-                  className="flex h-8 w-8 items-center justify-center rounded-[6px] border border-[#EEF2F8] text-[#44516A] hover:bg-[#F8FAFC]"
+                  className="flex h-8 w-8 items-center justify-center rounded-[6px] border border-[#EEF2F8] bg-white text-[#44516A]"
                 >
                   <Ellipsis className="h-[18px] w-[18px]" />
                 </button>
@@ -293,7 +279,7 @@ export default function DesktopView() {
               type="button"
               disabled={page <= 1}
               onClick={() => setPage((p) => p - 1)}
-              className="flex h-8 w-8 items-center justify-center rounded-[6px] border border-[#EEF2F8] disabled:opacity-40"
+              className="flex h-12 w-12 items-center justify-center rounded-[6px] border border-[#D9E1EF] bg-white disabled:opacity-40"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -303,8 +289,8 @@ export default function DesktopView() {
                 type="button"
                 onClick={() => setPage(n)}
                 className={cn(
-                  'flex h-8 min-w-8 items-center justify-center rounded-[6px] px-2 text-sm',
-                  page === n ? 'bg-[#2F66C8] text-white' : 'border border-[#EEF2F8] text-[#44516A]',
+                  'flex h-12 min-w-12 items-center justify-center rounded-[6px] px-6 text-base font-medium',
+                  page === n ? 'bg-[#2F66C8] text-white' : 'border border-[#D9E1EF] bg-white text-[#44516A]',
                 )}
               >
                 {n}
@@ -316,8 +302,8 @@ export default function DesktopView() {
                 type="button"
                 onClick={() => setPage(totalPages)}
                 className={cn(
-                  'flex h-8 min-w-8 items-center justify-center rounded-[6px] px-2 text-sm',
-                  page === totalPages ? 'bg-[#2F66C8] text-white' : 'border border-[#EEF2F8] text-[#44516A]',
+                  'flex h-12 min-w-12 items-center justify-center rounded-[6px] px-6 text-base font-medium',
+                  page === totalPages ? 'bg-[#2F66C8] text-white' : 'border border-[#D9E1EF] bg-white text-[#44516A]',
                 )}
               >
                 {totalPages}
@@ -327,7 +313,7 @@ export default function DesktopView() {
               type="button"
               disabled={page >= totalPages}
               onClick={() => setPage((p) => p + 1)}
-              className="flex h-8 w-8 items-center justify-center rounded-[6px] border border-[#EEF2F8] disabled:opacity-40"
+              className="flex h-12 w-12 items-center justify-center rounded-[6px] border border-[#D9E1EF] bg-white disabled:opacity-40"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
@@ -347,6 +333,7 @@ export default function DesktopView() {
 
       <ExportApplicationsModal open={exportOpen} onClose={() => setExportOpen(false)} />
       <AssignReviewerModal open={assignOpen} onClose={() => setAssignOpen(false)} />
+      <ApplicationFilterModal open={filterOpen} onClose={() => setFilterOpen(false)} />
     </div>
   );
 }

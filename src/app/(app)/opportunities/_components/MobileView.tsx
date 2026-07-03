@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { StartBuilderDropdown } from '@/features/opportunity-builder/components/StartBuilderDropdown';
-import { MobileAttentionPanel } from './MobileAttentionPanel';
 import { MobileHubPageHero } from './MobileHubPageHero';
 import { MobileHubStatGrid } from './MobileHubStatGrid';
 import { MobileHubTabs } from './MobileHubTabs';
@@ -12,7 +11,6 @@ import { MobileRecentActivityPanel } from './MobileRecentActivityPanel';
 import { useOpportunityHubSearch } from './useOpportunityHubSearch';
 import { useProviderOpportunities } from '@/features/provider/hooks/useProviderHubData';
 import {
-  ATTENTION_ALERTS,
   MOBILE_HUB_STATS,
   HUB_TABS,
   RECENT_ACTIVITY,
@@ -66,7 +64,6 @@ export default function MobileView() {
       </button>
 
       <MobileRecentActivityPanel items={RECENT_ACTIVITY.slice(0, 4)} />
-      <MobileAttentionPanel alerts={ATTENTION_ALERTS} />
     </div>
   );
 }

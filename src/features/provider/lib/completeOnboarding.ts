@@ -3,12 +3,15 @@
 import { useProviderOnboardingStore } from '@/store/onboardingStore';
 import { providerApi } from '@/features/provider/services/providerApi';
 import { getApiErrorMessage, getStoredToken } from '@/lib/apiError';
+import { isStaticMode } from '@/lib/staticMode';
 import {
   establishOnboardingSession,
   isOfflineProviderSession,
 } from '@/lib/providerSession';
 
 export async function completeProviderOnboarding() {
+  if (isStaticMode()) return;
+
   const state = useProviderOnboardingStore.getState();
   const payload = {
     journey: state.journey,
@@ -36,6 +39,11 @@ export async function completeProviderOnboarding() {
 
 /** Saves onboarding when signed in with a real account; otherwise opens a local dashboard session. */
 export async function finishActivation(): Promise<void> {
+  if (isStaticMode()) {
+    establishOnboardingSession();
+    return;
+  }
+
   const token = getStoredToken();
 
   if (token && !isOfflineProviderSession(token)) {

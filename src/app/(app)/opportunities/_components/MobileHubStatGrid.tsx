@@ -30,12 +30,12 @@ function TrendRow({ change, subtext }: { change?: string; subtext?: string }) {
   return (
     <div className="flex items-center gap-1.5">
       {change ? (
-        <span className="inline-flex items-center gap-1 rounded-[2px] bg-[#ECFDF5] px-1 py-0.5 text-[10px] leading-[13px] text-[#15803D]">
-          <ArrowUp className="h-2.5 w-2.5" />
+        <span className="inline-flex items-center gap-1 rounded-[2px] bg-[#ECFDF5] px-1 py-0.5 text-[10px] leading-none text-[#15803D]">
+          <ArrowUp className="h-2.5 w-2.5" strokeWidth={2.5} />
           {change}
         </span>
       ) : null}
-      {subtext ? <span className="text-[10px] leading-[13px] text-[#8C97AD]">{subtext}</span> : null}
+      {subtext ? <span className="text-[10px] leading-none text-[#8C97AD]">{subtext}</span> : null}
     </div>
   );
 }
@@ -49,9 +49,9 @@ export function MobileHubStatGrid({ stats }: MobileHubStatGridProps) {
         <div className="flex gap-5 rounded-[8px] border border-[#EEF2F8] bg-white p-4">
           <MobileStatIcon {...featured} />
           <div className="flex min-w-0 flex-1 flex-col justify-between gap-3">
-            <div>
-              <p className="text-xs leading-4 text-[#44516A]">{featured.label}</p>
-              <p className="text-2xl font-bold leading-[31px] text-[#0F172A]">{featured.value}</p>
+            <div className="space-y-1.5">
+              <p className="text-xs leading-none text-[#44516A]">{featured.label}</p>
+              <p className="text-2xl font-bold leading-none text-[#0F172A]">{featured.value}</p>
             </div>
             <TrendRow change={featured.change} subtext={featured.subtext} />
           </div>
@@ -66,8 +66,8 @@ export function MobileHubStatGrid({ stats }: MobileHubStatGridProps) {
           >
             <MobileStatIcon {...stat} />
             <div>
-              <p className="text-xs leading-4 text-[#44516A]">{stat.label}</p>
-              <p className="text-2xl font-bold leading-[31px] text-[#0F172A]">{stat.value}</p>
+              <p className="text-xs leading-none text-[#44516A]">{stat.label}</p>
+              <p className="mt-1.5 text-2xl font-bold leading-none text-[#0F172A]">{stat.value}</p>
               <div className="mt-1">
                 <TrendRow change={stat.change} subtext={stat.subtext} />
               </div>

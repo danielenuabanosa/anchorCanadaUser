@@ -73,7 +73,7 @@ export const QUICK_ACTIONS = [
   },
   {
     label: 'Invite Team Members',
-    href: '/dashboard#team',
+    href: '/team',
     icon: UserPlus,
     cardClass: 'bg-[#F2F9F2] border-[#DCEDE3]',
     iconWrapClass: 'bg-[#E0F2E2]',
@@ -82,7 +82,7 @@ export const QUICK_ACTIONS = [
   },
   {
     label: 'View Analytics',
-    href: '/dashboard#analytics',
+    href: '/analytics',
     icon: ChartColumnBig,
     cardClass: 'bg-[#F7F4FE] border-[#E4DFF9]',
     iconWrapClass: 'bg-[#EEE7FC]',
@@ -91,7 +91,7 @@ export const QUICK_ACTIONS = [
   },
   {
     label: 'Download Reports',
-    href: '/dashboard#reports',
+    href: '/analytics',
     icon: Download,
     cardClass: 'bg-[#FEF8EC] border-[#FDF1DC]',
     iconWrapClass: 'bg-[#FFF4DC]',

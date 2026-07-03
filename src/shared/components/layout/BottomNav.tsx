@@ -11,6 +11,10 @@ import {
   LayoutGrid,
   BarChart3,
   Settings,
+  Bell,
+  Building2,
+  HelpCircle,
+  LogOut,
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -21,12 +25,16 @@ const NAV_ITEMS = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/opportunities', icon: BadgeCheck, label: 'Opportunities' },
   { href: '/applications', icon: FileText, label: 'Applications' },
-  { href: '/dashboard#messages', icon: MessageSquare, label: 'Messages' },
+  { href: '/messages', icon: MessageSquare, label: 'Messages' },
 ] as const;
 
 const MORE_ITEMS = [
-  { href: '/dashboard#analytics', icon: BarChart3, label: 'Analytics' },
-  { href: '/dashboard#settings', icon: Settings, label: 'Settings' },
+  { href: '/analytics', icon: BarChart3, label: 'Analytics' },
+  { href: '/notifications', icon: Bell, label: 'Notifications' },
+  { href: '/help', icon: HelpCircle, label: 'Help Center' },
+  { href: '/organization-profile', icon: Building2, label: 'Organization Profile' },
+  { href: '/settings', icon: Settings, label: 'Settings' },
+  { href: '/logout', icon: LogOut, label: 'Logout' },
 ] as const;
 
 export function BottomNav() {

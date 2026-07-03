@@ -1,6 +1,7 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { clearStoredAuth, getStoredToken } from '@/lib/apiError';
 import { isOfflineProviderSession } from '@/lib/providerSession';
+import { isStaticMode } from '@/lib/staticMode';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
 
@@ -26,7 +27,7 @@ apiClient.interceptors.response.use(
       const isSessionCheck = url.includes('/auth/me');
       const token = getStoredToken();
 
-      if (isOfflineProviderSession(token)) {
+      if (isStaticMode() || isOfflineProviderSession(token)) {
         return Promise.reject(error);
       }
 

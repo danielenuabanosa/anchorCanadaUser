@@ -16,7 +16,7 @@ export function TeamActivityList({ className }: TeamActivityListProps) {
         className,
       )}
     >
-      <DashboardSectionHeader title="Team Activity" href="/dashboard#team" />
+      <DashboardSectionHeader title="Team Activity" href="/team" />
 
       <ul className="mt-5 flex flex-col">
         {TEAM_ACTIVITY.map((item) => {

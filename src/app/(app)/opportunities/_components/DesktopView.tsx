@@ -10,10 +10,6 @@ import Image from 'next/image';
 
 import {
 
-  ArrowRight,
-
-  ChevronDown,
-
   Download,
 
   Grid3X3,
@@ -25,6 +21,7 @@ import {
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { HubFilterBar } from '@/shared/components/hub/HubFilterBar';
 
 import { OpportunityGridCard } from '@/features/opportunity-builder/components/OpportunityGridCard';
 
@@ -111,7 +108,7 @@ export default function DesktopView() {
 
           type="button"
 
-          className="inline-flex items-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white px-4 py-3 text-base font-medium text-[#0F172A]"
+          className="inline-flex items-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white px-4 py-2.5 text-base font-medium text-[#0F172A]"
 
         >
 
@@ -137,91 +134,46 @@ export default function DesktopView() {
 
 
 
-      <div className="flex flex-wrap items-center gap-3 rounded-[10px] border border-[#EEF2F8] bg-white px-4 py-5">
-
-        {FILTER_LABELS.map((label) => (
-
-          <button
-
-            key={label}
-
-            type="button"
-
-            className="inline-flex items-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white px-3 py-2 text-sm text-[#44516A]"
-
-          >
-
-            {label}
-
-            <ChevronDown className="h-4 w-4" />
-
-          </button>
-
-        ))}
-
-        <div className="ml-auto flex items-center gap-2">
-
-          <button
-
-            type="button"
-
-            onClick={() => setViewMode('table')}
-
-            className={cn(
-
-              'inline-flex items-center gap-2 rounded-[6px] border px-3 py-2 text-sm',
-
-              viewMode === 'table'
-
-                ? 'border-[#2F66C8] bg-[#EFF4FF] text-[#2F66C8]'
-
-                : 'border-[#D9E1EF] bg-white text-[#44516A]',
-
-            )}
-
-          >
-
-            <LayoutList className="h-4 w-4" />
-
-            Table View
-
-          </button>
-
-          <button
-
-            type="button"
-
-            onClick={() => setViewMode('grid')}
-
-            className={cn(
-
-              'inline-flex items-center gap-2 rounded-[6px] border px-3 py-2 text-sm',
-
-              viewMode === 'grid'
-
-                ? 'border-[#2F66C8] bg-[#EFF4FF] text-[#2F66C8]'
-
-                : 'border-[#D9E1EF] bg-white text-[#44516A]',
-
-            )}
-
-          >
-
-            <Grid3X3 className="h-4 w-4" />
-
-            Grid View
-
-          </button>
-
-        </div>
-
-      </div>
+      <HubFilterBar
+        searchPlaceholder="Search opportunities..."
+        filters={FILTER_LABELS}
+        trailing={
+          <>
+            <button
+              type="button"
+              onClick={() => setViewMode('table')}
+              className={cn(
+                'inline-flex h-[45px] items-center gap-2.5 rounded-[6px] border px-3 text-sm',
+                viewMode === 'table'
+                  ? 'border-[#2F66C8] bg-[#EFF4FF] text-[#2F66C8]'
+                  : 'border-[#EEF2F8] bg-white text-[#0F172A]',
+              )}
+            >
+              <LayoutList className="h-[18px] w-[18px]" />
+              Table View
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('grid')}
+              className={cn(
+                'inline-flex h-[45px] items-center gap-2.5 rounded-[6px] border px-3 text-sm',
+                viewMode === 'grid'
+                  ? 'border-[#2F66C8] bg-[#EFF4FF] text-[#2F66C8]'
+                  : 'border-[#EEF2F8] bg-white text-[#0F172A]',
+              )}
+            >
+              <Grid3X3 className="h-[18px] w-[18px]" />
+              Grid View
+            </button>
+          </>
+        }
+      />
 
 
 
       <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white">
 
-        <div className="flex gap-2.5 overflow-x-auto border-b border-[#EEF2F8] px-2.5">
+        <div className="flex h-[52px] gap-2.5 overflow-x-auto border-b border-[#EEF2F8] px-2.5">
 
           {HUB_TABS.map((tab) => (
 
@@ -267,7 +219,7 @@ export default function DesktopView() {
 
                 (col) => (
 
-                  <p key={col} className="py-3.5 text-sm font-medium text-[#0F172A]">
+                  <p key={col} className="py-[14px] text-sm font-medium text-[#0F172A]">
 
                     {col}
 
@@ -315,13 +267,11 @@ export default function DesktopView() {
 
           <div className="mb-4 flex items-center justify-between">
 
-            <h3 className="text-lg font-medium text-[#0F172A]">Recent Applications</h3>
+            <h3 className="text-base font-semibold leading-[1.8] text-[#0F172A]">Recent Applications</h3>
 
-            <Link href="/applications" className="flex items-center gap-2 text-sm font-medium text-[#2F66C8]">
+            <Link href="/applications" className="text-base font-medium text-[#2F66C8]">
 
               View All
-
-              <ArrowRight className="h-4 w-4" />
 
             </Link>
 
@@ -331,24 +281,17 @@ export default function DesktopView() {
 
             {RECENT_ACTIVITY.map((item) => (
 
-              <li key={item.id} className="flex items-center gap-3">
-
+              <li key={item.id} className="flex items-center gap-4 py-2.5">
                 <div className="h-[52px] w-[52px] shrink-0 overflow-hidden rounded-full">
-
                   <Image src={item.avatar} alt="" width={52} height={52} className="h-full w-full object-cover" />
-
                 </div>
-
-                <div className="min-w-0 flex-1">
-
-                  <p className="truncate text-base font-medium text-[#0F172A]">{item.name}</p>
-
-                  <p className="truncate text-sm text-[#44516A]">{item.action}</p>
-
+                <div className="flex min-w-0 flex-1 items-end justify-between gap-5">
+                  <div className="min-w-0">
+                    <p className="truncate text-base font-medium text-[#0F172A]">{item.name}</p>
+                    <p className="truncate text-sm text-[#44516A]">{item.action}</p>
+                  </div>
+                  <span className="shrink-0 text-sm text-[#44516A]">{item.time}</span>
                 </div>
-
-                <span className="shrink-0 text-sm text-[#44516A]">{item.time}</span>
-
               </li>
 
             ))}
@@ -363,13 +306,11 @@ export default function DesktopView() {
 
           <div className="mb-4 flex items-center justify-between">
 
-            <h3 className="text-lg font-medium text-[#0F172A]">Opportunity Requiring Attention</h3>
+            <h3 className="text-base font-semibold leading-[1.8] text-[#0F172A]">Opportunity Requiring Attention</h3>
 
-            <Link href="/applications" className="flex items-center gap-2 text-sm font-medium text-[#2F66C8]">
+            <Link href="/applications" className="text-base font-medium text-[#2F66C8]">
 
               View All
-
-              <ArrowRight className="h-4 w-4" />
 
             </Link>
 

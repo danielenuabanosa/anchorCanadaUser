@@ -17,12 +17,17 @@ import {
 import { cn } from '@/lib/utils';
 import {
   APPLICATION_DETAIL_TABS,
-  DEFAULT_APPLICATION_DETAIL,
   STAGE_STYLES,
+  getApplicationDetail,
+  getStageActions,
   type ApplicationDetailTab,
 } from './applicationDetailData';
+import {
+  ApplicationActionsDropdown,
+  APPLICATION_ACTION_ITEMS,
+} from '../../_components/ApplicationActionsDropdown';
 
-function OverviewPanel({ data }: { data: typeof DEFAULT_APPLICATION_DETAIL }) {
+function OverviewPanel({ data }: { data: ReturnType<typeof getApplicationDetail> }) {
   return (
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-[280px_1fr]">
       <div className="rounded-[10px] border border-[#EEF2F8] bg-white p-5">
@@ -70,7 +75,7 @@ function OverviewPanel({ data }: { data: typeof DEFAULT_APPLICATION_DETAIL }) {
   );
 }
 
-function ApplicationPanel({ data }: { data: typeof DEFAULT_APPLICATION_DETAIL }) {
+function ApplicationPanel({ data }: { data: ReturnType<typeof getApplicationDetail> }) {
   return (
     <div className="space-y-4">
       {data.answers.map((item) => (
@@ -83,7 +88,7 @@ function ApplicationPanel({ data }: { data: typeof DEFAULT_APPLICATION_DETAIL })
   );
 }
 
-function DocumentsPanel({ data }: { data: typeof DEFAULT_APPLICATION_DETAIL }) {
+function DocumentsPanel({ data }: { data: ReturnType<typeof getApplicationDetail> }) {
   return (
     <div className="divide-y divide-[#EEF2F8] rounded-[10px] border border-[#EEF2F8]">
       {data.documents.map((doc) => (
@@ -101,7 +106,7 @@ function DocumentsPanel({ data }: { data: typeof DEFAULT_APPLICATION_DETAIL }) {
   );
 }
 
-function EvaluationPanel({ data }: { data: typeof DEFAULT_APPLICATION_DETAIL }) {
+function EvaluationPanel({ data }: { data: ReturnType<typeof getApplicationDetail> }) {
   return (
     <div className="rounded-[10px] border border-[#EEF2F8] p-5">
       <p className="text-[14px] text-[#8C97AD]">Overall Score</p>
@@ -117,7 +122,7 @@ function EvaluationPanel({ data }: { data: typeof DEFAULT_APPLICATION_DETAIL }) 
   );
 }
 
-function ActivityPanel({ data }: { data: typeof DEFAULT_APPLICATION_DETAIL }) {
+function ActivityPanel({ data }: { data: ReturnType<typeof getApplicationDetail> }) {
   return (
     <div className="space-y-3">
       {data.activity.map((item) => (
@@ -133,9 +138,18 @@ function ActivityPanel({ data }: { data: typeof DEFAULT_APPLICATION_DETAIL }) {
   );
 }
 
-export function ApplicationDetailView({ variant }: { variant: 'desktop' | 'mobile' }) {
+export function ApplicationDetailView({
+  variant,
+  applicationId,
+}: {
+  variant: 'desktop' | 'mobile';
+  applicationId: string;
+}) {
   const [tab, setTab] = useState<ApplicationDetailTab>('overview');
-  const data = DEFAULT_APPLICATION_DETAIL;
+  const [actionOpen, setActionOpen] = useState(false);
+  const data = getApplicationDetail(applicationId);
+  const stageActions = getStageActions(data.stage);
+  const actionItems = APPLICATION_ACTION_ITEMS.filter((item) => stageActions.includes(item.label));
 
   return (
     <div className={cn('flex flex-col gap-5', variant === 'mobile' && 'pb-4')}>
@@ -185,7 +199,7 @@ export function ApplicationDetailView({ variant }: { variant: 'desktop' | 'mobil
               </div>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="relative flex gap-2">
             <button
               type="button"
               className="rounded-[6px] border border-[#D9E1EF] px-5 py-2.5 text-[14px] font-medium text-[#0F172A]"
@@ -194,11 +208,19 @@ export function ApplicationDetailView({ variant }: { variant: 'desktop' | 'mobil
             </button>
             <button
               type="button"
+              onClick={() => setActionOpen((o) => !o)}
               className="inline-flex items-center gap-2 rounded-[6px] bg-[#2F66C8] px-5 py-2.5 text-[14px] font-medium text-white"
             >
               Action
               <ChevronDown className="h-4 w-4" />
             </button>
+            {actionOpen ? (
+              <ApplicationActionsDropdown
+                open={actionOpen}
+                onClose={() => setActionOpen(false)}
+                items={actionItems}
+              />
+            ) : null}
           </div>
         </div>
 

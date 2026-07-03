@@ -60,8 +60,104 @@ export const DEFAULT_APPLICATION_DETAIL = {
   ],
 };
 
+export type ApplicationDetail = typeof DEFAULT_APPLICATION_DETAIL;
+
+const STAGE_VARIANTS: Record<string, Partial<ApplicationDetail>> = {
+  '2': {
+    applicant: 'James Wilson',
+    email: 'james.wilson@email.com',
+    location: 'Vancouver, BC, Canada',
+    appliedFor: 'Healthcare Access Grant',
+    opportunityType: 'External Opportunity',
+    stage: 'Shortlisted',
+    stageSince: 'Jun 11, 2026',
+    score: 88,
+    timeline: [
+      { label: 'Application Submitted', date: 'Jun 11, 2026', done: true },
+      { label: 'Under Review', date: 'Jun 11, 2026', done: true },
+      { label: 'Shortlist', date: 'Jun 12, 2026', done: true, current: true },
+      { label: 'Interview', date: 'Pending', done: false },
+      { label: 'Decision', date: 'Pending', done: false },
+    ],
+  },
+  '3': {
+    applicant: 'Priya Sharma',
+    email: 'priya.sharma@email.com',
+    location: 'Calgary, AB, Canada',
+    appliedFor: 'Youth Leadership Program',
+    opportunityType: 'Express Interest',
+    stage: 'Interview',
+    stageSince: 'Jun 10, 2026',
+    score: 95,
+    timeline: [
+      { label: 'Application Submitted', date: 'Jun 10, 2026', done: true },
+      { label: 'Under Review', date: 'Jun 10, 2026', done: true },
+      { label: 'Shortlist', date: 'Jun 11, 2026', done: true },
+      { label: 'Interview', date: 'Jun 12, 2026', done: true, current: true },
+      { label: 'Decision', date: 'Pending', done: false },
+    ],
+  },
+  '4': {
+    applicant: 'Marcus Lee',
+    email: 'marcus.lee@email.com',
+    location: 'Montreal, QC, Canada',
+    appliedFor: 'Community Youth Mentorship',
+    stage: 'Accepted',
+    stageSince: 'Jun 9, 2026',
+    score: 97,
+    timeline: [
+      { label: 'Application Submitted', date: 'Jun 9, 2026', done: true },
+      { label: 'Under Review', date: 'Jun 9, 2026', done: true },
+      { label: 'Shortlist', date: 'Jun 10, 2026', done: true },
+      { label: 'Interview', date: 'Jun 11, 2026', done: true },
+      { label: 'Decision', date: 'Jun 12, 2026', done: true, current: true },
+    ],
+  },
+  '5': {
+    applicant: 'Emily Zhang',
+    email: 'emily.zhang@email.com',
+    location: 'Ottawa, ON, Canada',
+    appliedFor: 'Summer Internship Program',
+    stage: 'Rejected',
+    stageSince: 'Jun 8, 2026',
+    score: 62,
+    timeline: [
+      { label: 'Application Submitted', date: 'Jun 8, 2026', done: true },
+      { label: 'Under Review', date: 'Jun 8, 2026', done: true },
+      { label: 'Shortlist', date: '—', done: false },
+      { label: 'Interview', date: '—', done: false },
+      { label: 'Decision', date: 'Jun 9, 2026', done: true, current: true },
+    ],
+    notes: [
+      { author: 'David Chen', date: 'Jun 9, 2026', text: 'Application does not meet minimum eligibility criteria for this cycle.' },
+    ],
+  },
+};
+
+export function getApplicationDetail(id: string): ApplicationDetail {
+  const variant = STAGE_VARIANTS[id];
+  if (!variant) return { ...DEFAULT_APPLICATION_DETAIL, id: `APP-2026-000${id.padStart(3, '0')}` };
+  return {
+    ...DEFAULT_APPLICATION_DETAIL,
+    id: `APP-2026-000${id.padStart(3, '0')}`,
+    ...variant,
+  };
+}
+
+export const STAGE_ACTIONS: Record<ApplicationStage, readonly string[]> = {
+  'Under Review': ['View Applicant', 'Shortlist Applicant', 'Reject Applicant', 'Assign Reviewer', 'Add Note', 'Download Submission'],
+  Shortlisted: ['View Applicant', 'Reject Applicant', 'Assign Reviewer', 'Add Note', 'Download Submission'],
+  Interview: ['View Applicant', 'Reject Applicant', 'Assign Reviewer', 'Add Note', 'Download Submission'],
+  Accepted: ['View Applicant', 'Add Note', 'Download Submission'],
+  Rejected: ['View Applicant', 'Add Note', 'Download Submission'],
+};
+
+export function getStageActions(stage: ApplicationStage): readonly string[] {
+  return STAGE_ACTIONS[stage];
+}
+
 export const STAGE_STYLES: Record<ApplicationStage, string> = {
-  'Under Review': 'bg-[#FFEDD5] text-[#C2410C]',
+  'Under Review': 'bg-[#FDEFDF] text-[#E74603]',
   Shortlisted: 'bg-[#EFE8FD] text-[#7C3AED]',
   Interview: 'bg-[#FEF4DD] text-[#B45309]',
   Accepted: 'bg-[#ECFDF5] text-[#15803D]',

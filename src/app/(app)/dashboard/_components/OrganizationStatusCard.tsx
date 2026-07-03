@@ -48,7 +48,7 @@ export function OrganizationStatusCard({ className = '' }: { className?: string 
       </div>
 
       <Link
-        href="/dashboard#profile"
+        href="/organization-profile"
         className="mt-5 flex h-[45px] w-full items-center justify-center gap-2.5 rounded-[6px] border border-[#D9E1EF] bg-[#EFF4FF] text-sm font-medium text-[#2F66C8] hover:bg-[#E5EEFF]"
       >
         View Organization Profile

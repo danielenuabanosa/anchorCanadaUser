@@ -87,10 +87,12 @@ export function MemberActionsMenu({
   open,
   member,
   onClose,
+  variant = 'dropdown',
 }: {
   open: boolean;
   member: TeamMemberRow;
   onClose: () => void;
+  variant?: 'dropdown' | 'sheet';
 }) {
   if (!open) return null;
 
@@ -106,6 +108,36 @@ export function MemberActionsMenu({
         { label: 'Suspend Member', icon: UserMinus },
         { label: 'Remove Member', icon: UserX, danger: true },
       ];
+
+  if (variant === 'sheet') {
+    return (
+      <div className="fixed inset-0 z-50 md:hidden">
+        <button type="button" className="absolute inset-0 bg-black/30" onClick={onClose} aria-label="Close menu" />
+        <div className="absolute bottom-0 left-0 right-0 rounded-t-[16px] bg-white pb-8">
+          <div className="border-b border-[#EEF2F8] px-5 py-4">
+            <p className="text-base font-medium text-[#0F172A]">{member.name}</p>
+            <p className="text-sm text-[#8C97AD]">Member actions</p>
+          </div>
+          <div className="py-2">
+            {items.map((item) => (
+              <button
+                key={item.label}
+                type="button"
+                onClick={onClose}
+                className={cn(
+                  'flex w-full items-center gap-3 px-5 py-3.5 text-left text-sm hover:bg-[#F8FAFC]',
+                  item.danger ? 'text-[#B91C1C]' : 'text-[#0F172A]',
+                )}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

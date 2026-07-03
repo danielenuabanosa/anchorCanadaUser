@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Download, FileText, UserPlus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import avatar2 from '@assets/images/profile-google.png';
+import { ApplicationActionsDropdown, APPLICATION_ACTION_ITEMS } from './ApplicationActionsDropdown';
 
 interface ExportModalProps {
   open: boolean;
@@ -152,32 +153,60 @@ export function RowActionsMenu({
   onView: () => void;
   onAssignReviewer?: () => void;
 }) {
-  if (!open) return null;
-  const items = [
-    { label: 'View Applicant', icon: FileText, action: onView },
-    { label: 'Shortlist Applicant', icon: UserPlus, action: onClose },
-    { label: 'Reject Applicant', icon: X, action: onClose },
-    { label: 'Assign Reviewer', icon: UserPlus, action: onAssignReviewer ?? onClose },
-    { label: 'Add Note', icon: FileText, action: onClose },
-    { label: 'Download Submission', icon: Download, action: onClose },
-  ];
+  const handlers: Record<string, () => void> = {
+    'View Applicant': onView,
+    'Assign Reviewer': onAssignReviewer ?? onClose,
+  };
+
   return (
-    <>
-      <button type="button" className="fixed inset-0 z-40" onClick={onClose} aria-label="Close menu" />
-      <div className="absolute right-0 top-full z-50 mt-1 min-w-[200px] overflow-hidden rounded-[8px] border border-[#EEF2F8] bg-white py-1 shadow-lg">
-        {items.map((item) => (
-          <button
-            key={item.label}
-            type="button"
-            onClick={item.action}
-            className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-[14px] text-[#0F172A] hover:bg-[#F8FAFC]"
-          >
-            <item.icon className="h-4 w-4 text-[#44516A]" />
-            {item.label}
-          </button>
-        ))}
+    <ApplicationActionsDropdown
+      open={open}
+      onClose={onClose}
+      onAction={(label) => (handlers[label] ?? onClose)()}
+    />
+  );
+}
+
+export function MobileRowActionsSheet({
+  open,
+  onClose,
+  onView,
+  onAssignReviewer,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onView: () => void;
+  onAssignReviewer?: () => void;
+}) {
+  if (!open) return null;
+
+  const handlers: Record<string, () => void> = {
+    'View Applicant': onView,
+    'Assign Reviewer': onAssignReviewer ?? onClose,
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 md:hidden">
+      <button type="button" className="absolute inset-0 bg-black/30" onClick={onClose} aria-label="Close menu" />
+      <div className="absolute bottom-0 left-0 right-0 rounded-t-[16px] bg-white pb-8">
+        <div className="border-b border-[#EEF2F8] px-5 py-4">
+          <p className="text-base font-medium text-[#0F172A]">Applicant Actions</p>
+        </div>
+        <div className="py-2">
+          {APPLICATION_ACTION_ITEMS.map((item) => (
+            <button
+              key={item.label}
+              type="button"
+              onClick={() => (handlers[item.label] ?? onClose)()}
+              className="flex w-full items-center gap-3 border-b border-[#EEF2F8] px-5 py-3.5 text-left text-sm text-[#0F172A] last:border-b-0 hover:bg-[#F8FAFC]"
+            >
+              <item.icon className="h-[18px] w-[18px] shrink-0 text-[#44516A]" strokeWidth={1.75} />
+              {item.label}
+            </button>
+          ))}
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 

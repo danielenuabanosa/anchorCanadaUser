@@ -46,14 +46,14 @@ export function Topbar() {
           </Link>
           <div className="flex items-center gap-5">
             <Link
-              href="/dashboard#settings"
+              href="/settings"
               className="text-[#44516A] transition-colors hover:text-[#0F172A]"
               aria-label="Settings"
             >
               <Settings className="h-[22px] w-[22px]" strokeWidth={1.75} />
             </Link>
             <Link
-              href="/dashboard#notifications"
+              href="/notifications"
               className="relative inline-flex h-[21px] w-[21px] shrink-0 items-center justify-center text-[#44516A] transition-colors hover:text-[#0F172A]"
               aria-label="Notifications, 3 unread"
             >
@@ -63,7 +63,7 @@ export function Topbar() {
               </span>
             </Link>
             <Link
-              href="/dashboard#profile"
+              href="/organization-profile"
               className="flex items-center gap-2.5 text-[#44516A] transition-colors hover:text-[#0F172A]"
               aria-label="Profile"
             >
@@ -94,13 +94,13 @@ export function Topbar() {
         </form>
 
         <div className="ml-auto flex shrink-0 items-center gap-5">
-          <Link href="/dashboard#notifications" className="relative flex h-8 w-8 items-center justify-center text-[#44516A]" aria-label="Notifications">
+          <Link href="/notifications" className="relative flex h-8 w-8 items-center justify-center text-[#44516A]" aria-label="Notifications">
             <Bell className="h-[21px] w-[21px]" strokeWidth={1.75} />
             <span className="absolute -right-0.5 top-0 flex h-[10px] min-w-[12px] items-center justify-center rounded-[5px] bg-[#EF4444] px-0.5 text-[9px] font-medium leading-none text-white">
               12
             </span>
           </Link>
-          <Link href="/dashboard#messages" className="flex h-8 w-8 items-center justify-center text-[#44516A]" aria-label="Messages">
+          <Link href="/messages" className="flex h-8 w-8 items-center justify-center text-[#44516A]" aria-label="Messages">
             <MessageCircle className="h-[21px] w-[21px]" strokeWidth={1.75} />
           </Link>
           <button type="button" className="flex items-center gap-2 rounded-lg p-0.5 hover:bg-[#F8FAFC]" aria-label="Team members">

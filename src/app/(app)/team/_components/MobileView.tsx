@@ -12,17 +12,20 @@ import {
   TEAM_STATS,
 } from './teamManagementData';
 
-import { InviteTeamMemberModal } from './TeamHubModals';
+import { InviteTeamMemberModal, MemberActionsMenu } from './TeamHubModals';
 
 export default function MobileView() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [menuMemberId, setMenuMemberId] = useState<string | null>(null);
   const mobileStats = TEAM_STATS.map((s) => ({
     ...s,
     icon: s.icon,
     iconBg: s.iconBg,
     iconColor: s.iconColor,
   }));
+
+  const menuMember = TEAM_MEMBERS.find((m) => m.id === menuMemberId);
 
   return (
     <div className="flex flex-col gap-5 pb-4">
@@ -71,7 +74,11 @@ export default function MobileView() {
                 <p>Department: {member.department}</p>
                 <p>Last active: {member.lastActive}</p>
                 <p>{member.permissions}</p>
-                <button type="button" className="mt-2 inline-flex items-center gap-2 text-[#2F66C8]">
+                <button
+                  type="button"
+                  onClick={() => setMenuMemberId(member.id)}
+                  className="mt-2 inline-flex items-center gap-2 text-[#2F66C8]"
+                >
                   <Ellipsis className="h-4 w-4" />
                   Actions
                 </button>
@@ -82,6 +89,14 @@ export default function MobileView() {
       </div>
 
       <InviteTeamMemberModal open={inviteOpen} onClose={() => setInviteOpen(false)} />
+      {menuMember ? (
+        <MemberActionsMenu
+          open={!!menuMemberId}
+          member={menuMember}
+          variant="sheet"
+          onClose={() => setMenuMemberId(null)}
+        />
+      ) : null}
     </div>
   );
 }

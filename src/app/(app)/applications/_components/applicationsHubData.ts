@@ -1,12 +1,13 @@
 import type { StaticImageData } from 'next/image';
 import type { ElementType } from 'react';
 import {
-  BookOpen,
-  Calendar,
+  BookOpenCheck,
+  CalendarDays,
   CircleCheckBig,
-  Lock,
+  LockKeyhole,
   Rocket,
   UserX,
+  Users,
 } from 'lucide-react';
 import avatar1 from '@assets/images/profile-avatar.png';
 import avatar2 from '@assets/images/profile-google.png';
@@ -62,7 +63,7 @@ export const APPLICATION_STATS: ApplicationStat[] = [
   {
     label: 'Total Applications',
     value: '1,284',
-    change: '+13%',
+    change: '12%',
     subtext: 'from last 30 days',
     icon: Rocket,
     iconBg: 'bg-[#EDF9F1]',
@@ -71,46 +72,45 @@ export const APPLICATION_STATS: ApplicationStat[] = [
   {
     label: 'Under Review',
     value: 342,
-    change: '+8%',
+    change: '8%',
     subtext: 'from last 30 days',
-    icon: BookOpen,
+    icon: BookOpenCheck,
     iconBg: 'bg-[#FFF3E3]',
     iconColor: 'text-[#D97706]',
   },
   {
     label: 'Shortlisted',
     value: 126,
-    change: '+5%',
+    change: '5%',
     subtext: 'from last 30 days',
-    icon: Calendar,
+    icon: CalendarDays,
     iconBg: 'bg-[#EFE8FD]',
     iconColor: 'text-[#7C3AED]',
   },
   {
     label: 'Interview',
     value: 48,
-    change: '+2%',
+    change: '2%',
     subtext: 'from last 30 days',
-    icon: Lock,
-    iconBg: 'bg-[#FFEEF4]',
+    icon: LockKeyhole,
+    iconBg: 'bg-[#FEE8E9]',
     iconColor: 'text-[#DB2777]',
   },
   {
     label: 'Accepted',
     value: 31,
-    change: '+3%',
+    change: '3%',
     subtext: 'from last 30 days',
-    icon: CircleCheckBig,
+    icon: Users,
     iconBg: 'bg-[#ECF2FE]',
     iconColor: 'text-[#2F66C8]',
   },
   {
     label: 'Rejected',
     value: 737,
-    change: '-7%',
-    changeNegative: true,
+    change: '7%',
     subtext: 'from last 30 days',
-    icon: UserX,
+    icon: Users,
     iconBg: 'bg-[#ECF2FE]',
     iconColor: 'text-[#2F66C8]',
   },
@@ -136,9 +136,9 @@ export const FILTER_LABELS = [
 ] as const;
 
 export const OPPORTUNITY_TYPE_STYLES: Record<OpportunityTypeTag, string> = {
-  Internal: 'bg-[#ECFDF5] text-[#15803D]',
-  External: 'bg-[#F6F0FF] text-[#422EC0]',
-  'Express Interest': 'bg-[#E9F5F1] text-[#15803D]',
+  Internal: 'border border-[#E8E1FF] bg-[#F3EEFE] text-[#451EE1]',
+  External: 'border border-[#E8E1FF] bg-[#F3EEFE] text-[#451EE1]',
+  'Express Interest': 'border border-[#E8E1FF] bg-[#F3EEFE] text-[#451EE1]',
 };
 
 export const APPLICANTS: ApplicantRow[] = [
@@ -310,7 +310,7 @@ export const APPLICANTS: ApplicantRow[] = [
 ];
 
 export const STATUS_STYLES: Record<ApplicationStatus, string> = {
-  'Under Review': 'bg-[#FFEDD5] text-[#C2410C]',
+  'Under Review': 'bg-[#FDEFDF] text-[#E74603]',
   Shortlisted: 'bg-[#EFE8FD] text-[#7C3AED]',
   Interview: 'bg-[#FEF4DD] text-[#B45309]',
   Accepted: 'bg-[#ECFDF5] text-[#15803D]',

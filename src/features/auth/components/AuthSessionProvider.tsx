@@ -5,6 +5,7 @@ import { authService } from '@/features/auth/services/auth.service';
 import { useAuthStore } from '@/store/authStore';
 import { getStoredToken } from '@/lib/apiError';
 import { isOfflineProviderSession } from '@/lib/providerSession';
+import { isStaticMode } from '@/lib/staticMode';
 
 export function AuthSessionProvider({ children }: { children: React.ReactNode }) {
   const setAuth = useAuthStore((s) => s.setAuth);
@@ -15,7 +16,7 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
 
     async function syncSession() {
       const token = getStoredToken();
-      if (isOfflineProviderSession(token)) {
+      if (isStaticMode() || isOfflineProviderSession(token)) {
         return;
       }
 
