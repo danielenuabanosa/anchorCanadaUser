@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
@@ -8,6 +9,12 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'api.dicebear.com' },
     ],
   },
+=======
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  output: "standalone",
+>>>>>>> provider/main
 };
 
 export default nextConfig;
