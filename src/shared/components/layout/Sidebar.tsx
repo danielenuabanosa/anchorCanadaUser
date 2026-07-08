@@ -5,45 +5,57 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import type { ElementType } from 'react';
 import {
-  LayoutDashboard,
+  House,
   BadgeCheck,
   FileText,
-  BarChart3,
+  ChartPie,
   Users,
-  MessageSquare,
   Bell,
   Building2,
   Settings,
-  HelpCircle,
+  CircleHelp,
   LogOut,
   ChevronRight,
-  CircleCheckBig,
+  ShieldCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouteHash } from '@/shared/hooks/useRouteHash';
 import { isNavActive } from '@/shared/lib/navActive';
 import { useAuthStore } from '@/store/authStore';
+import { useHelpCenterStore } from '@/store/helpCenterStore';
 import { isStaticMode } from '@/lib/staticMode';
 import { Avatar } from '@/shared/components/ui/Avatar';
 import anchorLogo from '@assets/icons/anchor-logo-full.png';
 import orgAvatar from '@assets/images/prov-sickkids.png';
 
 const NAV_ITEMS = [
-  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Dashboard', href: '/dashboard', icon: House },
   { label: 'Opportunities', href: '/opportunities', icon: BadgeCheck },
   { label: 'Applications', href: '/applications', icon: FileText },
   { label: 'Providers Team', href: '/team', icon: Users },
-  { label: 'Analytics', href: '/analytics', icon: BarChart3 },
-  { label: 'Messages', href: '/messages', icon: MessageSquare, badge: 3 },
+  { label: 'Analytics', href: '/analytics', icon: ChartPie },
   { label: 'Notifications', href: '/notifications', icon: Bell, badge: 12 },
   { label: 'Organization Profile', href: '/organization-profile', icon: Building2 },
   { label: 'Settings', href: '/settings', icon: Settings },
 ] as const;
 
 const BOTTOM_NAV = [
-  { label: 'Help Center', href: '/help', icon: HelpCircle },
-  { label: 'Logout', href: '/logout', icon: LogOut },
+  { label: 'Help Center', href: '/help', icon: CircleHelp },
+  { label: 'Logout', href: '/logout', icon: LogOut, logout: true },
 ] as const;
+
+function NavBadge({ count, active }: { count: number; active: boolean }) {
+  return (
+    <span
+      className={cn(
+        'flex h-6 shrink-0 items-center justify-center rounded-xl px-[7px] pb-px pt-0.5 text-base leading-none',
+        active ? 'bg-white text-[#2F66C8]' : 'bg-[#2F66C8] text-white',
+      )}
+    >
+      {count}
+    </span>
+  );
+}
 
 function NavItem({
   label,
@@ -51,34 +63,45 @@ function NavItem({
   icon: Icon,
   badge,
   active,
+  logout,
 }: {
   label: string;
   href: string;
   icon: ElementType;
   badge?: number;
   active: boolean;
+  logout?: boolean;
 }) {
+  const isLogoutActive = logout && active;
+
   return (
     <Link
       href={href}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'relative flex h-14 w-full max-w-[320px] items-center gap-4 rounded-[10px] px-4 transition-colors',
-        active ? 'bg-[#2F66C8] text-white' : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white',
+        'group flex w-full items-center rounded-[10px] p-4 transition-colors',
+        badge ? 'justify-between' : 'gap-5',
+        isLogoutActive
+          ? 'bg-[#EF4444] text-white'
+          : active
+            ? 'bg-[#2F66C8] text-white'
+            : 'text-[#8C97AD] hover:bg-[#1C2436] hover:text-white',
       )}
     >
-      <Icon className="h-6 w-6 shrink-0" strokeWidth={1.75} aria-hidden />
-      <span className="flex-1 text-base font-medium leading-[21px]">{label}</span>
-      {badge ? (
-        <span
+      <span className={cn('flex min-w-0 items-center gap-5', badge && 'max-w-[240px] flex-1')}>
+        <Icon
           className={cn(
-            'flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-sm font-medium',
-            active ? 'bg-white/20 text-white' : 'bg-[#2F66C8] text-white',
+            'h-6 w-6 shrink-0',
+            active || isLogoutActive ? 'text-white' : 'text-[#8C97AD] group-hover:text-white',
           )}
-        >
-          {badge}
+          strokeWidth={1.75}
+          aria-hidden
+        />
+        <span className={cn('truncate text-base leading-none', active ? 'font-medium' : 'font-normal')}>
+          {label}
         </span>
-      ) : null}
+      </span>
+      {badge ? <NavBadge count={badge} active={active} /> : null}
     </Link>
   );
 }
@@ -87,6 +110,8 @@ export function Sidebar() {
   const pathname = usePathname();
   const hash = useRouteHash();
   const { user, isAuthenticated } = useAuthStore();
+  const helpCenterOpen = useHelpCenterStore((s) => s.isOpen || s.reportOpen);
+  const openHelpCenter = useHelpCenterStore((s) => s.open);
 
   const orgName = user?.name ?? 'Maple Future Nonprofit';
   const avatarSrc = user?.avatarUrl ?? orgAvatar.src;
@@ -94,28 +119,25 @@ export function Sidebar() {
   if (!isStaticMode() && !isAuthenticated) return null;
 
   return (
-    <aside
-      className="app-sidebar relative z-30 hidden h-screen w-[360px] shrink-0 flex-col bg-[#0F172A] md:flex"
-      aria-label="Provider navigation"
-    >
-      {/* Figma Frame 26 — logo + Provider Portal label, 110px */}
-      <div className="flex h-[110px] shrink-0 flex-col justify-center px-5">
-        <Link href="/dashboard" aria-label="Anchor Canada Provider Portal" className="inline-flex w-fit">
-          <Image
-            src={anchorLogo}
-            alt="Anchor Canada"
-            width={153}
-            height={50}
-            priority
-            className="h-[50px] w-auto"
-          />
-        </Link>
-        <p className="mt-1 pl-[51px] text-[13px] leading-[13px] text-[#8C97AD]">Provider Portal</p>
-      </div>
+    <aside className="app-sidebar relative z-30 hidden shrink-0 flex-col justify-between border-r border-[#EEF2F8] bg-[#0F172A] md:flex" aria-label="Provider navigation">
+      <div className="flex w-full shrink-0 flex-col">
+        <div className="shrink-0 border-b border-[#2F3B52] px-5 py-[30px]">
+          <Link href="/dashboard" aria-label="Anchor Canada Provider Portal" className="relative inline-flex flex-col gap-2.5">
+            <Image
+              src={anchorLogo}
+              alt="Anchor Canada"
+              width={153}
+              height={50}
+              priority
+              className="h-[50px] w-auto"
+            />
+            <span className="absolute left-[51px] top-9 text-[10px] font-medium leading-none text-[#8C97AD]">
+              Provider Portal
+            </span>
+          </Link>
+        </div>
 
-      {/* Primary nav — Figma 320×56 items, 10px gap */}
-      <nav className="flex flex-1 flex-col px-5" aria-label="Primary">
-        <div className="flex flex-col gap-2.5">
+        <nav className="flex flex-col gap-2.5 p-5" aria-label="Primary">
           {NAV_ITEMS.map(({ label, href, icon, ...rest }) => {
             const badge = 'badge' in rest ? rest.badge : undefined;
             return (
@@ -129,41 +151,71 @@ export function Sidebar() {
               />
             );
           })}
+        </nav>
+      </div>
+
+      <div className="flex w-full shrink-0 flex-col">
+        <div className="flex flex-col gap-2.5 p-5">
+          {BOTTOM_NAV.map(({ label, href, icon, ...rest }) => {
+            const logout = 'logout' in rest ? rest.logout : undefined;
+            const active = href === '/help' ? helpCenterOpen : isNavActive(pathname, href, hash);
+
+            if (href === '/help') {
+              return (
+                <button
+                  key={href}
+                  type="button"
+                  onClick={() => openHelpCenter()}
+                  aria-current={active ? 'page' : undefined}
+                  className={cn(
+                    'group flex w-full items-center gap-5 rounded-[10px] p-4 transition-colors',
+                    active
+                      ? 'bg-[#2F66C8] text-white'
+                      : 'text-[#8C97AD] hover:bg-[#1C2436] hover:text-white',
+                  )}
+                >
+                  <CircleHelp
+                    className={cn('h-6 w-6 shrink-0', active ? 'text-white' : 'text-[#8C97AD] group-hover:text-white')}
+                    strokeWidth={1.75}
+                    aria-hidden
+                  />
+                  <span className={cn('truncate text-base leading-none', active ? 'font-medium' : 'font-normal')}>
+                    {label}
+                  </span>
+                </button>
+              );
+            }
+
+            return (
+              <NavItem key={href} label={label} href={href} icon={icon} active={active} logout={logout} />
+            );
+          })}
         </div>
 
-        <div className="mt-auto flex flex-col gap-2.5 pb-4 pt-6">
-          {BOTTOM_NAV.map(({ label, href, icon }) => (
-            <NavItem
-              key={href}
-              label={label}
-              href={href}
-              icon={icon}
-              active={isNavActive(pathname, href, hash)}
-            />
-          ))}
-
-          {/* Figma Frame 38 — org identity card #1C2436 */}
+        <div className="p-5 pt-0">
           <Link
             href="/organization-profile"
-            className="mt-2 flex h-[78px] w-full max-w-[320px] items-center gap-3 rounded-[10px] bg-[#1C2436] px-4 transition hover:bg-[#243047]"
+            className="flex w-full items-center justify-between rounded-[10px] border border-[#2F3B52] bg-[#1C2436] px-2.5 py-4 shadow-[0px_2px_4px_rgba(0,0,0,0.05)] transition-colors hover:bg-[#243047]"
           >
-            <Avatar
-              src={avatarSrc}
-              fallback={orgName}
-              size="sm"
-              className="h-[46px] w-[46px] shrink-0"
-            />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-base font-medium leading-[21px] text-white">{orgName}</p>
-              <p className="mt-0.5 flex items-center gap-1.5 text-[13px] leading-4 text-[#8C97AD]">
-                <CircleCheckBig className="h-3 w-3 shrink-0 text-[#2F66C8]" strokeWidth={2.5} />
-                Verified Organization
-              </p>
+            <div className="flex min-w-0 flex-1 items-center gap-3.5">
+              <Avatar
+                src={avatarSrc}
+                fallback={orgName}
+                size="sm"
+                className="h-[46px] w-[46px] shrink-0"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-base font-medium leading-none text-white">{orgName}</p>
+                <p className="mt-1 flex items-center gap-1 text-xs leading-none text-[#8C97AD]">
+                  Verified Organization
+                  <ShieldCheck className="h-3 w-3 shrink-0 text-[#2F66C8]" strokeWidth={2.5} aria-hidden />
+                </p>
+              </div>
             </div>
-            <ChevronRight className="h-6 w-6 shrink-0 text-[#64748B]" strokeWidth={1.75} />
+            <ChevronRight className="h-6 w-6 shrink-0 text-[#8C97AD]" strokeWidth={1.75} aria-hidden />
           </Link>
         </div>
-      </nav>
+      </div>
     </aside>
   );
 }

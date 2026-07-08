@@ -65,7 +65,7 @@ function Label({ children, htmlFor }: { children: React.ReactNode; htmlFor?: str
 }
 
 const inputClass =
-  'w-full rounded-[8px] border border-[#D9E1EF] px-4 py-2.5 font-sans text-[14px] text-[#0F172A] outline-none focus:border-[#2F66C8]';
+  'anchor-field';
 
 export function DetailsForm({ details, onChange, column = 'all' }: DetailsFormProps) {
   function handleCoverChange(e: React.ChangeEvent<HTMLInputElement>) {

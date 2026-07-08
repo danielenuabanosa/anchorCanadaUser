@@ -87,7 +87,7 @@ export function AddStageModal({ open, onClose, onAdd, stages }: AddStageModalPro
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-[8px] border border-[#D9E1EF] py-3 pl-10 pr-4 text-[14px] text-[#0F172A] outline-none focus:border-[#2F66C8]"
+                  className="anchor-field anchor-field--icon-left"
                 />
               </div>
             </div>
@@ -98,7 +98,7 @@ export function AddStageModal({ open, onClose, onAdd, stages }: AddStageModalPro
                 value={description}
                 onChange={(e) => setDescription(e.target.value.slice(0, 250))}
                 rows={4}
-                className="w-full resize-none rounded-[8px] border border-[#D9E1EF] px-4 py-3 text-[14px] text-[#0F172A] outline-none focus:border-[#2F66C8]"
+                className="anchor-textarea w-full resize-none"
               />
               <p className="mt-1 text-right text-[12px] text-[#8C97AD]">{description.length} / 250</p>
             </div>
@@ -110,7 +110,7 @@ export function AddStageModal({ open, onClose, onAdd, stages }: AddStageModalPro
               <select
                 value={stageType}
                 onChange={(e) => setStageType(e.target.value)}
-                className="w-full rounded-[8px] border border-[#D9E1EF] px-4 py-3 text-[14px] text-[#0F172A] outline-none focus:border-[#2F66C8]"
+                className="anchor-field"
               >
                 {STAGE_TYPE_OPTIONS.map((option) => (
                   <option key={option} value={option}>
@@ -127,7 +127,7 @@ export function AddStageModal({ open, onClose, onAdd, stages }: AddStageModalPro
               <select
                 value={insertAfterId}
                 onChange={(e) => setInsertAfterId(e.target.value)}
-                className="w-full rounded-[8px] border border-[#D9E1EF] px-4 py-3 text-[14px] text-[#0F172A] outline-none focus:border-[#2F66C8]"
+                className="anchor-field"
               >
                 {stages.map((stage, index) => (
                   <option key={stage.id} value={stage.id}>

@@ -3,7 +3,6 @@ import type { ElementType } from 'react';
 import {
   BookOpenCheck,
   CalendarDays,
-  CircleCheckBig,
   LockKeyhole,
   Rocket,
   UserX,
@@ -109,8 +108,9 @@ export const APPLICATION_STATS: ApplicationStat[] = [
     label: 'Rejected',
     value: 737,
     change: '7%',
+    changeNegative: true,
     subtext: 'from last 30 days',
-    icon: Users,
+    icon: UserX,
     iconBg: 'bg-[#ECF2FE]',
     iconColor: 'text-[#2F66C8]',
   },
@@ -135,10 +135,20 @@ export const FILTER_LABELS = [
   'All Time',
 ] as const;
 
+/** Figma table/mobile tags — Internal/External purple, Express Interest green */
 export const OPPORTUNITY_TYPE_STYLES: Record<OpportunityTypeTag, string> = {
   Internal: 'border border-[#E8E1FF] bg-[#F3EEFE] text-[#451EE1]',
   External: 'border border-[#E8E1FF] bg-[#F3EEFE] text-[#451EE1]',
-  'Express Interest': 'border border-[#E8E1FF] bg-[#F3EEFE] text-[#451EE1]',
+  'Express Interest': 'border border-[#D1FAE5] bg-[#ECFDF5] text-[#15803D]',
+};
+
+/** Figma status pills — rounded-[4px], 14px medium */
+export const STATUS_STYLES: Record<ApplicationStatus, string> = {
+  'Under Review': 'bg-[#FDEFDF] text-[#E74603]',
+  Shortlisted: 'bg-[#F5EAFE] text-[#4C18E6]',
+  Interview: 'bg-[#FEF6E4] text-[#F55E0D]',
+  Accepted: 'bg-[#ECFDF5] text-[#15803D]',
+  Rejected: 'bg-[#FFEFEE] text-[#F82B1B]',
 };
 
 export const APPLICANTS: ApplicantRow[] = [
@@ -167,7 +177,7 @@ export const APPLICANTS: ApplicantRow[] = [
     status: 'Shortlisted',
     appliedAt: 'Jun 11, 2026',
     appliedTime: '10:15 AM',
-    reviewer: 'Priya Sharma',
+    reviewer: 'Jessica Lee',
     reviewerAvatar: avatar3,
     avatar: avatar2,
     tab: 'shortlisted',
@@ -308,14 +318,6 @@ export const APPLICANTS: ApplicantRow[] = [
     tab: 'rejected',
   },
 ];
-
-export const STATUS_STYLES: Record<ApplicationStatus, string> = {
-  'Under Review': 'bg-[#FDEFDF] text-[#E74603]',
-  Shortlisted: 'bg-[#EFE8FD] text-[#7C3AED]',
-  Interview: 'bg-[#FEF4DD] text-[#B45309]',
-  Accepted: 'bg-[#ECFDF5] text-[#15803D]',
-  Rejected: 'bg-[#FEE2E2] text-[#B91C1C]',
-};
 
 export function filterApplicants(items: ApplicantRow[], tab: ApplicationTab) {
   if (tab === 'all') return items;

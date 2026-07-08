@@ -6,7 +6,7 @@ export type ApplicationDetailTab = 'overview' | 'application' | 'documents' | 'e
 export const APPLICATION_DETAIL_TABS: { id: ApplicationDetailTab; label: string }[] = [
   { id: 'overview', label: 'Overview' },
   { id: 'application', label: 'Application' },
-  { id: 'documents', label: 'Documents (5)' },
+  { id: 'documents', label: 'Document (5)' },
   { id: 'evaluation', label: 'Evaluation' },
   { id: 'activity', label: 'Activity' },
 ];
@@ -144,22 +144,10 @@ export function getApplicationDetail(id: string): ApplicationDetail {
   };
 }
 
-export const STAGE_ACTIONS: Record<ApplicationStage, readonly string[]> = {
-  'Under Review': ['View Applicant', 'Shortlist Applicant', 'Reject Applicant', 'Assign Reviewer', 'Add Note', 'Download Submission'],
-  Shortlisted: ['View Applicant', 'Reject Applicant', 'Assign Reviewer', 'Add Note', 'Download Submission'],
-  Interview: ['View Applicant', 'Reject Applicant', 'Assign Reviewer', 'Add Note', 'Download Submission'],
-  Accepted: ['View Applicant', 'Add Note', 'Download Submission'],
-  Rejected: ['View Applicant', 'Add Note', 'Download Submission'],
-};
-
-export function getStageActions(stage: ApplicationStage): readonly string[] {
-  return STAGE_ACTIONS[stage];
-}
-
 export const STAGE_STYLES: Record<ApplicationStage, string> = {
   'Under Review': 'bg-[#FDEFDF] text-[#E74603]',
-  Shortlisted: 'bg-[#EFE8FD] text-[#7C3AED]',
-  Interview: 'bg-[#FEF4DD] text-[#B45309]',
+  Shortlisted: 'bg-[#F5EAFE] text-[#4C18E6]',
+  Interview: 'bg-[#FEF6E4] text-[#F55E0D]',
   Accepted: 'bg-[#ECFDF5] text-[#15803D]',
-  Rejected: 'bg-[#FEE2E2] text-[#B91C1C]',
+  Rejected: 'bg-[#FFEFEE] text-[#F82B1B]',
 };

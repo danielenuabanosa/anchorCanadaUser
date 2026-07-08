@@ -10,6 +10,7 @@ import { useAuthStore } from '@/store/authStore';
 import { isStaticMode } from '@/lib/staticMode';
 import { cn } from '@/lib/utils';
 import { isProviderHubRoute, isHubListPage, usesOpportunityManagementTopbar } from '@/shared/lib/hubRoutes';
+import { HelpCenterRoot } from '@/features/help-center/HelpCenterRoot';
 
 function resolveTopbar(pathname: string) {
   if (pathname === '/logout') return null;
@@ -90,6 +91,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </main>
         {pathname !== '/logout' ? <BottomNav /> : null}
       </div>
+      <HelpCenterRoot />
     </div>
   );
 }

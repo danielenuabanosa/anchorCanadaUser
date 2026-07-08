@@ -144,7 +144,7 @@ export function TextInput({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full rounded-[10px] border border-[#D9E1EF] bg-white px-4 py-4 text-[14px] text-[#0F172A] outline-none focus:border-[#2F66C8]"
+      className="anchor-field"
     />
   );
 }
@@ -167,7 +167,7 @@ export function TextArea({
         onChange={(e) => onChange(e.target.value)}
         rows={rows}
         maxLength={maxLength}
-        className="w-full resize-none rounded-[10px] border border-[#D9E1EF] bg-white px-4 py-4 text-[14px] text-[#0F172A] outline-none focus:border-[#2F66C8]"
+        className="anchor-textarea w-full resize-none"
       />
       {maxLength != null && (
         <p className="mt-1 text-right text-[12px] text-[#8C97AD]">
@@ -250,7 +250,7 @@ export function SelectInput({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className={`w-full rounded-[10px] border border-[#D9E1EF] bg-white px-4 py-4 text-[14px] text-[#0F172A] outline-none focus:border-[#2F66C8] ${className}`}
+      className={`anchor-select ${className}`}
     >
       {children}
     </select>

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
 import { authService } from '@/features/auth/services/auth.service';
 import { getApiErrorMessage } from '@/lib/apiError';
+import { isStaticMode } from '@/lib/staticMode';
 import { useAuthStore } from '@/store/authStore';
 
 import mailIcon from '@assets/icons/mail.png';
@@ -32,7 +33,7 @@ export default function LoginDesktopView() {
 
   const router = useRouter();
   const setAuth = useAuthStore(s => s.setAuth);
-  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const emailValid = isStaticMode() ? email.trim().length > 0 : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   function handleKeyDown(e: React.KeyboardEvent) {
     setCapsLock(e.getModifierState('CapsLock'));
@@ -100,10 +101,10 @@ export default function LoginDesktopView() {
                       <Image src={mailIcon} alt="" width={18} height={18} className="opacity-60" />
                     </span>
                     <input
-                      type="email"
+                      type={isStaticMode() ? 'text' : 'email'}
                       value={email}
                       onChange={e => setEmail(e.target.value)}
-                      placeholder="Enter your mail"
+                      placeholder={isStaticMode() ? 'Any email or username' : 'Enter your mail'}
                       className={`anchor-field anchor-field--icon-left${emailValid ? ' anchor-field--icon-right' : ''}`}
                       autoComplete="email"
                     />

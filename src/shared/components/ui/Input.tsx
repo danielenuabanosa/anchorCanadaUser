@@ -24,7 +24,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const helperId = `${inputId}-helper`;
 
     return (
-      <div className="flex w-full flex-col gap-1.5">
+      <div className="flex w-full flex-col gap-2.5">
         {label && (
           <label htmlFor={inputId} className={ANCHOR_LABEL}>
             {label}

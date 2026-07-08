@@ -107,7 +107,7 @@ export function RequirementSettingsPanel({
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full rounded-[8px] border border-[#D9E1EF] px-4 py-3 text-[14px] text-[#0F172A] outline-none focus:border-[#2F66C8]"
+                className="anchor-field"
               />
             </div>
 
@@ -120,7 +120,7 @@ export function RequirementSettingsPanel({
                 onChange={(e) => setDescription(e.target.value)}
                 maxLength={250}
                 rows={4}
-                className="w-full resize-none rounded-[8px] border border-[#D9E1EF] px-4 py-3 text-[14px] text-[#0F172A] outline-none focus:border-[#2F66C8]"
+                className="anchor-textarea w-full resize-none"
               />
               <p className="text-right text-[12px] text-[#8C97AD]">{description.length} / 250</p>
             </div>
@@ -135,7 +135,7 @@ export function RequirementSettingsPanel({
                 maxLength={120}
                 rows={3}
                 placeholder="Provide guidance to help applicants complete this requirement."
-                className="w-full resize-none rounded-[8px] border border-[#D9E1EF] px-4 py-3 text-[14px] text-[#0F172A] outline-none focus:border-[#2F66C8]"
+                className="anchor-textarea w-full resize-none"
               />
               <p className="text-right text-[12px] text-[#8C97AD]">{helpText.length} / 120</p>
             </div>

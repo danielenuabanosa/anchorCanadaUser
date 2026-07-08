@@ -122,7 +122,7 @@ export default function DesktopView() {
       />
 
       <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white">
-        <div className="flex gap-2.5 overflow-x-auto border-b border-[#EEF2F8] px-2.5">
+        <div className="flex h-[52px] gap-2.5 overflow-x-auto border-b border-[#EEF2F8] px-2.5">
           {APPLICATION_TABS.map((tab) => (
             <button
               key={tab.id}
@@ -135,17 +135,23 @@ export default function DesktopView() {
                 'shrink-0 px-2.5 py-3.5 text-sm',
                 activeTab === tab.id
                   ? 'border-b-[1.4px] border-[#2F66C8] font-medium text-[#2F66C8]'
-                  : 'text-[#0F172A]',
+                  : 'font-normal text-[#0F172A]',
               )}
             >
-              {tab.label} ({tab.count})
+              {tab.label} ({tab.count.toLocaleString()})
             </button>
           ))}
         </div>
 
         <div className="flex items-center justify-between border-b border-[#EEF2F8] px-5 py-2.5">
-          <p className="text-sm text-[#8C97AD]">{selected.size} selected</p>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3.5">
+            <input
+              type="checkbox"
+              checked={pageRows.length > 0 && selected.size === pageRows.length}
+              onChange={toggleAll}
+              className="h-[18px] w-[18px] rounded border-[#D9E1EF] bg-[#EEF2F8] text-[#2F66C8]"
+            />
+            <p className="text-sm text-[#8C97AD]">{selected.size} selected</p>
             {selected.size > 0 ? (
               <button
                 type="button"
@@ -155,10 +161,12 @@ export default function DesktopView() {
                 Assign Reviewer
               </button>
             ) : null}
+          </div>
+          <div className="flex items-center gap-2.5">
             <span className="text-sm text-[#44516A]">Sort by:</span>
             <button
               type="button"
-              className="inline-flex h-[45px] items-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white px-3 text-sm text-[#0F172A]"
+              className="inline-flex h-[45px] items-center gap-2 rounded-[6px] border border-[#EEF2F8] bg-white px-3 text-sm text-[#0F172A]"
             >
               Newest Applied
               <ChevronDown className="h-3.5 w-3.5" />
@@ -168,13 +176,8 @@ export default function DesktopView() {
         </div>
 
         <div className="hidden border-b border-[#EEF2F8] px-5 md:grid md:grid-cols-[40px_1fr_1fr_200px_140px_1fr_100px] md:gap-2.5">
-          <div className="flex items-center py-3.5">
-            <input
-              type="checkbox"
-              checked={pageRows.length > 0 && selected.size === pageRows.length}
-              onChange={toggleAll}
-              className="h-4 w-4 rounded border-[#D9E1EF] text-[#2F66C8]"
-            />
+          <div className="flex items-center py-3.5" aria-hidden>
+            <span className="h-[18px] w-[18px]" />
           </div>
           {['Applicant', 'Opportunity', 'Date Applied', 'Status', 'Reviewer', 'Actions'].map((col) => (
             <p key={col} className="py-3.5 text-sm font-medium text-[#0F172A]">
@@ -183,7 +186,7 @@ export default function DesktopView() {
           ))}
         </div>
 
-        <div className="px-5">
+        <div className="p-5">
           {pageRows.map((row) => (
             <div
               key={row.id}
@@ -202,7 +205,7 @@ export default function DesktopView() {
                   <Image src={row.avatar} alt="" width={40} height={40} className="h-full w-full object-cover" />
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-[#0F172A]">{row.applicant}</p>
+                  <p className="truncate text-sm text-[#0F172A]">{row.applicant}</p>
                   <p className="truncate text-xs text-[#8C97AD]">{row.location}</p>
                 </div>
               </div>
@@ -210,7 +213,7 @@ export default function DesktopView() {
                 <p className="truncate text-sm text-[#0F172A]">{row.opportunity}</p>
                 <span
                   className={cn(
-                    'mt-1 inline-flex w-fit rounded-[2px] px-1 py-0.5 text-xs',
+                    'mt-1 inline-flex w-fit rounded-[2px] border px-1 py-0.5 text-xs',
                     OPPORTUNITY_TYPE_STYLES[row.opportunityType],
                   )}
                 >
@@ -224,7 +227,7 @@ export default function DesktopView() {
               <div className="flex h-[60px] items-center">
                 <span
                   className={cn(
-                    'inline-flex w-fit rounded px-1.5 py-0.5 text-sm font-medium',
+                    'inline-flex w-fit rounded-[4px] px-1.5 py-0.5 text-sm font-medium',
                     STATUS_STYLES[row.status],
                   )}
                 >
@@ -247,7 +250,7 @@ export default function DesktopView() {
                 <button
                   type="button"
                   onClick={() => setMenuRowId(menuRowId === row.id ? null : row.id)}
-                  className="flex h-8 w-8 items-center justify-center rounded-[6px] border border-[#EEF2F8] bg-white text-[#44516A]"
+                  className="flex h-8 w-8 items-center justify-center rounded-[6px] border border-[#EEF2F8] bg-white p-1.5 text-[#44516A]"
                 >
                   <Ellipsis className="h-[18px] w-[18px]" />
                 </button>

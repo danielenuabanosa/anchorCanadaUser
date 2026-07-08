@@ -91,7 +91,7 @@ export function AddRequirementsModal({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search requirements..."
-              className="w-full rounded-[8px] border border-[#D9E1EF] py-2.5 pl-10 pr-4 text-[14px] text-[#0F172A] outline-none focus:border-[#2F66C8]"
+              className="anchor-field anchor-field--icon-left"
             />
           </div>
         </div>
@@ -230,7 +230,7 @@ export function RequirementTypeLibrary({ onAddType }: RequirementTypeLibraryProp
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search requirement types..."
-            className="w-full rounded-[8px] border border-[#D9E1EF] py-2.5 pl-10 pr-4 text-[14px] outline-none focus:border-[#2F66C8]"
+            className="anchor-field anchor-field--icon-left"
           />
         </div>
       </div>

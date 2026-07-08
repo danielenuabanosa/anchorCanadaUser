@@ -1,83 +1,116 @@
 'use client';
 
-import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { CalendarDays, Download } from 'lucide-react';
+import { HubStatCard } from '@/app/(app)/opportunities/_components/HubStatCard';
 import { MobileHubPageHero } from '@/app/(app)/opportunities/_components/MobileHubPageHero';
-import { MobileHubStatGrid } from '@/app/(app)/opportunities/_components/MobileHubStatGrid';
-import { MobileHubTabs } from '@/app/(app)/opportunities/_components/MobileHubTabs';
-import { PerformanceAreaChart } from '@/app/(app)/dashboard/_components/PerformanceAreaChart';
+import { ANALYTICS_DATE_RANGE, ANALYTICS_INSIGHTS, ANALYTICS_STATS } from './analyticsData';
 import {
-  ANALYTICS_STATS,
-  ANALYTICS_TABS,
-  TOP_OPPORTUNITIES,
-  type AnalyticsTab,
-} from './analyticsData';
+  ApplicantDemographicsPanel,
+  ApplicationFunnelPanel,
+  ApplicationsOverTimeChart,
+  InsightsPanel,
+  TrafficSourcesPanel,
+} from './AnalyticsChartPanels';
+import {
+  AnalyticsStatSkeletonGrid,
+  TeamPerformanceMobile,
+  TopOpportunitiesMobile,
+} from './AnalyticsSections';
 import { AnalyticsFilterModal } from './AnalyticsFilterModal';
+import { ExportAnalyticsModal, InsightDetailModal } from './AnalyticsHubModals';
 
 export default function MobileView() {
-  const [activeTab, setActiveTab] = useState<AnalyticsTab>('overview');
+  const [loading, setLoading] = useState(true);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [insightId, setInsightId] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState(ANALYTICS_DATE_RANGE);
+
+  const selectedInsight = useMemo(
+    () => ANALYTICS_INSIGHTS.find((insight) => insight.id === insightId) ?? null,
+    [insightId],
+  );
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setLoading(false), 700);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  function openInsight(id: string) {
+    setInsightId(id);
+  }
+
+  function openFirstInsight() {
+    const first = ANALYTICS_INSIGHTS[0];
+    if (first) setInsightId(first.id);
+  }
 
   return (
-    <div className="flex flex-col pb-4">
+    <div className="flex flex-col gap-5 pb-4">
       <MobileHubPageHero
         title="Analytics"
-        subtitle="Track performance across opportunities, applications, and engagement."
+        subtitle="Manage your organization's performance and optimize your opportunities."
         action={
-          <button
-            type="button"
-            onClick={() => setFilterOpen(true)}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white px-4 py-2.5 text-sm font-medium text-[#0F172A]"
-          >
-            Filter & Date Range
-            <ChevronDown className="h-4 w-4" />
-          </button>
+          <div className="flex gap-2.5">
+            <button
+              type="button"
+              onClick={() => setFilterOpen(true)}
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white px-3 py-2.5 text-sm font-medium text-[#0F172A]"
+            >
+              <CalendarDays className="h-[18px] w-[18px] shrink-0" />
+              <span className="truncate">{dateRange}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setExportOpen(true)}
+              className="inline-flex shrink-0 items-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white px-3 py-2.5 text-sm font-medium text-[#0F172A]"
+            >
+              <Download className="h-[18px] w-[18px]" />
+              Export Report
+            </button>
+          </div>
         }
       />
 
-      <section className="py-5">
-        <MobileHubStatGrid stats={ANALYTICS_STATS.slice(0, 4)} />
-      </section>
-
-      <section className="py-5">
-        <MobileHubTabs
-          tabs={ANALYTICS_TABS.map((t) => ({ id: t.id, label: t.label, count: t.count }))}
-          activeTab={activeTab}
-          onChange={setActiveTab}
-        />
-      </section>
-
-      <div className="mt-5 rounded-[10px] border border-[#EEF2F8] bg-white p-4">
-        <h2 className="mb-3 text-base font-medium text-[#0F172A]">
-          {activeTab === 'overview' && 'Performance Overview'}
-          {activeTab === 'opportunities' && 'Opportunity Performance'}
-          {activeTab === 'applications' && 'Application Trends'}
-          {activeTab === 'engagement' && 'Engagement Metrics'}
-        </h2>
-        <PerformanceAreaChart />
-      </div>
-
-      <div className="mt-5 rounded-[10px] border border-[#EEF2F8] bg-white">
-        <div className="border-b border-[#EEF2F8] px-4 py-3">
-          <h2 className="text-base font-medium text-[#0F172A]">Top Opportunities</h2>
-        </div>
-        <div className="divide-y divide-[#EEF2F8]">
-          {TOP_OPPORTUNITIES.map((row) => (
-            <div key={row.id} className="flex flex-col gap-1 px-4 py-4">
-              <p className="text-sm font-medium text-[#0F172A]">{row.name}</p>
-              <p className="text-xs text-[#44516A]">
-                {row.views.toLocaleString()} views · {row.applications} applications · {row.conversion}
-              </p>
-            </div>
+      {loading ? (
+        <AnalyticsStatSkeletonGrid mobile />
+      ) : (
+        <div className="grid grid-cols-2 gap-2.5">
+          {ANALYTICS_STATS.map((stat) => (
+            <HubStatCard key={stat.label} {...stat} subtext="from last 30 days" />
           ))}
         </div>
-      </div>
+      )}
+
+      <ApplicationsOverTimeChart skeleton={loading} />
+      <ApplicationFunnelPanel skeleton={loading} mobile />
+      <TopOpportunitiesMobile skeleton={loading} />
+      <ApplicantDemographicsPanel skeleton={loading} />
+      <TrafficSourcesPanel skeleton={loading} />
+      <TeamPerformanceMobile skeleton={loading} />
+      <InsightsPanel
+        skeleton={loading}
+        onInsightClick={openInsight}
+        onViewAllClick={openFirstInsight}
+      />
 
       <AnalyticsFilterModal
         open={filterOpen}
         onClose={() => setFilterOpen(false)}
         mobile
-        onApply={() => setFilterOpen(false)}
+        dateRange={dateRange}
+        onApply={(filters) => {
+          setDateRange(filters.dateRange);
+          setFilterOpen(false);
+        }}
+      />
+      <ExportAnalyticsModal open={exportOpen} onClose={() => setExportOpen(false)} mobile />
+      <InsightDetailModal
+        open={Boolean(insightId)}
+        insight={selectedInsight}
+        onClose={() => setInsightId(null)}
+        mobile
       />
     </div>
   );

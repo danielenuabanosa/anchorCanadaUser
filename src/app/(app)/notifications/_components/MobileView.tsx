@@ -1,32 +1,25 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { ChevronDown, SlidersHorizontal } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import Link from 'next/link';
+import { CheckCheck, ListFilter, Settings } from 'lucide-react';
 import { HubStatCard } from '@/app/(app)/opportunities/_components/HubStatCard';
 import { MobileHubPageHero } from '@/app/(app)/opportunities/_components/MobileHubPageHero';
-import {
-  NOTIFICATIONS,
-  NOTIFICATION_FILTER_STATUS,
-  NOTIFICATION_FILTER_TYPES,
-  NOTIFICATION_SUMMARY,
-  NOTIFICATION_TABS,
-  type NotificationTab,
-} from './notificationsData';
-import { NotificationRow } from './NotificationRow';
+import { NOTIFICATION_PREFS, NOTIFICATION_SUMMARY, NOTIFICATION_TABS } from './notificationsData';
 import { NotificationTabChips } from './NotificationTabChips';
+import { NotificationSortDropdown } from './NotificationSortDropdown';
 import { NotificationsFilterModal } from './NotificationsFilterModal';
+import { NotificationsList } from './NotificationsList';
+import {
+  DeleteNotificationModal,
+  NotificationDetailModal,
+  NotificationsSidePanels,
+} from './NotificationsHubModals';
+import { useNotificationsHub } from './useNotificationsHub';
 
 export default function MobileView() {
-  const [activeTab, setActiveTab] = useState<NotificationTab>('all');
-  const [filterOpen, setFilterOpen] = useState(false);
-
-  const filtered = useMemo(() => {
-    if (activeTab === 'all') return NOTIFICATIONS;
-    return NOTIFICATIONS.filter((n) => n.tab === activeTab);
-  }, [activeTab]);
-
-  const groups = ['Today', 'Yesterday', 'Earlier'] as const;
+  const hub = useNotificationsHub();
+  const [prefs, setPrefs] = useState(NOTIFICATION_PREFS);
 
   return (
     <div className="flex flex-col pb-4">
@@ -35,67 +28,116 @@ export default function MobileView() {
         subtitle="Stay updated with everything happening across your organization."
       />
 
+      <div className="mt-4 flex gap-2.5">
+        <button
+          type="button"
+          onClick={hub.markAllRead}
+          className="inline-flex flex-1 items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white py-2.5 text-sm font-medium text-[#0F172A]"
+        >
+          <CheckCheck className="h-4 w-4" />
+          Mark all as read
+        </button>
+        <Link
+          href="/settings"
+          className="inline-flex flex-1 items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white py-2.5 text-sm font-medium text-[#0F172A]"
+        >
+          <Settings className="h-4 w-4" />
+          Settings
+        </Link>
+      </div>
+
       <div className="mt-4 grid grid-cols-2 gap-2.5">
         {NOTIFICATION_SUMMARY.slice(0, 4).map((card) => (
           <HubStatCard key={card.label} {...card} />
         ))}
+        <div className="col-span-2">
+          <HubStatCard {...NOTIFICATION_SUMMARY[4]} />
+        </div>
       </div>
 
       <div className="mt-5">
-        <NotificationTabChips tabs={NOTIFICATION_TABS} activeTab={activeTab} onChange={setActiveTab} />
+        <NotificationTabChips
+          tabs={NOTIFICATION_TABS}
+          activeTab={hub.activeTab}
+          onChange={(tab) => {
+            hub.setActiveTab(tab);
+            hub.setPage(1);
+          }}
+        />
       </div>
 
       <div className="mt-3 flex gap-2.5">
         <button
           type="button"
-          onClick={() => setFilterOpen(true)}
+          onClick={() => hub.setFilterOpen(true)}
           className="inline-flex flex-1 items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-[#EFF4FF] py-2.5 text-sm text-[#2F66C8]"
         >
-          <SlidersHorizontal className="h-3.5 w-3.5" />
+          <ListFilter className="h-3.5 w-3.5" />
           Filter
         </button>
-        <button
-          type="button"
-          className="inline-flex flex-1 items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white py-2.5 text-sm text-[#0F172A]"
-        >
-          Newest
-          <ChevronDown className="h-3.5 w-3.5" />
-        </button>
+        <NotificationSortDropdown value={hub.sort} onChange={hub.setSort} compact />
       </div>
 
-      <div className="mt-5 space-y-2.5">
-        {groups.map((group) => {
-          const items = filtered.filter((n) => n.group === group);
-          if (items.length === 0) return null;
-          return (
-            <div key={group}>
-              <p className="py-2.5 text-sm font-medium text-[#0F172A]">{group}</p>
-              <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white">
-                {items.map((item, index) => (
-                  <NotificationRow
-                    key={item.id}
-                    title={item.title}
-                    body={item.body}
-                    time={item.time}
-                    unread={item.unread}
-                    icon={item.icon}
-                    iconBg={item.iconBg}
-                    iconColor={item.iconColor}
-                    className={cn(index < items.length - 1 && 'border-b border-[#EEF2F8]')}
-                  />
-                ))}
-              </div>
-            </div>
-          );
-        })}
+      <div className="mt-5">
+        <NotificationsList
+          mobile
+          pageItems={hub.pageItems}
+          filtered={hub.filtered}
+          selected={hub.selected}
+          selectionMode={hub.selectionMode}
+          actionsOpenId={hub.actionsOpenId}
+          rangeStart={hub.rangeStart}
+          rangeEnd={hub.rangeEnd}
+          page={hub.page}
+          totalPages={hub.totalPages}
+          onPageChange={hub.setPage}
+          onToggleSelect={hub.toggleSelect}
+          onToggleGroupSelect={hub.toggleGroupSelect}
+          onEnterSelection={hub.enterSelectionMode}
+          onOpenDetail={hub.openDetail}
+          onMarkRead={hub.markRead}
+          onArchive={hub.archive}
+          onDelete={hub.setDeleteTargetId}
+          onSetActionsOpenId={hub.setActionsOpenId}
+          onBulkMarkRead={hub.handleBulkMarkRead}
+          onBulkArchive={hub.handleBulkArchive}
+          onBulkDelete={hub.deleteSelected}
+          onClearSelection={hub.clearSelection}
+        />
+      </div>
+
+      <div className="mt-5 flex flex-col gap-5">
+        <NotificationsSidePanels
+          mobile
+          prefs={prefs}
+          onPrefToggle={(id) =>
+            setPrefs((current) =>
+              current.map((pref) => (pref.id === id ? { ...pref, enabled: !pref.enabled } : pref)),
+            )
+          }
+        />
       </div>
 
       <NotificationsFilterModal
-        open={filterOpen}
-        onClose={() => setFilterOpen(false)}
+        open={hub.filterOpen}
+        onClose={() => hub.setFilterOpen(false)}
         mobile
-        typeOptions={NOTIFICATION_FILTER_TYPES}
-        statusOptions={NOTIFICATION_FILTER_STATUS}
+        filters={hub.filters}
+        onApply={(next) => {
+          hub.setFilters(next);
+          hub.setPage(1);
+        }}
+      />
+
+      <DeleteNotificationModal
+        open={Boolean(hub.deleteTargetId)}
+        onClose={() => hub.setDeleteTargetId(null)}
+        onConfirm={hub.confirmDelete}
+      />
+
+      <NotificationDetailModal
+        item={hub.detailTarget}
+        onClose={() => hub.setDetailTargetId(null)}
       />
     </div>
   );

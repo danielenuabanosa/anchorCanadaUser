@@ -1,27 +1,49 @@
 'use client';
 
-import { useState } from 'react';
-import { ChevronDown, Download } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import {
-  DateRangeDropdown,
-  type DateRangeOption,
-} from '@/shared/components/hub/DateRangeDropdown';
+import { useEffect, useMemo, useState } from 'react';
+import { CalendarDays, Download } from 'lucide-react';
 import { HubStatCard } from '@/app/(app)/opportunities/_components/HubStatCard';
-import { PerformanceAreaChart } from '@/app/(app)/dashboard/_components/PerformanceAreaChart';
+import { ANALYTICS_DATE_RANGE, ANALYTICS_INSIGHTS, ANALYTICS_STATS } from './analyticsData';
 import {
-  ANALYTICS_STATS,
-  ANALYTICS_TABS,
-  TOP_OPPORTUNITIES,
-  type AnalyticsTab,
-} from './analyticsData';
+  ApplicantDemographicsPanel,
+  ApplicationFunnelPanel,
+  ApplicationsOverTimeChart,
+  InsightsPanel,
+  TrafficSourcesPanel,
+} from './AnalyticsChartPanels';
+import {
+  AnalyticsStatSkeletonGrid,
+  TeamPerformanceDesktop,
+  TopOpportunitiesDesktop,
+} from './AnalyticsSections';
 import { AnalyticsFilterModal } from './AnalyticsFilterModal';
+import { ExportAnalyticsModal, InsightDetailModal } from './AnalyticsHubModals';
 
 export default function DesktopView() {
-  const [activeTab, setActiveTab] = useState<AnalyticsTab>('overview');
+  const [loading, setLoading] = useState(true);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [dateOpen, setDateOpen] = useState(false);
-  const [dateRange, setDateRange] = useState<DateRangeOption>('Last 30 days');
+  const [exportOpen, setExportOpen] = useState(false);
+  const [insightId, setInsightId] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState(ANALYTICS_DATE_RANGE);
+
+  const selectedInsight = useMemo(
+    () => ANALYTICS_INSIGHTS.find((insight) => insight.id === insightId) ?? null,
+    [insightId],
+  );
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setLoading(false), 700);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  function openInsight(id: string) {
+    setInsightId(id);
+  }
+
+  function openFirstInsight() {
+    const first = ANALYTICS_INSIGHTS[0];
+    if (first) setInsightId(first.id);
+  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -29,142 +51,74 @@ export default function DesktopView() {
         <div>
           <h1 className="font-serif text-[36px] leading-[56px] text-[#0F172A]">Analytics</h1>
           <p className="text-base text-[#44516A]">
-            Track performance across opportunities, applications, and engagement.
+            Manage your organization&apos;s performance and optimize your opportunities.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setDateOpen((o) => !o)}
-              className="inline-flex items-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white px-4 py-2.5 text-base font-medium text-[#0F172A]"
-            >
-              {dateRange}
-              <ChevronDown className="h-[18px] w-[18px]" />
-            </button>
-            <DateRangeDropdown
-              open={dateOpen}
-              onClose={() => setDateOpen(false)}
-              value={dateRange}
-              onChange={setDateRange}
-            />
-          </div>
           <button
             type="button"
             onClick={() => setFilterOpen(true)}
             className="inline-flex items-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white px-4 py-2.5 text-base font-medium text-[#0F172A]"
           >
-            Filter
-            <ChevronDown className="h-[18px] w-[18px]" />
+            <CalendarDays className="h-[18px] w-[18px]" />
+            {dateRange}
           </button>
           <button
             type="button"
+            onClick={() => setExportOpen(true)}
             className="inline-flex items-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white px-4 py-2.5 text-base font-medium text-[#0F172A]"
           >
             <Download className="h-[18px] w-[18px]" />
-            Export
+            Export Report
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2.5 xl:grid-cols-6">
-        {ANALYTICS_STATS.map((stat) => (
-          <HubStatCard key={stat.label} {...stat} />
-        ))}
+      {loading ? (
+        <AnalyticsStatSkeletonGrid />
+      ) : (
+        <div className="grid grid-cols-2 gap-2.5 xl:grid-cols-6">
+          {ANALYTICS_STATS.map((stat) => (
+            <HubStatCard key={stat.label} {...stat} subtext="from last 30 days" />
+          ))}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,571fr)_minmax(0,697fr)]">
+        <ApplicationsOverTimeChart skeleton={loading} />
+        <ApplicationFunnelPanel skeleton={loading} />
       </div>
 
-      <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white">
-        <div className="flex gap-2.5 overflow-x-auto border-b border-[#EEF2F8] px-2.5">
-          {ANALYTICS_TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                'shrink-0 px-2.5 py-3.5 text-sm',
-                activeTab === tab.id
-                  ? 'border-b-[1.4px] border-[#2F66C8] font-medium text-[#2F66C8]'
-                  : 'text-[#0F172A]',
-              )}
-            >
-              {tab.label}
-              {tab.count > 0 ? ` (${tab.count.toLocaleString()})` : ''}
-            </button>
-          ))}
-        </div>
+      <TopOpportunitiesDesktop skeleton={loading} />
 
-        <div className="p-5">
-          {activeTab === 'overview' && (
-            <>
-              <h2 className="mb-4 text-lg font-medium text-[#0F172A]">Performance Overview</h2>
-              <PerformanceAreaChart />
-            </>
-          )}
-          {activeTab === 'opportunities' && (
-            <>
-              <h2 className="mb-4 text-lg font-medium text-[#0F172A]">Opportunity Performance</h2>
-              <p className="mb-4 text-sm text-[#44516A]">24 active opportunities with 48,290 total views this period.</p>
-              <PerformanceAreaChart />
-            </>
-          )}
-          {activeTab === 'applications' && (
-            <>
-              <h2 className="mb-4 text-lg font-medium text-[#0F172A]">Application Trends</h2>
-              <p className="mb-4 text-sm text-[#44516A]">1,284 applications received with a 12% increase from last month.</p>
-              <PerformanceAreaChart />
-            </>
-          )}
-          {activeTab === 'engagement' && (
-            <>
-              <h2 className="mb-4 text-lg font-medium text-[#0F172A]">Engagement Metrics</h2>
-              <p className="mb-4 text-sm text-[#44516A]">4.8% click-through rate and 2.6% conversion rate across all opportunities.</p>
-              <PerformanceAreaChart />
-            </>
-          )}
-        </div>
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,697fr)_minmax(0,571fr)]">
+        <ApplicantDemographicsPanel skeleton={loading} />
+        <TrafficSourcesPanel skeleton={loading} />
       </div>
 
-      <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white">
-        <div className="border-b border-[#EEF2F8] px-5 py-4">
-          <h2 className="text-lg font-medium text-[#0F172A]">Top Performing Opportunities</h2>
-        </div>
-        <div className="hidden border-b border-[#EEF2F8] px-5 md:grid md:grid-cols-[1.6fr_100px_120px_100px_120px] md:gap-2.5">
-          {['Opportunity', 'Views', 'Applications', 'Conversion', 'Engagement'].map((col) => (
-            <p key={col} className="py-3.5 text-sm font-medium text-[#0F172A]">
-              {col}
-            </p>
-          ))}
-        </div>
-        <div className="divide-y divide-[#EEF2F8] px-5">
-          {TOP_OPPORTUNITIES.map((row) => (
-            <div
-              key={row.id}
-              className="grid gap-2 py-4 md:grid-cols-[1.6fr_100px_120px_100px_120px] md:items-center md:gap-2.5"
-            >
-              <p className="text-sm font-medium text-[#0F172A]">{row.name}</p>
-              <p className="text-sm text-[#44516A]">{row.views.toLocaleString()}</p>
-              <p className="text-sm text-[#44516A]">{row.applications}</p>
-              <p className="text-sm text-[#44516A]">{row.conversion}</p>
-              <span
-                className={cn(
-                  'inline-flex w-fit rounded-full px-2.5 py-1 text-xs font-medium',
-                  row.engagement === 'High' && 'bg-[#ECFDF5] text-[#15803D]',
-                  row.engagement === 'Moderate' && 'bg-[#FFF7ED] text-[#C2410C]',
-                  row.engagement === 'Low' && 'bg-[#F1F5F9] text-[#64748B]',
-                )}
-              >
-                {row.engagement}
-              </span>
-            </div>
-          ))}
-        </div>
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,697fr)_minmax(0,571fr)]">
+        <TeamPerformanceDesktop skeleton={loading} />
+        <InsightsPanel
+          skeleton={loading}
+          onInsightClick={openInsight}
+          onViewAllClick={openFirstInsight}
+        />
       </div>
 
       <AnalyticsFilterModal
         open={filterOpen}
         onClose={() => setFilterOpen(false)}
         dateRange={dateRange}
-        onApply={() => setFilterOpen(false)}
+        onApply={(filters) => {
+          setDateRange(filters.dateRange);
+          setFilterOpen(false);
+        }}
+      />
+      <ExportAnalyticsModal open={exportOpen} onClose={() => setExportOpen(false)} />
+      <InsightDetailModal
+        open={Boolean(insightId)}
+        insight={selectedInsight}
+        onClose={() => setInsightId(null)}
       />
     </div>
   );

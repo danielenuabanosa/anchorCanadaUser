@@ -30,13 +30,13 @@ export function HubFilterBar({
     <div className={cn('flex flex-wrap items-center justify-between gap-3', className)}>
       <div className="flex flex-wrap items-center gap-2.5">
         <div className="relative h-[45px] w-full min-w-[200px] max-w-[300px]">
-          <Search className="absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-[#8C97AD]" />
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-[#8C97AD]" />
           <input
             type="search"
             value={searchValue}
             onChange={(e) => onSearchChange?.(e.target.value)}
             placeholder={searchPlaceholder}
-            className="h-full w-full rounded-[6px] border border-[#D9E1EF] bg-white pl-10 pr-3 text-sm text-[#0F172A] outline-none placeholder:text-[#8C97AD] focus:border-[#2F66C8]"
+            className="anchor-field anchor-field--icon-left h-full pr-3 text-sm"
           />
         </div>
         {filters.map((label) => (

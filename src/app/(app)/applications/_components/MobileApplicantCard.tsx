@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Ellipsis } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import type { ApplicationStage } from '../[id]/_components/applicationDetailData';
 import type { ApplicantRow } from './applicationsHubData';
 import { OPPORTUNITY_TYPE_STYLES, STATUS_STYLES } from './applicationsHubData';
 import { MobileRowActionsSheet } from './ApplicationHubModals';
@@ -44,7 +45,7 @@ export function MobileApplicantCard({ row, onAssignReviewer }: MobileApplicantCa
         <button
           type="button"
           onClick={() => setMenuOpen(true)}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[6px] border border-[#EEF2F8] text-[#44516A]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[6px] border border-[#EEF2F8] p-1.5 text-[#44516A]"
           aria-label="Applicant actions"
         >
           <Ellipsis className="h-[18px] w-[18px]" />
@@ -52,7 +53,7 @@ export function MobileApplicantCard({ row, onAssignReviewer }: MobileApplicantCa
       </div>
 
       <div className="flex items-center justify-between">
-        <span className={cn('rounded px-1.5 py-0.5 text-sm font-medium', STATUS_STYLES[row.status])}>
+        <span className={cn('rounded-[4px] px-1.5 py-0.5 text-sm font-medium', STATUS_STYLES[row.status])}>
           {row.status}
         </span>
         <div className="text-right">
@@ -83,7 +84,7 @@ export function MobileApplicantCard({ row, onAssignReviewer }: MobileApplicantCa
 
       <Link
         href={`/applications/${row.id}`}
-        className="flex w-full items-center justify-center rounded-[6px] border border-[#EEF2F8] py-2.5 text-sm font-medium text-[#2F66C8]"
+        className="flex w-full items-center justify-center rounded-[6px] border border-[#EEF2F8] px-4 py-2.5 text-sm font-medium text-[#2F66C8]"
       >
         View Applicant
       </Link>
@@ -99,6 +100,7 @@ export function MobileApplicantCard({ row, onAssignReviewer }: MobileApplicantCa
           setMenuOpen(false);
           onAssignReviewer?.(row.id);
         }}
+        stage={row.status as ApplicationStage}
       />
     </article>
   );

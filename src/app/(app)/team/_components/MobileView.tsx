@@ -1,102 +1,132 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
-import { ChevronDown, Ellipsis, Plus } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useMemo, useState } from 'react';
+import { Search, SlidersHorizontal, UserPlus } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
+import { MobileHubPageHero } from '@/app/(app)/opportunities/_components/MobileHubPageHero';
 import { MobileHubStatGrid } from '@/app/(app)/opportunities/_components/MobileHubStatGrid';
+import { MOBILE_TEAM_STATS, TEAM_MEMBERS, type TeamMemberRow } from './teamManagementData';
 import {
-  ROLE_STYLES,
-  STATUS_STYLES,
-  TEAM_MEMBERS,
-  TEAM_STATS,
-} from './teamManagementData';
-
-import { InviteTeamMemberModal, MemberActionsMenu } from './TeamHubModals';
+  ExportTeamMembersModal,
+  TeamHubModalLayer,
+  handleTeamMemberAction,
+  type TeamHubModal,
+} from './TeamHubModals';
+import { TeamFilterModal } from './TeamFilterModal';
+import { RecentTeamActivityPanel, TeamPerformancePanel } from './TeamHubSections';
+import { MobileTeamMemberCard } from './MobileTeamMemberCard';
 
 export default function MobileView() {
-  const [expanded, setExpanded] = useState<string | null>(null);
-  const [inviteOpen, setInviteOpen] = useState(false);
-  const [menuMemberId, setMenuMemberId] = useState<string | null>(null);
-  const mobileStats = TEAM_STATS.map((s) => ({
-    ...s,
-    icon: s.icon,
-    iconBg: s.iconBg,
-    iconColor: s.iconColor,
-  }));
+  const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [hubModal, setHubModal] = useState<TeamHubModal | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
 
-  const menuMember = TEAM_MEMBERS.find((m) => m.id === menuMemberId);
+  const filtered = useMemo(() => {
+    if (!search.trim()) return TEAM_MEMBERS;
+    const q = search.toLowerCase();
+    return TEAM_MEMBERS.filter(
+      (m) =>
+        m.name.toLowerCase().includes(q) ||
+        m.email.toLowerCase().includes(q) ||
+        m.department.toLowerCase().includes(q),
+    );
+  }, [search]);
+
+  function toggleAll() {
+    if (selected.size === filtered.length) setSelected(new Set());
+    else setSelected(new Set(filtered.map((m) => m.id)));
+  }
+
+  function handleAction(member: TeamMemberRow, label: string) {
+    handleTeamMemberAction(member, label, setHubModal);
+  }
 
   return (
-    <div className="flex flex-col gap-5 pb-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="font-serif text-[28px] text-[#0F172A]">Providers Team</h1>
-          <p className="mt-1 text-[14px] text-[#44516A]">Manage members, roles, and permissions.</p>
+    <div className="flex flex-col pb-4">
+      <MobileHubPageHero
+        title="Providers Team"
+        subtitle="Manage your organization's members, roles and permissions"
+        action={
+          <button
+            type="button"
+            onClick={() => setHubModal({ type: 'invite' })}
+            className="inline-flex h-[45px] items-center gap-2.5 rounded-[6px] border border-[#D9E1EF] bg-white px-4 text-base font-medium text-[#2F66C8]"
+          >
+            <UserPlus className="h-[18px] w-[18px]" strokeWidth={1.75} />
+            Invite Team Member
+          </button>
+        }
+      />
+
+      <section className="py-5">
+        <MobileHubStatGrid stats={MOBILE_TEAM_STATS} />
+      </section>
+
+      <div className="flex items-center gap-2.5">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-[#8C97AD]" />
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search team members..."
+            className="h-[45px] w-full rounded-[6px] border border-[#EEF2F8] bg-white pl-10 pr-3 text-sm outline-none placeholder:text-[#8C97AD]"
+          />
         </div>
         <button
           type="button"
-          onClick={() => setInviteOpen(true)}
-          className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-[6px] bg-[#2F66C8] px-3 text-[13px] font-medium text-white"
+          onClick={() => setFilterOpen(true)}
+          className="inline-flex h-[45px] shrink-0 items-center justify-center gap-2 rounded-[6px] bg-[#F8FAFC] px-3 text-sm font-medium text-[#2F66C8]"
         >
-          <Plus className="h-4 w-4" />
-          Invite
+          <SlidersHorizontal className="h-3.5 w-3.5" />
+          Filters
         </button>
       </div>
 
-      <MobileHubStatGrid stats={mobileStats} />
-
-      <div className="flex flex-col gap-3">
-        {TEAM_MEMBERS.map((member) => (
-          <article key={member.id} className="rounded-[10px] border border-[#EEF2F8] bg-white p-4">
+      <div className="mt-5 flex items-center justify-between rounded-[10px] border border-[#EEF2F8] px-5 py-2.5">
+        <div className="flex items-center gap-3.5">
+          <input
+            type="checkbox"
+            checked={filtered.length > 0 && selected.size === filtered.length}
+            onChange={toggleAll}
+            className="h-[18px] w-[18px] rounded border-[#D9E1EF] bg-[#EEF2F8] text-[#2F66C8]"
+          />
+          <p className="text-sm text-[#8C97AD]">{selected.size} selected</p>
+          {selected.size > 0 ? (
             <button
               type="button"
-              className="flex w-full items-center gap-3 text-left"
-              onClick={() => setExpanded(expanded === member.id ? null : member.id)}
+              onClick={() => setExportOpen(true)}
+              className="text-sm font-medium text-[#2F66C8]"
             >
-              <Image src={member.avatar} alt="" width={48} height={48} className="h-12 w-12 rounded-full object-cover" />
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-[#0F172A]">{member.name}</p>
-                <p className="truncate text-[12px] text-[#8C97AD]">{member.email}</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <span className={cn('rounded px-1.5 py-0.5 text-xs font-medium', ROLE_STYLES[member.role])}>
-                    {member.role}
-                  </span>
-                  <span className={cn('rounded px-1.5 py-0.5 text-xs font-medium', STATUS_STYLES[member.status])}>
-                    {member.status}
-                  </span>
-                </div>
-              </div>
-              <ChevronDown className={cn('h-4 w-4 shrink-0 text-[#8C97AD] transition', expanded === member.id && 'rotate-180')} />
+              Export
             </button>
-            {expanded === member.id ? (
-              <div className="mt-4 space-y-2 border-t border-[#EEF2F8] pt-4 text-[14px] text-[#44516A]">
-                <p>Department: {member.department}</p>
-                <p>Last active: {member.lastActive}</p>
-                <p>{member.permissions}</p>
-                <button
-                  type="button"
-                  onClick={() => setMenuMemberId(member.id)}
-                  className="mt-2 inline-flex items-center gap-2 text-[#2F66C8]"
-                >
-                  <Ellipsis className="h-4 w-4" />
-                  Actions
-                </button>
-              </div>
-            ) : null}
-          </article>
+          ) : null}
+        </div>
+        <button
+          type="button"
+          className="inline-flex h-[45px] items-center gap-2 rounded-[6px] border border-[#EEF2F8] bg-white px-3 text-sm text-[#0F172A]"
+        >
+          Sort by: Newest Applied
+          <ChevronDown className="h-3.5 w-3.5 text-[#44516A]" />
+        </button>
+      </div>
+
+      <div className="mt-5 flex flex-col gap-5">
+        {filtered.map((member) => (
+          <MobileTeamMemberCard key={member.id} member={member} onAction={handleAction} />
         ))}
       </div>
 
-      <InviteTeamMemberModal open={inviteOpen} onClose={() => setInviteOpen(false)} />
-      {menuMember ? (
-        <MemberActionsMenu
-          open={!!menuMemberId}
-          member={menuMember}
-          variant="sheet"
-          onClose={() => setMenuMemberId(null)}
-        />
-      ) : null}
+      <div className="mt-5 flex flex-col gap-5">
+        <RecentTeamActivityPanel />
+        <TeamPerformancePanel />
+      </div>
+
+      <TeamHubModalLayer modal={hubModal} onClose={() => setHubModal(null)} onSetModal={setHubModal} />
+      <TeamFilterModal open={filterOpen} onClose={() => setFilterOpen(false)} />
+      <ExportTeamMembersModal open={exportOpen} onClose={() => setExportOpen(false)} />
     </div>
   );
 }

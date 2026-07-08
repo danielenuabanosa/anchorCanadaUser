@@ -52,10 +52,12 @@ export function TemplateOptionCard({
     <button
       type="button"
       onClick={onSelect}
-      className={`relative flex w-full flex-col overflow-hidden bg-white text-left transition-all ${
+      className={`relative flex w-full flex-col overflow-hidden text-left transition-all ${
         compact
-          ? `rounded-[10px] ${selected ? 'border-2 border-[#2F66C8]' : 'border border-[#EEF2F8]'}`
-          : `rounded-[10px] ${selected ? 'border-2 border-[#2F66C8] bg-[#F8FAFC]' : 'border border-[#EEF2F8]'}`
+          ? `rounded-[10px] bg-white ${selected ? 'border-2 border-[#2F66C8]' : 'border border-[#EEF2F8]'}`
+          : `rounded-[20px] shadow-[0px_6px_16px_0px_rgba(0,0,0,0.08)] ${
+              selected ? 'border-2 border-[#2F66C8] bg-[#F8FAFC]' : 'border border-[#D9E1EF] bg-white'
+            }`
       }`}
     >
       <div className="relative h-[180px] w-full shrink-0 overflow-hidden bg-[#EFF4FF]">
@@ -68,17 +70,13 @@ export function TemplateOptionCard({
       <div className="flex flex-1 flex-col p-5">
         <div className={compact ? undefined : 'pb-2.5'}>
           <p
-            className={`font-semibold text-[#0F172A] ${
-              compact ? 'text-base leading-normal' : 'font-sans text-[18px]'
+            className={`font-sans font-semibold text-[#0F172A] ${
+              compact ? 'text-lg leading-[21px]' : 'text-[18px] leading-normal'
             }`}
           >
             {template.title}
           </p>
-          <p
-            className={`font-sans leading-[1.6] text-[#44516A] ${
-              compact ? 'mt-2.5 text-sm' : 'mt-2.5 text-[14px]'
-            }`}
-          >
+          <p className="mt-2.5 font-sans text-[14px] leading-[1.6] text-[#44516A]">
             {template.description}
           </p>
         </div>

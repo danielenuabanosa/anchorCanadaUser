@@ -36,8 +36,8 @@ export function OtpInput({ digits, onChange, length = 6, variant = 'desktop' }: 
 
   const inputClass =
     variant === 'desktop'
-      ? 'size-[60px] shrink-0 rounded-[10px] border border-[#D9E1EF] bg-white text-center font-sans text-[16px] font-normal text-[#0F172A] outline-none transition focus:border-[#2F66C8] focus:ring-1 focus:ring-[#2F66C8]/20'
-      : 'h-[50px] min-w-0 flex-1 rounded-[10px] border border-[#D9E1EF] bg-white text-center font-sans text-[16px] font-normal text-[#0F172A] outline-none transition focus:border-[#2F66C8] focus:ring-1 focus:ring-[#2F66C8]/20';
+      ? 'no-anchor-field size-[60px] shrink-0 rounded-[10px] border border-[#D9E1EF] bg-[#F8FAFC] text-center font-sans text-[16px] font-normal text-[#0F172A] outline-none transition focus:border-[#2F66C8] focus:ring-1 focus:ring-[#2F66C8]/20'
+      : 'no-anchor-field h-[50px] min-w-0 flex-1 rounded-[10px] border border-[#D9E1EF] bg-[#F8FAFC] text-center font-sans text-[16px] font-normal text-[#0F172A] outline-none transition focus:border-[#2F66C8] focus:ring-1 focus:ring-[#2F66C8]/20';
 
   const containerClass =
     variant === 'desktop'

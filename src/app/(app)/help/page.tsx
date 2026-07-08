@@ -1,17 +1,22 @@
 'use client';
 
-import DesktopView from './_components/DesktopView';
-import MobileView from './_components/MobileView';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useHelpCenterStore } from '@/store/helpCenterStore';
 
 export default function HelpPage() {
-  return (
-    <>
-      <div className="hidden w-full md:block">
-        <DesktopView />
-      </div>
-      <div className="block w-full md:hidden">
-        <MobileView />
-      </div>
-    </>
-  );
+  const router = useRouter();
+  const open = useHelpCenterStore((s) => s.open);
+
+  useEffect(() => {
+    open();
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+    } else {
+      router.replace('/dashboard');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return null;
 }

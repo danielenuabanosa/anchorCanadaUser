@@ -8,8 +8,10 @@ import {
   FileX,
   NotepadText,
   UserPlus,
+  Video,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import type { ApplicationStage } from '../[id]/_components/applicationDetailData';
 
 export const APPLICATION_ACTION_ITEMS: {
   label: string;
@@ -18,11 +20,47 @@ export const APPLICATION_ACTION_ITEMS: {
 }[] = [
   { label: 'View Applicant', icon: Eye },
   { label: 'Shortlist Applicant', icon: CircleCheckBig },
+  { label: 'Schedule Interview', icon: Video },
+  { label: 'Accept Application', icon: CircleCheckBig },
   { label: 'Reject Applicant', icon: FileX },
   { label: 'Assign Reviewer', icon: UserPlus },
   { label: 'Add Note', icon: NotepadText },
   { label: 'Download Submission', icon: Download },
 ];
+
+export const STAGE_ACTION_LABELS: Record<ApplicationStage, readonly string[]> = {
+  'Under Review': [
+    'View Applicant',
+    'Shortlist Applicant',
+    'Reject Applicant',
+    'Assign Reviewer',
+    'Add Note',
+    'Download Submission',
+  ],
+  Shortlisted: [
+    'View Applicant',
+    'Schedule Interview',
+    'Reject Applicant',
+    'Assign Reviewer',
+    'Add Note',
+    'Download Submission',
+  ],
+  Interview: [
+    'View Applicant',
+    'Accept Application',
+    'Reject Applicant',
+    'Assign Reviewer',
+    'Add Note',
+    'Download Submission',
+  ],
+  Accepted: ['View Applicant', 'Add Note', 'Download Submission'],
+  Rejected: ['View Applicant', 'Add Note', 'Download Submission'],
+};
+
+export function getActionsForStage(stage: ApplicationStage) {
+  const labels = STAGE_ACTION_LABELS[stage];
+  return APPLICATION_ACTION_ITEMS.filter((item) => labels.includes(item.label));
+}
 
 interface ApplicationActionsDropdownProps {
   open: boolean;

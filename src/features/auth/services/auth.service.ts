@@ -1,6 +1,6 @@
 import apiClient from '@/lib/api';
 import { getApiErrorMessage, getStoredToken } from '@/lib/apiError';
-import { isStaticMode } from '@/lib/staticMode';
+import { isStaticMode, resolveDevLoginEmail } from '@/lib/staticMode';
 import {
   establishOnboardingSession,
   GUEST_PROVIDER_TOKEN,
@@ -10,14 +10,15 @@ import { useAuthStore } from '@/store/authStore';
 import type { AuthResponse, LoginDto, RegisterResult } from '../types';
 
 function staticAuthResponse(email: string, name?: string): AuthResponse {
-  const user = useAuthStore.getState().user;
+  const normalizedEmail = resolveDevLoginEmail(email);
+  const displayName = name?.trim() || normalizedEmail.split('@')[0] || 'Guest Provider';
+
   return {
     user: {
-      id: user?.id ?? 'guest-provider-001',
-      name: name ?? user?.name ?? 'Guest Provider',
-      email,
+      id: `provider-${normalizedEmail.replace(/[^a-z0-9]/gi, '-')}`,
+      name: displayName,
+      email: normalizedEmail,
       role: 'provider',
-      avatarUrl: user?.avatarUrl,
     },
     token: GUEST_PROVIDER_TOKEN,
   };
@@ -35,6 +36,11 @@ export const authService = {
       const { data } = await apiClient.post<AuthResponse>('/auth/login', dto);
       return data;
     } catch (error) {
+      if (isStaticMode()) {
+        const response = staticAuthResponse(dto.email);
+        useAuthStore.getState().setAuth(response.user, response.token);
+        return response;
+      }
       throw new Error(getApiErrorMessage(error, 'Login failed.'));
     }
   },
