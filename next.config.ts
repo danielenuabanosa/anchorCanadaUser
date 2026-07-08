@@ -1,7 +1,7 @@
-<<<<<<< HEAD
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
@@ -9,12 +9,7 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'api.dicebear.com' },
     ],
   },
-=======
-import type { NextConfig } from "next";
+}
 
-const nextConfig: NextConfig = {
-  output: "standalone",
->>>>>>> provider/main
-};
 
 export default nextConfig;
