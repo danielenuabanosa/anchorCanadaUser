@@ -1,45 +1,44 @@
 import apiClient from '@/lib/api';
 import { getApiErrorMessage, getStoredToken } from '@/lib/apiError';
-import { isStaticMode, resolveDevLoginEmail } from '@/lib/staticMode';
+import { createOfflineAuthResponse } from '@/lib/offlineAuth';
+import { isStaticMode } from '@/lib/staticMode';
 import {
   establishOnboardingSession,
   GUEST_PROVIDER_TOKEN,
   isOfflineProviderSession,
 } from '@/lib/providerSession';
 import { useAuthStore } from '@/store/authStore';
+import axios from 'axios';
 import type { AuthResponse, LoginDto, RegisterResult } from '../types';
 
-function staticAuthResponse(email: string, name?: string): AuthResponse {
-  const normalizedEmail = resolveDevLoginEmail(email);
-  const displayName = name?.trim() || normalizedEmail.split('@')[0] || 'Guest Provider';
+function toAuthResponse(email: string, name?: string): AuthResponse {
+  const { user, token } = createOfflineAuthResponse(email, name);
+  return { user, token };
+}
 
-  return {
-    user: {
-      id: `provider-${normalizedEmail.replace(/[^a-z0-9]/gi, '-')}`,
-      name: displayName,
-      email: normalizedEmail,
-      role: 'provider',
-    },
-    token: GUEST_PROVIDER_TOKEN,
-  };
+/** False when the auth API is down, missing, or otherwise not ready. */
+function apiClientIsReachable(error: unknown): boolean {
+  if (!axios.isAxiosError(error)) return true;
+  if (!error.response) return false;
+
+  const status = error.response.status;
+  return status !== 404 && status !== 501 && status < 500;
 }
 
 export const authService = {
   async login(dto: LoginDto): Promise<AuthResponse> {
     if (isStaticMode()) {
-      const response = staticAuthResponse(dto.email);
-      useAuthStore.getState().setAuth(response.user, response.token);
-      return response;
+      return toAuthResponse(dto.email);
     }
 
     try {
       const { data } = await apiClient.post<AuthResponse>('/auth/login', dto);
       return data;
     } catch (error) {
-      if (isStaticMode()) {
-        const response = staticAuthResponse(dto.email);
-        useAuthStore.getState().setAuth(response.user, response.token);
-        return response;
+      // While the backend is unavailable, fall back to an offline session
+      // instead of trapping the user on the login screen.
+      if (!apiClientIsReachable(error)) {
+        return toAuthResponse(dto.email);
       }
       throw new Error(getApiErrorMessage(error, 'Login failed.'));
     }
@@ -52,15 +51,16 @@ export const authService = {
     role: 'provider';
   }): Promise<RegisterResult> {
     if (isStaticMode()) {
-      const response = staticAuthResponse(dto.email, dto.name);
-      useAuthStore.getState().setAuth(response.user, response.token);
-      return response;
+      return toAuthResponse(dto.email, dto.name);
     }
 
     try {
       const { data } = await apiClient.post<RegisterResult>('/auth/register', dto);
       return data;
     } catch (error) {
+      if (!apiClientIsReachable(error)) {
+        return toAuthResponse(dto.email, dto.name);
+      }
       throw new Error(getApiErrorMessage(error, 'Registration failed.'));
     }
   },

@@ -1,24 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/authStore';
+import { useAuthBootstrap } from '@/shared/hooks/useAuthBootstrap';
 
 export default function HomePage() {
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const router = useRouter();
-  const [hydrated, setHydrated] = useState(false);
+  const { ready, isAuthenticated, isOfflineMode } = useAuthBootstrap();
 
   useEffect(() => {
-    const unsub = useAuthStore.persist.onFinishHydration(() => setHydrated(true));
-    setHydrated(useAuthStore.persist.hasHydrated());
-    return unsub;
-  }, []);
+    if (!ready) return;
 
-  useEffect(() => {
-    if (!hydrated) return;
-    router.replace(isAuthenticated ? '/dashboard' : '/onboarding');
-  }, [hydrated, isAuthenticated, router]);
+    if (isOfflineMode || isAuthenticated) {
+      router.replace('/dashboard');
+      return;
+    }
+
+    router.replace('/onboarding');
+  }, [ready, isAuthenticated, isOfflineMode, router]);
 
   return null;
 }

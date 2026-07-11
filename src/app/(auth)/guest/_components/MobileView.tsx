@@ -4,29 +4,23 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/authStore';
-import { GUEST_PROVIDER_TOKEN } from '@/lib/providerSession';
+import { establishOfflineSession } from '@/lib/offlineAuth';
 
 import { AuthSignupBar } from '@/features/auth/components/AuthSignupBar';
 import { SocialAuthButtons } from '@/features/auth/components/SocialAuthButtons';
 import shieldIcon from '@assets/icons/shield-check.png';
 
-const GUEST_USER = {
-  id: 'guest-provider-001',
-  name: 'Guest Provider',
-  email: 'guest@provider.anchorcanada.ca',
-  role: 'provider' as const,
-};
-
 export default function GuestMobileView() {
   const [isContinuing, setIsContinuing] = useState(false);
   const router = useRouter();
-  const setAuth = useAuthStore((s) => s.setAuth);
 
   async function handleContinueAsGuest() {
     setIsContinuing(true);
     await new Promise((r) => setTimeout(r, 600));
-    setAuth(GUEST_USER, GUEST_PROVIDER_TOKEN);
+    establishOfflineSession({
+      email: 'guest@provider.anchorcanada.ca',
+      name: 'Guest Provider',
+    });
     router.push('/dashboard');
   }
 
