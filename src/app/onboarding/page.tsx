@@ -1,15 +1,10 @@
-import DesktopView from './_components/DesktopView';
-import MobileView from './_components/MobileView';
+import { ProviderApplicationShell } from '@/components/provider-application/provider-application-shell';
+import { JourneyStep } from '@/components/provider-application/journey/journey-step';
 
 export default function OnboardingJourneyPage() {
   return (
-    <>
-      <div className="hidden md:block w-full">
-        <DesktopView />
-      </div>
-      <div className="block md:hidden w-full">
-        <MobileView />
-      </div>
-    </>
+    <ProviderApplicationShell currentStepId="journey">
+      <JourneyStep />
+    </ProviderApplicationShell>
   );
 }

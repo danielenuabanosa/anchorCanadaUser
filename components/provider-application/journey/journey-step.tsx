@@ -1,16 +1,30 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { JOURNEY_OPTIONS } from "@/lib/provider-application/constants";
 import type { JourneyOptionId } from "@/lib/provider-application/types";
+import { useProviderOnboardingStore } from "@/store/onboardingStore";
 
 import { JourneyNavigation } from "./journey-navigation";
 import { JourneyOptionCard } from "./journey-option-card";
 
 export function JourneyStep() {
+  const router = useRouter();
+  const setOnboardingData = useProviderOnboardingStore((s) => s.setOnboardingData);
   const [selectedJourney, setSelectedJourney] =
     useState<JourneyOptionId>("explore");
+
+  function handleContinue() {
+    if (!selectedJourney) return;
+    setOnboardingData({ journey: selectedJourney });
+    if (selectedJourney === "explore") {
+      router.push("/guest");
+      return;
+    }
+    router.push("/onboarding/organization-type");
+  }
 
   return (
     <>
@@ -43,9 +57,8 @@ export function JourneyStep() {
 
       <JourneyNavigation
         isContinueDisabled={!selectedJourney}
-        onContinue={() => {
-          // Next step routing will be wired when subsequent steps are built.
-        }}
+        onBack={() => router.push("/login")}
+        onContinue={handleContinue}
       />
     </>
   );
