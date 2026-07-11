@@ -13,20 +13,10 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
-<<<<<<< HEAD
     "plugins": [{ "name": "next" }],
     "paths": {
       "@/*": ["./src/*"],
       "@assets/*": ["./assets/*"]
-=======
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "paths": {
-      "@/*": ["./*"]
->>>>>>> provider/main
     }
   },
   "include": [
@@ -34,12 +24,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-<<<<<<< HEAD
     ".next/dev/types/**/*.ts"
-=======
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
->>>>>>> provider/main
   ],
   "exclude": ["node_modules"]
 }
