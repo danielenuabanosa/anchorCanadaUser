@@ -143,6 +143,34 @@
   --font-weight-semibold:  600;
   --font-weight-bold:      700;
   --font-weight-extrabold: 800;
+
+  /* -- Provider application / shadcn-compatible aliases -- */
+  --font-heading: var(--font-serif);
+  --color-foreground: #1a1a1a;
+  --color-card: #ffffff;
+  --color-card-foreground: #1a1a1a;
+  --color-primary: #2f66c8;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f5f7fa;
+  --color-secondary-foreground: #2f66c8;
+  --color-muted: #f5f7fa;
+  --color-muted-foreground: #6b7280;
+  --color-accent: #eef3fb;
+  --color-accent-foreground: #2f66c8;
+  --color-destructive: #ef4444;
+  --color-ring: #2f66c8;
+  --color-input: #e5e7eb;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #1a1a1a;
+  --color-journey-publish-tag: #fff0e6;
+  --color-journey-publish-tag-foreground: #c45a1a;
+  --color-journey-publish-accent: #e87c3a;
+  --color-journey-explore-tag: #f3ecff;
+  --color-journey-explore-tag-foreground: #7c3aed;
+  --color-journey-explore-accent: #8b5cf6;
+  --color-info-banner: #eef4fc;
+  --color-info-banner-foreground: #4b5563;
+  --color-step-inactive: #e8edf5;
 }
 
 /* Aliases used across Figma handoff markup */
