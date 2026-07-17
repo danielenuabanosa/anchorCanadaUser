@@ -6,13 +6,8 @@ import { Sidebar } from '@/shared/components/layout/Sidebar';
 import { Topbar } from '@/shared/components/layout/Topbar';
 import { OpportunityManagementTopbar } from '@/shared/components/layout/OpportunityManagementTopbar';
 import { BottomNav } from '@/shared/components/layout/BottomNav';
-<<<<<<< HEAD
 import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
 import { SidebarProvider } from '@/shared/context/SidebarContext';
-import { useAuthStore } from '@/store/authStore';
-import { isStaticMode } from '@/lib/staticMode';
-=======
->>>>>>> e0aeb99b7d0932e297749c27dab196cb786b5ba7
 import { cn } from '@/lib/utils';
 import { isHubListPage, usesOpportunityManagementTopbar } from '@/shared/lib/hubRoutes';
 import { HelpCenterRoot } from '@/features/help-center/HelpCenterRoot';
