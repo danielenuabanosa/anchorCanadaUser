@@ -115,6 +115,8 @@ export interface OpportunityCategoryConfig {
   eligibleImmigrationStatuses: string[];
   interpretationAvailable: boolean;
   referralDetails: string;
+  /** Application process */
+  requiresInterview: boolean;
 }
 
 export const LANGUAGE_OPTIONS: CategoryConfigOption[] = [
@@ -798,4 +800,5 @@ export const DEFAULT_CATEGORY_CONFIG: OpportunityCategoryConfig = {
   eligibleImmigrationStatuses: ['permanent-resident'],
   interpretationAvailable: false,
   referralDetails: '',
+  requiresInterview: true,
 };

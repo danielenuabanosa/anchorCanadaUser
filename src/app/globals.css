@@ -190,6 +190,61 @@
   line-height: 180%;
 }
 
+@utility type-page-title {
+  font-family: var(--font-serif);
+  font-size: 42px;
+  font-weight: 400;
+  line-height: 1.15;
+  color: #0f172a;
+
+  @variant lg {
+    font-size: 48px;
+  }
+}
+
+@utility type-page-accent {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 44px;
+  font-weight: 400;
+  line-height: 1.15;
+  color: #2f66c8;
+
+  @variant lg {
+    font-size: 52px;
+  }
+}
+
+@utility type-page-title-mobile {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #0f172a;
+}
+
+@utility type-page-accent-mobile {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #2f66c8;
+}
+
+@utility type-subtitle {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #8c97ad;
+}
+
+@utility type-label {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
 /* - Base Reset --------------- */
 *, *::before, *::after { box-sizing: border-box; }
 

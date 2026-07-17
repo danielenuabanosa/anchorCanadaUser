@@ -119,15 +119,14 @@ export default function MobileView() {
         <NotificationsList
           mobile
           pageItems={hub.pageItems}
-          filtered={hub.filtered}
           selected={hub.selected}
           selectionMode={hub.selectionMode}
           actionsOpenId={hub.actionsOpenId}
-          rangeStart={hub.rangeStart}
-          rangeEnd={hub.rangeEnd}
           page={hub.page}
-          totalPages={hub.totalPages}
-          onPageChange={hub.setPage}
+          pageSize={hub.pageSize}
+          total={hub.total}
+          onPageChange={hub.goToPage}
+          onPageSizeChange={hub.changePageSize}
           onToggleSelect={hub.toggleSelect}
           onToggleGroupSelect={hub.toggleGroupSelect}
           onEnterSelection={hub.enterSelectionMode}

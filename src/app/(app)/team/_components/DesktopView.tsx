@@ -1,13 +1,15 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { ChevronDown, ChevronLeft, ChevronRight, Ellipsis, Plus } from 'lucide-react';
+import { Ellipsis, Plus } from 'lucide-react';
+import { usePagination } from '@/lib/pagination';
 import { cn } from '@/lib/utils';
 import { HubStatCard } from '@/app/(app)/opportunities/_components/HubStatCard';
 import { HubFilterBar } from '@/shared/components/hub/HubFilterBar';
 import { HubSortSelect } from '@/shared/components/hub/HubSortSelect';
+import { ListPagination } from '@/shared/components/ui/ListPagination';
 import {
   DEFAULT_TEAM_HUB_FILTERS,
   ROLE_STYLES,
@@ -17,7 +19,6 @@ import {
   TEAM_ROLE_FILTER_OPTIONS,
   TEAM_STATS,
   TEAM_STATUS_FILTER_OPTIONS,
-  TOTAL_MEMBER_COUNT,
   filterByTeamHubFilters,
   sortTeamMembers,
   type TeamHubFilters,
@@ -32,21 +33,11 @@ import {
 } from './TeamHubModals';
 import { TeamHubBottomSections } from './TeamHubSections';
 
-const ROWS_PER_PAGE = 10;
-
-function buildPageNumbers(current: number, total: number): (number | 'ellipsis')[] {
-  if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
-  if (current <= 3) return [1, 2, 3, 'ellipsis', total];
-  if (current >= total - 2) return [1, 'ellipsis', total - 2, total - 1, total];
-  return [1, 'ellipsis', current, 'ellipsis', total];
-}
-
 export default function DesktopView() {
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState<TeamHubFilters>(DEFAULT_TEAM_HUB_FILTERS);
   const [sort, setSort] = useState('newest');
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [page, setPage] = useState(1);
   const [hubModal, setHubModal] = useState<TeamHubModal | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [menuMemberId, setMenuMemberId] = useState<string | null>(null);
@@ -68,14 +59,17 @@ export default function DesktopView() {
     return sortTeamMembers(searched, sort);
   }, [search, filters, sort]);
 
-  const totalPages = Math.max(1, Math.ceil(TOTAL_MEMBER_COUNT / ROWS_PER_PAGE));
-  const pageRows = filtered.slice((page - 1) * ROWS_PER_PAGE, page * ROWS_PER_PAGE);
-  const showingFrom = filtered.length === 0 ? 0 : (page - 1) * ROWS_PER_PAGE + 1;
-  const showingTo = Math.min(page * ROWS_PER_PAGE, TOTAL_MEMBER_COUNT);
+  const { page, pageSize, total, pageItems, goToPage, changePageSize, setPage } = usePagination(
+    filtered,
+    5,
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, filters, sort, setPage]);
 
   function setFilter<K extends keyof TeamHubFilters>(key: K, value: TeamHubFilters[K]) {
     setFilters((prev) => ({ ...prev, [key]: value }));
-    setPage(1);
   }
 
   function toggleRow(id: string) {
@@ -88,8 +82,8 @@ export default function DesktopView() {
   }
 
   function toggleAll() {
-    if (selected.size === pageRows.length) setSelected(new Set());
-    else setSelected(new Set(pageRows.map((r) => r.id)));
+    if (selected.size === pageItems.length) setSelected(new Set());
+    else setSelected(new Set(pageItems.map((r) => r.id)));
   }
 
   function handleAction(member: TeamMemberRow, label: string) {
@@ -124,14 +118,10 @@ export default function DesktopView() {
       <HubFilterBar
         searchPlaceholder="Search team members..."
         searchValue={search}
-        onSearchChange={(value) => {
-          setSearch(value);
-          setPage(1);
-        }}
+        onSearchChange={setSearch}
         onClear={() => {
           setFilters(DEFAULT_TEAM_HUB_FILTERS);
           setSearch('');
-          setPage(1);
         }}
         filterMenus={[
           {
@@ -163,7 +153,7 @@ export default function DesktopView() {
           <div className="flex items-center gap-3.5">
             <input
               type="checkbox"
-              checked={pageRows.length > 0 && selected.size === pageRows.length}
+              checked={pageItems.length > 0 && selected.size === pageItems.length}
               onChange={toggleAll}
               className="h-[18px] w-[18px] rounded border-[#D9E1EF] bg-[#EEF2F8] text-[#2F66C8]"
             />
@@ -193,7 +183,7 @@ export default function DesktopView() {
         </div>
 
         <div className="overflow-visible p-5">
-          {pageRows.map((member) => (
+          {pageItems.map((member) => (
             <div
               key={member.id}
               className={cn(
@@ -248,60 +238,14 @@ export default function DesktopView() {
           ))}
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[#EEF2F8] px-5 py-4">
-          <p className="text-sm text-[#44516A]">
-            Showing {showingFrom} to {showingTo} of {TOTAL_MEMBER_COUNT} members
-          </p>
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-2.5">
-              <span className="text-sm text-[#44516A]">Rows per page</span>
-              <button
-                type="button"
-                className="inline-flex h-[34px] items-center gap-2 rounded-[6px] border border-[#EEF2F8] bg-white px-3 text-sm text-[#0F172A]"
-              >
-                {ROWS_PER_PAGE}
-                <ChevronDown className="h-3.5 w-3.5" />
-              </button>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => p - 1)}
-                className="flex h-12 w-12 items-center justify-center rounded-[6px] border border-[#D9E1EF] bg-white disabled:opacity-40"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              {buildPageNumbers(page, totalPages).map((n, idx) =>
-                n === 'ellipsis' ? (
-                  <span key={`ellipsis-${idx}`} className="flex h-12 min-w-12 items-center justify-center text-base text-[#44516A]">
-                    •••
-                  </span>
-                ) : (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => setPage(n)}
-                    className={cn(
-                      'flex h-12 min-w-12 items-center justify-center rounded-[6px] px-6 text-base font-medium',
-                      page === n ? 'bg-[#2F66C8] text-white' : 'border border-[#D9E1EF] bg-white text-[#44516A]',
-                    )}
-                  >
-                    {n}
-                  </button>
-                ),
-              )}
-              <button
-                type="button"
-                disabled={page >= totalPages}
-                onClick={() => setPage((p) => p + 1)}
-                className="flex h-12 w-12 items-center justify-center rounded-[6px] border border-[#D9E1EF] bg-white disabled:opacity-40"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        </div>
+        <ListPagination
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          noun="members"
+          onPageChange={goToPage}
+          onPageSizeChange={changePageSize}
+        />
       </div>
 
       <TeamHubBottomSections />

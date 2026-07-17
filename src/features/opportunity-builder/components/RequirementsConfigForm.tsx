@@ -219,7 +219,7 @@ export function RequirementsConfigForm({
                                 }
                                 placeholder="e.g. Share why you're interested…"
                                 rows={3}
-                                className="w-full resize-none rounded-[8px] border border-[#D9E1EF] px-3 py-2 pb-7 text-sm outline-none focus:border-[#2F66C8]"
+                                className="anchor-textarea resize-none pb-7 text-base"
                               />
                               <span className="absolute bottom-2 right-3 text-xs text-[#8C97AD]">
                                 {applicationConfig.leaveMessage.length} / 80
@@ -262,7 +262,7 @@ export function RequirementsConfigForm({
                   value={applicationConfig.googleFormLink}
                   onChange={(e) => onApplicationConfigChange({ googleFormLink: e.target.value })}
                   placeholder="https://docs.google.com/forms/..."
-                  className="h-11 w-full rounded-[8px] border border-[#D9E1EF] px-3 text-sm outline-none focus:border-[#2F66C8]"
+                  className="anchor-field"
                 />
               </label>
             </div>
@@ -282,7 +282,7 @@ export function RequirementsConfigForm({
                     <input
                       value={applicationUrl}
                       onChange={(e) => onDestinationChange({ applicationUrl: e.target.value })}
-                      className="h-11 w-full rounded-[8px] border border-[#D9E1EF] px-3 pr-10 text-sm outline-none focus:border-[#2F66C8]"
+                      className={`anchor-field${urlValid ? ' anchor-field--icon-right' : ''}`}
                     />
                     {urlValid ? (
                       <Check className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#15803D]" />
@@ -296,7 +296,7 @@ export function RequirementsConfigForm({
                   <input
                     value={destinationName}
                     onChange={(e) => onDestinationChange({ destinationName: e.target.value })}
-                    className="h-11 w-full rounded-[8px] border border-[#D9E1EF] px-3 text-sm outline-none focus:border-[#2F66C8]"
+                    className="anchor-field"
                   />
                 </label>
                 {urlValid ? (

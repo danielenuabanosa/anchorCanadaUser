@@ -1,11 +1,13 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowUp, Search, SlidersHorizontal, UserPlus } from 'lucide-react';
+import { usePagination } from '@/lib/pagination';
 import { cn } from '@/lib/utils';
 import { MobileHubPageHero } from '@/app/(app)/opportunities/_components/MobileHubPageHero';
 import { HubSortSelect } from '@/shared/components/hub/HubSortSelect';
+import { ListPagination } from '@/shared/components/ui/ListPagination';
 import {
   DEFAULT_TEAM_HUB_FILTERS,
   MOBILE_TEAM_STATS,
@@ -50,11 +52,20 @@ export default function MobileView() {
     return sortTeamMembers(searched, sort);
   }, [search, filters, sort]);
 
+  const { page, pageSize, total, pageItems, goToPage, changePageSize, setPage } = usePagination(
+    filtered,
+    5,
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, filters, sort, setPage]);
+
   const hasActiveFilters = Object.values(filters).some((v) => v !== 'all');
 
   function toggleAll() {
-    if (selected.size === filtered.length) setSelected(new Set());
-    else setSelected(new Set(filtered.map((m) => m.id)));
+    if (selected.size === pageItems.length) setSelected(new Set());
+    else setSelected(new Set(pageItems.map((m) => m.id)));
   }
 
   function handleAction(member: TeamMemberRow, label: string) {
@@ -158,7 +169,7 @@ export default function MobileView() {
         <div className="flex items-center gap-3.5">
           <input
             type="checkbox"
-            checked={filtered.length > 0 && selected.size === filtered.length}
+            checked={pageItems.length > 0 && selected.size === pageItems.length}
             onChange={toggleAll}
             className="h-[18px] w-[18px] rounded border-[#D9E1EF] bg-[#EEF2F8] text-[#2F66C8]"
           />
@@ -177,10 +188,21 @@ export default function MobileView() {
       </div>
 
       <div className="mt-5 flex flex-col gap-5">
-        {filtered.map((member) => (
+        {pageItems.map((member) => (
           <MobileTeamMemberCard key={member.id} member={member} onAction={handleAction} />
         ))}
       </div>
+
+      <ListPagination
+        compact
+        className="mt-5"
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        noun="members"
+        onPageChange={goToPage}
+        onPageSizeChange={changePageSize}
+      />
 
       <div className="mt-5 flex flex-col gap-5">
         <RecentTeamActivityPanel />

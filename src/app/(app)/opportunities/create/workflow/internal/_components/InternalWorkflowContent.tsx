@@ -68,7 +68,8 @@ function updateStage(stages: WorkflowStage[], stageId: string, patch: Partial<Wo
 
 export function InternalWorkflowContent() {
   const router = useRouter();
-  const { internalWorkflow, setBuilderData } = useOpportunityBuilderStore();
+  const { categoryConfig, internalWorkflow, setBuilderData, setCategoryConfig } =
+    useOpportunityBuilderStore();
   const { stages, selectedStageId } = internalWorkflow;
   const [addStageOpen, setAddStageOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<WorkflowStage | null>(null);
@@ -79,6 +80,7 @@ export function InternalWorkflowContent() {
   );
 
   const selectedIndex = selectedStage ? stages.findIndex((s) => s.id === selectedStage.id) : -1;
+  const requiresInterview = categoryConfig.requiresInterview;
 
   function setStages(next: WorkflowStage[]) {
     setBuilderData({ internalWorkflow: { ...internalWorkflow, stages: next } });
@@ -87,6 +89,10 @@ export function InternalWorkflowContent() {
   function patchSelected(patch: Partial<WorkflowStage>) {
     if (!selectedStage) return;
     setStages(updateStage(stages, selectedStage.id, patch));
+  }
+
+  function handleRequiresInterview(checked: boolean) {
+    setCategoryConfig({ requiresInterview: checked });
   }
 
   function addStageFromModal(partial: Partial<WorkflowStage> & { insertAfterId?: string }) {
@@ -143,6 +149,18 @@ export function InternalWorkflowContent() {
             }
             hint="Drag to reorder stages"
           >
+            <div className="mb-4 rounded-[10px] border border-[#EEF2F8] bg-[#F8FAFC] p-4">
+              <ToggleRow
+                label="Requires Interview"
+                description={
+                  requiresInterview
+                    ? 'Interview stage is included after Shortlist and shown to applicants.'
+                    : 'Interview stage is hidden from this workflow.'
+                }
+                checked={requiresInterview}
+                onChange={handleRequiresInterview}
+              />
+            </div>
             <div className="flex flex-col gap-2.5">
               {stages.map((stage, index) => {
                 const isSelected = stage.id === selectedStage?.id;

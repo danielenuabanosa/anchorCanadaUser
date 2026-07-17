@@ -1,17 +1,13 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Download,
-  Ellipsis,
-} from 'lucide-react';
+import { Download, Ellipsis } from 'lucide-react';
+import { usePagination } from '@/lib/pagination';
 import { cn } from '@/lib/utils';
 import { HubFilterBar } from '@/shared/components/hub/HubFilterBar';
+import { ListPagination } from '@/shared/components/ui/ListPagination';
 import { HubStatCard } from '@/app/(app)/opportunities/_components/HubStatCard';
 import { useProviderApplications } from '@/features/provider/hooks/useProviderHubData';
 import {
@@ -56,15 +52,12 @@ import {
   ApplicationsTableSkeleton,
 } from './ApplicationHubStates';
 
-const PAGE_SIZE = 10;
-
 export default function DesktopView() {
   const [activeTab, setActiveTab] = useState<ApplicationTab>('all');
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState<ApplicationHubFilters>(DEFAULT_APP_HUB_FILTERS);
   const [sort, setSort] = useState('newest');
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [page, setPage] = useState(1);
   const [exportOpen, setExportOpen] = useState(false);
   const [exportSuccessOpen, setExportSuccessOpen] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
@@ -97,6 +90,15 @@ export default function DesktopView() {
     return sortApplicants(searched, sort);
   }, [activeTab, search, applicants, filters, sort]);
 
+  const { page, pageSize, total, pageItems, goToPage, changePageSize, setPage } = usePagination(
+    filtered,
+    5,
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [sort, setPage]);
+
   const isEmptySource = !loading && applicants.length === 0;
   const isNoMatch = !loading && applicants.length > 0 && filtered.length === 0;
   const tabs = isEmptySource ? EMPTY_APPLICATION_TABS : APPLICATION_TABS;
@@ -114,9 +116,6 @@ export default function DesktopView() {
     setPage(1);
   }
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const pageRows = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-
   function toggleRow(id: string) {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -127,10 +126,10 @@ export default function DesktopView() {
   }
 
   function toggleAll() {
-    if (selected.size === pageRows.length && pageRows.length > 0) {
+    if (selected.size === pageItems.length && pageItems.length > 0) {
       setSelected(new Set());
     } else {
-      setSelected(new Set(pageRows.map((r) => r.id)));
+      setSelected(new Set(pageItems.map((r) => r.id)));
     }
   }
 
@@ -265,9 +264,9 @@ export default function DesktopView() {
             <div className="flex items-center gap-3.5">
               <input
                 type="checkbox"
-                checked={pageRows.length > 0 && selected.size === pageRows.length}
+                checked={pageItems.length > 0 && selected.size === pageItems.length}
                 onChange={toggleAll}
-                disabled={pageRows.length === 0}
+                disabled={pageItems.length === 0}
                 className="h-[18px] w-[18px] rounded border-[#D9E1EF] bg-[#EEF2F8] text-[#2F66C8]"
               />
               <p className="text-sm text-[#8C97AD]">0 selected</p>
@@ -297,7 +296,7 @@ export default function DesktopView() {
           <ApplicationsNoMatchState />
         ) : (
           <div className="p-5">
-            {pageRows.map((row) => (
+            {pageItems.map((row) => (
               <div
                 key={row.id}
                 className="grid grid-cols-1 gap-3 border-b border-[#EEF2F8] py-0 last:border-b-0 md:grid-cols-[40px_1fr_1fr_200px_140px_1fr_100px] md:items-center md:gap-2.5 md:py-0"
@@ -396,67 +395,14 @@ export default function DesktopView() {
           </div>
         )}
 
-        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[#EEF2F8] px-5 py-5">
-          <p className="text-sm text-[#44516A]">
-            {filtered.length === 0
-              ? 'Showing 1 of 0 results'
-              : `Showing ${(page - 1) * PAGE_SIZE + 1} to ${Math.min(page * PAGE_SIZE, filtered.length)} of ${filtered.length.toLocaleString()} results`}
-          </p>
-          <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              disabled={page <= 1}
-              onClick={() => setPage((p) => p - 1)}
-              className="flex h-[34px] w-[34px] items-center justify-center rounded-[6px] border border-[#D9E1EF] bg-white disabled:opacity-40"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            {[1, 2, 3].filter((n) => n <= totalPages).map((n) => (
-              <button
-                key={n}
-                type="button"
-                onClick={() => setPage(n)}
-                className={cn(
-                  'flex h-[34px] min-w-[34px] items-center justify-center rounded-[6px] px-2.5 text-sm font-medium',
-                  page === n ? 'bg-[#2F66C8] text-white' : 'border border-[#D9E1EF] bg-white text-[#44516A]',
-                )}
-              >
-                {n}
-              </button>
-            ))}
-            {totalPages > 4 ? <span className="text-sm text-[#8C97AD]">•••</span> : null}
-            {totalPages > 3 ? (
-              <button
-                type="button"
-                onClick={() => setPage(totalPages)}
-                className={cn(
-                  'flex h-[34px] min-w-[34px] items-center justify-center rounded-[6px] px-2.5 text-sm font-medium',
-                  page === totalPages ? 'bg-[#2F66C8] text-white' : 'border border-[#D9E1EF] bg-white text-[#44516A]',
-                )}
-              >
-                {totalPages}
-              </button>
-            ) : null}
-            <button
-              type="button"
-              disabled={page >= totalPages || filtered.length === 0}
-              onClick={() => setPage((p) => p + 1)}
-              className="flex h-[34px] w-[34px] items-center justify-center rounded-[6px] border border-[#D9E1EF] bg-white disabled:opacity-40"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="flex items-center gap-2.5 text-sm text-[#44516A]">
-            Rows per page
-            <button
-              type="button"
-              className="inline-flex h-[34px] items-center gap-1 rounded-[6px] border border-[#D9E1EF] px-3"
-            >
-              {isEmptySource ? 1 : PAGE_SIZE}
-              <ChevronDown className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        </div>
+        <ListPagination
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          noun="results"
+          onPageChange={goToPage}
+          onPageSizeChange={changePageSize}
+        />
       </div>
 
       <ExportApplicationsModal

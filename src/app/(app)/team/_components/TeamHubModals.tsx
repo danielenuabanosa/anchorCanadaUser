@@ -14,6 +14,7 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { downloadTableExport } from '@/lib/exportTable';
 import { HubMenuSelect } from '@/shared/components/hub/HubMenuSelect';
 import avatar1 from '@assets/images/profile-avatar.png';
 import inviteExpiredHourglass from '@assets/images/team/invite-expired-hourglass.png';
@@ -22,7 +23,7 @@ import removeMemberTrash from '@assets/images/team/remove-member-trash.png';
 import suspendMemberShield from '@assets/images/team/suspend-member-shield.png';
 import activateMemberCheck from '@assets/images/team/activate-member-check.png';
 import type { InvitePayload, TeamMemberRow } from './teamManagementData';
-import { PERMISSION_GROUPS, ROLE_STYLES, TEAM_ROLES } from './teamManagementData';
+import { PERMISSION_GROUPS, ROLE_STYLES, TEAM_MEMBERS, TEAM_ROLES } from './teamManagementData';
 import { getActionsForMemberStatus, TeamActionsDropdown } from './TeamActionsDropdown';
 
 function memberToInvitePayload(member: TeamMemberRow): InvitePayload {
@@ -74,14 +75,14 @@ export function InviteTeamMemberModal({
   const body = (
     <div className="space-y-10">
       <Field label="Email Address" required>
-        <div className="flex h-[53px] items-center gap-3 rounded-[8px] border border-[#D9E1EF] px-4">
+        <div className="flex items-center gap-2.5 rounded-[10px] border border-[#D9E1EF] bg-white p-4 transition-colors focus-within:border-[#2F66C8]">
           <Mail className="h-[18px] w-[18px] text-[#8C97AD]" />
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter email address"
-            className="flex-1 text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
+            className="no-anchor-field flex-1 text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
           />
         </div>
       </Field>
@@ -117,7 +118,7 @@ export function InviteTeamMemberModal({
           onChange={(e) => setNotes(e.target.value)}
           rows={3}
           placeholder="e.g. You've been invited to join Maple Future Foundation. Please accept the invitation to get started."
-          className="w-full resize-none rounded-[8px] border border-[#D9E1EF] p-4 text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
+          className="anchor-textarea resize-none"
         />
       </Field>
     </div>
@@ -230,7 +231,7 @@ export function ResendInvitationModal({
       </div>
 
       <Field label="Email Address" required>
-        <div className="flex h-[53px] items-center gap-3 rounded-[8px] border border-[#D9E1EF] bg-[#F8FAFC] px-4">
+        <div className="flex items-center gap-2.5 rounded-[10px] border border-[#D9E1EF] bg-[#F8FAFC] p-4">
           <Mail className="h-[18px] w-[18px] text-[#8C97AD]" />
           <span className="flex-1 text-base text-[#0F172A]">{member.email}</span>
         </div>
@@ -267,7 +268,7 @@ export function ResendInvitationModal({
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={3}
-          className="w-full resize-none rounded-[8px] border border-[#D9E1EF] p-4 text-base text-[#44516A] outline-none"
+          className="anchor-textarea resize-none text-[#44516A]"
         />
       </Field>
     </div>
@@ -510,14 +511,14 @@ export function RolePermissionBuilderModal({
         {isCustom ? (
           <div className="mt-8">
             <Field label="Role Name" required>
-              <div className="flex h-[53px] items-center gap-3 rounded-[8px] border border-[#D9E1EF] px-4">
+              <div className="flex items-center gap-2.5 rounded-[10px] border border-[#D9E1EF] bg-white p-4 transition-colors focus-within:border-[#2F66C8]">
                 <TextCursorInput className="h-[18px] w-[18px] shrink-0 text-[#8C97AD]" strokeWidth={1.75} />
                 <input
                   type="text"
                   value={customRoleName}
                   onChange={(e) => setCustomRoleName(e.target.value)}
                   placeholder="Operations Manager"
-                  className="flex-1 text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
+                  className="no-anchor-field flex-1 text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
                 />
               </div>
             </Field>
@@ -629,6 +630,32 @@ export function ExportTeamMembersModal({ open, onClose }: { open: boolean; onClo
 
   if (!open) return null;
 
+  function handleGenerate() {
+    const headers = [
+      ...(checks.info ? ['Name', 'Email', 'Title'] : []),
+      ...(checks.roles ? ['Role', 'Permissions'] : []),
+      ...(checks.departments ? ['Department'] : []),
+      'Status',
+      ...(checks.activity ? ['Last Active'] : []),
+    ];
+
+    const rows = TEAM_MEMBERS.map((m) => {
+      const row: Array<string | number> = [];
+      if (checks.info) row.push(m.name, m.email, m.title);
+      if (checks.roles) row.push(m.role, m.permissions);
+      if (checks.departments) row.push(m.department);
+      row.push(m.status);
+      if (checks.activity) row.push(m.lastActive);
+      return row;
+    });
+
+    downloadTableExport(format, 'team-members-export', headers, rows, {
+      title: 'Export Team Members',
+      sheetName: 'Team Members',
+    });
+    onClose();
+  }
+
   return (
     <ModalShell
       title="Export Team Members"
@@ -669,9 +696,9 @@ export function ExportTeamMembersModal({ open, onClose }: { open: boolean; onClo
           <p className="mb-2.5 text-base font-semibold text-[#0F172A]">Accepted File Formats</p>
           <button
             type="button"
-            className="flex h-[53px] w-full items-center justify-between rounded-[8px] border border-[#D9E1EF] px-4 text-base text-[#0F172A]"
+            className="flex w-full items-center justify-between rounded-[10px] border border-[#D9E1EF] bg-white p-4 text-base text-[#0F172A]"
           >
-            All Team Members (24)
+            All Team Members ({TEAM_MEMBERS.length})
             <ChevronDown className="h-[18px] w-[18px] text-[#44516A]" />
           </button>
         </div>
@@ -700,7 +727,7 @@ export function ExportTeamMembersModal({ open, onClose }: { open: boolean; onClo
           </div>
         </div>
       </div>
-      <ModalFooter onCancel={onClose} confirmLabel="Generate Export" onConfirm={onClose} />
+      <ModalFooter onCancel={onClose} confirmLabel="Generate Export" onConfirm={handleGenerate} />
     </ModalShell>
   );
 }

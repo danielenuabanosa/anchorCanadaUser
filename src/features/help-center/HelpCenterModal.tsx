@@ -48,8 +48,8 @@ function SearchPanel() {
       <p className="font-serif text-2xl text-[#0F172A] md:text-[28px] md:leading-[56px]">How can we help you?</p>
       <div
         className={cn(
-          'flex w-full shrink-0 items-center gap-2.5 rounded-[10px] border p-4',
-          query ? 'border-[#2F66C8]' : 'border-[#D9E1EF]',
+          'flex w-full shrink-0 items-center gap-2.5 rounded-[10px] border border-[#D9E1EF] bg-white p-4 transition-colors focus-within:border-[#2F66C8]',
+          query && 'border-[#2F66C8]',
         )}
       >
         <Search className="h-[18px] w-[18px] shrink-0 text-[#8C97AD]" strokeWidth={1.75} aria-hidden />
@@ -58,7 +58,7 @@ function SearchPanel() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search for help articles...."
-          className="w-full bg-transparent text-sm text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
+          className="no-anchor-field w-full bg-transparent text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
         />
       </div>
 
@@ -101,8 +101,8 @@ function FaqPanel() {
       </p>
       <div
         className={cn(
-          'flex w-full shrink-0 items-center gap-2.5 rounded-[10px] border p-4',
-          query ? 'border-[#2F66C8]' : 'border-[#D9E1EF]',
+          'flex w-full shrink-0 items-center gap-2.5 rounded-[10px] border border-[#D9E1EF] bg-white p-4 transition-colors focus-within:border-[#2F66C8]',
+          query && 'border-[#2F66C8]',
         )}
       >
         <Search className="h-[18px] w-[18px] shrink-0 text-[#8C97AD]" strokeWidth={1.75} aria-hidden />
@@ -111,7 +111,7 @@ function FaqPanel() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search for FAQs...."
-          className="w-full bg-transparent text-sm text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
+          className="no-anchor-field w-full bg-transparent text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
         />
       </div>
 

@@ -1,7 +1,7 @@
 'use client';
 
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ListPagination } from '@/shared/components/ui/ListPagination';
 import type { NotificationItem } from './notificationsData';
 import { NotificationGroupCheckbox, NotificationRow } from './NotificationRow';
 import { NotificationBulkBar } from './NotificationsHubModals';
@@ -10,16 +10,15 @@ const GROUPS = ['Today', 'Yesterday', 'Earlier'] as const;
 
 interface NotificationsListProps {
   pageItems: NotificationItem[];
-  filtered: NotificationItem[];
   selected: Set<string>;
   selectionMode: boolean;
   mobile?: boolean;
   actionsOpenId: string | null;
-  rangeStart: number;
-  rangeEnd: number;
   page: number;
-  totalPages: number;
+  pageSize: number;
+  total: number;
   onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
   onToggleSelect: (id: string) => void;
   onToggleGroupSelect: (items: NotificationItem[]) => void;
   onEnterSelection: () => void;
@@ -36,16 +35,15 @@ interface NotificationsListProps {
 
 export function NotificationsList({
   pageItems,
-  filtered,
   selected,
   selectionMode,
   mobile,
   actionsOpenId,
-  rangeStart,
-  rangeEnd,
   page,
-  totalPages,
+  pageSize,
+  total,
   onPageChange,
+  onPageSizeChange,
   onToggleSelect,
   onToggleGroupSelect,
   onEnterSelection,
@@ -139,51 +137,16 @@ export function NotificationsList({
         );
       })}
 
-      <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm font-medium text-[#8C97AD]">
-          Showing {rangeStart} to {rangeEnd} of {filtered.length} notifications
-        </p>
-        <div className={cn('flex items-center', mobile ? 'gap-2.5' : 'gap-5')}>
-          <button
-            type="button"
-            disabled={page <= 1}
-            onClick={() => onPageChange(page - 1)}
-            className={cn(
-              'flex items-center justify-center rounded-[6px] border border-[#D9E1EF] bg-white disabled:opacity-40',
-              mobile ? 'h-10 w-10' : 'h-12 w-12',
-            )}
-            aria-label="Previous page"
-          >
-            <ChevronLeft className="h-4 w-4 text-[#0F172A]" />
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
-            <button
-              key={pageNumber}
-              type="button"
-              onClick={() => onPageChange(pageNumber)}
-              className={cn(
-                'flex items-center justify-center rounded-[6px] font-medium',
-                mobile ? 'h-10 min-w-[40px] px-4 text-sm' : 'h-12 min-w-[48px] px-6 text-base',
-                pageNumber === page ? 'bg-[#2F66C8] text-white' : 'border border-[#D9E1EF] bg-white text-[#0F172A]',
-              )}
-            >
-              {pageNumber}
-            </button>
-          ))}
-          <button
-            type="button"
-            disabled={page >= totalPages}
-            onClick={() => onPageChange(page + 1)}
-            className={cn(
-              'flex items-center justify-center rounded-[6px] border border-[#D9E1EF] bg-white disabled:opacity-40',
-              mobile ? 'h-10 w-10' : 'h-12 w-12',
-            )}
-            aria-label="Next page"
-          >
-            <ChevronRight className="h-4 w-4 text-[#0F172A]" />
-          </button>
-        </div>
-      </div>
+      <ListPagination
+        compact={mobile}
+        className="mt-5 border-t-0 px-0"
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        noun="notifications"
+        onPageChange={onPageChange}
+        onPageSizeChange={onPageSizeChange}
+      />
     </>
   );
 }

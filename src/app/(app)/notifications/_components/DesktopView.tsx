@@ -198,23 +198,21 @@ export default function DesktopView() {
 
             pageItems={hub.pageItems}
 
-            filtered={hub.filtered}
-
             selected={hub.selected}
 
             selectionMode={hub.selectionMode}
 
             actionsOpenId={hub.actionsOpenId}
 
-            rangeStart={hub.rangeStart}
-
-            rangeEnd={hub.rangeEnd}
-
             page={hub.page}
 
-            totalPages={hub.totalPages}
+            pageSize={hub.pageSize}
 
-            onPageChange={hub.setPage}
+            total={hub.total}
+
+            onPageChange={hub.goToPage}
+
+            onPageSizeChange={hub.changePageSize}
 
             onToggleSelect={hub.toggleSelect}
 

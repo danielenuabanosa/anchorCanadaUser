@@ -1,9 +1,10 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { usePagination } from '@/lib/pagination';
 import { StartBuilderDropdown } from '@/features/opportunity-builder/components/StartBuilderDropdown';
 import { useProviderOpportunities } from '@/features/provider/hooks/useProviderHubData';
+import { ListPagination } from '@/shared/components/ui/ListPagination';
 import { MobileHubPageHero } from './MobileHubPageHero';
 import { MobileHubStatGrid } from './MobileHubStatGrid';
 import { MobileHubTabs } from './MobileHubTabs';
@@ -21,7 +22,6 @@ import {
 
 export default function MobileView() {
   const [activeTab, setActiveTab] = useState<OpportunityTab>('all');
-  const [visibleCount, setVisibleCount] = useState(6);
   const { rows, setRows, loading, error } = useProviderOpportunities();
   const query = useOpportunityHubSearch();
 
@@ -30,8 +30,14 @@ export default function MobileView() {
     return filterByQuery(byTab, query);
   }, [activeTab, query, rows]);
 
-  const visible = filtered.slice(0, visibleCount);
-  const canLoadMore = visibleCount < filtered.length;
+  const { page, pageSize, total, pageItems, goToPage, changePageSize, setPage } = usePagination(
+    filtered,
+    5,
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [activeTab, query, setPage]);
 
   function handleDeleteRow(id: string) {
     setRows((prev) => prev.filter((row) => row.id !== id));
@@ -59,23 +65,22 @@ export default function MobileView() {
       </section>
 
       <div className="flex flex-col gap-5">
-        {visible.length === 0 ? (
+        {pageItems.length === 0 ? (
           <p className="py-8 text-center text-sm text-[#44516A]">No opportunities match this view.</p>
         ) : (
-          visible.map((row) => <MobileOpportunityCard key={row.id} row={row} onDelete={handleDeleteRow} />)
+          pageItems.map((row) => <MobileOpportunityCard key={row.id} row={row} onDelete={handleDeleteRow} />)
         )}
       </div>
 
-      {canLoadMore ? (
-        <button
-          type="button"
-          onClick={() => setVisibleCount((n) => n + 6)}
-          className="flex w-full items-center justify-center gap-2.5 rounded-[6px] border border-[#EEF2F8] bg-white px-4 py-3 text-sm leading-[18px] text-[#2F66C8]"
-        >
-          Load More Opportunities
-          <ChevronDown className="h-[18px] w-[18px]" strokeWidth={1.75} />
-        </button>
-      ) : null}
+      <ListPagination
+        compact
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        noun="opportunities"
+        onPageChange={goToPage}
+        onPageSizeChange={changePageSize}
+      />
 
       <MobileRecentActivityPanel items={RECENT_ACTIVITY.slice(0, 4)} />
     </div>

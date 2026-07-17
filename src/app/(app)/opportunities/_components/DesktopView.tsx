@@ -1,13 +1,22 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Download, Grid3X3, LayoutList } from 'lucide-react';
+import { usePagination } from '@/lib/pagination';
 import { cn } from '@/lib/utils';
 import { HubFilterBar } from '@/shared/components/hub/HubFilterBar';
+import { ListPagination } from '@/shared/components/ui/ListPagination';
 import { OpportunityGridCard } from '@/features/opportunity-builder/components/OpportunityGridCard';
 import { useProviderOpportunities } from '@/features/provider/hooks/useProviderHubData';
+import {
+  ArchiveOpportunityModal,
+  DeleteOpportunityModal,
+  ExportOpportunitiesModal,
+  ExtendDeadlineModal,
+  PauseOpportunityModal,
+} from './OpportunityHubModals';
 import { HubStatCard } from './HubStatCard';
 import { OpportunityTableRow } from './OpportunityTableRow';
 import { useOpportunityHubSearch } from './useOpportunityHubSearch';
@@ -33,6 +42,7 @@ export default function DesktopView() {
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [localSearch, setLocalSearch] = useState('');
   const [filters, setFilters] = useState<OpportunityHubFilters>(DEFAULT_OPP_HUB_FILTERS);
+  const [exportOpen, setExportOpen] = useState(false);
   const { rows, setRows, loading, error } = useProviderOpportunities();
   const topbarQuery = useOpportunityHubSearch();
   const query = localSearch || topbarQuery;
@@ -42,6 +52,15 @@ export default function DesktopView() {
     const byFilters = filterByHubFilters(byTab, filters);
     return filterByQuery(byFilters, query);
   }, [activeTab, filters, query, rows]);
+
+  const { page, pageSize, total, pageItems, goToPage, changePageSize, setPage } = usePagination(
+    filtered,
+    5,
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [activeTab, filters, query, setPage]);
 
   const hasActiveFilters = Object.values(filters).some((v) => v !== 'all');
 
@@ -69,6 +88,7 @@ export default function DesktopView() {
         </div>
         <button
           type="button"
+          onClick={() => setExportOpen(true)}
           className="inline-flex items-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white px-4 py-2.5 text-base font-medium text-[#0F172A]"
         >
           <Download className="h-[18px] w-[18px]" />
@@ -186,26 +206,46 @@ export default function DesktopView() {
             )}
           </div>
           <div className="px-5">
-            {filtered.length === 0 ? (
+            {pageItems.length === 0 ? (
               <p className="py-10 text-center text-sm text-[#44516A]">No opportunities match your filters.</p>
             ) : (
-              filtered.map((row) => (
+              pageItems.map((row) => (
                 <OpportunityTableRow key={row.id} row={row} onDelete={handleDeleteRow} />
               ))
             )}
           </div>
+          <ListPagination
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            noun="opportunities"
+            onPageChange={goToPage}
+            onPageSizeChange={changePageSize}
+          />
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {filtered.length === 0 ? (
-            <p className="col-span-full py-10 text-center text-sm text-[#44516A]">
-              No opportunities match your filters.
-            </p>
-          ) : (
-            filtered.map((row) => (
-              <OpportunityGridCard key={row.id} row={row} onDelete={handleDeleteRow} />
-            ))
-          )}
+        <div className="flex flex-col gap-5">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {pageItems.length === 0 ? (
+              <p className="col-span-full py-10 text-center text-sm text-[#44516A]">
+                No opportunities match your filters.
+              </p>
+            ) : (
+              pageItems.map((row) => (
+                <OpportunityGridCard key={row.id} row={row} onDelete={handleDeleteRow} />
+              ))
+            )}
+          </div>
+          <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white">
+            <ListPagination
+              page={page}
+              pageSize={pageSize}
+              total={total}
+              noun="opportunities"
+              onPageChange={goToPage}
+              onPageSizeChange={changePageSize}
+            />
+          </div>
         </div>
       )}
 
@@ -233,6 +273,12 @@ export default function DesktopView() {
           ))}
         </ul>
       </div>
+
+      <ExportOpportunitiesModal
+        open={exportOpen}
+        onClose={() => setExportOpen(false)}
+        rows={filtered}
+      />
     </div>
   );
 }

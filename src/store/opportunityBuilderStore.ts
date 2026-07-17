@@ -6,6 +6,7 @@ import {
   DEFAULT_EXPRESS_CONFIG,
   DEFAULT_EXTERNAL_CONFIG,
   DEFAULT_INTERNAL_STAGES,
+  syncInterviewStage,
   type ExpressInterestConfig,
   type ExternalWorkflowConfig,
   type WorkflowStage,
@@ -224,9 +225,28 @@ export const useOpportunityBuilderStore = create<OpportunityBuilderState>()(
           return { applicationConfig, workflowType };
         }),
       setCategoryConfig: (patch) =>
-        set((s) => ({
-          categoryConfig: { ...s.categoryConfig, ...patch },
-        })),
+        set((s) => {
+          const categoryConfig = { ...s.categoryConfig, ...patch };
+          if (patch.requiresInterview === undefined) {
+            return { categoryConfig };
+          }
+          const stages = syncInterviewStage(
+            s.internalWorkflow.stages,
+            categoryConfig.requiresInterview,
+          );
+          const selectedStillExists = stages.some(
+            (stage) => stage.id === s.internalWorkflow.selectedStageId,
+          );
+          return {
+            categoryConfig,
+            internalWorkflow: {
+              stages,
+              selectedStageId: selectedStillExists
+                ? s.internalWorkflow.selectedStageId
+                : stages[0]?.id ?? null,
+            },
+          };
+        }),
       resetBuilder: () => set(INITIAL),
     }),
     {

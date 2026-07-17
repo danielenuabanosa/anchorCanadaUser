@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { Check, ChevronDown, ChevronRight, Clock, Link2, Plus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { downloadTableExport } from '@/lib/exportTable';
 import { DatePickerField } from '@/shared/components/ui/DatePicker';
 import { HubMenuSelect } from '@/shared/components/hub/HubMenuSelect';
 import avatar2 from '@assets/images/profile-google.png';
@@ -12,6 +13,7 @@ import {
   ApplicationActionsDropdown,
   getActionsForStage,
 } from './ApplicationActionsDropdown';
+import { APPLICANTS } from './applicationsHubData';
 
 interface ExportModalProps {
   open: boolean;
@@ -33,6 +35,38 @@ export function ExportApplicationsModal({
   });
 
   if (!open) return null;
+
+  function handleGenerate() {
+    const headers = [
+      ...(checks.info ? ['Applicant', 'Email', 'Location'] : []),
+      'Opportunity',
+      'Type',
+      'Status',
+      'Applied',
+      ...(checks.scores ? ['Score'] : []),
+      ...(checks.notes ? ['Reviewer'] : []),
+      ...(checks.answers ? ['Stage'] : []),
+      ...(checks.docs ? ['Documents'] : []),
+    ];
+
+    const rows = APPLICANTS.map((a) => {
+      const row: Array<string | number> = [];
+      if (checks.info) row.push(a.applicant, a.email, a.location);
+      row.push(a.opportunity, a.opportunityType, a.status, a.appliedAt);
+      if (checks.scores) row.push(a.score ?? '');
+      if (checks.notes) row.push(a.reviewer ?? '');
+      if (checks.answers) row.push(a.tab);
+      if (checks.docs) row.push('Available');
+      return row;
+    });
+
+    downloadTableExport(format, 'applications-export', headers, rows, {
+      title: 'Export Applications',
+      sheetName: 'Applications',
+    });
+    onClose();
+    onGenerated?.();
+  }
 
   return (
     <ModalShell title="Export Applications" subtitle="Choose what data to include in your export" onClose={onClose}>
@@ -58,7 +92,7 @@ export function ExportApplicationsModal({
         <div>
           <p className="mb-2 text-sm font-medium text-[#0F172A]">Selection</p>
           <button type="button" className="flex w-full items-center justify-between rounded-[8px] border border-[#D9E1EF] px-4 py-3 text-sm text-[#0F172A]">
-            All Applicants (1,284)
+            All Applicants ({APPLICANTS.length})
             <ChevronDown className="h-4 w-4 text-[#8C97AD]" />
           </button>
         </div>
@@ -88,10 +122,7 @@ export function ExportApplicationsModal({
       <ModalFooter
         onCancel={onClose}
         confirmLabel="Generate Export"
-        onConfirm={() => {
-          onClose();
-          onGenerated?.();
-        }}
+        onConfirm={handleGenerate}
       />
     </ModalShell>
   );
@@ -191,7 +222,7 @@ export function AssignReviewerModal({
               <p className="mb-2.5 text-base font-semibold text-[#0F172A]">Permissions</p>
               <button
                 type="button"
-                className="flex h-[53px] w-full items-center justify-between rounded-[10px] border border-[#D9E1EF] bg-white px-4 text-base text-[#0F172A]"
+                className="flex w-full items-center justify-between rounded-[10px] border border-[#D9E1EF] bg-white p-4 text-base text-[#0F172A]"
               >
                 Can Review & Comment
                 <ChevronDown className="h-[18px] w-[18px] text-[#44516A]" />
@@ -489,7 +520,7 @@ export function ScheduleInterviewModal({
                   type="time"
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
-                  className="h-[53px] w-full rounded-[10px] border border-[#D9E1EF] bg-white px-4 pr-11 text-base text-[#0F172A] outline-none focus:border-[#2F66C8]"
+                  className="anchor-field pr-11"
                 />
                 <Clock className="pointer-events-none absolute right-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-[#44516A]" />
               </div>
@@ -531,14 +562,14 @@ export function ScheduleInterviewModal({
             <span className="text-base font-semibold text-[#0F172A]">
               Meeting Link <span className="font-normal text-[#EF4444]">*</span>
             </span>
-            <div className="flex h-[53px] items-center gap-2.5 rounded-[10px] border border-[#D9E1EF] bg-white px-4">
+            <div className="flex items-center gap-2.5 rounded-[10px] border border-[#D9E1EF] bg-white p-4 transition-colors focus-within:border-[#2F66C8]">
               <Link2 className="h-[18px] w-[18px] shrink-0 text-[#44516A]" />
               <input
                 type="url"
                 value={meetingLink}
                 onChange={(e) => setMeetingLink(e.target.value)}
                 placeholder="https://meet.google.com/..."
-                className="min-w-0 flex-1 bg-transparent text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
+                className="no-anchor-field min-w-0 flex-1 bg-transparent text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
               />
             </div>
           </label>
@@ -551,7 +582,7 @@ export function ScheduleInterviewModal({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Add notes for the interview..."
-              className="h-[84px] w-full resize-none rounded-[10px] border border-[#D9E1EF] p-4 text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD] focus:border-[#2F66C8]"
+              className="anchor-textarea h-[84px] resize-none"
             />
           </label>
         </div>

@@ -31,6 +31,8 @@ import {
   PIPELINE_COLORS,
   STATUS_BADGE_STYLES,
 } from './opportunityDetailData';
+import { ExportOpportunitiesModal } from '../../_components/OpportunityHubModals';
+import type { OpportunityRow } from '../../_components/opportunitiesHubData';
 
 const FUNNEL_WIDTHS = [100, 85, 70, 55, 40];
 
@@ -184,14 +186,22 @@ function HealthRow({
   );
 }
 
-function MoreActionsMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
+function MoreActionsMenu({
+  open,
+  onClose,
+  onExport,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onExport: () => void;
+}) {
   if (!open) return null;
   const items = [
-    { label: 'Pause Opportunity', icon: Pause },
-    { label: 'Close Opportunity', icon: SquareX },
-    { label: 'Export Opportunity', icon: Download },
-    { label: 'View Opportunity', icon: ExternalLink },
-    { label: 'Delete Opportunity', icon: Trash2, danger: true },
+    { label: 'Pause Opportunity', icon: Pause, action: 'close' as const },
+    { label: 'Close Opportunity', icon: SquareX, action: 'close' as const },
+    { label: 'Export Opportunity', icon: Download, action: 'export' as const },
+    { label: 'View Opportunity', icon: ExternalLink, action: 'close' as const },
+    { label: 'Delete Opportunity', icon: Trash2, danger: true, action: 'close' as const },
   ];
   return (
     <>
@@ -201,7 +211,10 @@ function MoreActionsMenu({ open, onClose }: { open: boolean; onClose: () => void
           <button
             key={item.label}
             type="button"
-            onClick={onClose}
+            onClick={() => {
+              if (item.action === 'export') onExport();
+              onClose();
+            }}
             className={cn(
               'flex w-full items-center gap-3 px-4 py-2.5 text-left text-[14px] hover:bg-[#F8FAFC]',
               item.danger ? 'text-[#B91C1C]' : 'text-[#0F172A]',
@@ -218,8 +231,28 @@ function MoreActionsMenu({ open, onClose }: { open: boolean; onClose: () => void
 
 export function OpportunityDetailView({ variant }: { variant: 'desktop' | 'mobile' }) {
   const [moreOpen, setMoreOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
   const data = DEFAULT_OPPORTUNITY_DETAIL;
   const isMobile = variant === 'mobile';
+
+  const exportRow: OpportunityRow = {
+    id: data.id,
+    name: data.title,
+    category: data.category,
+    type: data.opportunityType.toLowerCase().includes('external')
+      ? 'external'
+      : data.opportunityType.toLowerCase().includes('express')
+        ? 'express-interest'
+        : 'internal',
+    status: data.status === 'Published' ? 'Active' : 'Draft',
+    applications: Number(String(data.metrics.applications.value).replace(/,/g, '')) || 0,
+    applicationsDelta: data.metrics.applications.change,
+    views: Number(String(data.metrics.views.value).replace(/,/g, '')) || 0,
+    deadline: data.deadline,
+    daysLeft: '',
+    health: 'High Engagement',
+    tab: 'all',
+  };
 
   return (
     <div className={cn('flex flex-col gap-5', isMobile && 'pb-4')}>
@@ -281,7 +314,11 @@ export function OpportunityDetailView({ variant }: { variant: 'desktop' | 'mobil
                 <MoreHorizontal className="h-4 w-4" />
                 <ChevronDown className="h-4 w-4" />
               </button>
-              <MoreActionsMenu open={moreOpen} onClose={() => setMoreOpen(false)} />
+              <MoreActionsMenu
+                open={moreOpen}
+                onClose={() => setMoreOpen(false)}
+                onExport={() => setExportOpen(true)}
+              />
             </div>
           </div>
         </div>
@@ -433,6 +470,14 @@ export function OpportunityDetailView({ variant }: { variant: 'desktop' | 'mobil
           </div>
         </div>
       </div>
+
+      <ExportOpportunitiesModal
+        open={exportOpen}
+        onClose={() => setExportOpen(false)}
+        rows={[exportRow]}
+        title="Export Opportunity"
+        filename={`${data.title.toLowerCase().replace(/\s+/g, '-')}-opportunity`}
+      />
     </div>
   );
 }

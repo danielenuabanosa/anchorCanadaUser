@@ -23,6 +23,8 @@ export interface TimelineStep {
   date?: string;
   done: boolean;
   current?: boolean;
+  /** Negative outcome — Not-Shortlisted / Not-Selected */
+  failed?: boolean;
 }
 
 export interface ApplicantAbout {
@@ -163,7 +165,7 @@ const STAGE_VARIANTS: Record<string, Partial<ApplicationDetail>> = {
       { label: 'Under Review', date: 'Jun 9, 2026', done: true },
       { label: 'Shortlisted', date: 'Jun 10, 2026', done: true },
       { label: 'Interview', date: 'Jun 11, 2026', done: true },
-      { label: 'Decision', date: 'Jun 12, 2026', done: false, current: true },
+      { label: 'Selected', date: 'Jun 12, 2026', done: true },
     ],
   },
   '5': {
@@ -178,15 +180,39 @@ const STAGE_VARIANTS: Record<string, Partial<ApplicationDetail>> = {
     timeline: [
       { label: 'Applied', date: 'Jun 8, 2026', done: true },
       { label: 'Under Review', date: 'Jun 8, 2026', done: true },
-      { label: 'Shortlisted', done: false },
+      { label: 'Not-Shortlisted', date: 'Jun 9, 2026', done: false, failed: true, current: true },
       { label: 'Interview', done: false },
-      { label: 'Decision', date: 'Jun 9, 2026', done: false, current: true },
+      { label: 'Decision', done: false },
     ],
     notes: [
       {
         author: 'Jessica Lee',
         date: 'Jun 9, 2026 2:00 PM',
         text: 'Application does not meet minimum eligibility criteria for this cycle.',
+      },
+    ],
+  },
+  '6': {
+    applicant: 'Priya Nair',
+    email: 'priya.nair@email.com',
+    location: 'Mississauga, ON, Canada',
+    appliedFor: 'Product Design Fellowship',
+    opportunityType: 'Internal Opportunity',
+    stage: 'Rejected',
+    stageSince: 'Jun 7, 2026',
+    score: 79,
+    timeline: [
+      { label: 'Applied', date: 'Jun 1, 2026', done: true },
+      { label: 'Under Review', date: 'Jun 2, 2026', done: true },
+      { label: 'Shortlisted', date: 'Jun 4, 2026', done: true },
+      { label: 'Interview', date: 'Jun 6, 2026', done: true },
+      { label: 'Not-Selected', date: 'Jun 7, 2026', done: false, failed: true, current: true },
+    ],
+    notes: [
+      {
+        author: 'Michael Brown',
+        date: 'Jun 7, 2026 4:15 PM',
+        text: 'Strong interview, but another candidate was a closer skills match for this cohort.',
       },
     ],
   },

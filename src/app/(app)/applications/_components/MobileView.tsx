@@ -1,13 +1,15 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ArrowUp, Download, Search, SlidersHorizontal } from 'lucide-react';
+import { usePagination } from '@/lib/pagination';
 import { cn } from '@/lib/utils';
 import { MobileHubPageHero } from '@/app/(app)/opportunities/_components/MobileHubPageHero';
 import { MobileHubTabs } from '@/app/(app)/opportunities/_components/MobileHubTabs';
 import { useOpportunityHubSearch } from '@/app/(app)/opportunities/_components/useOpportunityHubSearch';
 import { useProviderApplications } from '@/features/provider/hooks/useProviderHubData';
 import { HubSortSelect } from '@/shared/components/hub/HubSortSelect';
+import { ListPagination } from '@/shared/components/ui/ListPagination';
 import { MobileApplicantCard } from './MobileApplicantCard';
 import {
   APPLICATION_STATS,
@@ -80,6 +82,15 @@ export default function MobileView() {
         });
     return sortApplicants(searched, sort);
   }, [activeTab, search, applicants, filters, sort]);
+
+  const { page, pageSize, total, pageItems, goToPage, changePageSize, setPage } = usePagination(
+    filtered,
+    5,
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [activeTab, search, filters, sort, setPage]);
 
   const hasActiveFilters = Object.values(filters).some((v) => v !== 'all');
   const isEmptySource = !loading && applicants.length === 0;
@@ -223,8 +234,8 @@ export default function MobileView() {
             <button
               type="button"
               onClick={() => {
-                if (filtered.length === 0) return;
-                setSelected(new Set(filtered.map((r) => r.id)));
+                if (pageItems.length === 0) return;
+                setSelected(new Set(pageItems.map((r) => r.id)));
               }}
               className="flex h-[18px] w-[18px] items-center justify-center rounded-[4px] border border-[#D9E1EF] bg-[#EEF2F8]"
               aria-label="Select all applicants"
@@ -246,25 +257,36 @@ export default function MobileView() {
           <ApplicationsNoMatchState />
         </div>
       ) : (
-        <div className="flex flex-col gap-5">
-          {filtered.map((row) => (
-            <MobileApplicantCard
-              key={row.id}
-              row={row}
-              selected={selected.has(row.id)}
-              showCheckbox={selected.size > 0}
-              onToggleSelect={toggleSelect}
-              onAssignReviewer={() => {
-                setSelected(new Set([row.id]));
-                setAssignOpen(true);
-              }}
-              onAction={(label, applicant) => {
-                const next = hubActionModalForLabel(label, applicant.applicant);
-                if (next) setActionModal(next);
-              }}
-            />
-          ))}
-        </div>
+        <>
+          <div className="flex flex-col gap-5">
+            {pageItems.map((row) => (
+              <MobileApplicantCard
+                key={row.id}
+                row={row}
+                selected={selected.has(row.id)}
+                showCheckbox={selected.size > 0}
+                onToggleSelect={toggleSelect}
+                onAssignReviewer={() => {
+                  setSelected(new Set([row.id]));
+                  setAssignOpen(true);
+                }}
+                onAction={(label, applicant) => {
+                  const next = hubActionModalForLabel(label, applicant.applicant);
+                  if (next) setActionModal(next);
+                }}
+              />
+            ))}
+          </div>
+          <ListPagination
+            compact
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            noun="results"
+            onPageChange={goToPage}
+            onPageSizeChange={changePageSize}
+          />
+        </>
       )}
 
       <ExportApplicationsModal

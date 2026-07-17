@@ -10,8 +10,12 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { downloadTableExport, type ExportRow } from '@/lib/exportTable';
 import {
+  ANALYTICS_STATS,
   EXPORT_INCLUDE_OPTIONS,
+  TEAM_PERFORMANCE,
+  TOP_OPPORTUNITIES,
   type ExportIncludeKey,
   type InsightDetail,
 } from './analyticsData';
@@ -110,6 +114,87 @@ export function ExportAnalyticsModal({
     setIncludes((current) => ({ ...current, [key]: !current[key] }));
   }
 
+  function handleExport() {
+    const headers = ['Section', 'Item', 'Value', 'Detail'];
+    const rows: ExportRow[] = [];
+
+    if (includes.overview) {
+      ANALYTICS_STATS.forEach((stat) => {
+        rows.push([
+          'Overview',
+          stat.label,
+          stat.value,
+          stat.change ? `${stat.changeNegative ? '-' : '+'}${stat.change}` : (stat.subtext ?? ''),
+        ]);
+      });
+    }
+
+    if (includes.opportunityPerformance) {
+      TOP_OPPORTUNITIES.forEach((opp) => {
+        rows.push([
+          'Opportunity Performance',
+          opp.name,
+          `${opp.applications} apps`,
+          `${opp.type} · ${opp.conversionRate} conversion · ${opp.status}`,
+        ]);
+      });
+    }
+
+    if (includes.teamPerformance) {
+      TEAM_PERFORMANCE.forEach((member) => {
+        rows.push([
+          'Team Performance',
+          member.name,
+          `${member.applicationsReviewed} reviewed`,
+          `${member.avgReviewTime} avg · ${member.interviewsConducted} interviews`,
+        ]);
+      });
+    }
+
+    if (includes.applicantFunnel) {
+      rows.push(
+        ['Applicant Funnel', 'Submitted', '1,284', 'All applications'],
+        ['Applicant Funnel', 'Under Review', '342', 'Pending review'],
+        ['Applicant Funnel', 'Shortlisted', '186', 'Advanced'],
+        ['Applicant Funnel', 'Accepted', '64', 'Final decisions'],
+      );
+    }
+
+    if (includes.demographics) {
+      rows.push(
+        ['Demographics', 'Canada', '42%', 'Primary market'],
+        ['Demographics', 'Nigeria', '18%', 'International'],
+        ['Demographics', 'Other', '40%', 'Rest of world'],
+      );
+    }
+
+    if (includes.trafficSources) {
+      rows.push(
+        ['Traffic Sources', 'Organic Search', '38%', '9,842 visits'],
+        ['Traffic Sources', 'Direct', '27%', '6,991 visits'],
+        ['Traffic Sources', 'Social', '21%', '5,438 visits'],
+        ['Traffic Sources', 'Referral', '14%', '3,625 visits'],
+      );
+    }
+
+    if (includes.insights) {
+      rows.push(
+        ['Insights', 'High conversion opportunities', '6.5%+', 'Promote top performers'],
+        ['Insights', 'Review bottlenecks', '4.6 days', 'Reduce average review time'],
+      );
+    }
+
+    if (rows.length === 0) {
+      rows.push(['Export', 'No sections selected', '-', 'Enable at least one section']);
+    }
+
+    downloadTableExport(format, 'analytics-report', headers, rows, {
+      title: 'Export Analytics Report',
+      sheetName: 'Analytics',
+    });
+    onClose();
+  }
+
   return (
     <div
       className={cn(
@@ -199,7 +284,7 @@ export function ExportAnalyticsModal({
             </button>
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleExport}
               className={cn(
                 'rounded-[6px] bg-[#2F66C8] px-5 py-3 text-sm font-medium text-white shadow-[0px_2px_4px_rgba(0,0,0,0.05)]',
                 mobile && 'flex-1',

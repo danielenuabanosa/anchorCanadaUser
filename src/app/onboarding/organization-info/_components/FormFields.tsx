@@ -75,7 +75,7 @@ export function IconInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="anchor-field anchor-field--icon-left h-[53px] rounded-[10px]"
+        className="anchor-field anchor-field--icon-left"
       />
     </div>
   );
@@ -104,7 +104,7 @@ export function IconSelect({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="anchor-field anchor-field--icon-left h-[53px] appearance-none rounded-[10px] pr-10"
+        className="anchor-field anchor-field--icon-left appearance-none"
       >
         <option value="">{placeholder}</option>
         {options.map((option) => (
@@ -226,16 +226,16 @@ export function SocialUrlInput({
   return (
     <div className="overflow-hidden rounded-[10px] border border-[#D9E1EF] bg-white">
       <div className="flex items-stretch">
-        <div className="flex h-[53px] w-[160px] shrink-0 items-center gap-2.5 border-r border-[#D9E1EF] px-4">
+        <div className="flex w-[160px] shrink-0 items-center gap-2.5 border-r border-[#D9E1EF] p-4">
           <Image src={icon} alt="" width={20} height={20} className="object-contain" />
-          <span className="font-sans text-[16px] font-medium text-[#0F172A]">{label}</span>
+          <span className="font-sans text-base font-medium text-[#0F172A]">{label}</span>
         </div>
         <input
           type="url"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="min-w-0 flex-1 border-0 bg-transparent px-4 font-sans text-[16px] text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
+          className="no-anchor-field min-w-0 flex-1 border-0 bg-transparent px-4 font-sans text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
         />
       </div>
     </div>

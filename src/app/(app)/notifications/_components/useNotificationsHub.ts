@@ -1,10 +1,10 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { usePagination } from '@/lib/pagination';
 import {
   DEFAULT_NOTIFICATION_FILTERS,
   NOTIFICATIONS,
-  PAGE_SIZE,
   filterNotifications,
   type NotificationFilters,
   type NotificationItem,
@@ -16,7 +16,6 @@ export function useNotificationsHub() {
   const [items, setItems] = useState<NotificationItem[]>(NOTIFICATIONS);
   const [activeTab, setActiveTab] = useState<NotificationTab>('all');
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [page, setPage] = useState(1);
   const [sort, setSort] = useState<NotificationSort>('newest');
   const [filters, setFilters] = useState<NotificationFilters>(DEFAULT_NOTIFICATION_FILTERS);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -30,11 +29,19 @@ export function useNotificationsHub() {
     [items, activeTab, filters, sort],
   );
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage = Math.min(page, totalPages);
-  const pageItems = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-  const rangeStart = filtered.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1;
-  const rangeEnd = Math.min(safePage * PAGE_SIZE, filtered.length);
+  const {
+    page,
+    pageSize,
+    total,
+    pageItems,
+    goToPage,
+    changePageSize,
+    setPage,
+  } = usePagination(filtered, 5);
+
+  useEffect(() => {
+    setPage(1);
+  }, [activeTab, filters, sort, setPage]);
 
   const deleteTarget = items.find((item) => item.id === deleteTargetId) ?? null;
   const detailTarget = items.find((item) => item.id === detailTargetId) ?? null;
@@ -131,8 +138,11 @@ export function useNotificationsHub() {
     selected,
     selectionMode,
     enterSelectionMode,
-    page: safePage,
+    page,
+    pageSize,
     setPage,
+    goToPage,
+    changePageSize,
     sort,
     setSort,
     filters,
@@ -149,9 +159,7 @@ export function useNotificationsHub() {
     setActionsOpenId,
     filtered,
     pageItems,
-    totalPages,
-    rangeStart,
-    rangeEnd,
+    total,
     toggleSelect,
     toggleGroupSelect,
     clearSelection,

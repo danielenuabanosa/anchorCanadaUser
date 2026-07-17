@@ -82,8 +82,7 @@ function RoleSelect({
         value={value}
         onChange={(e) => onChange(e.target.value as TeamRoleId)}
         className={cn(
-          'anchor-field w-full appearance-none pl-11 pr-10',
-          compact ? 'h-[50px] text-[14px]' : 'h-[53px] text-[16px]',
+          'anchor-field w-full appearance-none pl-11 pr-10 text-base',
           !value && 'text-[#8C97AD]',
         )}
       >
@@ -152,14 +151,14 @@ export function InviteMembersSection({
                 value={member.fullName}
                 onChange={(e) => updateMember(member.id, { fullName: e.target.value })}
                 placeholder="Enter your full name"
-                className="anchor-field h-[50px] text-[14px]"
+                className="anchor-field"
               />
               <input
                 type="email"
                 value={member.email}
                 onChange={(e) => updateMember(member.id, { email: e.target.value })}
                 placeholder="name@company.ca"
-                className="anchor-field h-[50px] text-[14px]"
+                className="anchor-field"
               />
               <RoleSelect
                 value={member.role}
@@ -209,14 +208,14 @@ export function InviteMembersSection({
                   value={member.fullName}
                   onChange={(e) => updateMember(member.id, { fullName: e.target.value })}
                   placeholder="Enter your full name"
-                  className="anchor-field h-[53px] text-[16px]"
+                  className="anchor-field"
                 />
                 <input
                   type="email"
                   value={member.email}
                   onChange={(e) => updateMember(member.id, { email: e.target.value })}
                   placeholder="name@company.ca"
-                  className="anchor-field h-[53px] text-[16px]"
+                  className="anchor-field"
                 />
                 <RoleSelect
                   value={member.role}
@@ -226,7 +225,7 @@ export function InviteMembersSection({
                   type="button"
                   onClick={() => removeMember(member.id)}
                   disabled={members.length <= 1}
-                  className="flex h-[53px] items-center justify-center rounded-[10px] bg-white text-[#EF4444] disabled:opacity-30"
+                  className="flex items-center justify-center rounded-[10px] bg-white p-4 text-[#EF4444] disabled:opacity-30"
                   aria-label="Remove member"
                 >
                   <Trash2 className="h-6 w-6" />

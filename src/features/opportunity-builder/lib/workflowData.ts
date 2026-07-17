@@ -256,6 +256,47 @@ export const DEFAULT_INTERNAL_STAGES: WorkflowStage[] = [
   }),
 ];
 
+/** Canonical Interview stage used when `requiresInterview` is enabled. */
+export function createInterviewStage(): WorkflowStage {
+  return createDefaultStage({
+    id: 'stage-interview',
+    name: 'Interview',
+    description: 'Candidate evaluation and screening through interviews with the review panel.',
+    statusLabel: 'Interview Scheduled',
+    stageType: 'Interview',
+    applicantVisibility: 'visible',
+    actions: ['Schedule Interview', 'Request Documents', 'Leave Notes', 'Assign Reviewer'],
+  });
+}
+
+export function isInterviewStage(stage: WorkflowStage): boolean {
+  return stage.stageType === 'Interview' || stage.name.toLowerCase() === 'interview';
+}
+
+/** Include or remove the Interview stage based on opportunity config. */
+export function syncInterviewStage(
+  stages: WorkflowStage[],
+  requiresInterview: boolean,
+): WorkflowStage[] {
+  const withoutInterview = stages.filter((s) => !isInterviewStage(s));
+  if (!requiresInterview) return withoutInterview;
+
+  if (stages.some(isInterviewStage)) return stages;
+
+  const shortlistIdx = withoutInterview.findIndex(
+    (s) => s.name === 'Shortlisted' || s.statusLabel === 'Shortlisted',
+  );
+  const next = [...withoutInterview];
+  next.splice(shortlistIdx >= 0 ? shortlistIdx + 1 : next.length, 0, createInterviewStage());
+  return next;
+}
+
+/** Journey chips for Internal workflow — hide Interview when not required. */
+export function getInternalJourneySteps(requiresInterview: boolean): WorkflowJourneyStep[] {
+  const journey = WORKFLOW_MODELS.find((m) => m.id === 'internal')?.journey ?? [];
+  return requiresInterview ? journey : journey.filter((step) => step.label !== 'Interview');
+}
+
 export type RedirectType = 'confirmation-modal' | 'immediate' | 'preparation-page';
 export type OpenApplicationIn = 'new-tab' | 'same-tab';
 

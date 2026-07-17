@@ -18,6 +18,7 @@ import type { OpportunityRow } from './opportunitiesHubData';
 import {
   ArchiveOpportunityModal,
   DeleteOpportunityModal,
+  ExportOpportunitiesModal,
   ExtendDeadlineModal,
   PauseOpportunityModal,
 } from './OpportunityHubModals';
@@ -48,7 +49,7 @@ const MENU_ITEMS: Array<{
   { id: 'delete', label: 'Delete Draft', icon: Trash2, danger: true },
 ];
 
-type HubModal = 'archive' | 'delete' | 'pause' | 'extend' | null;
+type HubModal = 'archive' | 'delete' | 'pause' | 'extend' | 'download' | null;
 
 export function OpportunityRowActions({
   row,
@@ -101,6 +102,9 @@ export function OpportunityRowActions({
         break;
       case 'extend':
         setModal('extend');
+        break;
+      case 'download':
+        setModal('download');
         break;
       case 'archive':
         setModal('archive');
@@ -183,6 +187,13 @@ export function OpportunityRowActions({
         opportunity={row}
         onClose={closeModal}
         onConfirm={({ date }) => onExtendDeadline?.(row.id, date)}
+      />
+      <ExportOpportunitiesModal
+        open={modal === 'download'}
+        onClose={closeModal}
+        rows={[row]}
+        title="Download Report"
+        filename={`${row.name.toLowerCase().replace(/\s+/g, '-')}-report`}
       />
     </>
   );

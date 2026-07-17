@@ -1,7 +1,12 @@
 'use client';
 
 import { Check, CircleCheckBig, X } from 'lucide-react';
-import { WORKFLOW_COMPARISON, type WorkflowModelDef } from '../lib/workflowData';
+import { useOpportunityBuilderStore } from '@/store/opportunityBuilderStore';
+import {
+  getInternalJourneySteps,
+  WORKFLOW_COMPARISON,
+  type WorkflowModelDef,
+} from '../lib/workflowData';
 
 export function WorkflowModelCard({
   model,
@@ -15,6 +20,9 @@ export function WorkflowModelCard({
   compact?: boolean;
 }) {
   const Icon = model.icon;
+  const requiresInterview = useOpportunityBuilderStore((s) => s.categoryConfig.requiresInterview);
+  const journey =
+    model.id === 'internal' ? getInternalJourneySteps(requiresInterview) : model.journey;
 
   if (compact) {
     return (
@@ -49,7 +57,7 @@ export function WorkflowModelCard({
             </div>
 
             <div className="flex flex-col gap-2.5 py-2.5">
-              {model.journey.map((step) => {
+              {journey.map((step) => {
                 const StepIcon = step.icon;
                 return (
                   <div key={step.label} className="flex items-center gap-4">
@@ -111,7 +119,7 @@ export function WorkflowModelCard({
         </span>
 
         <div className="flex flex-col gap-3 py-2">
-          {model.journey.map((step) => {
+          {journey.map((step) => {
             const StepIcon = step.icon;
             return (
               <div key={step.label} className="flex items-center gap-4">

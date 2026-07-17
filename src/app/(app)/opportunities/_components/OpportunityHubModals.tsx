@@ -11,6 +11,7 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { downloadTableExport } from '@/lib/exportTable';
 import { DatePickerField, parseIsoDate } from '@/shared/components/ui/DatePicker';
 import type { OpportunityRow } from './opportunitiesHubData';
 
@@ -478,6 +479,98 @@ export function ExtendDeadlineModal({
             placeholder="Select new deadline"
           />
         </label>
+      </div>
+    </OpportunityModalShell>
+  );
+}
+
+/** Export opportunities — CSV / Excel / PDF (same capability as admin). */
+export function ExportOpportunitiesModal({
+  open,
+  onClose,
+  rows,
+  title = 'Export Opportunities',
+  filename = 'opportunities-export',
+}: {
+  open: boolean;
+  onClose: () => void;
+  rows: OpportunityRow[];
+  title?: string;
+  filename?: string;
+}) {
+  const [format, setFormat] = useState<'csv' | 'excel' | 'pdf'>('csv');
+
+  function handleExport() {
+    downloadTableExport(
+      format,
+      filename,
+      ['Name', 'Category', 'Type', 'Status', 'Applications', 'Views', 'Deadline', 'Health'],
+      rows.map((row) => [
+        row.name,
+        row.category,
+        row.type,
+        row.status,
+        row.applicationsDisplay ?? row.applications,
+        row.views,
+        row.deadline,
+        row.health,
+      ]),
+      { title, sheetName: 'Opportunities' },
+    );
+    onClose();
+  }
+
+  return (
+    <OpportunityModalShell
+      open={open}
+      onClose={onClose}
+      footer={
+        <>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-[6px] border border-[#EEF2F8] bg-white px-5 py-3 text-sm font-medium text-[#44516A]"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleExport}
+            className="rounded-[6px] bg-[#2F66C8] px-5 py-3 text-sm font-medium text-white shadow-[0px_2px_4px_rgba(0,0,0,0.05)]"
+          >
+            Export Report
+          </button>
+        </>
+      }
+    >
+      <div className="flex w-full flex-col gap-6 text-left">
+        <div>
+          <h2 className="text-lg font-medium text-[#0F172A]">{title}</h2>
+          <p className="mt-1 text-sm text-[#44516A]">Choose the format for your export.</p>
+        </div>
+        <div>
+          <p className="mb-2.5 text-base font-semibold text-[#0F172A]">Export Format</p>
+          <div className="flex flex-wrap gap-2.5">
+            {(['csv', 'excel', 'pdf'] as const).map((f) => (
+              <button
+                key={f}
+                type="button"
+                onClick={() => setFormat(f)}
+                className={cn(
+                  'rounded-[6px] border px-4 py-2.5 text-sm font-medium uppercase',
+                  format === f
+                    ? 'border-[#2F66C8] bg-[#EFF4FF] text-[#2F66C8]'
+                    : 'border-[#EEF2F8] text-[#44516A]',
+                )}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+        </div>
+        <p className="text-sm text-[#8C97AD]">
+          {rows.length} opportunit{rows.length === 1 ? 'y' : 'ies'} will be included.
+        </p>
       </div>
     </OpportunityModalShell>
   );

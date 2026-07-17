@@ -125,7 +125,7 @@ function CharTextarea({
         onChange={(e) => onChange(e.target.value.slice(0, max))}
         placeholder={placeholder}
         rows={3}
-        className="w-full resize-none rounded-[10px] border border-[#D9E1EF] px-4 py-3 pb-8 text-sm text-[#0F172A] outline-none placeholder:text-[#8C97AD] focus:border-[#2F66C8]"
+        className="anchor-textarea w-full resize-none pb-8"
       />
       <span className="absolute bottom-2 left-4 text-xs text-[#8C97AD]">
         {value.length} / {max}
@@ -144,19 +144,19 @@ function SalaryInput({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="flex min-w-0 flex-1 items-stretch overflow-hidden rounded-[10px] border border-[#D9E1EF]">
+    <div className="flex min-w-0 flex-1 items-stretch overflow-hidden rounded-[10px] border border-[#D9E1EF] bg-white focus-within:border-[#2F66C8]">
       <div className="flex shrink-0 items-center border-r border-[#D9E1EF] bg-[#F8FAFC] px-4 py-4">
-        <span className="text-[14px] text-[#8C97AD]">{prefix}</span>
+        <span className="text-base text-[#8C97AD]">{prefix}</span>
       </div>
       <div className="flex min-w-0 flex-1 items-center gap-2.5 bg-white px-4 py-4">
-        <span className="text-[14px] text-[#8C97AD]">$</span>
+        <span className="text-base text-[#8C97AD]">$</span>
         <input
           value={value}
           onChange={(e) => onChange(e.target.value.replace(/[^0-9,]/g, ''))}
-          className="min-w-0 flex-1 bg-transparent text-[14px] text-[#0F172A] outline-none"
+          className="no-anchor-field min-w-0 flex-1 bg-transparent text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
           placeholder="0"
         />
-        <span className="shrink-0 text-[14px] text-[#8C97AD]">(CAD)</span>
+        <span className="shrink-0 text-base text-[#8C97AD]">(CAD)</span>
       </div>
     </div>
   );
@@ -170,16 +170,16 @@ function FeeInput({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="flex min-w-0 w-full items-stretch overflow-hidden rounded-[10px] border border-[#D9E1EF]">
+    <div className="flex min-w-0 w-full items-stretch overflow-hidden rounded-[10px] border border-[#D9E1EF] bg-white focus-within:border-[#2F66C8]">
       <div className="flex min-w-0 flex-1 items-center gap-2.5 bg-white px-4 py-4">
-        <span className="text-[14px] text-[#8C97AD]">$</span>
+        <span className="text-base text-[#8C97AD]">$</span>
         <input
           value={value}
           onChange={(e) => onChange(e.target.value.replace(/[^0-9,]/g, ''))}
-          className="min-w-0 flex-1 bg-transparent text-[14px] text-[#0F172A] outline-none"
+          className="no-anchor-field min-w-0 flex-1 bg-transparent text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
           placeholder="0"
         />
-        <span className="shrink-0 text-[14px] text-[#8C97AD]">(CAD)</span>
+        <span className="shrink-0 text-base text-[#8C97AD]">(CAD)</span>
       </div>
     </div>
   );
@@ -348,7 +348,7 @@ export function OpportunityConfigForm({ categoryGroup, config, onChange }: Oppor
                   onChange={(e) =>
                     onChange({ numberOfAwards: e.target.value.replace(/[^0-9]/g, '') })
                   }
-                  className="h-[50px] w-full rounded-[10px] border border-[#D9E1EF] bg-white px-4 text-sm text-[#0F172A] outline-none focus:border-[#2F66C8]"
+                  className="anchor-field"
                   placeholder="e.g. 10"
                 />
               </label>
@@ -555,7 +555,7 @@ export function OpportunityConfigForm({ categoryGroup, config, onChange }: Oppor
                   value={config.duration}
                   onChange={(e) => onChange({ duration: e.target.value })}
                   placeholder="e.g. 6 weeks, 3 months, 2 years."
-                  className="h-[50px] w-full rounded-[10px] border border-[#D9E1EF] bg-white px-4 text-sm text-[#0F172A] outline-none placeholder:text-[#8C97AD] focus:border-[#2F66C8]"
+                  className="anchor-field"
                 />
               </label>
 
@@ -639,7 +639,7 @@ export function OpportunityConfigForm({ categoryGroup, config, onChange }: Oppor
                   value={config.hoursPerWeek}
                   onChange={(e) => onChange({ hoursPerWeek: e.target.value })}
                   placeholder="e.g. 6 hours..."
-                  className="h-[50px] w-full rounded-[10px] border border-[#D9E1EF] bg-white px-4 text-sm text-[#0F172A] outline-none placeholder:text-[#8C97AD] focus:border-[#2F66C8]"
+                  className="anchor-field"
                 />
               </label>
 
@@ -650,7 +650,7 @@ export function OpportunityConfigForm({ categoryGroup, config, onChange }: Oppor
                   value={config.minimumAge}
                   onChange={(e) => onChange({ minimumAge: e.target.value })}
                   placeholder="e.g. 16, 18. Leave blank for no minimum..."
-                  className="h-[50px] w-full rounded-[10px] border border-[#D9E1EF] bg-white px-4 text-sm text-[#0F172A] outline-none placeholder:text-[#8C97AD] focus:border-[#2F66C8]"
+                  className="anchor-field"
                 />
               </label>
 
@@ -661,7 +661,7 @@ export function OpportunityConfigForm({ categoryGroup, config, onChange }: Oppor
                   value={config.duration}
                   onChange={(e) => onChange({ duration: e.target.value })}
                   placeholder="e.g. 3 months, Ongoing, One-day event..."
-                  className="h-[50px] w-full rounded-[10px] border border-[#D9E1EF] bg-white px-4 text-sm text-[#0F172A] outline-none placeholder:text-[#8C97AD] focus:border-[#2F66C8]"
+                  className="anchor-field"
                 />
               </label>
 
@@ -704,7 +704,7 @@ export function OpportunityConfigForm({ categoryGroup, config, onChange }: Oppor
                   value={config.monthlyRent}
                   onChange={(e) => onChange({ monthlyRent: e.target.value })}
                   placeholder="Leave blank if free or subsidy covers full cost"
-                  className="h-[50px] w-full rounded-[10px] border border-[#D9E1EF] bg-white px-4 text-sm text-[#0F172A] outline-none placeholder:text-[#8C97AD] focus:border-[#2F66C8]"
+                  className="anchor-field"
                 />
               </label>
 
@@ -721,7 +721,7 @@ export function OpportunityConfigForm({ categoryGroup, config, onChange }: Oppor
                   value={config.unitsAvailable}
                   onChange={(e) => onChange({ unitsAvailable: e.target.value })}
                   placeholder="e.g. 10, 12 units..."
-                  className="h-[50px] w-full rounded-[10px] border border-[#D9E1EF] bg-white px-4 text-sm text-[#0F172A] outline-none placeholder:text-[#8C97AD] focus:border-[#2F66C8]"
+                  className="anchor-field"
                 />
               </label>
 
@@ -867,7 +867,7 @@ export function OpportunityConfigForm({ categoryGroup, config, onChange }: Oppor
                     value={config.crisisPhone}
                     onChange={(e) => onChange({ crisisPhone: e.target.value })}
                     placeholder="+1"
-                    className="h-[50px] w-full rounded-[10px] border border-[#D9E1EF] bg-white px-4 text-sm text-[#0F172A] outline-none placeholder:text-[#8C97AD] focus:border-[#2F66C8]"
+                    className="anchor-field"
                   />
                 ) : null}
               </div>
@@ -885,6 +885,19 @@ export function OpportunityConfigForm({ categoryGroup, config, onChange }: Oppor
               />
             </div>
           ) : null}
+
+          <div className="rounded-[10px] border border-[#EEF2F8] bg-[#F8FAFC] p-4">
+            <FieldToggle
+              label="Requires Interview"
+              checked={config.requiresInterview}
+              onChange={() => onChange({ requiresInterview: !config.requiresInterview })}
+            />
+            <p className="mt-2 text-sm text-[#44516A]">
+              {config.requiresInterview
+                ? 'Interview step will appear in the applicant workflow after Shortlist.'
+                : 'Interview step will be hidden from the applicant workflow.'}
+            </p>
+          </div>
         </div>
       </section>
     </div>

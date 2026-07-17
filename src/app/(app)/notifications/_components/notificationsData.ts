@@ -596,10 +596,6 @@ export const DEFAULT_NOTIFICATION_FILTERS: NotificationFilters = {
 
 
 
-export const PAGE_SIZE = 10;
-
-
-
 const TAB_TYPE_MAP: Record<string, NotificationTab | 'all'> = {
 
   'All types': 'all',

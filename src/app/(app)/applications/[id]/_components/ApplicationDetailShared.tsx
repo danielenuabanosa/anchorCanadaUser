@@ -16,6 +16,7 @@ import {
   Phone,
   SearchCheck,
   Tag,
+  X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -54,6 +55,13 @@ function PanelHeader({ title }: { title: string }) {
 }
 
 function TimelineDot({ step }: { step: TimelineStep }) {
+  if (step.failed) {
+    return (
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EF4444]">
+        <X className="h-3 w-3 text-white" strokeWidth={3} />
+      </span>
+    );
+  }
   if (step.done && !step.current) {
     return (
       <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#15803D]">
@@ -86,30 +94,34 @@ function OverviewPanel({ data }: { data: ReturnType<typeof getApplicationDetail>
           <div className="flex flex-1 flex-col justify-between">
             {data.timeline.map((step, index) => {
               const isLast = index === data.timeline.length - 1;
-              const muted = !step.done && !step.current;
+              const muted = !step.done && !step.current && !step.failed;
+              const labelColor = step.failed
+                ? 'text-[#EF4444]'
+                : step.label === 'Selected' && step.done
+                  ? 'text-[#15803D]'
+                  : muted
+                    ? 'text-[#8C97AD]'
+                    : 'text-[#0F172A]';
               return (
-                <div key={step.label} className="relative flex gap-5">
+                <div key={`${step.label}-${index}`} className="relative flex gap-5">
                   <div className="relative flex w-6 flex-col items-center">
                     <TimelineDot step={step} />
                     {!isLast ? (
                       <span
                         className={cn(
                           'absolute left-1/2 top-6 w-px -translate-x-1/2',
-                          step.done || step.current ? 'bg-[#B6E9C6]' : 'bg-[#EEF2F8]',
+                          step.failed
+                            ? 'bg-[#FECACA]'
+                            : step.done || step.current
+                              ? 'bg-[#B6E9C6]'
+                              : 'bg-[#EEF2F8]',
                         )}
                         style={{ height: 'calc(100% + 12px)' }}
                       />
                     ) : null}
                   </div>
                   <div className={cn('min-w-0 flex-1', !isLast && 'pb-6')}>
-                    <p
-                      className={cn(
-                        'text-sm font-medium',
-                        muted ? 'text-[#8C97AD]' : 'text-[#0F172A]',
-                      )}
-                    >
-                      {step.label}
-                    </p>
+                    <p className={cn('text-sm font-medium', labelColor)}>{step.label}</p>
                     {step.date ? (
                       <p className="mt-2 text-xs text-[#44516A]">{step.date}</p>
                     ) : null}

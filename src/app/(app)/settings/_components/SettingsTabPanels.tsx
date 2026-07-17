@@ -248,12 +248,12 @@ function OrganizationPanel({ hub }: { hub: SettingsHub }) {
 
       <FieldCell>
         <FieldLabel>Public Profile URL</FieldLabel>
-        <div className="flex h-[50px] items-center gap-2.5 anchor-field pl-4 pr-2">
+        <div className="flex items-center gap-2.5 rounded-[10px] border border-[#D9E1EF] bg-white p-4 transition-colors focus-within:border-[#2F66C8]">
           <input
             type="text"
             value={hub.organization.publicProfileUrl}
             onChange={(e) => updateOrganization(hub, { publicProfileUrl: e.target.value })}
-            className="min-w-0 flex-1 border-0 bg-transparent p-0 text-sm text-[#0F172A] shadow-none outline-none focus:border-0 focus:shadow-none"
+            className="no-anchor-field min-w-0 flex-1 border-0 bg-transparent p-0 text-base text-[#0F172A] shadow-none outline-none focus:border-0 focus:shadow-none"
           />
           <button
             type="button"
