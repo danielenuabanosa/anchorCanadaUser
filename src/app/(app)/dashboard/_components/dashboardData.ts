@@ -64,7 +64,7 @@ export const PROVIDER_STATS = [
 export const QUICK_ACTIONS = [
   {
     label: 'Create Opportunity',
-    href: '/opportunities/create/type',
+    href: '/opportunities/create/category',
     icon: Plus,
     cardClass: 'bg-[#EFF4FF] border-[#DCE7FF]',
     iconWrapClass: 'bg-[#E3EBFE]',
@@ -106,6 +106,9 @@ export const PERFORMANCE_METRICS = [
   { label: 'Applications', value: '1,284', change: '12%', icon: UserRound },
   { label: 'Conv. Rates', value: '6.9%', change: '0.8%', icon: Clock },
 ] as const;
+
+/** Default dashboard date chip — parseable by DateRangePicker. */
+export const DASHBOARD_DATE_RANGE = '19 May 2026 - 25 May 2026';
 
 export const PERFORMANCE_CHART = [
   { label: 'Jan', views: 28000, saves: 12000, applications: 8000 },

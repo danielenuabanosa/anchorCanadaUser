@@ -10,6 +10,7 @@ import { BuilderNavProvider, useBuilderNav } from '@/features/opportunity-builde
 import { BUILDER_STEP_ROUTES } from '@/features/opportunity-builder/lib/builderData';
 
 function getCurrentStep(pathname: string): number {
+  if (pathname.startsWith('/opportunities/create/template')) return 2;
   const entries = Object.entries(BUILDER_STEP_ROUTES) as [string, string][];
   const match = entries
     .filter(([, route]) => pathname.startsWith(route))
@@ -23,8 +24,8 @@ function BuilderLayoutInner({ children }: { children: React.ReactNode }) {
   const nav = useBuilderNav();
 
   return (
-    <div className="flex min-h-full flex-col overflow-x-hidden bg-white md:bg-gradient-to-b md:from-white md:to-[#f2f7ff]">
-      {/* Desktop sticky header — Figma 163:510 */}
+    <div className="flex min-h-full flex-col overflow-x-hidden bg-[#FFFFFF]">
+      {/* Desktop sticky header  */}
       <div className="sticky top-0 z-40 hidden border-b border-[#EEF2F8] bg-white md:block">
         <div className="mx-auto w-full max-w-[1548px] px-10 py-5">
           <BuilderNavBar
@@ -42,8 +43,8 @@ function BuilderLayoutInner({ children }: { children: React.ReactNode }) {
         </div>
       </div>
 
-      {/* Mobile builder chrome — Figma 168:4131 */}
-      <div className="flex flex-col gap-5 bg-white px-5 pt-5 md:hidden">
+      {/* Mobile builder  */}
+      <div className="flex flex-col gap-5 bg-[#F2F7FF] px-5 pt-5 md:hidden">
         <BuilderNavBar
           step={nav.step}
           backHref={nav.backHref}

@@ -16,6 +16,7 @@ export default function DesktopView() {
   const details = useMemo(() => recordToDetails(detailsRecord), [detailsRecord]);
   const setDetails = useOpportunityBuilderStore((s) => s.setDetails);
   const requirementCount = useOpportunityBuilderStore((s) => s.requirementFields.length);
+  const estimatedTime = useOpportunityBuilderStore((s) => s.applicationConfig.estimatedTime);
 
   const canContinue = details.title.trim().length > 0 && details.summary.trim().length > 0;
 
@@ -24,7 +25,7 @@ export default function DesktopView() {
   }, [router]);
 
   useRegisterBuilderNav({
-    step: 4,
+    step: 3,
     backHref: '/opportunities/create/requirements',
     onContinue: handleContinue,
     continueDisabled: !canContinue,
@@ -39,12 +40,14 @@ export default function DesktopView() {
       <div className="mt-[60px] grid w-full grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_360px]">
         <DetailsForm details={details} onChange={setDetails} column="left" />
         <DetailsForm details={details} onChange={setDetails} column="middle" />
-        <ApplicantPreviewPanel details={details} requirementCount={requirementCount} />
+        <ApplicantPreviewPanel
+          details={details}
+          requirementCount={requirementCount}
+          estimatedTime={estimatedTime}
+        />
       </div>
 
-      <div className="mt-5 w-full">
-        <DetailsForm details={details} onChange={setDetails} column="visibility" />
-      </div>
+  
     </div>
   );
 }

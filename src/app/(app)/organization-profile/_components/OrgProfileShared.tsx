@@ -301,14 +301,14 @@ export function PageHeaderActions({
         </p>
       </div>
       <div className="relative flex flex-wrap gap-2.5">
-        <button
+        {/* <button
           type="button"
           onClick={onEdit}
           className="inline-flex items-center gap-2.5 rounded-[6px] border border-[#D9E1EF] bg-white px-4 py-2.5 text-base font-medium text-[#2F66C8]"
         >
           <SquarePen className="h-[18px] w-[18px]" strokeWidth={1.75} />
           Edit Profile
-        </button>
+        </button> */}
         <button
           type="button"
           onClick={onToggleAction}

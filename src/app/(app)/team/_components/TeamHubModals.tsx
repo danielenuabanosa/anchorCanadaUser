@@ -1,13 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import {
-  AlertTriangle,
   CheckCircle2,
   ChevronDown,
-  Clock,
   FileSpreadsheet,
   FileTerminal,
   FileType,
@@ -17,10 +14,16 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { HubMenuSelect } from '@/shared/components/hub/HubMenuSelect';
 import avatar1 from '@assets/images/profile-avatar.png';
+import inviteExpiredHourglass from '@assets/images/team/invite-expired-hourglass.png';
+import cancelInviteTrash from '@assets/images/team/cancel-invite-trash.png';
+import removeMemberTrash from '@assets/images/team/remove-member-trash.png';
+import suspendMemberShield from '@assets/images/team/suspend-member-shield.png';
+import activateMemberCheck from '@assets/images/team/activate-member-check.png';
 import type { InvitePayload, TeamMemberRow } from './teamManagementData';
 import { PERMISSION_GROUPS, ROLE_STYLES, TEAM_ROLES } from './teamManagementData';
-import { getActionsForMemberStatus } from './TeamActionsDropdown';
+import { getActionsForMemberStatus, TeamActionsDropdown } from './TeamActionsDropdown';
 
 function memberToInvitePayload(member: TeamMemberRow): InvitePayload {
   return {
@@ -40,7 +43,7 @@ function emailToDisplayName(email: string): string {
     .join(' ');
 }
 
-/** Figma 523:5377 — Invite Team Member slide-over */
+/** Figma 523:5377 desktop slide-over / 523:6190 mobile centered — Invite Team Member */
 export function InviteTeamMemberModal({
   open,
   onClose,
@@ -68,64 +71,66 @@ export function InviteTeamMemberModal({
     });
   }
 
+  const body = (
+    <div className="space-y-10">
+      <Field label="Email Address" required>
+        <div className="flex h-[53px] items-center gap-3 rounded-[8px] border border-[#D9E1EF] px-4">
+          <Mail className="h-[18px] w-[18px] text-[#8C97AD]" />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter email address"
+            className="flex-1 text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
+          />
+        </div>
+      </Field>
+      <Field label="Role" required>
+        <HubMenuSelect
+          value={role}
+          onChange={setRole}
+          placeholder="Select Role"
+          options={[
+            { value: 'Administrator', label: 'Administrator' },
+            { value: 'Manager', label: 'Manager' },
+            { value: 'Reviewer', label: 'Reviewer' },
+            { value: 'Interviewer', label: 'Interviewer' },
+            { value: 'Coordinator', label: 'Coordinator' },
+          ]}
+        />
+      </Field>
+      <Field label="Department" optional>
+        <HubMenuSelect
+          value={department}
+          onChange={setDepartment}
+          placeholder="Select department"
+          options={[
+            { value: 'Operations', label: 'Operations' },
+            { value: 'Programs', label: 'Programs' },
+            { value: 'Outreach', label: 'Outreach' },
+          ]}
+        />
+      </Field>
+      <Field label="Personal Notes" optional>
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          rows={3}
+          placeholder="e.g. You've been invited to join Maple Future Foundation. Please accept the invitation to get started."
+          className="w-full resize-none rounded-[8px] border border-[#D9E1EF] p-4 text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
+        />
+      </Field>
+    </div>
+  );
+
+  const footer = (
+    <SlideOverFooter onCancel={onClose} confirmLabel="Send Invitation" onConfirm={handleSend} />
+  );
+
   return (
-    <SlideOverShell
-      title="Invite Team Member"
-      onClose={onClose}
-      footer={
-        <SlideOverFooter onCancel={onClose} confirmLabel="Send Invitation" onConfirm={handleSend} />
-      }
-    >
-      <div className="space-y-10">
-          <Field label="Email Address" required>
-            <div className="flex h-[53px] items-center gap-3 rounded-[8px] border border-[#D9E1EF] px-4">
-              <Mail className="h-[18px] w-[18px] text-[#8C97AD]" />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter email address"
-                className="flex-1 text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
-              />
-            </div>
-          </Field>
-          <Field label="Role" required>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="flex h-[53px] w-full appearance-none rounded-[8px] border border-[#D9E1EF] px-4 text-base text-[#0F172A] outline-none"
-            >
-              <option value="">Select Role</option>
-              <option>Administrator</option>
-              <option>Manager</option>
-              <option>Reviewer</option>
-              <option>Interviewer</option>
-              <option>Coordinator</option>
-            </select>
-          </Field>
-          <Field label="Department" optional>
-            <select
-              value={department}
-              onChange={(e) => setDepartment(e.target.value)}
-              className="flex h-[53px] w-full appearance-none rounded-[8px] border border-[#D9E1EF] px-4 text-base text-[#0F172A] outline-none"
-            >
-              <option value="">Select department</option>
-              <option>Operations</option>
-              <option>Programs</option>
-              <option>Outreach</option>
-            </select>
-          </Field>
-          <Field label="Personal Notes" optional>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={3}
-              placeholder="e.g. You've been invited to join Maple Future Foundation. Please accept the invitation to get started."
-              className="w-full resize-none rounded-[8px] border border-[#D9E1EF] p-4 text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
-            />
-          </Field>
-      </div>
-    </SlideOverShell>
+    <ResponsiveFormShell title="Invite Team Member" onClose={onClose} footer={footer}>
+      {body}
+    </ResponsiveFormShell>
   );
 }
 
@@ -187,7 +192,7 @@ export function InvitationSentModal({
   );
 }
 
-/** Figma 580:18390 / 580:16595 — Resend invitation slide-over */
+/** Figma 580:18390 desktop / 580:16595 mobile — Resend invitation */
 export function ResendInvitationModal({
   open,
   onClose,
@@ -214,70 +219,72 @@ export function ResendInvitationModal({
 
   if (!open) return null;
 
-  return (
-    <SlideOverShell
-      title="Resend Invitation"
-      onClose={onClose}
-      footer={
-        <SlideOverFooter
-          onCancel={onClose}
-          confirmLabel="Send Invitation"
-          onConfirm={() => onSent({ ...memberToInvitePayload(member), role, department })}
-        />
-      }
-    >
-      <div className="space-y-10">
-        <div className="flex gap-4 rounded-[10px] border border-[#EEF2F8] bg-[#F8FAFC] p-5">
-          <Info className="h-[26px] w-[26px] shrink-0 text-[#2F66C8]" strokeWidth={1.75} />
-          <div>
-            <p className="text-base font-medium text-[#0F172A]">You should know</p>
-            <p className="mt-1 text-sm text-[#44516A]">This will send a new invitation email to the team member.</p>
-          </div>
+  const body = (
+    <div className="space-y-10">
+      <div className="flex gap-4 rounded-[10px] border border-[#EEF2F8] bg-[#F8FAFC] p-5">
+        <Info className="h-[26px] w-[26px] shrink-0 text-[#2F66C8]" strokeWidth={1.75} />
+        <div>
+          <p className="text-base font-medium text-[#0F172A]">You should know</p>
+          <p className="mt-1 text-sm text-[#44516A]">This will send a new invitation email to the team member.</p>
         </div>
-
-        <Field label="Email Address" required>
-          <div className="flex h-[53px] items-center gap-3 rounded-[8px] border border-[#D9E1EF] bg-[#F8FAFC] px-4">
-            <Mail className="h-[18px] w-[18px] text-[#8C97AD]" />
-            <span className="flex-1 text-base text-[#0F172A]">{member.email}</span>
-          </div>
-        </Field>
-
-        <Field label="Role" required>
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            className="flex h-[53px] w-full appearance-none rounded-[8px] border border-[#D9E1EF] px-4 text-base text-[#0F172A] outline-none"
-          >
-            <option>Administrator</option>
-            <option>Manager</option>
-            <option>Reviewer</option>
-            <option>Interviewer</option>
-            <option>Coordinator</option>
-          </select>
-        </Field>
-
-        <Field label="Department" optional>
-          <select
-            value={department}
-            onChange={(e) => setDepartment(e.target.value)}
-            className="flex h-[53px] w-full appearance-none rounded-[8px] border border-[#D9E1EF] px-4 text-base text-[#0F172A] outline-none"
-          >
-            <option>Operations</option>
-            <option>Programs</option>
-            <option>Outreach</option>
-          </select>
-        </Field>
-
-        <Field label="Personal Notes" optional>
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            rows={3}
-            className="w-full resize-none rounded-[8px] border border-[#D9E1EF] p-4 text-base text-[#44516A] outline-none"
-          />
-        </Field>
       </div>
-    </SlideOverShell>
+
+      <Field label="Email Address" required>
+        <div className="flex h-[53px] items-center gap-3 rounded-[8px] border border-[#D9E1EF] bg-[#F8FAFC] px-4">
+          <Mail className="h-[18px] w-[18px] text-[#8C97AD]" />
+          <span className="flex-1 text-base text-[#0F172A]">{member.email}</span>
+        </div>
+      </Field>
+
+      <Field label="Role" required>
+        <HubMenuSelect
+          value={role}
+          onChange={setRole}
+          options={[
+            { value: 'Administrator', label: 'Administrator' },
+            { value: 'Manager', label: 'Manager' },
+            { value: 'Reviewer', label: 'Reviewer' },
+            { value: 'Interviewer', label: 'Interviewer' },
+            { value: 'Coordinator', label: 'Coordinator' },
+          ]}
+        />
+      </Field>
+
+      <Field label="Department" optional>
+        <HubMenuSelect
+          value={department}
+          onChange={setDepartment}
+          options={[
+            { value: 'Operations', label: 'Operations' },
+            { value: 'Programs', label: 'Programs' },
+            { value: 'Outreach', label: 'Outreach' },
+          ]}
+        />
+      </Field>
+
+      <Field label="Personal Notes" optional>
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          rows={3}
+          className="w-full resize-none rounded-[8px] border border-[#D9E1EF] p-4 text-base text-[#44516A] outline-none"
+        />
+      </Field>
+    </div>
+  );
+
+  const footer = (
+    <SlideOverFooter
+      onCancel={onClose}
+      confirmLabel="Send Invitation"
+      onConfirm={() => onSent({ ...memberToInvitePayload(member), role, department })}
+    />
+  );
+
+  return (
+    <ResponsiveFormShell title="Resend Invitation" onClose={onClose} footer={footer}>
+      {body}
+    </ResponsiveFormShell>
   );
 }
 
@@ -307,13 +314,22 @@ export function ExpiredInviteModal({
       }
     >
       <div className="flex flex-col items-center text-center">
-        <div className="flex h-40 w-40 items-center justify-center rounded-full bg-[#FFF8EF]">
-          <Clock className="h-24 w-24 text-[#D97706]" strokeWidth={1.25} />
-        </div>
+        <Image
+          src={inviteExpiredHourglass}
+          alt=""
+          width={160}
+          height={160}
+          className="h-40 w-40 object-contain"
+          priority
+        />
 
-        <div className="mt-5 flex flex-wrap items-baseline justify-center gap-1.5">
-          <span className="font-serif text-[28px] text-[#0F172A] md:text-[36px]">This invitation has</span>
-          <span className="font-serif text-[28px] italic text-[#2F66C8] md:text-[36px]">Expired!</span>
+        <div className="mt-5 flex flex-wrap items-baseline justify-center gap-x-1.5 gap-y-0">
+          <span className="font-serif text-[28px] leading-none text-[#0F172A] md:text-[36px]">
+            This invitation has
+          </span>
+          <span className="font-serif text-[28px] italic leading-none text-[#2F66C8] md:text-[36px]">
+            Expired!
+          </span>
         </div>
 
         <p className="mt-2.5 text-base text-[#44516A]">
@@ -343,7 +359,7 @@ export function CancelInvitationModal({
       onClose={onClose}
       width="confirm"
       footer={
-        <div className="flex w-full flex-col gap-2.5 sm:flex-row sm:gap-5">
+        <div className="flex w-full gap-2.5 sm:gap-5">
           <button
             type="button"
             onClick={onClose}
@@ -362,20 +378,27 @@ export function CancelInvitationModal({
       }
     >
       <div className="flex flex-col items-center text-center">
-        <div className="flex h-[130px] w-[130px] items-center justify-center">
-          <AlertTriangle className="h-16 w-16 text-[#EF4444]" strokeWidth={1.5} />
-        </div>
+        <Image
+          src={cancelInviteTrash}
+          alt=""
+          width={160}
+          height={160}
+          className="h-40 w-40 object-contain"
+          priority
+        />
 
-        <div className="mt-5 flex flex-col items-center gap-1">
+        <div className="mt-5 flex flex-col items-center gap-0">
           <span className="font-serif text-[28px] leading-tight text-[#0F172A] md:text-[36px]">
             Are you sure you want to cancel this
           </span>
-          <span className="font-serif text-[28px] italic leading-tight text-[#2F66C8] md:text-[36px]">Invitation?</span>
+          <span className="font-serif text-[28px] italic leading-tight text-[#2F66C8] md:text-[36px]">
+            Invitation?
+          </span>
         </div>
 
         <p className="mt-2.5 text-base leading-relaxed text-[#44516A]">
-          The invitation for <span className="font-medium text-[#0F172A]">{member.email}</span> will be cancelled and
-          they will no longer be able to accept the invitation or access the platform.
+          The invitation for <span className="font-semibold text-[#0F172A]">{member.email}</span> will be
+          cancelled and they will no longer be able to accept the invitation or access the platform.
         </p>
       </div>
     </CenteredModalShell>
@@ -406,7 +429,7 @@ export function EditPermissionsModal({
   return <RolePermissionBuilderModal open={open} onClose={onClose} member={member} />;
 }
 
-/** Figma 580:18987 / 580:17877 / 537:6260 — Role & Permission Builder slide-over */
+/** Figma 580:18987 (desktop slide-over) / 580:17877 (mobile centered modal) — Role & Permission Builder */
 export function RolePermissionBuilderModal({
   open,
   onClose,
@@ -462,92 +485,117 @@ export function RolePermissionBuilderModal({
     setPermissions(allSelected ? new Set() : new Set(visibleKeys));
   }
 
-  return (
-    <SlideOverShell
-      title="Role & Permission Builder"
-      onClose={onClose}
-      maxWidth="840px"
-      footer={<SlideOverFooter onCancel={onClose} confirmLabel="Save Role" onConfirm={onClose} />}
-    >
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
-        <div className="flex-1 rounded-[10px] border border-[#EEF2F8] bg-white p-5">
-          <p className="mb-5 text-base font-semibold text-[#0F172A]">Select Role</p>
-          <div className="space-y-5">
-            {TEAM_ROLES.map((role) => (
-              <label key={role.id} className="flex cursor-pointer gap-5">
-                <input
-                  type="radio"
-                  name="team-role"
-                  checked={selectedRole === role.id}
-                  onChange={() => handleRoleChange(role.id)}
-                  className="mt-0.5 h-6 w-6 shrink-0 accent-[#2F66C8]"
-                />
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-[#0F172A]">{role.label}</p>
-                  <p className="text-sm text-[#44516A]">{role.description}</p>
-                </div>
-              </label>
-            ))}
-          </div>
-
-          {isCustom ? (
-            <div className="mt-8">
-              <Field label="Role Name" required>
-                <div className="flex h-[53px] items-center gap-3 rounded-[8px] border border-[#D9E1EF] px-4">
-                  <TextCursorInput className="h-[18px] w-[18px] shrink-0 text-[#8C97AD]" strokeWidth={1.75} />
-                  <input
-                    type="text"
-                    value={customRoleName}
-                    onChange={(e) => setCustomRoleName(e.target.value)}
-                    placeholder="Operations Manager"
-                    className="flex-1 text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
-                  />
-                </div>
-              </Field>
-            </div>
-          ) : null}
+  const body = (radioName: string) => (
+    <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
+      <div className="flex-1 rounded-[10px] border border-[#EEF2F8] bg-white p-5">
+        <p className="mb-5 text-base font-semibold leading-[1.8] text-[#0F172A]">Select Role</p>
+        <div className="space-y-5">
+          {TEAM_ROLES.map((role) => (
+            <label key={role.id} className="flex cursor-pointer gap-5">
+              <input
+                type="radio"
+                name={radioName}
+                checked={selectedRole === role.id}
+                onChange={() => handleRoleChange(role.id)}
+                className="mt-0.5 h-6 w-6 shrink-0 accent-[#2F66C8]"
+              />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-[#0F172A]">{role.label}</p>
+                <p className="text-sm text-[#44516A]">{role.description}</p>
+              </div>
+            </label>
+          ))}
         </div>
 
-        <div className="flex-1 rounded-[10px] border border-[#EEF2F8] bg-white p-5">
-          <div className="mb-5 flex items-center justify-between gap-3">
-            <p className="text-base font-semibold text-[#0F172A]">Permissions</p>
-            <label className="flex shrink-0 cursor-pointer items-center gap-3">
-              <input
-                type="checkbox"
-                checked={allSelected}
-                onChange={toggleAll}
-                className="h-6 w-6 rounded border-[#D9E1EF] bg-[#EEF2F8] text-[#2F66C8]"
-              />
-              <span className="text-sm font-semibold text-[#0F172A]">Select all</span>
-            </label>
-          </div>
-
-          <div className="space-y-6">
-            {visibleGroups.map((group) => (
-              <div key={group.name}>
-                <p className="mb-3 text-base font-semibold text-[#0F172A]">{group.name}</p>
-                <div className="space-y-2.5">
-                  {group.permissions.map((permission) => {
-                    const key = `${group.name}:${permission}`;
-                    return (
-                      <label key={key} className="flex cursor-pointer items-center gap-5">
-                        <input
-                          type="checkbox"
-                          checked={permissions.has(key)}
-                          onChange={() => togglePermission(key)}
-                          className="h-6 w-6 rounded border-[#D9E1EF] text-[#2F66C8]"
-                        />
-                        <span className="text-sm text-[#44516A]">{permission}</span>
-                      </label>
-                    );
-                  })}
-                </div>
+        {isCustom ? (
+          <div className="mt-8">
+            <Field label="Role Name" required>
+              <div className="flex h-[53px] items-center gap-3 rounded-[8px] border border-[#D9E1EF] px-4">
+                <TextCursorInput className="h-[18px] w-[18px] shrink-0 text-[#8C97AD]" strokeWidth={1.75} />
+                <input
+                  type="text"
+                  value={customRoleName}
+                  onChange={(e) => setCustomRoleName(e.target.value)}
+                  placeholder="Operations Manager"
+                  className="flex-1 text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
+                />
               </div>
-            ))}
+            </Field>
           </div>
+        ) : null}
+      </div>
+
+      <div className="flex-1 rounded-[10px] border border-[#EEF2F8] bg-white p-5">
+        <div className="mb-5 flex items-center justify-between gap-3">
+          <p className="text-base font-semibold leading-[1.8] text-[#0F172A]">Permissions</p>
+          <label className="flex shrink-0 cursor-pointer items-center gap-3">
+            <input
+              type="checkbox"
+              checked={allSelected}
+              onChange={toggleAll}
+              className="h-6 w-6 rounded border-[#D9E1EF] bg-[#EEF2F8] text-[#2F66C8]"
+            />
+            <span className="text-sm font-semibold text-[#0F172A]">Select all</span>
+          </label>
+        </div>
+
+        <div className="space-y-6">
+          {visibleGroups.map((group) => (
+            <div key={group.name}>
+              <p className="mb-3 text-base font-semibold leading-[1.8] text-[#0F172A]">{group.name}</p>
+              <div className="space-y-2.5">
+                {group.permissions.map((permission) => {
+                  const key = `${group.name}:${permission}`;
+                  return (
+                    <label key={key} className="flex cursor-pointer items-center gap-5">
+                      <input
+                        type="checkbox"
+                        checked={permissions.has(key)}
+                        onChange={() => togglePermission(key)}
+                        className="h-6 w-6 rounded border-[#D9E1EF] text-[#2F66C8]"
+                      />
+                      <span className="text-sm text-[#44516A]">{permission}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-    </SlideOverShell>
+    </div>
+  );
+
+  const footer = <SlideOverFooter onCancel={onClose} confirmLabel="Save Role" onConfirm={onClose} />;
+
+  return (
+    <>
+      {/* Mobile — Figma 580:17877 centered card */}
+      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#0F172A]/60 p-5 backdrop-blur-[5px] md:hidden">
+        <div className="flex max-h-[90vh] w-full max-w-[400px] flex-col overflow-hidden rounded-[20px] border border-[#D9E1EF] bg-white shadow-[0px_6px_16px_rgba(0,0,0,0.08)]">
+          <div className="flex shrink-0 items-center justify-between border-b border-[#EEF2F8] p-[26px]">
+            <h2 className="text-lg font-medium text-[#0F172A]">Role & Permission Builder</h2>
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[20px] border border-[#EEF2F8] bg-white text-[#44516A]"
+              aria-label="Close"
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto px-[26px] py-10">{body('team-role-mobile')}</div>
+          {footer}
+        </div>
+      </div>
+
+      {/* Desktop — Figma 580:18987 right slide-over 840px */}
+      <div className="hidden md:block">
+        <SlideOverShell title="Role & Permission Builder" onClose={onClose} maxWidth="840px" footer={footer}>
+          {body('team-role-desktop')}
+        </SlideOverShell>
+      </div>
+    </>
   );
 }
 
@@ -569,7 +617,7 @@ function getPresetPermissions(roleId: string, allKeys: string[]): Set<string> {
   return new Set();
 }
 
-/** Figma 523:18553 — Export Team Members */
+/** Figma 523:18553 desktop / 523:19412 mobile — Export Team Members */
 export function ExportTeamMembersModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [format, setFormat] = useState<'csv' | 'excel' | 'pdf'>('csv');
   const [checks, setChecks] = useState({
@@ -586,6 +634,7 @@ export function ExportTeamMembersModal({ open, onClose }: { open: boolean; onClo
       title="Export Team Members"
       subtitle="Choose what data to include in your export"
       onClose={onClose}
+      mobileNarrow
     >
       <div className="space-y-10">
         <div>
@@ -668,19 +717,65 @@ export function SuspendMemberModal({
   if (!open) return null;
 
   return (
-    <ModalShell
-      title="Suspend Member"
-      subtitle={`${member.name} will lose access until reactivated.`}
+    <CenteredModalShell
       onClose={onClose}
+      footer={
+        <ConfirmActionFooter
+          onCancel={onClose}
+          onConfirm={onClose}
+          confirmLabel="Suspend Member"
+          danger
+        />
+      }
     >
-      <p className="text-sm text-[#44516A]">
-        Suspended members cannot sign in or perform actions in the provider portal.
-      </p>
-      <ModalFooter onCancel={onClose} confirmLabel="Suspend Member" onConfirm={onClose} confirmDanger />
-    </ModalShell>
+      <MemberActionConfirmBody
+        image={suspendMemberShield}
+        title="Suspend"
+        accent="Team Member?"
+        question="Are you sure you want to suspend this member."
+        member={member}
+        description="All access and permissions assigned to this user will be temporarily revoked until reactivated."
+      />
+    </CenteredModalShell>
   );
 }
 
+/** Figma 711:21559 / 711:22254 — Activate / reactivate member */
+export function ActivateMemberModal({
+  open,
+  onClose,
+  member,
+}: {
+  open: boolean;
+  onClose: () => void;
+  member: TeamMemberRow;
+}) {
+  if (!open) return null;
+
+  return (
+    <CenteredModalShell
+      onClose={onClose}
+      footer={
+        <ConfirmActionFooter
+          onCancel={onClose}
+          onConfirm={onClose}
+          confirmLabel="Activate Member"
+        />
+      }
+    >
+      <MemberActionConfirmBody
+        image={activateMemberCheck}
+        title="Activate"
+        accent="Team Member?"
+        question="Are you sure you want to activate this member."
+        member={member}
+        description="All access and permissions assigned to this user will be restored."
+      />
+    </CenteredModalShell>
+  );
+}
+
+/** Figma 711:4769 / 711:5462 — Remove member confirmation */
 export function RemoveMemberModal({
   open,
   onClose,
@@ -693,14 +788,32 @@ export function RemoveMemberModal({
   if (!open) return null;
 
   return (
-    <ModalShell
-      title="Remove Member"
-      subtitle={`Permanently remove ${member.name} from your organization.`}
+    <CenteredModalShell
       onClose={onClose}
+      footer={
+        <ConfirmActionFooter
+          onCancel={onClose}
+          onConfirm={onClose}
+          confirmLabel="Remove Member"
+          danger
+        />
+      }
     >
-      <p className="text-sm text-[#44516A]">This action cannot be undone. All access will be revoked immediately.</p>
-      <ModalFooter onCancel={onClose} confirmLabel="Remove Member" onConfirm={onClose} confirmDanger />
-    </ModalShell>
+      <MemberActionConfirmBody
+        image={removeMemberTrash}
+        title="Remove"
+        accent="Team Member?"
+        question="Are you sure you want to remove this member from this account."
+        member={member}
+        description={
+          <>
+            All access and permissions assigned to this user will be revoked.
+            <br />
+            This cannot be undone
+          </>
+        }
+      />
+    </CenteredModalShell>
   );
 }
 
@@ -713,6 +826,7 @@ export type TeamHubModal =
   | { type: 'role'; member: TeamMemberRow }
   | { type: 'permissions'; member: TeamMemberRow }
   | { type: 'suspend'; member: TeamMemberRow }
+  | { type: 'activate'; member: TeamMemberRow }
   | { type: 'remove'; member: TeamMemberRow };
 
 export function handleTeamMemberAction(
@@ -741,6 +855,7 @@ export function handleTeamMemberAction(
   if (label === 'Edit Role') setModal({ type: 'role', member });
   else if (label === 'Edit Permissions') setModal({ type: 'permissions', member });
   else if (label === 'Suspend Member') setModal({ type: 'suspend', member });
+  else if (label === 'Reactivate Member') setModal({ type: 'activate', member });
   else if (label === 'Remove Member' || label === 'Remove Invite') setModal({ type: 'remove', member });
 }
 
@@ -810,6 +925,9 @@ export function TeamHubModalLayer({
   if (modal.type === 'suspend') {
     return <SuspendMemberModal open onClose={onClose} member={modal.member} />;
   }
+  if (modal.type === 'activate') {
+    return <ActivateMemberModal open onClose={onClose} member={modal.member} />;
+  }
   if (modal.type === 'remove') {
     return <RemoveMemberModal open onClose={onClose} member={modal.member} />;
   }
@@ -823,13 +941,13 @@ export function MemberActionsMenu({
   onClose,
   onAction,
   variant = 'dropdown',
-  anchorRect,
 }: {
   open: boolean;
   member: TeamMemberRow;
   onClose: () => void;
   onAction?: (label: string) => void;
   variant?: 'dropdown' | 'sheet';
+  /** @deprecated Fixed portal menus float on scroll — ignored; use relative dropdown. */
   anchorRect?: DOMRect | null;
 }) {
   if (!open) return null;
@@ -872,57 +990,59 @@ export function MemberActionsMenu({
     );
   }
 
-  const menuStyle: React.CSSProperties | undefined = anchorRect
-    ? {
-        position: 'fixed',
-        top: anchorRect.bottom + 4,
-        right: Math.max(8, window.innerWidth - anchorRect.right),
-        zIndex: 100,
-      }
-    : undefined;
+  return (
+    <TeamActionsDropdown
+      open={open}
+      onClose={onClose}
+      status={member.status}
+      onAction={onAction}
+      align="right"
+    />
+  );
+}
 
-  const dropdown = (
+function ResponsiveFormShell({
+  title,
+  onClose,
+  children,
+  footer,
+  maxWidth = '720px',
+}: {
+  title: string;
+  onClose: () => void;
+  children: React.ReactNode;
+  footer?: React.ReactNode;
+  maxWidth?: '720px' | '840px';
+}) {
+  return (
     <>
-      <button type="button" className="fixed inset-0 z-[90]" onClick={onClose} aria-label="Close menu" />
-      <div
-        style={menuStyle}
-        className={cn(
-          'w-[220px] rounded-[10px] bg-[#F8FAFC] p-1 shadow-[0px_2px_4px_rgba(0,0,0,0.05)]',
-          !anchorRect && 'absolute right-0 top-full z-[100] mt-1',
-        )}
-      >
-        <div className="overflow-hidden rounded-[9px] border border-[#EEF2F8] bg-white">
-          {items.map((item, index) => (
+      {/* Mobile — Figma centered card (e.g. 523:6190) */}
+      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#0F172A]/60 p-5 backdrop-blur-[5px] md:hidden">
+        <div className="flex max-h-[90vh] w-full max-w-[400px] flex-col overflow-hidden rounded-[20px] border border-[#D9E1EF] bg-white shadow-[0px_6px_16px_rgba(0,0,0,0.08)]">
+          <div className="flex shrink-0 items-center justify-between border-b border-[#EEF2F8] p-[26px]">
+            <h2 className="text-lg font-medium text-[#0F172A]">{title}</h2>
             <button
-              key={item.label}
               type="button"
-              onClick={() => {
-                onAction?.(item.label);
-                onClose();
-              }}
-              className={cn(
-                'flex w-full items-center gap-2.5 p-3 text-left text-sm hover:bg-[#F8FAFC]',
-                index < items.length - 1 && 'border-b border-[#EEF2F8]',
-                item.tone === 'warning' && 'text-[#B45309]',
-                item.tone === 'danger' && 'text-[#B91C1C]',
-                item.tone === 'success' && 'text-[#15803D]',
-                !item.tone && 'text-[#0F172A]',
-              )}
+              onClick={onClose}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[20px] border border-[#EEF2F8] bg-white text-[#44516A]"
+              aria-label="Close"
             >
-              <item.icon className="h-[18px] w-[18px] shrink-0" strokeWidth={1.75} />
-              {item.label}
+              <X className="h-6 w-6" />
             </button>
-          ))}
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto px-[26px] py-10">{children}</div>
+          {footer}
         </div>
+      </div>
+
+      {/* Desktop — right slide-over */}
+      <div className="hidden md:block">
+        <SlideOverShell title={title} onClose={onClose} maxWidth={maxWidth} footer={footer}>
+          {children}
+        </SlideOverShell>
       </div>
     </>
   );
-
-  if (typeof document !== 'undefined' && anchorRect) {
-    return createPortal(dropdown, document.body);
-  }
-
-  return dropdown;
 }
 
 function SlideOverShell({
@@ -1014,7 +1134,7 @@ function CenteredModalShell({
           'max-w-[400px] md:max-w-[720px]',
         )}
       >
-        <div className="flex justify-end p-[26px] pb-0">
+        <div className="flex justify-end border-b border-[#EEF2F8] p-[26px]">
           <button
             type="button"
             onClick={onClose}
@@ -1024,11 +1144,102 @@ function CenteredModalShell({
             <X className="h-6 w-6" />
           </button>
         </div>
-        <div className="overflow-y-auto px-[26px] pb-[26px] pt-4">{children}</div>
+        <div className="overflow-y-auto px-[26px] py-10">{children}</div>
         {footer ? (
           <div className="border-t border-[#EEF2F8] bg-[#F8FAFC] p-[26px]">{footer}</div>
         ) : null}
       </div>
+    </div>
+  );
+}
+
+function ConfirmActionFooter({
+  onCancel,
+  onConfirm,
+  confirmLabel,
+  danger,
+}: {
+  onCancel: () => void;
+  onConfirm: () => void;
+  confirmLabel: string;
+  danger?: boolean;
+}) {
+  return (
+    <div className="flex w-full items-center justify-end gap-5">
+      <button
+        type="button"
+        onClick={onCancel}
+        className="inline-flex items-center justify-center rounded-[6px] border border-[#EEF2F8] bg-white px-5 py-3 text-sm font-medium text-[#0F172A]"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        onClick={onConfirm}
+        className={cn(
+          'inline-flex items-center justify-center rounded-[6px] px-5 py-3 text-sm font-medium text-white shadow-[0px_2px_4px_rgba(0,0,0,0.05)]',
+          danger ? 'bg-[#EF4444]' : 'bg-[#2F66C8]',
+        )}
+      >
+        {confirmLabel}
+      </button>
+    </div>
+  );
+}
+
+function MemberActionConfirmBody({
+  image,
+  title,
+  accent,
+  question,
+  member,
+  description,
+}: {
+  image: typeof removeMemberTrash;
+  title: string;
+  accent: string;
+  question: string;
+  member: TeamMemberRow;
+  description: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center text-center">
+      <Image src={image} alt="" width={160} height={160} className="h-40 w-40 object-contain" priority />
+
+      <div className="mt-5 flex flex-wrap items-baseline justify-center gap-x-1.5">
+        <span className="font-serif text-[28px] leading-none text-[#0F172A]">{title}</span>
+        <span className="font-serif text-[28px] italic leading-none text-[#2F66C8] md:text-[36px]">
+          {accent}
+        </span>
+      </div>
+
+      <p className="mt-2.5 text-base text-[#44516A]">{question}</p>
+
+      <div className="mt-4 flex w-full max-w-[337px] items-center gap-4 rounded-[10px] border border-[#EEF2F8] bg-[#F8FAFC] p-3.5">
+        <Image
+          src={member.avatar}
+          alt=""
+          width={40}
+          height={40}
+          className="h-10 w-10 shrink-0 rounded-full object-cover"
+        />
+        <div className="flex min-w-0 flex-1 items-end justify-between gap-3">
+          <div className="min-w-0 text-left">
+            <p className="truncate text-sm font-medium text-[#0F172A]">{member.name}</p>
+            <p className="truncate text-xs text-[#44516A]">{member.email}</p>
+          </div>
+          <span
+            className={cn(
+              'shrink-0 rounded-[4px] px-1.5 py-0.5 text-xs font-medium',
+              ROLE_STYLES[member.role] ?? 'bg-[#E9F4FF] text-[#105CF0]',
+            )}
+          >
+            {member.role}
+          </span>
+        </div>
+      </div>
+
+      <p className="mt-4 text-base leading-normal text-[#44516A]">{description}</p>
     </div>
   );
 }
@@ -1038,15 +1249,23 @@ function ModalShell({
   subtitle,
   onClose,
   children,
+  mobileNarrow,
 }: {
   title: string;
   subtitle?: string;
   onClose: () => void;
   children: React.ReactNode;
+  /** Figma mobile export cards are 400px wide */
+  mobileNarrow?: boolean;
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0F172A]/60 p-4 backdrop-blur-[5px]">
-      <div className="flex max-h-[90vh] w-full max-w-[720px] flex-col overflow-hidden rounded-[20px] border border-[#D9E1EF] bg-white shadow-[0px_6px_16px_rgba(0,0,0,0.08)]">
+      <div
+        className={cn(
+          'flex max-h-[90vh] w-full flex-col overflow-hidden rounded-[20px] border border-[#D9E1EF] bg-white shadow-[0px_6px_16px_rgba(0,0,0,0.08)]',
+          mobileNarrow ? 'max-w-[400px] md:max-w-[720px]' : 'max-w-[720px]',
+        )}
+      >
         <div className="flex items-start justify-between border-b border-[#EEF2F8] p-[26px]">
           <div>
             <h2 className="text-lg font-medium text-[#0F172A]">{title}</h2>

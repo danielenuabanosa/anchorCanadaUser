@@ -7,13 +7,20 @@ import { ChevronDown, ChevronLeft, ChevronRight, Ellipsis, Plus } from 'lucide-r
 import { cn } from '@/lib/utils';
 import { HubStatCard } from '@/app/(app)/opportunities/_components/HubStatCard';
 import { HubFilterBar } from '@/shared/components/hub/HubFilterBar';
+import { HubSortSelect } from '@/shared/components/hub/HubSortSelect';
 import {
-  FILTER_LABELS,
+  DEFAULT_TEAM_HUB_FILTERS,
   ROLE_STYLES,
   STATUS_STYLES,
+  TEAM_DEPARTMENT_FILTER_OPTIONS,
   TEAM_MEMBERS,
+  TEAM_ROLE_FILTER_OPTIONS,
   TEAM_STATS,
+  TEAM_STATUS_FILTER_OPTIONS,
   TOTAL_MEMBER_COUNT,
+  filterByTeamHubFilters,
+  sortTeamMembers,
+  type TeamHubFilters,
   type TeamMemberRow,
 } from './teamManagementData';
 import {
@@ -23,7 +30,6 @@ import {
   handleTeamMemberAction,
   type TeamHubModal,
 } from './TeamHubModals';
-import { TeamFilterModal } from './TeamFilterModal';
 import { TeamHubBottomSections } from './TeamHubSections';
 
 const ROWS_PER_PAGE = 10;
@@ -37,31 +43,41 @@ function buildPageNumbers(current: number, total: number): (number | 'ellipsis')
 
 export default function DesktopView() {
   const [search, setSearch] = useState('');
+  const [filters, setFilters] = useState<TeamHubFilters>(DEFAULT_TEAM_HUB_FILTERS);
+  const [sort, setSort] = useState('newest');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
   const [hubModal, setHubModal] = useState<TeamHubModal | null>(null);
-  const [filterOpen, setFilterOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [menuMemberId, setMenuMemberId] = useState<string | null>(null);
-  const [menuAnchorRect, setMenuAnchorRect] = useState<DOMRect | null>(null);
   const router = useRouter();
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return TEAM_MEMBERS;
-    const q = search.toLowerCase();
-    return TEAM_MEMBERS.filter(
-      (m) =>
-        m.name.toLowerCase().includes(q) ||
-        m.email.toLowerCase().includes(q) ||
-        m.department.toLowerCase().includes(q) ||
-        m.role.toLowerCase().includes(q),
-    );
-  }, [search]);
+    const byFilters = filterByTeamHubFilters(TEAM_MEMBERS, filters);
+    const searched = !search.trim()
+      ? byFilters
+      : byFilters.filter((m) => {
+          const q = search.toLowerCase();
+          return (
+            m.name.toLowerCase().includes(q) ||
+            m.email.toLowerCase().includes(q) ||
+            m.department.toLowerCase().includes(q) ||
+            m.role.toLowerCase().includes(q)
+          );
+        });
+    return sortTeamMembers(searched, sort);
+  }, [search, filters, sort]);
 
   const totalPages = Math.max(1, Math.ceil(TOTAL_MEMBER_COUNT / ROWS_PER_PAGE));
   const pageRows = filtered.slice((page - 1) * ROWS_PER_PAGE, page * ROWS_PER_PAGE);
   const showingFrom = filtered.length === 0 ? 0 : (page - 1) * ROWS_PER_PAGE + 1;
   const showingTo = Math.min(page * ROWS_PER_PAGE, TOTAL_MEMBER_COUNT);
+
+  function setFilter<K extends keyof TeamHubFilters>(key: K, value: TeamHubFilters[K]) {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+    setPage(1);
+  }
+
   function toggleRow(id: string) {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -112,12 +128,37 @@ export default function DesktopView() {
           setSearch(value);
           setPage(1);
         }}
-        filters={[...FILTER_LABELS]}
-        onFilterClick={() => setFilterOpen(true)}
-        onClear={() => setSearch('')}
+        onClear={() => {
+          setFilters(DEFAULT_TEAM_HUB_FILTERS);
+          setSearch('');
+          setPage(1);
+        }}
+        filterMenus={[
+          {
+            id: 'role',
+            label: 'All Roles',
+            value: filters.role,
+            options: [...TEAM_ROLE_FILTER_OPTIONS],
+            onChange: (value) => setFilter('role', value),
+          },
+          {
+            id: 'status',
+            label: 'All Statuses',
+            value: filters.status,
+            options: [...TEAM_STATUS_FILTER_OPTIONS],
+            onChange: (value) => setFilter('status', value),
+          },
+          {
+            id: 'department',
+            label: 'All Departments',
+            value: filters.department,
+            options: [...TEAM_DEPARTMENT_FILTER_OPTIONS],
+            onChange: (value) => setFilter('department', value),
+          },
+        ]}
       />
 
-      <div className="rounded-[10px] border border-[#EEF2F8] bg-white">
+      <div className="overflow-visible rounded-[10px] border border-[#EEF2F8] bg-white">
         <div className="flex items-center justify-between border-b border-[#EEF2F8] px-5 py-2.5">
           <div className="flex items-center gap-3.5">
             <input
@@ -137,16 +178,7 @@ export default function DesktopView() {
               </button>
             ) : null}
           </div>
-          <div className="flex items-center gap-2.5">
-            <span className="text-sm text-[#44516A]">Sort by:</span>
-            <button
-              type="button"
-              className="inline-flex h-[45px] items-center gap-2 rounded-[6px] border border-[#EEF2F8] bg-white px-3 text-sm text-[#0F172A]"
-            >
-              Newest Applied
-              <ChevronDown className="h-3.5 w-3.5" />
-            </button>
-          </div>
+          <HubSortSelect value={sort} onChange={setSort} />
         </div>
 
         <div className="hidden border-b border-[#EEF2F8] px-5 md:grid md:grid-cols-[40px_1.4fr_140px_140px_140px_140px_1fr_100px] md:gap-2.5">
@@ -164,7 +196,10 @@ export default function DesktopView() {
           {pageRows.map((member) => (
             <div
               key={member.id}
-              className="grid grid-cols-1 gap-3 border-b border-[#EEF2F8] py-0 last:border-b-0 md:grid-cols-[40px_1.4fr_140px_140px_140px_140px_1fr_100px] md:items-center md:gap-2.5 md:py-0"
+              className={cn(
+                'grid grid-cols-1 gap-3 border-b border-[#EEF2F8] py-0 last:border-b-0 md:grid-cols-[40px_1.4fr_140px_140px_140px_140px_1fr_100px] md:items-center md:gap-2.5 md:py-0',
+                menuMemberId === member.id && 'relative z-50',
+              )}
             >
               <div className="flex h-[60px] items-center">
                 <input
@@ -194,14 +229,10 @@ export default function DesktopView() {
               </div>
               <p className="flex h-[60px] items-center text-sm text-[#44516A]">{member.lastActive}</p>
               <p className="flex h-[60px] items-center truncate text-sm text-[#44516A]">{member.permissions}</p>
-              <div className="relative z-10 flex h-[60px] items-center">
+              <div className="relative flex h-[60px] items-center">
                 <button
                   type="button"
-                  onClick={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    setMenuAnchorRect(rect);
-                    setMenuMemberId(menuMemberId === member.id ? null : member.id);
-                  }}
+                  onClick={() => setMenuMemberId(menuMemberId === member.id ? null : member.id)}
                   className="flex h-8 w-8 items-center justify-center rounded-[6px] border border-[#EEF2F8] bg-white p-1.5 text-[#44516A]"
                 >
                   <Ellipsis className="h-[18px] w-[18px]" />
@@ -209,11 +240,7 @@ export default function DesktopView() {
                 <MemberActionsMenu
                   open={menuMemberId === member.id}
                   member={member}
-                  anchorRect={menuMemberId === member.id ? menuAnchorRect : null}
-                  onClose={() => {
-                    setMenuMemberId(null);
-                    setMenuAnchorRect(null);
-                  }}
+                  onClose={() => setMenuMemberId(null)}
                   onAction={(label) => handleAction(member, label)}
                 />
               </div>
@@ -280,7 +307,6 @@ export default function DesktopView() {
       <TeamHubBottomSections />
 
       <TeamHubModalLayer modal={hubModal} onClose={() => setHubModal(null)} onSetModal={setHubModal} />
-      <TeamFilterModal open={filterOpen} onClose={() => setFilterOpen(false)} />
       <ExportTeamMembersModal open={exportOpen} onClose={() => setExportOpen(false)} />
     </div>
   );

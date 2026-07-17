@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, Download } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { Download } from 'lucide-react';
 import { HubStatCard } from '@/app/(app)/opportunities/_components/HubStatCard';
+import { DateRangeTrigger } from '@/shared/components/ui/DatePicker';
 import { ANALYTICS_DATE_RANGE, ANALYTICS_INSIGHTS, ANALYTICS_STATS } from './analyticsData';
 import {
   ApplicantDemographicsPanel,
@@ -16,14 +18,18 @@ import {
   TeamPerformanceDesktop,
   TopOpportunitiesDesktop,
 } from './AnalyticsSections';
-import { AnalyticsFilterModal } from './AnalyticsFilterModal';
 import { ExportAnalyticsModal, InsightDetailModal } from './AnalyticsHubModals';
 
 export default function DesktopView() {
+  const searchParams = useSearchParams();
+  const demoState = searchParams.get('demo');
+  const forceLoading = demoState === 'loading';
+
   const [loading, setLoading] = useState(true);
-  const [filterOpen, setFilterOpen] = useState(false);
-  const [exportOpen, setExportOpen] = useState(false);
-  const [insightId, setInsightId] = useState<string | null>(null);
+  const [exportOpen, setExportOpen] = useState(demoState === 'export');
+  const [insightId, setInsightId] = useState<string | null>(
+    demoState === 'insight' ? (ANALYTICS_INSIGHTS[0]?.id ?? null) : null,
+  );
   const [dateRange, setDateRange] = useState(ANALYTICS_DATE_RANGE);
 
   const selectedInsight = useMemo(
@@ -32,9 +38,13 @@ export default function DesktopView() {
   );
 
   useEffect(() => {
+    if (forceLoading) {
+      setLoading(true);
+      return;
+    }
     const timer = window.setTimeout(() => setLoading(false), 700);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [forceLoading]);
 
   function openInsight(id: string) {
     setInsightId(id);
@@ -55,14 +65,7 @@ export default function DesktopView() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
-          <button
-            type="button"
-            onClick={() => setFilterOpen(true)}
-            className="inline-flex items-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white px-4 py-2.5 text-base font-medium text-[#0F172A]"
-          >
-            <CalendarDays className="h-[18px] w-[18px]" />
-            {dateRange}
-          </button>
+          <DateRangeTrigger value={dateRange} onChange={setDateRange} align="right" />
           <button
             type="button"
             onClick={() => setExportOpen(true)}
@@ -105,15 +108,6 @@ export default function DesktopView() {
         />
       </div>
 
-      <AnalyticsFilterModal
-        open={filterOpen}
-        onClose={() => setFilterOpen(false)}
-        dateRange={dateRange}
-        onApply={(filters) => {
-          setDateRange(filters.dateRange);
-          setFilterOpen(false);
-        }}
-      />
       <ExportAnalyticsModal open={exportOpen} onClose={() => setExportOpen(false)} />
       <InsightDetailModal
         open={Boolean(insightId)}

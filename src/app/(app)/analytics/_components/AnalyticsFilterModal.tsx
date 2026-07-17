@@ -1,8 +1,7 @@
 'use client';
 
-import { CalendarDays, ChevronDown } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { HubFilterField } from '@/shared/components/hub/HubFilterField';
+import { HubMenuSelect } from '@/shared/components/hub/HubMenuSelect';
 import { ANALYTICS_FILTER_OPTIONS } from './analyticsData';
 
 interface AnalyticsFilterModalProps {
@@ -29,9 +28,8 @@ const DEFAULT_FILTERS: AnalyticsFilters = {
   departments: 'All Departments',
 };
 
-function cycleValue<T extends string>(current: T, options: readonly T[]): T {
-  const index = options.indexOf(current);
-  return options[(index + 1) % options.length] ?? options[0];
+function toMenuOptions(options: readonly string[]) {
+  return options.map((label) => ({ value: label, label }));
 }
 
 /** Figma 609:26071 */
@@ -83,50 +81,49 @@ export function AnalyticsFilterModal({
         </div>
 
         <div className="flex flex-col gap-4 bg-white p-5">
-          <HubFilterField label="Question Label" value={filters.dateRange} icon={CalendarDays} />
-          <HubFilterField
+          <HubMenuSelect
+            variant="field"
+            label="Date Range"
+            value={filters.dateRange}
+            options={[
+              { value: filters.dateRange, label: filters.dateRange },
+              { value: 'Last 7 days', label: 'Last 7 days' },
+              { value: 'Last 30 days', label: 'Last 30 days' },
+              { value: 'Last 90 days', label: 'Last 90 days' },
+              { value: 'This year', label: 'This year' },
+              { value: 'Custom range', label: 'Custom range' },
+            ].filter(
+              (opt, index, arr) => arr.findIndex((o) => o.value === opt.value) === index,
+            )}
+            onChange={(value) => setFilters((f) => ({ ...f, dateRange: value }))}
+          />
+          <HubMenuSelect
+            variant="field"
             label="Opportunity"
             value={filters.opportunity}
-            icon={ChevronDown}
-            onClick={() =>
-              setFilters((f) => ({
-                ...f,
-                opportunity: cycleValue(f.opportunity, ANALYTICS_FILTER_OPTIONS.opportunity),
-              }))
-            }
+            options={toMenuOptions(ANALYTICS_FILTER_OPTIONS.opportunity)}
+            onChange={(value) => setFilters((f) => ({ ...f, opportunity: value }))}
           />
-          <HubFilterField
+          <HubMenuSelect
+            variant="field"
             label="Opportunity Type"
             value={filters.opportunityType}
-            icon={ChevronDown}
-            onClick={() =>
-              setFilters((f) => ({
-                ...f,
-                opportunityType: cycleValue(f.opportunityType, ANALYTICS_FILTER_OPTIONS.opportunityType),
-              }))
-            }
+            options={toMenuOptions(ANALYTICS_FILTER_OPTIONS.opportunityType)}
+            onChange={(value) => setFilters((f) => ({ ...f, opportunityType: value }))}
           />
-          <HubFilterField
+          <HubMenuSelect
+            variant="field"
             label="Team Member"
             value={filters.teamMember}
-            icon={ChevronDown}
-            onClick={() =>
-              setFilters((f) => ({
-                ...f,
-                teamMember: cycleValue(f.teamMember, ANALYTICS_FILTER_OPTIONS.teamMember),
-              }))
-            }
+            options={toMenuOptions(ANALYTICS_FILTER_OPTIONS.teamMember)}
+            onChange={(value) => setFilters((f) => ({ ...f, teamMember: value }))}
           />
-          <HubFilterField
+          <HubMenuSelect
+            variant="field"
             label="Departments"
             value={filters.departments}
-            icon={ChevronDown}
-            onClick={() =>
-              setFilters((f) => ({
-                ...f,
-                departments: cycleValue(f.departments, ANALYTICS_FILTER_OPTIONS.departments),
-              }))
-            }
+            options={toMenuOptions(ANALYTICS_FILTER_OPTIONS.departments)}
+            onChange={(value) => setFilters((f) => ({ ...f, departments: value }))}
           />
         </div>
 

@@ -28,11 +28,6 @@ export function useOrgProfileHub() {
     province: ORG_PROFILE.province as string,
     postalCode: ORG_PROFILE.postalCode as string,
     country: ORG_PROFILE.country as string,
-    tagline: ORG_PROFILE.tagline as string,
-    primaryColor: ORG_PROFILE.primaryColor as string,
-    about: ORG_PROFILE.about as string,
-    mission: ORG_PROFILE.mission as string,
-    vision: ORG_PROFILE.vision as string,
     focusAreas: [...ORG_PROFILE.focusAreas] as string[],
   });
 
@@ -73,14 +68,6 @@ export function useOrgProfileHub() {
         break;
       case 'verification':
         openModal('verification');
-        break;
-      case 'branding':
-        setEditSection('branding');
-        openModal('edit');
-        break;
-      case 'download':
-        break;
-      case 'share':
         break;
       default:
         break;

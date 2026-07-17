@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Archive, Eye, EyeOff, ShieldCheck, TextCursorInput, Trash2, X } from 'lucide-react';
+import { Archive, Eye, EyeOff, TextCursorInput, Trash2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { SettingsHub } from './useSettingsHub';
 
@@ -69,7 +69,7 @@ function ModalIllustration({
   bgClassName,
   iconClassName,
 }: {
-  icon: typeof ShieldCheck;
+  icon: typeof Trash2;
   bgClassName: string;
   iconClassName: string;
 }) {
@@ -188,27 +188,6 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-function Enable2FAModal({ onClose, onConfirm }: { onClose: () => void; onConfirm: () => void }) {
-  return (
-    <ModalBackdrop onClose={onClose}>
-      <ModalPanel>
-        <ModalCloseBar onClose={onClose} />
-        <div className="flex flex-col items-center px-[26px] py-10">
-          <ModalIllustration icon={ShieldCheck} bgClassName="bg-[#F1FFEE]" iconClassName="text-[#15803D]" />
-          <div className="text-center">
-            <p className="font-instrument-serif text-[28px] text-[#0F172A]">Enable Two-Factor</p>
-            <p className="font-instrument-serif text-[36px] italic text-[#2F66C8]">Authentication</p>
-          </div>
-          <p className="mt-5 text-center text-base text-[#44516A]">
-            Add an extra layer of security to your account by enabling two-factor authentication
-          </p>
-        </div>
-        <ModalFooter cancelLabel="Cancel" confirmLabel="Enable 2FA" onCancel={onClose} onConfirm={onConfirm} />
-      </ModalPanel>
-    </ModalBackdrop>
-  );
-}
-
 function DeleteOrganizationModal({ onClose }: { onClose: () => void }) {
   const [confirmText, setConfirmText] = useState('');
 
@@ -285,7 +264,6 @@ export function SettingsModals({ hub }: { hub: SettingsHub }) {
   const close = () => hub.setModal(null);
 
   if (hub.modal === 'changePassword') return <ChangePasswordModal onClose={close} />;
-  if (hub.modal === 'enable2FA') return <Enable2FAModal onClose={close} onConfirm={hub.enable2FA} />;
   if (hub.modal === 'deleteOrganization') return <DeleteOrganizationModal onClose={close} />;
   if (hub.modal === 'archiveOrganization') return <ArchiveOrganizationModal onClose={close} />;
 

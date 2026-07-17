@@ -78,10 +78,10 @@ export function MobileOpportunityCard({ row, onDelete }: MobileOpportunityCardPr
           <div className="min-w-0">
             <p className="truncate text-base font-semibold leading-[21px] text-[#0F172A]">{row.name}</p>
             <div className="mt-1 flex flex-wrap gap-2.5">
-              <span className={cn('rounded px-1.5 py-0.5 text-xs font-medium', TYPE_STYLES[row.type])}>
+              <span className={cn('rounded-[4px] px-1.5 py-0.5 text-xs font-medium', TYPE_STYLES[row.type])}>
                 {TYPE_LABELS[row.type]}
               </span>
-              <span className={cn('rounded px-1.5 py-0.5 text-xs font-medium', STATUS_STYLES[row.status])}>
+              <span className={cn('rounded-[4px] px-1.5 py-0.5 text-xs font-medium', STATUS_STYLES[row.status])}>
                 {row.status}
               </span>
             </div>

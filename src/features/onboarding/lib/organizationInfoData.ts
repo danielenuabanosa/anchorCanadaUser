@@ -17,7 +17,6 @@ export const VERIFIED_ORG_BENEFITS = [
   'Increased applicant trust and engagement',
   'Access to advanced provider analytics',
   'Priority support from our team',
-  'Increased applicant trust and engagement',
 ] as const;
 
 export const ORG_INFO_INFO_MESSAGE = 'Your progress is automatically saved.';

@@ -108,7 +108,6 @@ export const APPLICATION_STATS: ApplicationStat[] = [
     label: 'Rejected',
     value: 737,
     change: '7%',
-    changeNegative: true,
     subtext: 'from last 30 days',
     icon: UserX,
     iconBg: 'bg-[#ECF2FE]',
@@ -121,10 +120,19 @@ export const MOBILE_APPLICATION_STATS = APPLICATION_STATS;
 export const APPLICATION_TABS: { id: ApplicationTab; label: string; count: number }[] = [
   { id: 'all', label: 'All', count: 1284 },
   { id: 'under-review', label: 'Under Review', count: 342 },
-  { id: 'shortlisted', label: 'Shortlisted', count: 126 },
+  { id: 'shortlisted', label: 'Shortlisted', count: 26 },
   { id: 'interview', label: 'Interview', count: 48 },
   { id: 'accepted', label: 'Accepted', count: 31 },
   { id: 'rejected', label: 'Rejected', count: 737 },
+];
+
+export const EMPTY_APPLICATION_TABS: { id: ApplicationTab; label: string; count: number }[] = [
+  { id: 'all', label: 'All', count: 0 },
+  { id: 'under-review', label: 'Under Review', count: 0 },
+  { id: 'shortlisted', label: 'Shortlisted', count: 0 },
+  { id: 'interview', label: 'Interview', count: 0 },
+  { id: 'accepted', label: 'Accepted', count: 0 },
+  { id: 'rejected', label: 'Rejected', count: 0 },
 ];
 
 export const FILTER_LABELS = [
@@ -135,10 +143,95 @@ export const FILTER_LABELS = [
   'All Time',
 ] as const;
 
-/** Figma table/mobile tags — Internal/External purple, Express Interest green */
+export const APP_OPPORTUNITY_FILTER_OPTIONS = [
+  { value: 'all', label: 'All Opportunities' },
+  { value: 'Youth Innovation Grant', label: 'Youth Innovation Grant' },
+  { value: 'Merit Scholarship Program', label: 'Merit Scholarship Program' },
+  { value: 'Mentorship Program', label: 'Mentorship Program' },
+  { value: 'Community Volunteer Program', label: 'Community Volunteer Program' },
+  { value: 'Startup Incubator Cohort', label: 'Startup Incubator Cohort' },
+  { value: 'Digital Skills Scholarship', label: 'Digital Skills Scholarship' },
+] as const;
+
+export const APP_STATUS_FILTER_OPTIONS = [
+  { value: 'all', label: 'All Statuses' },
+  { value: 'Under Review', label: 'Under Review' },
+  { value: 'Shortlisted', label: 'Shortlisted' },
+  { value: 'Interview', label: 'Interview' },
+  { value: 'Accepted', label: 'Accepted' },
+  { value: 'Rejected', label: 'Rejected' },
+] as const;
+
+export const APP_TYPE_FILTER_OPTIONS = [
+  { value: 'all', label: 'All Types' },
+  { value: 'Internal', label: 'Internal' },
+  { value: 'External', label: 'External' },
+  { value: 'Express Interest', label: 'Express Interest' },
+] as const;
+
+export const APP_REVIEWER_FILTER_OPTIONS = [
+  { value: 'all', label: 'All Reviewers' },
+  { value: 'Michael Adams', label: 'Michael Adams' },
+  { value: 'Jessica Lee', label: 'Jessica Lee' },
+  { value: 'Sarah Patel', label: 'Sarah Patel' },
+  { value: 'Emily Zhang', label: 'Emily Zhang' },
+  { value: 'David Chen', label: 'David Chen' },
+  { value: 'Alex Morgan', label: 'Alex Morgan' },
+] as const;
+
+export const APP_TIME_FILTER_OPTIONS = [
+  { value: 'all', label: 'All Time' },
+  { value: '7d', label: 'Last 7 days' },
+  { value: '30d', label: 'Last 30 days' },
+  { value: '90d', label: 'Last 90 days' },
+] as const;
+
+export interface ApplicationHubFilters {
+  opportunity: string;
+  status: string;
+  type: string;
+  reviewer: string;
+  time: string;
+}
+
+export const DEFAULT_APP_HUB_FILTERS: ApplicationHubFilters = {
+  opportunity: 'all',
+  status: 'all',
+  type: 'all',
+  reviewer: 'all',
+  time: 'all',
+};
+
+export function filterByApplicationHubFilters(items: ApplicantRow[], filters: ApplicationHubFilters) {
+  return items.filter((row) => {
+    if (filters.opportunity !== 'all' && row.opportunity !== filters.opportunity) return false;
+    if (filters.status !== 'all' && row.status !== filters.status) return false;
+    if (filters.type !== 'all' && row.opportunityType !== filters.type) return false;
+    if (filters.reviewer !== 'all' && row.reviewer !== filters.reviewer) return false;
+    void filters.time;
+    return true;
+  });
+}
+
+export function sortApplicants(items: ApplicantRow[], sort: string) {
+  const next = [...items];
+  switch (sort) {
+    case 'oldest':
+      return next.reverse();
+    case 'name-asc':
+      return next.sort((a, b) => a.applicant.localeCompare(b.applicant));
+    case 'name-desc':
+      return next.sort((a, b) => b.applicant.localeCompare(a.applicant));
+    case 'newest':
+    default:
+      return next;
+  }
+}
+
+/** Figma table/mobile tags — Internal purple, External blue, Express Interest green */
 export const OPPORTUNITY_TYPE_STYLES: Record<OpportunityTypeTag, string> = {
   Internal: 'border border-[#E8E1FF] bg-[#F3EEFE] text-[#451EE1]',
-  External: 'border border-[#E8E1FF] bg-[#F3EEFE] text-[#451EE1]',
+  External: 'border border-[#DCE7FF] bg-[#EFF4FF] text-[#173E82]',
   'Express Interest': 'border border-[#D1FAE5] bg-[#ECFDF5] text-[#15803D]',
 };
 
@@ -169,11 +262,11 @@ export const APPLICANTS: ApplicantRow[] = [
   },
   {
     id: '2',
-    applicant: 'James Wilson',
-    email: 'james.wilson@email.com',
+    applicant: 'David Miller',
+    email: 'david.miller@email.com',
     location: 'Vancouver, BC',
-    opportunity: 'Healthcare Access Grant',
-    opportunityType: 'External',
+    opportunity: 'Merit Scholarship Program',
+    opportunityType: 'Internal',
     status: 'Shortlisted',
     appliedAt: 'Jun 11, 2026',
     appliedTime: '10:15 AM',
@@ -184,53 +277,53 @@ export const APPLICANTS: ApplicantRow[] = [
   },
   {
     id: '3',
-    applicant: 'Priya Sharma',
-    email: 'priya.sharma@email.com',
+    applicant: 'Emile Clark',
+    email: 'emile.clark@email.com',
     location: 'Calgary, AB',
-    opportunity: 'Youth Leadership Program',
+    opportunity: 'Mentorship Program',
     opportunityType: 'Express Interest',
     status: 'Interview',
     appliedAt: 'Jun 10, 2026',
     appliedTime: '4:45 PM',
-    reviewer: 'Marcus Lee',
+    reviewer: 'Sarah Patel',
     reviewerAvatar: avatar1,
     avatar: avatar3,
     tab: 'interview',
   },
   {
     id: '4',
-    applicant: 'Marcus Lee',
-    email: 'marcus.lee@email.com',
-    location: 'Montreal, QC',
-    opportunity: 'Community Youth Mentorship',
-    opportunityType: 'Internal',
+    applicant: 'James Wilson',
+    email: 'james.wilson@email.com',
+    location: 'Ottawa, ON',
+    opportunity: 'Community Volunteer Program',
+    opportunityType: 'External',
     status: 'Accepted',
-    appliedAt: 'Jun 9, 2026',
-    appliedTime: '9:00 AM',
-    reviewer: 'Emily Zhang',
+    appliedAt: 'Jun 10, 2026',
+    appliedTime: '11:20 AM',
+    reviewer: 'Michael Adams',
     reviewerAvatar: avatar2,
     avatar: avatar1,
     tab: 'accepted',
   },
   {
     id: '5',
-    applicant: 'Emily Zhang',
-    email: 'emily.zhang@email.com',
-    location: 'Ottawa, ON',
-    opportunity: 'Summer Internship Program',
+    applicant: 'Andrea Garcia',
+    email: 'andrea.garcia@email.com',
+    location: 'Montreal, QC',
+    opportunity: 'Startup Incubator Cohort',
     opportunityType: 'External',
     status: 'Rejected',
-    appliedAt: 'Jun 8, 2026',
-    appliedTime: '1:20 PM',
-    reviewer: 'David Chen',
+    appliedAt: 'Jun 10, 2026',
+    appliedTime: '9:05 PM',
+    reviewer: 'Jessica Lee',
     reviewerAvatar: avatar3,
     avatar: avatar2,
     tab: 'rejected',
   },
   {
     id: '6',
-    applicant: 'David Chen',
-    email: 'david.chen@email.com',
+    applicant: 'Priya Sharma',
+    email: 'priya.sharma@email.com',
     location: 'Edmonton, AB',
     opportunity: 'Digital Skills Scholarship',
     opportunityType: 'Internal',
@@ -301,21 +394,6 @@ export const APPLICANTS: ApplicantRow[] = [
     reviewerAvatar: avatar3,
     avatar: avatar1,
     tab: 'accepted',
-  },
-  {
-    id: '11',
-    applicant: 'Lucas Kim',
-    email: 'lucas.k@email.com',
-    location: 'Saskatoon, SK',
-    opportunity: 'Digital Skills Scholarship',
-    opportunityType: 'Internal',
-    status: 'Rejected',
-    appliedAt: 'Jun 2, 2026',
-    appliedTime: '2:00 PM',
-    reviewer: 'David Chen',
-    reviewerAvatar: avatar3,
-    avatar: avatar2,
-    tab: 'rejected',
   },
 ];
 

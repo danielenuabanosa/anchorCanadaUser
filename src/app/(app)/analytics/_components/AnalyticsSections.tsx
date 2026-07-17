@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
-import { ArrowRight, ChevronDown, MoreHorizontal } from 'lucide-react';
+import { ArrowRight, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { HubSortSelect } from '@/shared/components/hub/HubSortSelect';
 import {
   OPPORTUNITY_STATUS_STYLES,
   OPPORTUNITY_TYPE_STYLES,
@@ -12,18 +14,8 @@ import {
 } from './analyticsData';
 
 function SortDropdown() {
-  return (
-    <div className="flex items-center gap-2.5">
-      <span className="text-sm text-[#44516A]">Sort by:</span>
-      <button
-        type="button"
-        className="inline-flex h-[45px] items-center gap-2 rounded-[6px] border border-[#EEF2F8] bg-white px-3 text-sm text-[#0F172A]"
-      >
-        Newest Applied
-        <ChevronDown className="h-3.5 w-3.5 text-[#44516A]" />
-      </button>
-    </div>
-  );
+  const [sort, setSort] = useState('newest');
+  return <HubSortSelect value={sort} onChange={setSort} />;
 }
 
 function TypePill({ type }: { type: TopOpportunityRow['type'] }) {
@@ -46,19 +38,46 @@ export function TopOpportunitiesDesktop({ skeleton }: { skeleton?: boolean }) {
   if (skeleton) {
     return (
       <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white">
-        <div className="flex items-center justify-between border-b border-[#EEF2F8] px-5 py-4">
-          <div className="h-6 w-48 animate-pulse rounded bg-[#EEF2F8]" />
-          <div className="h-[45px] w-[210px] animate-pulse rounded bg-[#EEF2F8]" />
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#EEF2F8] px-5 py-4">
+          <h2 className="text-lg font-medium text-[#0F172A]">Top Performing Opportunities</h2>
+          <SortDropdown />
         </div>
-        <div className="space-y-0 px-5 py-4">
+
+        <div className="hidden border-b border-[#EEF2F8] px-5 md:grid md:grid-cols-[minmax(200px,1.2fr)_minmax(100px,0.8fr)_100px_120px_120px_120px_100px] md:gap-2.5">
+          {['Opportunity', 'Type', 'Views', 'Applications', 'Conversion Rate', 'Interview Rate', 'Status'].map(
+            (col) => (
+              <p key={col} className="py-3.5 text-sm font-medium text-[#0F172A]">
+                {col}
+              </p>
+            ),
+          )}
+        </div>
+
+        <div className="divide-y divide-[#EEF2F8] px-5">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="flex gap-4 border-b border-[#EEF2F8] py-5 last:border-0">
-              <div className="h-10 w-44 animate-pulse rounded bg-[#EEF2F8]" />
+            <div
+              key={i}
+              className="grid gap-3 py-5 md:grid-cols-[minmax(200px,1.2fr)_minmax(100px,0.8fr)_100px_120px_120px_120px_100px] md:items-center md:gap-2.5"
+            >
+              <div className="space-y-2">
+                <div className="h-4 w-44 animate-pulse rounded bg-[#EEF2F8]" />
+                <div className="h-3 w-32 animate-pulse rounded bg-[#EEF2F8]" />
+              </div>
               <div className="h-6 w-16 animate-pulse rounded bg-[#EEF2F8]" />
-              <div className="h-6 w-12 animate-pulse rounded bg-[#EEF2F8]" />
-              <div className="h-6 w-12 animate-pulse rounded bg-[#EEF2F8]" />
+              <div className="h-4 w-12 animate-pulse rounded bg-[#EEF2F8]" />
+              <div className="h-4 w-10 animate-pulse rounded bg-[#EEF2F8]" />
+              <div className="h-4 w-12 animate-pulse rounded bg-[#EEF2F8]" />
+              <div className="h-4 w-12 animate-pulse rounded bg-[#EEF2F8]" />
+              <div className="h-6 w-14 animate-pulse rounded bg-[#EEF2F8]" />
             </div>
           ))}
+        </div>
+
+        <div className="border-t border-[#EEF2F8] px-5 py-5">
+          <button type="button" className="inline-flex items-center gap-2.5 text-sm text-[#2F66C8]">
+            View all opportunities
+            <ArrowRight className="h-4 w-4" />
+          </button>
         </div>
       </div>
     );
@@ -185,13 +204,34 @@ export function TopOpportunitiesMobile({ skeleton }: { skeleton?: boolean }) {
   if (skeleton) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="h-6 w-44 animate-pulse rounded bg-[#EEF2F8]" />
-          <div className="h-[45px] w-[150px] animate-pulse rounded bg-[#EEF2F8]" />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-lg font-medium text-[#0F172A]">Top Performing Opportunities</h2>
+          <SortDropdown />
         </div>
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="h-[280px] animate-pulse rounded-[10px] bg-[#EEF2F8]" />
+          <div key={i} className="rounded-[10px] border border-[#EEF2F8] bg-white p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1 space-y-2">
+                <div className="h-4 w-48 animate-pulse rounded bg-[#EEF2F8]" />
+                <div className="h-3 w-32 animate-pulse rounded bg-[#EEF2F8]" />
+              </div>
+              <div className="h-8 w-8 animate-pulse rounded-[6px] bg-[#EEF2F8]" />
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              {Array.from({ length: 4 }).map((_, j) => (
+                <div key={j} className="space-y-2">
+                  <div className="h-3 w-16 animate-pulse rounded bg-[#EEF2F8]" />
+                  <div className="h-4 w-12 animate-pulse rounded bg-[#EEF2F8]" />
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 h-10 w-full animate-pulse rounded-[6px] bg-[#EEF2F8]" />
+          </div>
         ))}
+        <button type="button" className="inline-flex items-center gap-2.5 text-sm text-[#2F66C8]">
+          View all opportunities
+          <ArrowRight className="h-4 w-4" />
+        </button>
       </div>
     );
   }
@@ -219,13 +259,44 @@ export function TeamPerformanceDesktop({ skeleton }: { skeleton?: boolean }) {
   if (skeleton) {
     return (
       <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white">
-        <div className="border-b border-[#EEF2F8] px-5 py-4">
-          <div className="h-6 w-40 animate-pulse rounded bg-[#EEF2F8]" />
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#EEF2F8] px-5 py-4">
+          <h2 className="text-lg font-medium text-[#0F172A]">Team Performance</h2>
+          <SortDropdown />
         </div>
-        <div className="space-y-4 px-5 py-4">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-14 animate-pulse rounded bg-[#EEF2F8]" />
+
+        <div className="hidden border-b border-[#EEF2F8] px-5 md:grid md:grid-cols-[minmax(200px,1.4fr)_120px_120px_120px] md:gap-2.5">
+          {['Member', 'Applications Reviewed', 'Avg. Review Time', 'Interview Conducted'].map((col) => (
+            <p key={col} className="py-4 text-sm font-medium text-[#0F172A]">
+              {col}
+            </p>
           ))}
+        </div>
+
+        <div className="divide-y divide-[#EEF2F8] px-5">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div
+              key={i}
+              className="grid gap-3 py-5 md:grid-cols-[minmax(200px,1.4fr)_120px_120px_120px] md:items-center md:gap-2.5"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="h-10 w-10 shrink-0 animate-pulse rounded-full bg-[#EEF2F8]" />
+                <div className="space-y-2">
+                  <div className="h-4 w-32 animate-pulse rounded bg-[#EEF2F8]" />
+                  <div className="h-3 w-40 animate-pulse rounded bg-[#EEF2F8]" />
+                </div>
+              </div>
+              <div className="h-4 w-10 animate-pulse rounded bg-[#EEF2F8]" />
+              <div className="h-4 w-14 animate-pulse rounded bg-[#EEF2F8]" />
+              <div className="h-4 w-8 animate-pulse rounded bg-[#EEF2F8]" />
+            </div>
+          ))}
+        </div>
+
+        <div className="border-t border-[#EEF2F8] px-5 py-5">
+          <button type="button" className="inline-flex items-center gap-2.5 text-sm text-[#2F66C8]">
+            View full team report
+            <ArrowRight className="h-4 w-4" />
+          </button>
         </div>
       </div>
     );
@@ -265,6 +336,13 @@ export function TeamPerformanceDesktop({ skeleton }: { skeleton?: boolean }) {
           </div>
         ))}
       </div>
+
+      <div className="border-t border-[#EEF2F8] px-5 py-5">
+        <button type="button" className="inline-flex items-center gap-2.5 text-sm text-[#2F66C8]">
+          View full team report
+          <ArrowRight className="h-4 w-4" />
+        </button>
+      </div>
     </div>
   );
 }
@@ -273,10 +351,33 @@ export function TeamPerformanceMobile({ skeleton }: { skeleton?: boolean }) {
   if (skeleton) {
     return (
       <div className="space-y-4">
-        <div className="h-6 w-40 animate-pulse rounded bg-[#EEF2F8]" />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-lg font-medium text-[#0F172A]">Team Performance</h2>
+          <SortDropdown />
+        </div>
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="h-32 animate-pulse rounded-[10px] bg-[#EEF2F8]" />
+          <div key={i} className="rounded-[10px] border border-[#EEF2F8] bg-white p-4">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 shrink-0 animate-pulse rounded-full bg-[#EEF2F8]" />
+              <div className="space-y-2">
+                <div className="h-4 w-32 animate-pulse rounded bg-[#EEF2F8]" />
+                <div className="h-3 w-40 animate-pulse rounded bg-[#EEF2F8]" />
+              </div>
+            </div>
+            <div className="mt-4 grid grid-cols-3 gap-3 border-t border-[#EEF2F8] pt-4">
+              {Array.from({ length: 3 }).map((_, j) => (
+                <div key={j} className="space-y-2">
+                  <div className="h-3 w-14 animate-pulse rounded bg-[#EEF2F8]" />
+                  <div className="h-4 w-10 animate-pulse rounded bg-[#EEF2F8]" />
+                </div>
+              ))}
+            </div>
+          </div>
         ))}
+        <button type="button" className="inline-flex items-center gap-2.5 text-sm text-[#2F66C8]">
+          View full team report
+          <ArrowRight className="h-4 w-4" />
+        </button>
       </div>
     );
   }
@@ -314,6 +415,10 @@ export function TeamPerformanceMobile({ skeleton }: { skeleton?: boolean }) {
           </div>
         ))}
       </div>
+      <button type="button" className="inline-flex items-center gap-2.5 text-sm text-[#2F66C8]">
+        View full team report
+        <ArrowRight className="h-4 w-4" />
+      </button>
     </div>
   );
 }

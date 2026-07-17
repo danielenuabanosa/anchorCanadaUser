@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   DEFAULT_NOTIFICATION_FILTERS,
   NOTIFICATIONS,
@@ -39,7 +39,7 @@ export function useNotificationsHub() {
   const deleteTarget = items.find((item) => item.id === deleteTargetId) ?? null;
   const detailTarget = items.find((item) => item.id === detailTargetId) ?? null;
 
-  function toggleSelect(id: string) {
+  const toggleSelect = useCallback((id: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -48,7 +48,7 @@ export function useNotificationsHub() {
       else setSelectionMode(true);
       return next;
     });
-  }
+  }, []);
 
   function toggleGroupSelect(groupItems: NotificationItem[]) {
     const allSelected = groupItems.every((item) => selected.has(item.id));
@@ -65,10 +65,10 @@ export function useNotificationsHub() {
     });
   }
 
-  function clearSelection() {
+  const clearSelection = useCallback(() => {
     setSelected(new Set());
     setSelectionMode(false);
-  }
+  }, []);
 
   function enterSelectionMode() {
     setSelectionMode(true);

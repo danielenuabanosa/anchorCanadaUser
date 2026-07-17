@@ -10,27 +10,36 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
-  CircleCheck,
   Globe,
+  GraduationCap,
   House,
   Info,
   Layers,
-  Send,
+  MapPin,
   ShieldCheck,
   TriangleAlert,
-  Users,
-  Video,
-  FileText,
 } from 'lucide-react';
 
-import { BuilderPageShell, RadioRow, ToggleRow } from '@/features/opportunity-builder/components/BuilderPageShell';
+import { BuilderPageShell, RadioRow } from '@/features/opportunity-builder/components/BuilderPageShell';
+import { DraftSavedSuccessModal } from '@/features/opportunity-builder/components/DraftSavedSuccessModal';
+import { OpportunityPublishedModal } from '@/features/opportunity-builder/components/OpportunityPublishedModal';
+import { PublishConfirmModal } from '@/features/opportunity-builder/components/PublishConfirmModal';
+import { PublishIssuesModal } from '@/features/opportunity-builder/components/PublishIssuesModal';
+import { SchedulePublishModal } from '@/features/opportunity-builder/components/SchedulePublishModal';
+import { BuilderMenuSelect } from '@/features/opportunity-builder/components/BuilderMenuSelect';
 import {
-  BUILDER_CATEGORIES,
+  BUILDER_CATEGORY_GROUPS,
+  BUILDER_PAGE_COPY,
   BUILDER_STEP_ROUTES,
-  BUILDER_TEMPLATES,
   OPPORTUNITY_TYPES,
 } from '@/features/opportunity-builder/lib/builderData';
-import { getWorkflowLabel, WORKFLOW_SUB_ROUTES } from '@/features/opportunity-builder/lib/workflowData';
+import {
+  getCategoryConfigSchema,
+  getConfigStatusLabel,
+  getConfigSummaryLines,
+  isCategoryConfigComplete,
+} from '@/features/opportunity-builder/lib/categoryConfigData';
+import { VISIBILITY_OPTIONS } from '@/features/opportunity-builder/lib/detailsData';
 import { providerApi } from '@/features/provider/services/providerApi';
 import { getApiErrorMessage } from '@/lib/apiError';
 import { cn } from '@/lib/utils';
@@ -162,95 +171,106 @@ export function useReviewPublish() {
     category,
     template,
     requirementFields,
+    documentRequirements,
+    categoryConfig,
     details,
     workflowType,
     internalWorkflow,
     externalWorkflow,
     expressInterestWorkflow,
     resetBuilder,
+    setDetails,
   } = store;
 
   const [publishError, setPublishError] = useState('');
   const [isPublishing, setIsPublishing] = useState(false);
-  const [publishOption, setPublishOption] = useState<PublishOption>('now');
-  const [notifyFollowers, setNotifyFollowers] = useState(true);
-  const [notifyTeam, setNotifyTeam] = useState(true);
-  const [shareToFeed, setShareToFeed] = useState(true);
+  const [publishOption, setPublishOptionState] = useState<PublishOption>('now');
+  const [draftSavedOpen, setDraftSavedOpen] = useState(false);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [scheduleDate, setScheduleDate] = useState('');
+  const [scheduleTime, setScheduleTime] = useState('10:00');
+  const [visibilityEditing, setVisibilityEditing] = useState(false);
+  const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
+  const [publishedOpen, setPublishedOpen] = useState(false);
+  const [issuesOpen, setIssuesOpen] = useState(false);
+  const [publishedId, setPublishedId] = useState<string | null>(null);
 
   const typeLabel = OPPORTUNITY_TYPES.find((t) => t.id === opportunityType)?.title ?? 'Not selected';
-  const categoryLabel = BUILDER_CATEGORIES.find((c) => c.id === category)?.title ?? category ?? 'Not selected';
-  const templateLabel = BUILDER_TEMPLATES.find((t) => t.id === template)?.title ?? template ?? 'Not selected';
-  const title = details.title?.trim() || templateLabel || 'Untitled Opportunity';
-  const workflowBackHref = workflowType ? WORKFLOW_SUB_ROUTES[workflowType] : BUILDER_STEP_ROUTES[5];
+  const categoryGroup = BUILDER_CATEGORY_GROUPS.find(
+    (g) => g.id === category || g.subcategories.some((s) => s.id === category),
+  );
+  const categoryLabel = categoryGroup?.title ?? category ?? 'Not selected';
+  const title = details.title?.trim() || 'Untitled Opportunity';
+  const configBackHref = BUILDER_STEP_ROUTES[4];
+  const configSchema = getCategoryConfigSchema(categoryGroup?.id ?? null);
+  const configComplete = isCategoryConfigComplete(configSchema, categoryConfig);
+  const configSummaryLines = useMemo(
+    () => getConfigSummaryLines(configSchema, categoryConfig),
+    [configSchema, categoryConfig],
+  );
+  const enabledDocCount = (Array.isArray(documentRequirements) ? documentRequirements : []).filter(
+    (d) => d.enabled,
+  ).length;
 
   const locationLabel = [details.city, details.province, details.country].filter(Boolean).join(', ') || 'Canada (Nationwide)';
 
   const validationItems: ReviewValidationItem[] = useMemo(
     () => [
-      { label: 'Opportunity Title', value: typeLabel, ok: Boolean(details.title?.trim()) },
+      {
+        label: 'Opportunity Title',
+        value: details.title?.trim() ? title : 'Missing',
+        ok: Boolean(details.title?.trim()),
+      },
       { label: 'Category', value: categoryLabel, ok: Boolean(category) },
-      { label: 'Template', value: templateLabel, ok: Boolean(template) },
       {
         label: 'Requirements',
-        value: `${requirementFields.length} requirements added`,
-        ok: requirementFields.length > 0,
+        value: `${enabledDocCount} requirements added`,
+        ok: enabledDocCount > 0,
       },
       {
         label: 'Details',
-        value: Object.keys(details).length > 0 ? 'All required information added' : 'Missing details',
+        value: Boolean(details.title && details.deadlineDate)
+          ? 'All required information added'
+          : 'Missing details',
         ok: Boolean(details.title && details.deadlineDate),
       },
       {
-        label: 'Workflow',
-        value: workflowType === 'internal'
-          ? `${internalWorkflow.stages.length} stages configured`
-          : getWorkflowLabel(workflowType),
-        ok: Boolean(workflowType),
+        label: 'Config',
+        value: getConfigStatusLabel(configSchema, categoryConfig),
+        ok: configComplete,
       },
     ],
     [
       category,
+      categoryConfig,
       categoryLabel,
-      details,
-      internalWorkflow.stages.length,
-      requirementFields.length,
-      template,
-      templateLabel,
-      typeLabel,
-      workflowType,
+      configComplete,
+      configSchema,
+      details.deadlineDate,
+      details.title,
+      enabledDocCount,
+      title,
     ],
   );
 
   const errors: ReviewError[] = useMemo(() => {
     const list: ReviewError[] = [];
-    if (!workflowType) {
+    if (!configComplete) {
       list.push({
-        id: 'workflow-missing',
-        message: 'Workflow is incomplete. Configure at least one review stage before publishing.',
-        href: BUILDER_STEP_ROUTES[5],
-      });
-    } else if (workflowType === 'internal' && internalWorkflow.stages.length < 2) {
-      list.push({
-        id: 'workflow-stages',
-        message: 'Workflow is incomplete. Add all required stages to your internal workflow.',
-        href: WORKFLOW_SUB_ROUTES.internal,
-      });
-    } else if (workflowType === 'external' && !externalWorkflow.applicationUrl?.trim()) {
-      list.push({
-        id: 'external-url',
-        message: 'External application URL is required before publishing.',
-        href: WORKFLOW_SUB_ROUTES.external,
+        id: 'config-missing',
+        message: 'Opportunity configuration is incomplete. Complete the Config step before publishing.',
+        href: BUILDER_STEP_ROUTES[4],
       });
     }
     if (!details.title?.trim()) {
       list.push({
         id: 'title-missing',
         message: 'Opportunity title is required.',
-        href: BUILDER_STEP_ROUTES[4],
+        href: BUILDER_STEP_ROUTES[3],
       });
     }
     return list;
-  }, [details.title, externalWorkflow.applicationUrl, internalWorkflow.stages.length, workflowType]);
+  }, [configComplete, details.title]);
 
   const warnings: ReviewWarning[] = useMemo(() => {
     const days = daysUntil(details.deadlineDate);
@@ -259,7 +279,7 @@ export function useReviewPublish() {
         {
           id: 'deadline',
           message: `Deadline is within ${days} days. Consider extending to allow more time for applicants.`,
-          href: BUILDER_STEP_ROUTES[4],
+          href: BUILDER_STEP_ROUTES[3],
         },
       ];
     }
@@ -273,14 +293,79 @@ export function useReviewPublish() {
         {
           id: 'description',
           message: 'Description could be more detailed. We recommend at least 150 words for better visibility.',
-          href: BUILDER_STEP_ROUTES[4],
+          href: BUILDER_STEP_ROUTES[3],
         },
       ];
     }
     return [];
   }, [details.description, details.summary]);
 
-  const hasErrors = !opportunityType || validationItems.some((i) => !i.ok) || errors.length > 0;
+  const publishIssues = useMemo(() => {
+    const issues: { id: string; message: string; href: string }[] = [];
+
+    const deadline = details.deadlineDate ? new Date(details.deadlineDate) : null;
+    if (deadline && !Number.isNaN(deadline.getTime()) && deadline.getTime() < Date.now()) {
+      issues.push({
+        id: 'deadline-past',
+        message: 'Application deadline is in the past',
+        href: BUILDER_STEP_ROUTES[3],
+      });
+    }
+
+    if (opportunityType === 'external') {
+      const url = externalWorkflow.applicationUrl?.trim() ?? '';
+      if (!/^https?:\/\/.+\..+/.test(url)) {
+        issues.push({
+          id: 'missing-url',
+          message: 'Missing application URL',
+          href: BUILDER_STEP_ROUTES[2],
+        });
+      }
+    }
+
+    if (!configComplete) {
+      issues.push({
+        id: 'config-incomplete',
+        message: 'Config is incomplete.',
+        href: BUILDER_STEP_ROUTES[4],
+      });
+    }
+
+    if (!details.title?.trim()) {
+      issues.push({
+        id: 'title-missing',
+        message: 'Opportunity title is required.',
+        href: BUILDER_STEP_ROUTES[3],
+      });
+    }
+
+    if (enabledDocCount === 0) {
+      issues.push({
+        id: 'requirements-empty',
+        message: 'No requirements have been added.',
+        href: BUILDER_STEP_ROUTES[2],
+      });
+    }
+
+    if (!opportunityType) {
+      issues.push({
+        id: 'type-missing',
+        message: 'Opportunity type is required.',
+        href: BUILDER_STEP_ROUTES[0],
+      });
+    }
+
+    return issues;
+  }, [
+    configComplete,
+    details.deadlineDate,
+    details.title,
+    enabledDocCount,
+    externalWorkflow.applicationUrl,
+    opportunityType,
+  ]);
+
+  const hasErrors = publishIssues.length > 0 || errors.length > 0;
   const allGood = !hasErrors;
 
   const buildPayload = useCallback(
@@ -297,49 +382,56 @@ export function useReviewPublish() {
         category,
         template,
         requirementFields,
+        categoryConfig,
         details,
         workflowType,
         internalWorkflow,
         externalWorkflow,
         expressInterestWorkflow,
         publishOption,
-        notifyFollowers,
-        notifyTeam,
-        shareToFeed,
+        scheduleDate,
+        scheduleTime,
       },
       publish,
     }),
     [
       category,
+      categoryConfig,
       details,
       expressInterestWorkflow,
       externalWorkflow,
       internalWorkflow,
       locationLabel,
-      notifyFollowers,
-      notifyTeam,
       opportunityType,
       publishOption,
       requirementFields,
-      shareToFeed,
+      scheduleDate,
+      scheduleTime,
       template,
       title,
       workflowType,
     ],
   );
 
-  const handlePublish = useCallback(async () => {
-    if (!opportunityType) {
-      setPublishError('Select an opportunity type before publishing.');
+  const executePublish = useCallback(async () => {
+    if (publishIssues.length > 0) {
+      setPublishConfirmOpen(false);
+      setIssuesOpen(true);
       return;
     }
+
     setPublishError('');
     setIsPublishing(true);
     try {
-      await providerApi.publishOpportunity(buildPayload(publishOption !== 'draft'));
-      resetBuilder();
-      router.push('/opportunities');
+      const result = (await providerApi.publishOpportunity(buildPayload(true))) as {
+        id?: string;
+      };
+      setPublishedId(result?.id ?? null);
+      setPublishConfirmOpen(false);
+      setIsPublishing(false);
+      setPublishedOpen(true);
     } catch (err) {
+      setPublishConfirmOpen(false);
       setPublishError(
         getApiErrorMessage(
           err,
@@ -348,7 +440,47 @@ export function useReviewPublish() {
       );
       setIsPublishing(false);
     }
-  }, [buildPayload, opportunityType, publishOption, resetBuilder, router]);
+  }, [buildPayload, publishIssues.length]);
+
+  const handlePublish = useCallback(async () => {
+    if (publishOption === 'draft') {
+      if (!opportunityType) {
+        setPublishError('Select an opportunity type before saving.');
+        return;
+      }
+      setPublishError('');
+      setIsPublishing(true);
+      try {
+        await providerApi.publishOpportunity(buildPayload(false));
+        setIsPublishing(false);
+        setDraftSavedOpen(true);
+      } catch (err) {
+        setPublishError(getApiErrorMessage(err, 'Could not save draft.'));
+        setIsPublishing(false);
+      }
+      return;
+    }
+
+    if (publishOption === 'schedule' && !scheduleDate) {
+      setScheduleOpen(true);
+      return;
+    }
+
+    // Publish Now always opens Ready to Publish first, then success after confirm.
+    if (publishOption === 'now') {
+      setPublishConfirmOpen(true);
+      return;
+    }
+
+    // Scheduled publish: validate, then go live.
+    await executePublish();
+  }, [
+    buildPayload,
+    executePublish,
+    opportunityType,
+    publishOption,
+    scheduleDate,
+  ]);
 
   const handleSaveDraft = useCallback(async () => {
     if (!opportunityType) {
@@ -359,35 +491,122 @@ export function useReviewPublish() {
     setIsPublishing(true);
     try {
       await providerApi.publishOpportunity(buildPayload(false));
-      resetBuilder();
-      router.push('/opportunities');
+      setIsPublishing(false);
+      setDraftSavedOpen(true);
     } catch (err) {
       setPublishError(getApiErrorMessage(err, 'Could not save draft.'));
       setIsPublishing(false);
     }
-  }, [buildPayload, opportunityType, resetBuilder, router]);
+  }, [buildPayload, opportunityType]);
+
+  const handleSelectPublishOption = useCallback((option: PublishOption) => {
+    setPublishOptionState(option);
+    if (option === 'schedule') {
+      setScheduleOpen(true);
+    }
+  }, []);
+
+  const confirmSchedule = useCallback((payload: { date: string; time: string }) => {
+    setScheduleDate(payload.date);
+    setScheduleTime(payload.time);
+    setPublishOptionState('schedule');
+    setScheduleOpen(false);
+  }, []);
+
+  const cancelSchedule = useCallback(() => {
+    setScheduleOpen(false);
+    if (!scheduleDate) setPublishOptionState('now');
+  }, [scheduleDate]);
+
+  const handleGoToIssues = useCallback(() => {
+    setIssuesOpen(false);
+    const first = publishIssues[0];
+    if (first?.href) router.push(first.href);
+  }, [publishIssues, router]);
+
+  const handleCreateAnother = useCallback(() => {
+    setPublishedOpen(false);
+    resetBuilder();
+    router.push('/opportunities/create/type');
+  }, [resetBuilder, router]);
+
+  const handleViewOpportunity = useCallback(() => {
+    setPublishedOpen(false);
+    resetBuilder();
+    router.push(publishedId ? `/opportunities/${publishedId}` : '/opportunities');
+  }, [publishedId, resetBuilder, router]);
+
+  const setVisibility = useCallback(
+    (value: string) => {
+      setDetails({ visibility: value });
+      setVisibilityEditing(false);
+    },
+    [setDetails],
+  );
+
+  const closeDraftSaved = useCallback(() => setDraftSavedOpen(false), []);
+  const closePublishConfirm = useCallback(() => setPublishConfirmOpen(false), []);
+  const closeIssues = useCallback(() => setIssuesOpen(false), []);
+  const closePublishedAndView = useCallback(() => {
+    setPublishedOpen(false);
+    handleViewOpportunity();
+  }, [handleViewOpportunity]);
+  const confirmPublish = useCallback(() => {
+    void executePublish();
+  }, [executePublish]);
+
+  const visibility = details.visibility || 'public';
+  const visibilityMeta = VISIBILITY_OPTIONS.find((o) => o.value === visibility) ?? VISIBILITY_OPTIONS[0];
+  const visibilityDescription =
+    visibility === 'private'
+      ? 'Only visible within your organization.'
+      : visibility === 'invite-only'
+        ? 'Only invited applicants can view this opportunity.'
+        : 'Visible to everyone on Anchor Canada.';
 
   return {
-    workflowBackHref,
+    workflowBackHref: configBackHref,
     handlePublish,
     handleSaveDraft,
+    executePublish,
+    confirmPublish,
     isPublishing,
     publishError,
     publishOption,
-    setPublishOption,
-    notifyFollowers,
-    setNotifyFollowers,
-    notifyTeam,
-    setNotifyTeam,
-    shareToFeed,
-    setShareToFeed,
+    setPublishOption: handleSelectPublishOption,
+    confirmSchedule,
+    cancelSchedule,
+    draftSavedOpen,
+    closeDraftSaved,
+    scheduleOpen,
+    setScheduleOpen,
+    scheduleDate,
+    scheduleTime,
+    publishConfirmOpen,
+    closePublishConfirm,
+    publishedOpen,
+    closePublishedAndView,
+    issuesOpen,
+    closeIssues,
+    publishIssues,
+    handleGoToIssues,
+    handleCreateAnother,
+    handleViewOpportunity,
+    visibility,
+    visibilityLabel: visibilityMeta.label,
+    visibilityDescription,
+    visibilityEditing,
+    setVisibilityEditing,
+    setVisibility,
     title,
     typeLabel,
     categoryLabel,
-    templateLabel,
     locationLabel,
     requirementFields,
     details,
+    categoryConfig,
+    configSummaryLines,
+    configComplete,
     workflowType,
     internalWorkflow,
     externalWorkflow,
@@ -408,10 +627,7 @@ export function ReviewPageHeading() {
         <h1 className="font-serif text-[36px] leading-[56px] text-[#0F172A]">Review &</h1>
         <span className="font-serif text-[48px] italic leading-[56px] text-[#2F66C8]">Publish</span>
       </div>
-      <p className="mt-2.5 text-[16px] text-[#44516A]">
-        Review all your information, check for any issues, and publish your opportunity when you&apos;re ready.
-        This is the final step before your opportunity goes live.
-      </p>
+      <p className="mt-2.5 text-[16px] text-[#44516A]">{BUILDER_PAGE_COPY.review.subtitle}</p>
     </div>
   );
 }
@@ -420,14 +636,12 @@ export function OpportunitySummaryBody({
   title,
   opportunityType,
   categoryLabel,
-  templateLabel,
   details,
   locationLabel,
 }: {
   title: string;
   opportunityType: string | null;
   categoryLabel: string;
-  templateLabel: string;
   details: Record<string, string>;
   locationLabel: string;
 }) {
@@ -443,8 +657,11 @@ export function OpportunitySummaryBody({
           className: 'bg-[#ECFDF5] text-[#15803D] border border-[#D1FAE5]',
         }}
       />
-      <SummaryRow icon={<SummaryIcon><Layers className="h-[18px] w-[18px]" strokeWidth={1.75} /></SummaryIcon>} label="Category" value={categoryLabel} />
-      <SummaryRow icon={<SummaryIcon><Layers className="h-[18px] w-[18px]" strokeWidth={1.75} /></SummaryIcon>} label="Template" value={templateLabel} />
+      <SummaryRow
+        icon={<SummaryIcon><GraduationCap className="h-[18px] w-[18px]" strokeWidth={1.75} /></SummaryIcon>}
+        label="Category"
+        value={categoryLabel}
+      />
       <SummaryRow
         icon={<SummaryIcon><Building2 className="h-[18px] w-[18px]" strokeWidth={1.75} /></SummaryIcon>}
         label="Organization"
@@ -462,11 +679,10 @@ export function OpportunitySummaryBody({
         valueClassName="text-[#B91C1C]"
       />
       <SummaryRow
-        icon={<SummaryIcon><Users className="h-[18px] w-[18px]" strokeWidth={1.75} /></SummaryIcon>}
-        label="Target Audience"
-        value={details.educationLevel ?? details.targetAudience ?? 'Post-secondary Students'}
+        icon={<SummaryIcon><MapPin className="h-[18px] w-[18px]" strokeWidth={1.75} /></SummaryIcon>}
+        label="Location"
+        value={locationLabel}
       />
-      <SummaryRow icon={<SummaryIcon><Users className="h-[18px] w-[18px]" strokeWidth={1.75} /></SummaryIcon>} label="Location" value={locationLabel} />
     </div>
   );
 }
@@ -488,11 +704,18 @@ export function RequirementSummaryBody({
             className="flex items-center justify-between border-b border-[#EEF2F8] px-4 py-4 last:border-0"
           >
             <span className="text-[14px] font-medium text-[#0F172A]">{req.title}</span>
-            <span className="text-[14px] font-medium text-[#15803D]">Required</span>
+            <span
+              className={cn(
+                'text-[14px] font-medium',
+                req.required ? 'text-[#15803D]' : 'text-[#8C97AD]',
+              )}
+            >
+              {req.required ? 'Required' : 'Optional'}
+            </span>
           </div>
         ))}
         <div className="px-4 py-4">
-          <Link href={BUILDER_STEP_ROUTES[3]} className="text-[14px] font-medium text-[#2F66C8] hover:underline">
+          <Link href={BUILDER_STEP_ROUTES[2]} className="text-[14px] font-medium text-[#2F66C8] hover:underline">
             View all requirements ({requirementFields.length})
           </Link>
         </div>
@@ -501,75 +724,32 @@ export function RequirementSummaryBody({
   );
 }
 
-const INTERNAL_STAGE_ICONS = [Send, FileText, Users, Video, CircleCheck];
-
-export function WorkflowSummaryBody({
-  workflowType,
-  internalWorkflow,
-  externalWorkflow,
+export function ConfigSummaryBody({
+  lines,
 }: {
-  workflowType: string | null;
-  internalWorkflow: { stages: { id: string; name: string; stageType?: string }[] };
-  externalWorkflow: { applicationUrl: string; destinationName: string };
+  lines: { label: string; value: string }[];
 }) {
-  if (workflowType === 'external') {
-    return (
-      <div className="space-y-3 px-5 pb-5">
-        <SummaryRow label="Application URL" value={externalWorkflow.applicationUrl || '—'} />
-        <SummaryRow label="Destination" value={externalWorkflow.destinationName || '—'} />
-        <Link href={BUILDER_STEP_ROUTES[5]} className="inline-block text-[14px] font-medium text-[#2F66C8] hover:underline">
-          View full workflow
-        </Link>
-      </div>
-    );
-  }
-
-  const stages =
-    workflowType === 'internal'
-      ? internalWorkflow.stages.slice(0, 5)
-      : [
-          { id: '1', name: 'Interest Submitted', stageType: 'Auto' },
-          { id: '2', name: 'Review', stageType: 'Manual' },
-          { id: '3', name: 'Shortlist', stageType: 'Manual' },
-          { id: '4', name: 'Invite', stageType: 'Manual' },
-          { id: '5', name: 'Decision', stageType: 'Manual' },
-        ];
-
   return (
-    <div className="px-5 pb-5">
-      <div className="flex flex-wrap items-start justify-between gap-3 md:hidden">
-        {stages.map((stage, i) => {
-          const Icon = INTERNAL_STAGE_ICONS[i] ?? FileText;
-          return (
-            <div key={stage.id} className="flex min-w-[72px] flex-col items-center gap-2 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EFF4FF] text-[#2F66C8]">
-                <Icon className="h-4 w-4" />
-              </div>
-              <p className="text-[12px] font-medium text-[#0F172A]">{stage.name}</p>
-              <p className="text-[10px] text-[#8C97AD]">{stage.stageType ?? 'Manual'}</p>
-            </div>
-          );
-        })}
-      </div>
-      <div className="mt-4 hidden gap-4 overflow-x-auto md:flex">
-        {stages.map((stage, i) => {
-          const Icon = INTERNAL_STAGE_ICONS[i] ?? FileText;
-          return (
-            <div key={stage.id} className="flex min-w-[100px] flex-col items-center gap-2 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EFF4FF] text-[#2F66C8]">
-                <Icon className="h-5 w-5" />
-              </div>
-              <p className="text-[14px] font-medium text-[#0F172A]">{stage.name}</p>
-              <p className="text-[12px] text-[#8C97AD]">{stage.stageType ?? 'Manual'}</p>
-            </div>
-          );
-        })}
+    <div className="space-y-0 px-5 pb-5">
+      <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8]">
+        {lines.map((line) => (
+          <SummaryRow
+            key={line.label}
+            icon={
+              <SummaryIcon>
+                <Layers className="h-[18px] w-[18px]" strokeWidth={1.75} />
+              </SummaryIcon>
+            }
+            label={line.label}
+            value={line.value}
+          />
+        ))}
       </div>
       <Link
-        href={BUILDER_STEP_ROUTES[5]}
+        href={BUILDER_STEP_ROUTES[4]}
         className="mt-4 inline-block text-[14px] font-medium text-[#2F66C8] hover:underline"
       >
-        View full workflow
+        Edit configuration
       </Link>
     </div>
   );
@@ -704,86 +884,80 @@ export function ValidationCenterBody({
 export function PublishSettingsBody({
   publishOption,
   setPublishOption,
-  notifyFollowers,
-  setNotifyFollowers,
-  notifyTeam,
-  setNotifyTeam,
-  shareToFeed,
-  setShareToFeed,
+  visibilityLabel,
+  visibilityDescription,
+  visibility,
+  visibilityEditing,
+  setVisibilityEditing,
+  setVisibility,
 }: {
   publishOption: PublishOption;
   setPublishOption: (v: PublishOption) => void;
-  notifyFollowers: boolean;
-  setNotifyFollowers: (v: boolean) => void;
-  notifyTeam: boolean;
-  setNotifyTeam: (v: boolean) => void;
-  shareToFeed: boolean;
-  setShareToFeed: (v: boolean) => void;
+  visibilityLabel: string;
+  visibilityDescription: string;
+  visibility: string;
+  visibilityEditing: boolean;
+  setVisibilityEditing: (v: boolean) => void;
+  setVisibility: (v: string) => void;
 }) {
   return (
-    <div className="space-y-5 p-5">
-      <div>
-        <p className="mb-4 text-[16px] font-medium text-[#0F172A]">Publish Option</p>
-        <div className="space-y-4">
-          <RadioRow
-            title="Publish Now"
-            description="Make this opportunity live immediately."
-            selected={publishOption === 'now'}
-            onSelect={() => setPublishOption('now')}
-          />
-          <RadioRow
-            title="Schedule Publication"
-            description="Choose a future date and time."
-            selected={publishOption === 'schedule'}
-            onSelect={() => setPublishOption('schedule')}
-          />
-          <RadioRow
-            title="Save as Draft"
-            description="Save and continue editing later."
-            selected={publishOption === 'draft'}
-            onSelect={() => setPublishOption('draft')}
-          />
-        </div>
-      </div>
-
-      <div className="rounded-[10px] border border-[#EEF2F8] p-4">
-        <p className="mb-3 text-[16px] font-medium text-[#0F172A]">Visibility</p>
-        <div className="flex items-start gap-3">
-          <SummaryIcon><Globe className="h-[18px] w-[18px]" strokeWidth={1.75} /></SummaryIcon>
-          <div className="flex-1">
-            <p className="text-[14px] font-medium text-[#0F172A]">Public</p>
-            <p className="text-[14px] text-[#44516A]">Visible to everyone on Anchor Canada</p>
+    <div className="p-5">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:gap-5">
+        <div className="min-w-0 flex-1">
+          <p className="mb-5 text-[14px] font-semibold leading-[1.8] text-[#0F172A]">Publish Option</p>
+          <div className="space-y-5">
+            <RadioRow
+              title="Publish Now"
+              description="Make this opportunity live immediately"
+              selected={publishOption === 'now'}
+              onSelect={() => setPublishOption('now')}
+            />
+            <RadioRow
+              title="Schedule Publication"
+              description="Choose a future date and time."
+              selected={publishOption === 'schedule'}
+              onSelect={() => setPublishOption('schedule')}
+            />
+            <RadioRow
+              title="Save as Draft"
+              description="Save and continue editing later."
+              selected={publishOption === 'draft'}
+              onSelect={() => setPublishOption('draft')}
+            />
           </div>
         </div>
-        <button
-          type="button"
-          className="mt-4 w-full rounded-[6px] border border-[#D9E1EF] bg-white py-2.5 text-[14px] font-medium text-[#2F66C8]"
-        >
-          Change
-        </button>
-      </div>
 
-      <div>
-        <p className="mb-4 text-[16px] font-medium text-[#0F172A]">Notification Settings</p>
-        <div className="space-y-4">
-          <ToggleRow
-            label="Notify followers"
-            description="Send email to followers of your organization."
-            checked={notifyFollowers}
-            onChange={setNotifyFollowers}
-          />
-          <ToggleRow
-            label="Notify team members"
-            description="Send notification to team members."
-            checked={notifyTeam}
-            onChange={setNotifyTeam}
-          />
-          <ToggleRow
-            label="Share to organization feed"
-            description="Post to organization activity feed."
-            checked={shareToFeed}
-            onChange={setShareToFeed}
-          />
+        <div className="min-w-0 flex-1">
+          <p className="mb-5 text-[14px] font-semibold leading-[1.8] text-[#0F172A]">Visibility</p>
+          <div className="rounded-[10px] border border-[#EEF2F8] p-4">
+            <div className="flex items-start gap-3.5">
+              <SummaryIcon>
+                <Globe className="h-[18px] w-[18px]" strokeWidth={1.75} />
+              </SummaryIcon>
+              <div className="min-w-0 flex-1">
+                <p className="text-[14px] font-medium text-[#0F172A]">{visibilityLabel}</p>
+                <p className="text-[14px] text-[#44516A]">{visibilityDescription}</p>
+              </div>
+            </div>
+            {visibilityEditing ? (
+              <div className="mt-5">
+                <BuilderMenuSelect
+                  value={visibility}
+                  onChange={setVisibility}
+                  options={VISIBILITY_OPTIONS}
+                  aria-label="Visibility"
+                />
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setVisibilityEditing(true)}
+                className="mt-5 flex w-full items-center justify-center rounded-[6px] border border-[#EEF2F8] bg-white px-2.5 py-2 text-[14px] font-medium text-[#2F66C8] hover:bg-[#F8FAFC]"
+              >
+                Change
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -824,13 +998,10 @@ export function ReviewDesktopLayout(props: ReturnType<typeof useReviewPublish>) 
     title,
     opportunityType,
     categoryLabel,
-    templateLabel,
     locationLabel,
     requirementFields,
     details,
-    workflowType,
-    internalWorkflow,
-    externalWorkflow,
+    configSummaryLines,
     validationItems,
     warnings,
     suggestions,
@@ -838,12 +1009,12 @@ export function ReviewDesktopLayout(props: ReturnType<typeof useReviewPublish>) 
     allGood,
     publishOption,
     setPublishOption,
-    notifyFollowers,
-    setNotifyFollowers,
-    notifyTeam,
-    setNotifyTeam,
-    shareToFeed,
-    setShareToFeed,
+    visibility,
+    visibilityLabel,
+    visibilityDescription,
+    visibilityEditing,
+    setVisibilityEditing,
+    setVisibility,
   } = props;
 
   return (
@@ -862,19 +1033,14 @@ export function ReviewDesktopLayout(props: ReturnType<typeof useReviewPublish>) 
               title={title}
               opportunityType={opportunityType}
               categoryLabel={categoryLabel}
-              templateLabel={templateLabel}
               details={details}
               locationLabel={locationLabel}
             />
           </div>
           <SectionHeader step={2} title="Requirement Summary" />
           <RequirementSummaryBody requirementFields={requirementFields} />
-          <SectionHeader step={3} title="Workflow Summary" />
-          <WorkflowSummaryBody
-            workflowType={workflowType}
-            internalWorkflow={internalWorkflow}
-            externalWorkflow={externalWorkflow}
-          />
+          <SectionHeader step={3} title="Config Summary" />
+          <ConfigSummaryBody lines={configSummaryLines} />
         </div>
 
         <div className="space-y-5">
@@ -906,12 +1072,12 @@ export function ReviewDesktopLayout(props: ReturnType<typeof useReviewPublish>) 
             <PublishSettingsBody
               publishOption={publishOption}
               setPublishOption={setPublishOption}
-              notifyFollowers={notifyFollowers}
-              setNotifyFollowers={setNotifyFollowers}
-              notifyTeam={notifyTeam}
-              setNotifyTeam={setNotifyTeam}
-              shareToFeed={shareToFeed}
-              setShareToFeed={setShareToFeed}
+              visibility={visibility}
+              visibilityLabel={visibilityLabel}
+              visibilityDescription={visibilityDescription}
+              visibilityEditing={visibilityEditing}
+              setVisibilityEditing={setVisibilityEditing}
+              setVisibility={setVisibility}
             />
           </div>
         </div>
@@ -926,13 +1092,10 @@ export function ReviewMobileLayout(props: ReturnType<typeof useReviewPublish>) {
     title,
     opportunityType,
     categoryLabel,
-    templateLabel,
     locationLabel,
     requirementFields,
     details,
-    workflowType,
-    internalWorkflow,
-    externalWorkflow,
+    configSummaryLines,
     validationItems,
     warnings,
     suggestions,
@@ -940,12 +1103,12 @@ export function ReviewMobileLayout(props: ReturnType<typeof useReviewPublish>) {
     allGood,
     publishOption,
     setPublishOption,
-    notifyFollowers,
-    setNotifyFollowers,
-    notifyTeam,
-    setNotifyTeam,
-    shareToFeed,
-    setShareToFeed,
+    visibility,
+    visibilityLabel,
+    visibilityDescription,
+    visibilityEditing,
+    setVisibilityEditing,
+    setVisibility,
   } = props;
 
   return (
@@ -963,7 +1126,6 @@ export function ReviewMobileLayout(props: ReturnType<typeof useReviewPublish>) {
             title={title}
             opportunityType={opportunityType}
             categoryLabel={categoryLabel}
-            templateLabel={templateLabel}
             details={details}
             locationLabel={locationLabel}
           />
@@ -974,12 +1136,8 @@ export function ReviewMobileLayout(props: ReturnType<typeof useReviewPublish>) {
         <RequirementSummaryBody requirementFields={requirementFields} />
       </ReviewAccordionCard>
 
-      <ReviewAccordionCard step={3} title="Workflow Summary">
-        <WorkflowSummaryBody
-          workflowType={workflowType}
-          internalWorkflow={internalWorkflow}
-          externalWorkflow={externalWorkflow}
-        />
+      <ReviewAccordionCard step={3} title="Config Summary">
+        <ConfigSummaryBody lines={configSummaryLines} />
       </ReviewAccordionCard>
 
       <ReviewAccordionCard
@@ -1010,42 +1168,100 @@ export function ReviewMobileLayout(props: ReturnType<typeof useReviewPublish>) {
         <PublishSettingsBody
           publishOption={publishOption}
           setPublishOption={setPublishOption}
-          notifyFollowers={notifyFollowers}
-          setNotifyFollowers={setNotifyFollowers}
-          notifyTeam={notifyTeam}
-          setNotifyTeam={setNotifyTeam}
-          shareToFeed={shareToFeed}
-          setShareToFeed={setShareToFeed}
+          visibility={visibility}
+          visibilityLabel={visibilityLabel}
+          visibilityDescription={visibilityDescription}
+          visibilityEditing={visibilityEditing}
+          setVisibilityEditing={setVisibilityEditing}
+          setVisibility={setVisibility}
         />
       </div>
     </div>
   );
 }
 
-export function ReviewPageShell({
-  variant,
-  review,
-}: {
-  variant: 'desktop' | 'mobile';
-  review: ReturnType<typeof useReviewPublish>;
-}) {
-  const { workflowBackHref, handlePublish, handleSaveDraft, isPublishing } = review;
+export function ReviewPageShell({ review }: { review: ReturnType<typeof useReviewPublish> }) {
+  const {
+    workflowBackHref,
+    handlePublish,
+    handleSaveDraft,
+    confirmPublish,
+    isPublishing,
+    draftSavedOpen,
+    closeDraftSaved,
+    scheduleOpen,
+    scheduleDate,
+    scheduleTime,
+    confirmSchedule,
+    cancelSchedule,
+    publishConfirmOpen,
+    closePublishConfirm,
+    publishedOpen,
+    closePublishedAndView,
+    issuesOpen,
+    closeIssues,
+    publishIssues,
+    handleGoToIssues,
+    handleCreateAnother,
+    handleViewOpportunity,
+  } = review;
+
+  const secondaryAction = useMemo(
+    () => ({
+      label: isPublishing ? 'Saving…' : 'Save Draft',
+      onClick: handleSaveDraft,
+      disabled: isPublishing,
+    }),
+    [handleSaveDraft, isPublishing],
+  );
 
   return (
     <BuilderPageShell
-      step={6}
+      step={5}
       backHref={workflowBackHref}
       onContinue={handlePublish}
       continueDisabled={isPublishing}
       continueLabel={isPublishing ? 'Publishing…' : 'Publish Opportunity'}
       headerVariant="review"
-      secondaryAction={{
-        label: isPublishing ? 'Saving…' : 'Save Draft',
-        onClick: handleSaveDraft,
-        disabled: isPublishing,
-      }}
+      secondaryAction={secondaryAction}
     >
-      {variant === 'desktop' ? <ReviewDesktopLayout {...review} /> : <ReviewMobileLayout {...review} />}
+      <div className="hidden w-full md:block">
+        <ReviewDesktopLayout {...review} />
+      </div>
+      <div className="block w-full md:hidden">
+        <ReviewMobileLayout {...review} />
+      </div>
+
+      <DraftSavedSuccessModal open={draftSavedOpen} onClose={closeDraftSaved} />
+
+      <SchedulePublishModal
+        open={scheduleOpen}
+        initialDate={scheduleDate}
+        initialTime={scheduleTime}
+        onClose={cancelSchedule}
+        onSchedule={confirmSchedule}
+      />
+
+      <PublishConfirmModal
+        open={publishConfirmOpen}
+        onClose={closePublishConfirm}
+        onConfirm={confirmPublish}
+        isPublishing={isPublishing}
+      />
+
+      <OpportunityPublishedModal
+        open={publishedOpen}
+        onClose={closePublishedAndView}
+        onCreateAnother={handleCreateAnother}
+        onViewOpportunity={handleViewOpportunity}
+      />
+
+      <PublishIssuesModal
+        open={issuesOpen}
+        onClose={closeIssues}
+        onGoToIssues={handleGoToIssues}
+        issues={publishIssues}
+      />
     </BuilderPageShell>
   );
 }

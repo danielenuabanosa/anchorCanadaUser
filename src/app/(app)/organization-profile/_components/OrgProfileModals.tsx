@@ -15,10 +15,10 @@ import {
   ShieldQuestionMark,
   ShieldX,
   Trash2,
-  Upload,
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { HubMenuSelect } from '@/shared/components/hub/HubMenuSelect';
 import {
   EDIT_PROFILE_SECTIONS,
   FOCUS_AREA_OPTIONS,
@@ -159,8 +159,6 @@ const SECTION_TITLES: Record<EditProfileSection, string> = {
   basic: 'Basic Information',
   contact: 'Contact Information',
   location: 'Location',
-  branding: 'Branding',
-  story: 'Organization Story',
   focus: 'Focus Areas',
 };
 
@@ -239,34 +237,6 @@ function EditSectionForm({
           <FormField label="Postal Code" value={form.postalCode} onChange={(v) => update('postalCode', v)} />
           <FormField label="Country" value={form.country} onChange={(v) => update('country', v)} />
         </div>
-      </div>
-    );
-  }
-
-  if (section === 'branding') {
-    return (
-      <div className="space-y-2.5">
-        <FormField label="Tagline" value={form.tagline} onChange={(v) => update('tagline', v)} />
-        <FormField label="Primary Brand Color" value={form.primaryColor} onChange={(v) => update('primaryColor', v)} />
-        <label className="block space-y-2.5">
-          <span className="text-sm font-semibold text-[#0F172A]">Organization Logo</span>
-          <div className="flex h-[120px] flex-col items-center justify-center rounded-[10px] border border-dashed border-[#D9E1EF] bg-[#F8FAFC]">
-            <Upload className="h-6 w-6 text-[#8C97AD]" strokeWidth={1.75} />
-            <p className="mt-2 text-sm text-[#44516A]">
-              Drag and drop or <span className="text-[#2F66C8]">browse files</span>
-            </p>
-          </div>
-        </label>
-      </div>
-    );
-  }
-
-  if (section === 'story') {
-    return (
-      <div className="space-y-2.5">
-        <FormField label="About Organization" value={form.about} onChange={(v) => update('about', v)} textarea />
-        <FormField label="Mission" value={form.mission} onChange={(v) => update('mission', v)} textarea />
-        <FormField label="Vision" value={form.vision} onChange={(v) => update('vision', v)} textarea />
       </div>
     );
   }

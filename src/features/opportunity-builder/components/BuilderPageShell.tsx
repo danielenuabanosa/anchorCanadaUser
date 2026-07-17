@@ -1,6 +1,5 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
 import { useRegisterBuilderNav } from '@/features/opportunity-builder/context/BuilderNavContext';
 import type { BuilderStepIndex } from '@/features/opportunity-builder/lib/builderData';
 
@@ -30,27 +29,14 @@ export function BuilderPageShell({
   secondaryAction,
   children,
 }: BuilderPageShellProps) {
-  const stableContinue = useCallback(() => onContinue(), [onContinue]);
-  const stableSecondary = useMemo(
-    () =>
-      secondaryAction
-        ? {
-            label: secondaryAction.label,
-            onClick: secondaryAction.onClick,
-            disabled: secondaryAction.disabled,
-          }
-        : undefined,
-    [secondaryAction],
-  );
-
   useRegisterBuilderNav({
     step,
     backHref,
-    onContinue: stableContinue,
+    onContinue,
     continueDisabled,
     continueLabel,
     headerVariant,
-    secondaryAction: stableSecondary,
+    secondaryAction,
   });
 
   return (

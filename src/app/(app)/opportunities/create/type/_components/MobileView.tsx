@@ -5,22 +5,27 @@ import { useRouter } from 'next/navigation';
 import { BuilderPageHeading } from '@/features/opportunity-builder/components/BuilderPageHeading';
 import { OpportunityTypeCard } from '@/features/opportunity-builder/components/OpportunityTypeCard';
 import { useRegisterBuilderNav } from '@/features/opportunity-builder/context/BuilderNavContext';
-import { BUILDER_PAGE_COPY, OPPORTUNITY_TYPES } from '@/features/opportunity-builder/lib/builderData';
+import {
+  BUILDER_PAGE_COPY,
+  SELECTABLE_OPPORTUNITY_TYPES,
+} from '@/features/opportunity-builder/lib/builderData';
 import { useOpportunityBuilderStore, type OpportunityType } from '@/store/opportunityBuilderStore';
 
 export default function MobileView() {
   const router = useRouter();
   const storedType = useOpportunityBuilderStore((s) => s.opportunityType);
   const setBuilderData = useOpportunityBuilderStore((s) => s.setBuilderData);
-  const [selected, setSelected] = useState<OpportunityType | null>(storedType);
+  const [selected, setSelected] = useState<OpportunityType | null>(
+    storedType === 'express-interest' ? null : storedType,
+  );
   const copy = BUILDER_PAGE_COPY.type;
 
   useEffect(() => {
-    if (storedType) setSelected(storedType);
+    if (storedType && storedType !== 'express-interest') setSelected(storedType);
   }, [storedType]);
 
   const handleContinue = useCallback(() => {
-    if (!selected) return;
+    if (!selected || selected === 'express-interest') return;
     setBuilderData({ opportunityType: selected, workflowType: selected });
     router.push('/opportunities/create/category');
   }, [selected, setBuilderData, router]);
@@ -29,7 +34,7 @@ export default function MobileView() {
     step: 0,
     backHref: '/opportunities',
     onContinue: handleContinue,
-    continueDisabled: !selected,
+    continueDisabled: !selected || selected === 'express-interest',
   });
 
   return (
@@ -42,7 +47,7 @@ export default function MobileView() {
       />
 
       <div className="mt-10 flex flex-col gap-5">
-        {OPPORTUNITY_TYPES.map((item) => (
+        {SELECTABLE_OPPORTUNITY_TYPES.map((item) => (
           <OpportunityTypeCard
             key={item.id}
             item={item}

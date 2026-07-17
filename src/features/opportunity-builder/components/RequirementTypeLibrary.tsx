@@ -85,7 +85,7 @@ export function AddRequirementsModal({
         </div>
         <div className="border-b border-[#EEF2F8] px-5 py-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8C97AD]" />
+            <Search className="absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-[#8C97AD]" />
             <input
               type="search"
               value={search}
@@ -224,7 +224,7 @@ export function RequirementTypeLibrary({ onAddType }: RequirementTypeLibraryProp
           </div>
         </div>
         <div className="relative w-full lg:max-w-[280px]">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8C97AD]" />
+          <Search className="absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-[#8C97AD]" />
           <input
             type="search"
             value={search}

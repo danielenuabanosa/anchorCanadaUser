@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
-import { Bell, MessageCircle, Search, ChevronDown } from 'lucide-react';
+import { Bell, ChevronDown, Command, MessageCircle, Search } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { Avatar } from '@/shared/components/ui/Avatar';
 import { StartBuilderDropdown } from '@/features/opportunity-builder/components/StartBuilderDropdown';
@@ -40,22 +40,25 @@ export function OpportunityManagementTopbar() {
 
   return (
     <>
-      {/* Desktop — Figma Frame 25: h=110, content row h=45 at y=33 */}
-      <header className="sticky top-0 z-20 hidden h-[110px] shrink-0 items-center border-b border-[#EEF2F8] bg-white px-10 md:flex">
+      {/* Desktop — Figma Frame 25 / admin Navbar search */}
+      <header className="sticky top-0 z-20 hidden h-[86px] shrink-0 items-center border-b border-[#EEF2F8] bg-white/90 px-10 py-5 backdrop-blur-[5px] md:flex">
         <form onSubmit={handleSearch} className="flex min-w-0 flex-1">
-          <div className="flex h-[45px] w-full max-w-[520px] items-center gap-3 rounded-[10px] border border-[#D9E1EF] bg-[#F8FAFC] px-4">
-            <Search className="h-[18px] w-[18px] shrink-0 text-[#8C97AD]" aria-hidden />
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => handleQueryChange(e.target.value)}
-              placeholder="Search opportunities, applications or applicants…"
-              className="min-w-0 flex-1 bg-transparent text-base leading-[21px] text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
-              aria-label="Search opportunities, applications or applicants"
-            />
-            <kbd className="hidden shrink-0 items-center gap-1 rounded border border-[#D9E1EF] bg-white px-1.5 py-0.5 text-xs text-[#44516A] sm:inline-flex">
-              ⌘ K
-            </kbd>
+          <div className="anchor-search-nav w-full max-w-[520px] gap-2.5">
+            <div className="flex min-w-0 flex-1 items-center gap-2.5">
+              <Search className="h-[18px] w-[18px] shrink-0 text-[#8C97AD]" aria-hidden />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => handleQueryChange(e.target.value)}
+                placeholder="Search opportunities, applications or applicants…"
+                className="no-anchor-field min-w-0 flex-1 bg-transparent font-sans text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
+                aria-label="Search opportunities, applications or applicants"
+              />
+            </div>
+            <div className="flex shrink-0 items-center gap-2.5 text-[#44516A]" aria-hidden>
+              <Command className="h-[18px] w-[18px]" strokeWidth={1.75} />
+              <span className="font-sans text-lg leading-none">K</span>
+            </div>
           </div>
         </form>
 

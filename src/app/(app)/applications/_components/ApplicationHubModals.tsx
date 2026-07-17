@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { ChevronDown, ChevronRight, Plus, X } from 'lucide-react';
+import { Check, ChevronDown, ChevronRight, Clock, Link2, Plus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { DatePickerField } from '@/shared/components/ui/DatePicker';
+import { HubMenuSelect } from '@/shared/components/hub/HubMenuSelect';
 import avatar2 from '@assets/images/profile-google.png';
 import type { ApplicationStage } from '../[id]/_components/applicationDetailData';
 import {
@@ -16,7 +18,11 @@ interface ExportModalProps {
   onClose: () => void;
 }
 
-export function ExportApplicationsModal({ open, onClose }: ExportModalProps) {
+export function ExportApplicationsModal({
+  open,
+  onClose,
+  onGenerated,
+}: ExportModalProps & { onGenerated?: () => void }) {
   const [format, setFormat] = useState<'csv' | 'excel' | 'pdf'>('csv');
   const [checks, setChecks] = useState({
     info: true,
@@ -79,7 +85,14 @@ export function ExportApplicationsModal({ open, onClose }: ExportModalProps) {
           </div>
         </div>
       </div>
-      <ModalFooter onCancel={onClose} confirmLabel="Generate Export" onConfirm={onClose} />
+      <ModalFooter
+        onCancel={onClose}
+        confirmLabel="Generate Export"
+        onConfirm={() => {
+          onClose();
+          onGenerated?.();
+        }}
+      />
     </ModalShell>
   );
 }
@@ -97,10 +110,16 @@ const REVIEWERS = [
 ];
 
 /** Figma 510:13095 — Assign Reviewer modal */
-export function AssignReviewerModal({ open, onClose }: AssignModalProps) {
+export function AssignReviewerModal({
+  open,
+  onClose,
+  onAssigned,
+}: AssignModalProps & { onAssigned?: (reviewerName: string) => void }) {
   const [selected, setSelected] = useState('1');
 
   if (!open) return null;
+
+  const selectedReviewer = REVIEWERS.find((r) => r.id === selected) ?? REVIEWERS[0];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0F172A]/60 p-4 backdrop-blur-[5px]">
@@ -191,7 +210,10 @@ export function AssignReviewerModal({ open, onClose }: AssignModalProps) {
           </button>
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => {
+              onClose();
+              onAssigned?.(selectedReviewer.name);
+            }}
             className="rounded-[6px] bg-[#2F66C8] px-5 py-3 text-sm font-medium text-white shadow-[0px_2px_4px_rgba(0,0,0,0.05)]"
           >
             Assign Reviewer
@@ -207,44 +229,16 @@ export function RowActionsMenu({
   onClose,
   onView,
   onAssignReviewer,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onView: () => void;
-  onAssignReviewer?: () => void;
-}) {
-  const handlers: Record<string, () => void> = {
-    'View Applicant': onView,
-    'Assign Reviewer': onAssignReviewer ?? onClose,
-  };
-
-  const items = getActionsForStage('Under Review');
-
-  return (
-    <ApplicationActionsDropdown
-      open={open}
-      onClose={onClose}
-      items={items}
-      onAction={(label) => (handlers[label] ?? onClose)()}
-    />
-  );
-}
-
-export function MobileRowActionsSheet({
-  open,
-  onClose,
-  onView,
-  onAssignReviewer,
+  onAction,
   stage = 'Under Review',
 }: {
   open: boolean;
   onClose: () => void;
   onView: () => void;
   onAssignReviewer?: () => void;
+  onAction?: (label: string) => void;
   stage?: ApplicationStage;
 }) {
-  if (!open) return null;
-
   const handlers: Record<string, () => void> = {
     'View Applicant': onView,
     'Assign Reviewer': onAssignReviewer ?? onClose,
@@ -253,24 +247,570 @@ export function MobileRowActionsSheet({
   const items = getActionsForStage(stage);
 
   return (
-    <div className="fixed inset-0 z-50 md:hidden">
-      <button type="button" className="absolute inset-0 bg-black/30" onClick={onClose} aria-label="Close menu" />
-      <div className="absolute bottom-0 left-0 right-0 rounded-t-[16px] bg-white pb-8">
-        <div className="border-b border-[#EEF2F8] px-5 py-4">
-          <p className="text-base font-medium text-[#0F172A]">Applicant Actions</p>
+    <ApplicationActionsDropdown
+      open={open}
+      onClose={onClose}
+      items={items}
+      onAction={(label) => {
+        if (handlers[label]) handlers[label]();
+        else onAction?.(label);
+      }}
+    />
+  );
+}
+
+export function ShortlistApplicationModal({
+  open,
+  applicantName,
+  onClose,
+}: {
+  open: boolean;
+  applicantName: string;
+  onClose: () => void;
+}) {
+  if (!open) return null;
+  return (
+    <ConfirmActionShell
+      onClose={onClose}
+      lead="Shortlist"
+      accent="Applicant"
+      description={`${applicantName} will be moved to Shortlisted and notified.`}
+      confirmLabel="Shortlist"
+      confirmClass="bg-[#2F66C8] hover:bg-[#1D4ED8]"
+    />
+  );
+}
+
+export function RejectApplicationModal({
+  open,
+  applicantName,
+  onClose,
+}: {
+  open: boolean;
+  applicantName: string;
+  onClose: () => void;
+}) {
+  const [note, setNote] = useState('');
+  if (!open) return null;
+  return (
+    <ConfirmActionShell
+      onClose={onClose}
+      lead="Reject"
+      accent="Applicant"
+      description={`This will reject ${applicantName}'s application. This action can be reviewed later.`}
+      confirmLabel="Reject"
+      confirmClass="bg-[#EF4444] hover:bg-[#DC2626]"
+      extra={
+        <label className="flex w-full flex-col gap-2.5 text-left">
+          <span className="text-sm font-semibold text-[#0F172A]">
+            Reason <span className="font-normal text-[#8C97AD]">(Optional)</span>
+          </span>
+          <textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Add a note for your team..."
+            className="h-[84px] w-full resize-none rounded-[10px] border border-[#D9E1EF] p-4 text-sm outline-none focus:border-[#2F66C8]"
+          />
+        </label>
+      }
+    />
+  );
+}
+
+export function AcceptApplicationModal({
+  open,
+  applicantName,
+  onClose,
+}: {
+  open: boolean;
+  applicantName: string;
+  onClose: () => void;
+}) {
+  if (!open) return null;
+  return (
+    <ConfirmActionShell
+      onClose={onClose}
+      lead="Accept"
+      accent="Application"
+      description={`${applicantName} will be marked as Accepted and notified.`}
+      confirmLabel="Accept"
+      confirmClass="bg-[#15803D] hover:bg-[#166534]"
+    />
+  );
+}
+
+export function MarkInterviewCompletedModal({
+  open,
+  applicantName,
+  onClose,
+}: {
+  open: boolean;
+  applicantName: string;
+  onClose: () => void;
+}) {
+  if (!open) return null;
+  return (
+    <ConfirmActionShell
+      onClose={onClose}
+      lead="Mark as"
+      accent="Completed"
+      description={`Interview for ${applicantName} will be marked as completed.`}
+      confirmLabel="Mark Completed"
+      confirmClass="bg-[#2F66C8] hover:bg-[#1D4ED8]"
+    />
+  );
+}
+
+export function SendOfferModal({
+  open,
+  applicantName,
+  onClose,
+}: {
+  open: boolean;
+  applicantName: string;
+  onClose: () => void;
+}) {
+  if (!open) return null;
+  return (
+    <ConfirmActionShell
+      onClose={onClose}
+      lead="Send"
+      accent="Offer"
+      description={`An offer will be prepared and sent to ${applicantName}.`}
+      confirmLabel="Send Offer"
+      confirmClass="bg-[#2F66C8] hover:bg-[#1D4ED8]"
+    />
+  );
+}
+
+export function ArchiveApplicationModal({
+  open,
+  applicantName,
+  onClose,
+}: {
+  open: boolean;
+  applicantName: string;
+  onClose: () => void;
+}) {
+  if (!open) return null;
+  return (
+    <ConfirmActionShell
+      onClose={onClose}
+      lead="Archive"
+      accent="Application"
+      description={`${applicantName}'s application will be archived.`}
+      confirmLabel="Archive"
+      confirmClass="bg-[#44516A] hover:bg-[#0F172A]"
+    />
+  );
+}
+
+export function ReopenApplicationModal({
+  open,
+  applicantName,
+  onClose,
+}: {
+  open: boolean;
+  applicantName: string;
+  onClose: () => void;
+}) {
+  if (!open) return null;
+  return (
+    <ConfirmActionShell
+      onClose={onClose}
+      lead="Reopen"
+      accent="Application"
+      description={`${applicantName}'s application will be moved back under review.`}
+      confirmLabel="Reopen"
+      confirmClass="bg-[#2F66C8] hover:bg-[#1D4ED8]"
+    />
+  );
+}
+
+export function ScheduleInterviewModal({
+  open,
+  applicantName,
+  onClose,
+  mode = 'schedule',
+}: {
+  open: boolean;
+  applicantName: string;
+  onClose: () => void;
+  mode?: 'schedule' | 'reschedule';
+}) {
+  const [date, setDate] = useState('2026-06-23');
+  const [time, setTime] = useState('10:00');
+  const [duration, setDuration] = useState('60');
+  const [interviewType, setInterviewType] = useState('video');
+  const [meetingLink, setMeetingLink] = useState('https://meet.google.com/abc-defg-hij');
+  const [notes, setNotes] = useState('');
+  if (!open) return null;
+  const isReschedule = mode === 'reschedule';
+  const canSubmit = Boolean(date && time && duration && interviewType && meetingLink.trim());
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-end justify-center bg-[#0F172A]/60 p-0 backdrop-blur-[5px] md:items-stretch md:justify-end md:p-2.5">
+      <button type="button" className="absolute inset-0" onClick={onClose} aria-label="Close" />
+      <div className="relative z-10 flex max-h-[95vh] w-full flex-col overflow-hidden rounded-t-[20px] border border-[#D9E1EF] bg-white shadow-[0px_6px_16px_rgba(0,0,0,0.08)] md:h-full md:max-h-none md:w-[720px] md:rounded-[20px]">
+        <div className="flex shrink-0 items-start justify-between border-b border-[#EEF2F8] p-5 md:p-[26px]">
+          <div className="min-w-0 flex-1 pr-3">
+            <h2 className="text-lg font-medium text-[#0F172A]">
+              {isReschedule ? 'Reschedule Interview' : 'Schedule Interview'}
+            </h2>
+            <p className="mt-1.5 text-sm leading-[1.4] text-[#44516A]">
+              Set up interview details for this applicants
+              {applicantName ? ` (${applicantName})` : ''}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[20px] border border-[#EEF2F8] bg-white"
+            aria-label="Close"
+          >
+            <X className="h-6 w-6 text-[#44516A]" />
+          </button>
         </div>
-        <div className="py-2">
-          {items.map((item) => (
-            <button
-              key={item.label}
-              type="button"
-              onClick={() => (handlers[item.label] ?? onClose)()}
-              className="flex w-full items-center gap-3 border-b border-[#EEF2F8] px-5 py-3.5 text-left text-sm text-[#0F172A] last:border-b-0 hover:bg-[#F8FAFC]"
-            >
-              <item.icon className="h-[18px] w-[18px] shrink-0 text-[#44516A]" strokeWidth={1.75} />
-              {item.label}
-            </button>
-          ))}
+
+        <div className="flex-1 space-y-5 overflow-y-auto px-5 py-8 md:px-[26px] md:py-10">
+          <div className="grid gap-5 sm:grid-cols-2">
+            <label className="flex flex-col gap-2.5">
+              <span className="text-base font-semibold text-[#0F172A]">
+                Interview Date <span className="font-normal text-[#EF4444]">*</span>
+              </span>
+              <DatePickerField value={date} onChange={setDate} placeholder="Select date" />
+            </label>
+            <label className="flex flex-col gap-2.5">
+              <span className="text-base font-semibold text-[#0F172A]">
+                Time <span className="font-normal text-[#EF4444]">*</span>
+              </span>
+              <div className="relative">
+                <input
+                  type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className="h-[53px] w-full rounded-[10px] border border-[#D9E1EF] bg-white px-4 pr-11 text-base text-[#0F172A] outline-none focus:border-[#2F66C8]"
+                />
+                <Clock className="pointer-events-none absolute right-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-[#44516A]" />
+              </div>
+            </label>
+          </div>
+
+          <div className="flex flex-col gap-2.5">
+            <p className="text-base font-semibold text-[#0F172A]">
+              Duration <span className="font-normal text-[#EF4444]">*</span>
+            </p>
+            <HubMenuSelect
+              value={duration}
+              onChange={setDuration}
+              options={[
+                { value: '30', label: '30 minutes' },
+                { value: '45', label: '45 minutes' },
+                { value: '60', label: '60 minutes' },
+                { value: '90', label: '90 minutes' },
+              ]}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2.5">
+            <p className="text-base font-semibold text-[#0F172A]">
+              Interview Type <span className="font-normal text-[#EF4444]">*</span>
+            </p>
+            <HubMenuSelect
+              value={interviewType}
+              onChange={setInterviewType}
+              options={[
+                { value: 'video', label: 'Video Interview' },
+                { value: 'in-person', label: 'In-Person' },
+                { value: 'phone', label: 'Phone' },
+              ]}
+            />
+          </div>
+
+          <label className="flex flex-col gap-2.5">
+            <span className="text-base font-semibold text-[#0F172A]">
+              Meeting Link <span className="font-normal text-[#EF4444]">*</span>
+            </span>
+            <div className="flex h-[53px] items-center gap-2.5 rounded-[10px] border border-[#D9E1EF] bg-white px-4">
+              <Link2 className="h-[18px] w-[18px] shrink-0 text-[#44516A]" />
+              <input
+                type="url"
+                value={meetingLink}
+                onChange={(e) => setMeetingLink(e.target.value)}
+                placeholder="https://meet.google.com/..."
+                className="min-w-0 flex-1 bg-transparent text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
+              />
+            </div>
+          </label>
+
+          <label className="flex flex-col gap-2.5">
+            <span className="text-base font-semibold text-[#0F172A]">
+              Notes <span className="font-normal text-[#8C97AD]">(Optional)</span>
+            </span>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add notes for the interview..."
+              className="h-[84px] w-full resize-none rounded-[10px] border border-[#D9E1EF] p-4 text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD] focus:border-[#2F66C8]"
+            />
+          </label>
+        </div>
+
+        <div className="flex shrink-0 justify-end gap-5 border-t border-[#EEF2F8] bg-[#F8FAFC] p-5 md:p-[26px]">
+          <button
+            type="button"
+            onClick={onClose}
+            className="min-w-[86px] rounded-[6px] border border-[#EEF2F8] bg-white px-5 py-3 text-sm font-medium text-[#44516A]"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            disabled={!canSubmit}
+            onClick={onClose}
+            className={cn(
+              'rounded-[6px] px-5 py-3 text-sm font-medium text-white shadow-[0px_2px_4px_rgba(0,0,0,0.05)]',
+              canSubmit ? 'bg-[#2F66C8] hover:bg-[#1D4ED8]' : 'cursor-not-allowed bg-[#2F66C8]/40',
+            )}
+          >
+            {isReschedule ? 'Reschedule Interview' : 'Schedule Interview'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Figma 513:16569 — Export Generated success */
+export function ExportGeneratedSuccessModal({
+  open,
+  onClose,
+  count = 1284,
+}: {
+  open: boolean;
+  onClose: () => void;
+  count?: number;
+}) {
+  if (!open) return null;
+  return (
+    <ApplicationResultModal
+      open={open}
+      onClose={onClose}
+      titleLead="Export"
+      titleAccent="Generated!"
+      description={`Your export is ready!\n\n${count.toLocaleString()} applications exported successfully.`}
+      primaryLabel="Download File"
+      secondaryLabel="Cancel"
+    />
+  );
+}
+
+/** Figma 513:17411 — Reviewer Assigned success */
+export function ReviewerAssignedSuccessModal({
+  open,
+  onClose,
+  reviewerName = 'Michael Adams',
+  count = 23,
+}: {
+  open: boolean;
+  onClose: () => void;
+  reviewerName?: string;
+  count?: number;
+}) {
+  if (!open) return null;
+  return (
+    <ApplicationResultModal
+      open={open}
+      onClose={onClose}
+      titleLead="Reviewer"
+      titleAccent="Assigned!"
+      description={`Reviewer assigned successfully!\n\n${count} applications assigned to ${reviewerName}.`}
+      primaryLabel="View Applications"
+      secondaryLabel="Cancel"
+    />
+  );
+}
+
+function ApplicationResultModal({
+  open,
+  onClose,
+  titleLead,
+  titleAccent,
+  description,
+  primaryLabel,
+  secondaryLabel,
+}: {
+  open: boolean;
+  onClose: () => void;
+  titleLead: string;
+  titleAccent: string;
+  description: string;
+  primaryLabel: string;
+  secondaryLabel: string;
+}) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-end justify-center bg-[#0F172A]/60 p-0 backdrop-blur-[5px] sm:items-center sm:p-4">
+      <button type="button" className="absolute inset-0" onClick={onClose} aria-label="Close" />
+      <div className="relative z-10 flex w-full flex-col overflow-hidden rounded-t-[20px] border border-[#D9E1EF] bg-white shadow-[0px_6px_16px_rgba(0,0,0,0.08)] sm:max-w-[720px] sm:rounded-[20px]">
+        <div className="flex justify-end border-b border-[#EEF2F8] p-5 sm:p-[26px]">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-10 w-10 items-center justify-center rounded-[20px] border border-[#EEF2F8] bg-white"
+            aria-label="Close"
+          >
+            <X className="h-6 w-6 text-[#44516A]" />
+          </button>
+        </div>
+        <div className="flex flex-col items-center gap-5 px-5 py-10 sm:px-[26px]">
+          <div className="flex h-[160px] w-[160px] items-center justify-center rounded-full bg-[#F1FFEE]">
+            <div className="flex h-[96px] w-[96px] items-center justify-center rounded-full bg-[#15803D]">
+              <Check className="h-12 w-12 text-white" strokeWidth={2.5} />
+            </div>
+          </div>
+          <div className="w-full text-center">
+            <h2 className="flex flex-wrap items-baseline justify-center gap-1.5 font-serif">
+              <span className="text-[28px] text-[#0F172A]">{titleLead}</span>
+              <span className="text-[36px] italic text-[#2F66C8]">{titleAccent}</span>
+            </h2>
+            <p className="mt-2.5 whitespace-pre-line text-base text-[#44516A]">{description}</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2.5 border-t border-[#EEF2F8] bg-[#F8FAFC] p-5 sm:gap-5 sm:p-[26px]">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-[6px] border border-[#EEF2F8] bg-white px-5 py-3 text-sm font-medium text-[#44516A]"
+          >
+            {secondaryLabel}
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-[6px] bg-[#2F66C8] px-5 py-3 text-sm font-medium text-white shadow-[0px_2px_4px_rgba(0,0,0,0.05)]"
+          >
+            {primaryLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function AddNoteModal({
+  open,
+  applicantName,
+  onClose,
+}: {
+  open: boolean;
+  applicantName: string;
+  onClose: () => void;
+}) {
+  const [note, setNote] = useState('');
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0F172A]/60 p-5 backdrop-blur-[5px]">
+      <button type="button" className="absolute inset-0" onClick={onClose} aria-label="Close" />
+      <div className="relative flex w-full max-w-[720px] flex-col overflow-hidden rounded-[20px] border border-[#D9E1EF] bg-white shadow-[0px_6px_16px_rgba(0,0,0,0.08)]">
+        <div className="flex items-center justify-between border-b border-[#EEF2F8] p-[26px]">
+          <div>
+            <h2 className="text-lg font-medium text-[#0F172A]">Add Note</h2>
+            <p className="mt-1 text-sm text-[#44516A]">Internal note for {applicantName}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-[#EEF2F8]"
+            aria-label="Close"
+          >
+            <X className="h-6 w-6 text-[#44516A]" />
+          </button>
+        </div>
+        <div className="px-[26px] py-10">
+          <textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value.slice(0, 1000))}
+            rows={5}
+            placeholder="Write your note..."
+            className="anchor-textarea w-full resize-none p-4"
+          />
+          <p className="mt-2 text-right text-sm text-[#8C97AD]">{note.length} / 1000</p>
+        </div>
+        <div className="flex justify-end gap-2.5 border-t border-[#EEF2F8] bg-[#F8FAFC] p-[26px]">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-[6px] border border-[#EEF2F8] bg-white px-5 py-3 text-sm font-medium text-[#44516A]"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            disabled={!note.trim()}
+            onClick={onClose}
+            className={cn(
+              'rounded-[6px] px-5 py-3 text-sm font-medium text-white',
+              note.trim() ? 'bg-[#2F66C8] hover:bg-[#1D4ED8]' : 'cursor-not-allowed bg-[#2F66C8]/40',
+            )}
+          >
+            Save Note
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ConfirmActionShell({
+  onClose,
+  lead,
+  accent,
+  description,
+  confirmLabel,
+  confirmClass,
+  extra,
+}: {
+  onClose: () => void;
+  lead: string;
+  accent: string;
+  description: string;
+  confirmLabel: string;
+  confirmClass: string;
+  extra?: React.ReactNode;
+}) {
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0F172A]/60 p-5 backdrop-blur-[5px]">
+      <button type="button" className="absolute inset-0" onClick={onClose} aria-label="Close" />
+      <div className="relative flex w-full max-w-[720px] flex-col overflow-hidden rounded-[20px] border border-[#D9E1EF] bg-white shadow-[0px_6px_16px_rgba(0,0,0,0.08)]">
+        <div className="flex justify-end border-b border-[#EEF2F8] p-[26px]">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-[#EEF2F8]"
+            aria-label="Close"
+          >
+            <X className="h-6 w-6 text-[#44516A]" />
+          </button>
+        </div>
+        <div className="flex flex-col items-center gap-5 px-[26px] py-10 text-center">
+          <p className="font-serif text-[28px] text-[#0F172A] lg:text-[36px]">
+            {lead} <span className="italic text-[#2F66C8]">{accent}</span>
+          </p>
+          <p className="text-base text-[#44516A]">{description}</p>
+          {extra}
+        </div>
+        <div className="flex justify-end gap-2.5 border-t border-[#EEF2F8] bg-[#F8FAFC] p-[26px]">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-[6px] border border-[#EEF2F8] bg-white px-5 py-3 text-sm font-medium text-[#44516A]"
+          >
+            Cancel
+          </button>
+          <button type="button" onClick={onClose} className={cn('rounded-[6px] px-5 py-3 text-sm font-medium text-white', confirmClass)}>
+            {confirmLabel}
+          </button>
         </div>
       </div>
     </div>

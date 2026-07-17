@@ -1,10 +1,16 @@
 'use client';
 
+import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowUp, ChevronDown } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { RECENT_TEAM_ACTIVITY, TEAM_PERFORMANCE_METRICS } from './teamManagementData';
+import { HubMenuSelect } from '@/shared/components/hub/HubMenuSelect';
+import {
+  RECENT_TEAM_ACTIVITY,
+  TEAM_PERFORMANCE_PERIOD_OPTIONS,
+  getTeamPerformanceMetrics,
+} from './teamManagementData';
 
 export function RecentTeamActivityPanel({ className }: { className?: string }) {
   return (
@@ -55,6 +61,9 @@ export function RecentTeamActivityPanel({ className }: { className?: string }) {
 }
 
 export function TeamPerformancePanel({ className }: { className?: string }) {
+  const [period, setPeriod] = useState<string>(TEAM_PERFORMANCE_PERIOD_OPTIONS[0].value);
+  const metrics = useMemo(() => getTeamPerformanceMetrics(period), [period]);
+
   return (
     <div
       className={cn(
@@ -64,17 +73,19 @@ export function TeamPerformancePanel({ className }: { className?: string }) {
     >
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-base font-semibold leading-[1.8] text-[#0F172A]">Team Performance</h3>
-        <button
-          type="button"
-          className="inline-flex items-center gap-4 rounded-[6px] border border-[#EEF2F8] bg-white px-2.5 py-1.5 text-sm text-[#0F172A]"
-        >
-          This Month
-          <ChevronDown className="h-3.5 w-3.5 text-[#44516A]" />
-        </button>
+        <HubMenuSelect
+          variant="chip"
+          value={period}
+          onChange={setPeriod}
+          options={[...TEAM_PERFORMANCE_PERIOD_OPTIONS]}
+          aria-label="Performance period"
+          className="shrink-0 [&_button]:h-[34px] [&_button]:gap-4 [&_button]:px-2.5 [&_button]:py-1.5 [&_button]:text-sm"
+          menuClassName="right-0 left-auto w-[180px]"
+        />
       </div>
 
       <ul className="mt-5 flex flex-col">
-        {TEAM_PERFORMANCE_METRICS.map((metric) => (
+        {metrics.map((metric) => (
           <li key={metric.label} className="flex items-center gap-4 py-2.5">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[20px] border border-[#EEF2F8] bg-[#F8FAFC]">
               <metric.icon className="h-5 w-5 text-[#44516A]" strokeWidth={1.75} />

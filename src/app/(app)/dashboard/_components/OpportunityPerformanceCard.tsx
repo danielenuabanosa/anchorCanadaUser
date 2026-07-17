@@ -1,10 +1,20 @@
 'use client';
 
-import { ChevronDown } from 'lucide-react';
+import { useState } from 'react';
+import { HubMenuSelect } from '@/shared/components/hub/HubMenuSelect';
 import { ArrowUp, PERFORMANCE_METRICS } from './dashboardData';
 import { PerformanceAreaChart } from './PerformanceAreaChart';
 
+const PERFORMANCE_PERIOD_OPTIONS = [
+  { value: '7d', label: 'Last 7 Days' },
+  { value: '30d', label: 'Last 30 Days' },
+  { value: '90d', label: 'Last 90 Days' },
+  { value: 'year', label: 'This Year' },
+] as const;
+
 export function OpportunityPerformanceCard() {
+  const [period, setPeriod] = useState<string>(PERFORMANCE_PERIOD_OPTIONS[0].value);
+
   return (
     <div className="flex h-full min-h-[504px] flex-col overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white">
       <div className="border-b border-[#EEF2F8] p-5">
@@ -12,13 +22,15 @@ export function OpportunityPerformanceCard() {
           <h3 className="min-w-0 flex-1 truncate text-base font-semibold leading-[1.8] text-[#0F172A]">
             Opportunity Performance
           </h3>
-          <button
-            type="button"
-            className="inline-flex h-[34px] shrink-0 items-center gap-2.5 rounded-[6px] border border-[#EEF2F8] bg-white px-2.5 text-sm font-medium text-[#44516A]"
-          >
-            Last 7 Days
-            <ChevronDown className="h-3.5 w-3.5" />
-          </button>
+          <HubMenuSelect
+            variant="chip"
+            value={period}
+            onChange={setPeriod}
+            options={[...PERFORMANCE_PERIOD_OPTIONS]}
+            aria-label="Performance period"
+            className="shrink-0 [&_button]:h-[34px] [&_button]:px-2.5 [&_button]:text-sm [&_button]:font-medium [&_button]:text-[#44516A]"
+            menuClassName="right-0 left-auto w-[180px]"
+          />
         </div>
       </div>
 
@@ -46,7 +58,7 @@ export function OpportunityPerformanceCard() {
         })}
       </div>
 
-      <PerformanceAreaChart />
+      <PerformanceAreaChart key={period} />
     </div>
   );
 }

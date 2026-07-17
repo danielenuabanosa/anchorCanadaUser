@@ -178,9 +178,7 @@ export const HUB_STATS: HubStat[] = [
 
     value: 24,
 
-    change: '4%',
-
-    subtext: 'vs last week',
+    change: '4% vs last week',
 
     icon: Rocket,
 
@@ -195,8 +193,6 @@ export const HUB_STATS: HubStat[] = [
     label: 'Draft Opportunities',
 
     value: 5,
-
-    change: '8%',
 
     subtext: 'Awaiting publication',
 
@@ -214,8 +210,6 @@ export const HUB_STATS: HubStat[] = [
 
     value: 3,
 
-    change: '12%',
-
     subtext: 'Upcoming',
 
     icon: CalendarDays,
@@ -231,8 +225,6 @@ export const HUB_STATS: HubStat[] = [
     label: 'Closed Opportunities',
 
     value: 18,
-
-    change: '6%',
 
     subtext: 'Archived',
 
@@ -250,9 +242,7 @@ export const HUB_STATS: HubStat[] = [
 
     value: '1,284',
 
-    change: '12%',
-
-    subtext: 'this month',
+    change: '12% this month',
 
     icon: Users,
 
@@ -271,8 +261,7 @@ export const MOBILE_HUB_STATS: HubStat[] = [
   {
     label: 'Active Opportunities',
     value: 24,
-    change: '4%',
-    subtext: 'vs last week',
+    change: '3% vs last week',
     icon: Briefcase,
     iconBg: 'bg-[#E8F1FE]',
     iconColor: 'text-[#2F66C8]',
@@ -304,8 +293,7 @@ export const MOBILE_HUB_STATS: HubStat[] = [
   {
     label: 'Total Applications',
     value: '1,284',
-    change: '12%',
-    subtext: 'this month',
+    change: '12% this month',
     icon: Users,
     iconBg: 'bg-[#FEF4DD]',
     iconColor: 'text-[#D97706]',
@@ -705,17 +693,112 @@ export function filterByTab(items: OpportunityRow[], tab: OpportunityTab) {
 
 
 export function filterByQuery(items: OpportunityRow[], query: string) {
-
   if (!query.trim()) return items;
-
   const q = query.toLowerCase();
-
   return items.filter(
-
     (o) => o.name.toLowerCase().includes(q) || o.category.toLowerCase().includes(q),
-
   );
-
 }
+
+export const OPP_TYPE_FILTER_OPTIONS = [
+  { value: 'all', label: 'All Types' },
+  { value: 'internal', label: 'Internal' },
+  { value: 'external', label: 'External' },
+  { value: 'express-interest', label: 'Express Interest' },
+] as const;
+
+export const OPP_STATUS_FILTER_OPTIONS = [
+  { value: 'all', label: 'All Statuses' },
+  { value: 'Active', label: 'Active' },
+  { value: 'Draft', label: 'Draft' },
+  { value: 'Scheduled', label: 'Scheduled' },
+  { value: 'Closed', label: 'Closed' },
+] as const;
+
+export const OPP_CATEGORY_FILTER_OPTIONS = [
+  { value: 'all', label: 'All Categories' },
+  { value: 'Mentorship', label: 'Mentorship' },
+  { value: 'Scholarship', label: 'Scholarship' },
+  { value: 'Grant', label: 'Grant' },
+  { value: 'Volunteer', label: 'Volunteer' },
+  { value: 'Employment', label: 'Employment' },
+  { value: 'Training', label: 'Training' },
+  { value: 'Housing', label: 'Housing' },
+  { value: 'Settlement', label: 'Settlement' },
+  { value: 'Food & Nutrition', label: 'Food & Nutrition' },
+  { value: 'Mental Health', label: 'Mental Health' },
+] as const;
+
+export const OPP_DATE_CREATED_FILTER_OPTIONS = [
+  { value: 'all', label: 'All Time' },
+  { value: '7d', label: 'Last 7 days' },
+  { value: '30d', label: 'Last 30 days' },
+  { value: '90d', label: 'Last 90 days' },
+  { value: 'year', label: 'This year' },
+] as const;
+
+export const OPP_DEADLINE_FILTER_OPTIONS = [
+  { value: 'all', label: 'All Deadlines' },
+  { value: '7d', label: 'Next 7 days' },
+  { value: '30d', label: 'Next 30 days' },
+  { value: '90d', label: 'Next 90 days' },
+  { value: 'past', label: 'Past deadline' },
+  { value: 'none', label: 'No deadline' },
+] as const;
+
+export interface OpportunityHubFilters {
+  type: string;
+  status: string;
+  category: string;
+  dateCreated: string;
+  deadline: string;
+}
+
+export const DEFAULT_OPP_HUB_FILTERS: OpportunityHubFilters = {
+  type: 'all',
+  status: 'all',
+  category: 'all',
+  dateCreated: 'all',
+  deadline: 'all',
+};
+
+function parseDaysLeft(daysLeft: string): number | null {
+  const match = daysLeft.match(/(-?\d+)/);
+  if (!match) return null;
+  return Number(match[1]);
+}
+
+export function filterByHubFilters(items: OpportunityRow[], filters: OpportunityHubFilters) {
+  return items.filter((row) => {
+    if (filters.type !== 'all' && row.type !== filters.type) return false;
+    if (filters.status !== 'all' && row.status !== filters.status) return false;
+    if (
+      filters.category !== 'all' &&
+      !row.category.toLowerCase().includes(filters.category.toLowerCase())
+    ) {
+      return false;
+    }
+
+    if (filters.deadline !== 'all') {
+      const days = parseDaysLeft(row.daysLeft);
+      if (filters.deadline === 'none') {
+        if (row.deadline && row.deadline !== '—' && row.deadline !== '-') return false;
+      } else if (filters.deadline === 'past') {
+        if (days == null || days >= 0) return false;
+      } else if (filters.deadline === '7d') {
+        if (days == null || days < 0 || days > 7) return false;
+      } else if (filters.deadline === '30d') {
+        if (days == null || days < 0 || days > 30) return false;
+      } else if (filters.deadline === '90d') {
+        if (days == null || days < 0 || days > 90) return false;
+      }
+    }
+
+    // Date Created options are available in the menu; row payloads do not yet include createdAt.
+    void filters.dateCreated;
+    return true;
+  });
+}
+
 
 

@@ -11,38 +11,23 @@ import {
   type WorkflowStage,
 } from '@/features/opportunity-builder/lib/workflowData';
 import type { OpportunityDetails } from '@/features/opportunity-builder/lib/detailsData';
+import type { RequirementField } from '@/features/opportunity-builder/lib/requirementsData';
 import {
-  getDefaultRequirementsForTemplate,
-  type RequirementField,
-} from '@/features/opportunity-builder/lib/requirementsData';
+  DEFAULT_APPLICATION_CONFIG,
+  DEFAULT_DOCUMENT_REQUIREMENTS,
+  documentToRequirementField,
+  type DocumentRequirement,
+  type RequirementsApplicationConfig,
+} from '@/features/opportunity-builder/lib/documentRequirementsData';
+import {
+  DEFAULT_CATEGORY_CONFIG,
+  type OpportunityCategoryConfig,
+} from '@/features/opportunity-builder/lib/categoryConfigData';
 
 export type OpportunityType = 'internal' | 'external' | 'express-interest';
 export type WorkflowType = 'internal' | 'external' | 'express-interest';
 
-export interface OpportunityBuilderState {
-  opportunityType: OpportunityType | null;
-  category: string | null;
-  template: string | null;
-  requirements: string[];
-  requirementFields: RequirementField[];
-  details: Record<string, string>;
-  workflowType: WorkflowType | null;
-  internalWorkflow: { stages: WorkflowStage[]; selectedStageId: string | null };
-  externalWorkflow: ExternalWorkflowConfig;
-  expressInterestWorkflow: ExpressInterestConfig;
-  requirementsInitialized: boolean;
-  setBuilderData: (data: Partial<Omit<OpportunityBuilderState, 'setBuilderData' | 'resetBuilder' | 'setDetails' | 'initRequirementsFromTemplate' | 'addRequirement' | 'removeRequirement' | 'reorderRequirements' | 'updateRequirement'>>) => void;
-  setDetails: (patch: Partial<OpportunityDetails>) => void;
-  initRequirementsFromTemplate: () => void;
-  addRequirement: (field: RequirementField) => void;
-  removeRequirement: (id: string) => void;
-  reorderRequirements: (fields: RequirementField[]) => void;
-  updateRequirement: (id: string, patch: Partial<RequirementField>) => void;
-  resetBuilder: () => void;
-}
-
-const INITIAL: Omit<
-  OpportunityBuilderState,
+type BuilderMutators =
   | 'setBuilderData'
   | 'resetBuilder'
   | 'setDetails'
@@ -51,12 +36,69 @@ const INITIAL: Omit<
   | 'removeRequirement'
   | 'reorderRequirements'
   | 'updateRequirement'
-> = {
+  | 'setDocumentRequirements'
+  | 'toggleDocument'
+  | 'addCustomDocument'
+  | 'setApplicationConfig'
+  | 'setCategoryConfig'
+  | 'removeDocument';
+
+export interface OpportunityBuilderState {
+  opportunityType: OpportunityType | null;
+  category: string | null;
+  template: string | null;
+  requirements: string[];
+  requirementFields: RequirementField[];
+  documentRequirements: DocumentRequirement[];
+  applicationConfig: RequirementsApplicationConfig;
+  categoryConfig: OpportunityCategoryConfig;
+  details: Record<string, string>;
+  workflowType: WorkflowType | null;
+  internalWorkflow: { stages: WorkflowStage[]; selectedStageId: string | null };
+  externalWorkflow: ExternalWorkflowConfig;
+  expressInterestWorkflow: ExpressInterestConfig;
+  requirementsInitialized: boolean;
+  setBuilderData: (
+    data: Partial<Omit<OpportunityBuilderState, BuilderMutators>>,
+  ) => void;
+  setDetails: (patch: Partial<OpportunityDetails>) => void;
+  initRequirementsFromTemplate: () => void;
+  addRequirement: (field: RequirementField) => void;
+  removeRequirement: (id: string) => void;
+  reorderRequirements: (fields: RequirementField[]) => void;
+  updateRequirement: (id: string, patch: Partial<RequirementField>) => void;
+  setDocumentRequirements: (docs: DocumentRequirement[]) => void;
+  toggleDocument: (id: string) => void;
+  addCustomDocument: (doc: Omit<DocumentRequirement, 'id' | 'isCustom' | 'enabled'>) => void;
+  removeDocument: (id: string) => void;
+  setApplicationConfig: (patch: Partial<RequirementsApplicationConfig>) => void;
+  setCategoryConfig: (patch: Partial<OpportunityCategoryConfig>) => void;
+  resetBuilder: () => void;
+}
+
+function syncFromDocuments(docs: DocumentRequirement[]): {
+  documentRequirements: DocumentRequirement[];
+  requirementFields: RequirementField[];
+  requirements: string[];
+} {
+  const enabled = docs.filter((d) => d.enabled);
+  const requirementFields = enabled.map(documentToRequirementField);
+  return {
+    documentRequirements: docs,
+    requirementFields,
+    requirements: requirementFields.map((f) => f.title),
+  };
+}
+
+const INITIAL: Omit<OpportunityBuilderState, BuilderMutators> = {
   opportunityType: null,
   category: null,
   template: null,
   requirements: [],
   requirementFields: [],
+  documentRequirements: DEFAULT_DOCUMENT_REQUIREMENTS,
+  applicationConfig: DEFAULT_APPLICATION_CONFIG,
+  categoryConfig: DEFAULT_CATEGORY_CONFIG,
   details: {},
   workflowType: null,
   internalWorkflow: {
@@ -67,10 +109,6 @@ const INITIAL: Omit<
   expressInterestWorkflow: DEFAULT_EXPRESS_CONFIG,
   requirementsInitialized: false,
 };
-
-function syncRequirementTitles(fields: RequirementField[]): string[] {
-  return fields.map((f) => f.title);
-}
 
 export const useOpportunityBuilderStore = create<OpportunityBuilderState>()(
   persist(
@@ -86,12 +124,17 @@ export const useOpportunityBuilderStore = create<OpportunityBuilderState>()(
           return { details: merged };
         }),
       initRequirementsFromTemplate: () => {
-        const { template, requirementsInitialized } = get();
-        if (requirementsInitialized) return;
-        const fields = getDefaultRequirementsForTemplate(template);
+        const { requirementsInitialized, documentRequirements } = get();
+        const docs =
+          Array.isArray(documentRequirements) && documentRequirements.length > 0
+            ? documentRequirements
+            : DEFAULT_DOCUMENT_REQUIREMENTS;
+        // Always repair missing/corrupt documents; skip only when already healthy.
+        if (requirementsInitialized && Array.isArray(documentRequirements) && documentRequirements.length > 0) {
+          return;
+        }
         set({
-          requirementFields: fields,
-          requirements: syncRequirementTitles(fields),
+          ...syncFromDocuments(docs),
           requirementsInitialized: true,
         });
       },
@@ -100,7 +143,7 @@ export const useOpportunityBuilderStore = create<OpportunityBuilderState>()(
           const requirementFields = [...s.requirementFields, field];
           return {
             requirementFields,
-            requirements: syncRequirementTitles(requirementFields),
+            requirements: requirementFields.map((f) => f.title),
           };
         }),
       removeRequirement: (id) =>
@@ -108,13 +151,13 @@ export const useOpportunityBuilderStore = create<OpportunityBuilderState>()(
           const requirementFields = s.requirementFields.filter((f) => f.id !== id);
           return {
             requirementFields,
-            requirements: syncRequirementTitles(requirementFields),
+            requirements: requirementFields.map((f) => f.title),
           };
         }),
       reorderRequirements: (fields) =>
         set({
           requirementFields: fields,
-          requirements: syncRequirementTitles(fields),
+          requirements: fields.map((f) => f.title),
         }),
       updateRequirement: (id, patch) =>
         set((s) => {
@@ -123,14 +166,110 @@ export const useOpportunityBuilderStore = create<OpportunityBuilderState>()(
           );
           return {
             requirementFields,
-            requirements: syncRequirementTitles(requirementFields),
+            requirements: requirementFields.map((f) => f.title),
           };
         }),
+      setDocumentRequirements: (docs) => set(syncFromDocuments(docs)),
+      toggleDocument: (id) =>
+        set((s) => {
+          const current = Array.isArray(s.documentRequirements)
+            ? s.documentRequirements
+            : DEFAULT_DOCUMENT_REQUIREMENTS;
+          const docs = current.map((d) =>
+            d.id === id
+              ? {
+                  ...d,
+                  enabled: !d.enabled,
+                  required: !d.enabled ? true : d.required,
+                }
+              : d,
+          );
+          return syncFromDocuments(docs);
+        }),
+      addCustomDocument: (doc) =>
+        set((s) => {
+          const current = Array.isArray(s.documentRequirements)
+            ? s.documentRequirements
+            : DEFAULT_DOCUMENT_REQUIREMENTS;
+          const next: DocumentRequirement = {
+            ...doc,
+            id: `custom-${Date.now()}`,
+            enabled: true,
+            isCustom: true,
+          };
+          return syncFromDocuments([...current, next]);
+        }),
+      removeDocument: (id) =>
+        set((s) => {
+          const current = Array.isArray(s.documentRequirements)
+            ? s.documentRequirements
+            : DEFAULT_DOCUMENT_REQUIREMENTS;
+          return syncFromDocuments(current.filter((d) => d.id !== id));
+        }),
+      setApplicationConfig: (patch) =>
+        set((s) => {
+          const applicationConfig = {
+            ...DEFAULT_APPLICATION_CONFIG,
+            ...(s.applicationConfig ?? {}),
+            ...patch,
+          };
+          const workflowType =
+            patch.applicationMode === undefined
+              ? s.workflowType
+              : patch.applicationMode === 'express-interest'
+                ? 'express-interest'
+                : s.opportunityType === 'external'
+                  ? 'external'
+                  : 'internal';
+          return { applicationConfig, workflowType };
+        }),
+      setCategoryConfig: (patch) =>
+        set((s) => ({
+          categoryConfig: { ...s.categoryConfig, ...patch },
+        })),
       resetBuilder: () => set(INITIAL),
     }),
     {
       name: 'provider-opportunity-builder',
       storage: createJSONStorage(() => sessionStorage),
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<OpportunityBuilderState>;
+        return {
+          ...current,
+          ...p,
+          documentRequirements: Array.isArray(p.documentRequirements)
+            ? p.documentRequirements
+            : current.documentRequirements,
+          requirementFields: Array.isArray(p.requirementFields)
+            ? p.requirementFields
+            : current.requirementFields,
+          requirements: Array.isArray(p.requirements) ? p.requirements : current.requirements,
+          applicationConfig: {
+            ...DEFAULT_APPLICATION_CONFIG,
+            ...(p.applicationConfig ?? {}),
+          },
+          categoryConfig: {
+            ...DEFAULT_CATEGORY_CONFIG,
+            ...(p.categoryConfig ?? {}),
+          },
+          details: p.details && typeof p.details === 'object' ? p.details : current.details,
+          externalWorkflow: {
+            ...DEFAULT_EXTERNAL_CONFIG,
+            ...(p.externalWorkflow ?? {}),
+          },
+          expressInterestWorkflow: {
+            ...DEFAULT_EXPRESS_CONFIG,
+            ...(p.expressInterestWorkflow ?? {}),
+          },
+          internalWorkflow: {
+            stages: Array.isArray(p.internalWorkflow?.stages)
+              ? p.internalWorkflow.stages
+              : current.internalWorkflow.stages,
+            selectedStageId:
+              p.internalWorkflow?.selectedStageId ?? current.internalWorkflow.selectedStageId,
+          },
+        };
+      },
     },
   ),
 );

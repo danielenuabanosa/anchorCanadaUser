@@ -40,7 +40,7 @@ function daysLeft(deadline?: string | null) {
   const diff = Math.ceil((new Date(deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
   if (diff < 0) return 'Past due';
   if (diff === 0) return 'Today';
-  return `${diff} days`;
+  return `${diff} days left`;
 }
 
 function mapOpportunityStatus(status: ApiProviderOpportunity['status']): OpportunityStatus {

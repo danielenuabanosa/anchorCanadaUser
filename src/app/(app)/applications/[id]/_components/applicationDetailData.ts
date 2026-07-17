@@ -18,6 +18,27 @@ export type ApplicationStage =
   | 'Accepted'
   | 'Rejected';
 
+export interface TimelineStep {
+  label: string;
+  date?: string;
+  done: boolean;
+  current?: boolean;
+}
+
+export interface ApplicantAbout {
+  location: string;
+  education: string;
+  experience: string;
+  currentRole: string;
+  languages: string;
+}
+
+export interface InternalNote {
+  author: string;
+  date: string;
+  text: string;
+}
+
 export const DEFAULT_APPLICATION_DETAIL = {
   id: 'APP-2026-000123',
   applicant: 'Sarah Johnson',
@@ -32,16 +53,31 @@ export const DEFAULT_APPLICATION_DETAIL = {
   reviewer: { name: 'Michael Adams', avatar: avatar2 },
   avatar: avatar1,
   score: 92,
+  about: {
+    location: 'Toronto, ON, Canada',
+    education: 'Bachelor of Computer Science, University of Toronto',
+    experience: '2 years',
+    currentRole: 'Junior Developer at Tech Solutions',
+    languages: 'English (Native), French (Basic)',
+  } satisfies ApplicantAbout,
   timeline: [
-    { label: 'Application Submitted', date: 'Jun 12, 2026', done: true },
-    { label: 'Under Review', date: 'Jun 12, 2026', done: true, current: true },
-    { label: 'Shortlist', date: 'Pending', done: false },
-    { label: 'Interview', date: 'Pending', done: false },
-    { label: 'Decision', date: 'Pending', done: false },
-  ],
+    { label: 'Applied', date: 'Jun 12, 2026', done: true },
+    { label: 'Under Review', date: 'Jun 12, 2026', done: false, current: true },
+    { label: 'Shortlisted', done: false },
+    { label: 'Interview', done: false },
+    { label: 'Decision', done: false },
+  ] satisfies TimelineStep[],
   answers: [
-    { question: 'Why are you applying for this grant?', answer: 'I want to launch a community tech literacy program for underserved youth in Toronto.' },
-    { question: 'Describe your leadership experience.', answer: 'President of university coding club; led 12 volunteers in a 6-month mentorship program.' },
+    {
+      question: 'Why are you applying for this grant?',
+      answer:
+        'I want to launch a community tech literacy program for underserved youth in Toronto.',
+    },
+    {
+      question: 'Describe your leadership experience.',
+      answer:
+        'President of university coding club; led 12 volunteers in a 6-month mentorship program.',
+    },
   ],
   documents: [
     { name: 'Resume.pdf', size: '245 KB', status: 'Uploaded' },
@@ -51,8 +87,17 @@ export const DEFAULT_APPLICATION_DETAIL = {
     { name: 'Proof_of_Enrollment.pdf', size: '89 KB', status: 'Uploaded' },
   ],
   notes: [
-    { author: 'Michael Adams', date: 'Jun 13, 2026', text: 'Strong application. Recommend moving to shortlist after document verification.' },
-  ],
+    {
+      author: 'Michael Adams',
+      date: 'Jun 12, 2026 3:45 PM',
+      text: 'Strong technical background and community involvement.\n\nSubmitted all required documents.\nGood potential for the program',
+    },
+    {
+      author: 'Jessica Lee',
+      date: 'Jun 12, 2026 4:10 PM',
+      text: 'Documents look complete. Ready for shortlist discussion.',
+    },
+  ] satisfies InternalNote[],
   activity: [
     { label: 'Application submitted', date: 'Jun 12, 2026 at 2:30 PM' },
     { label: 'Assigned to Michael Adams', date: 'Jun 12, 2026 at 3:15 PM' },
@@ -64,72 +109,85 @@ export type ApplicationDetail = typeof DEFAULT_APPLICATION_DETAIL;
 
 const STAGE_VARIANTS: Record<string, Partial<ApplicationDetail>> = {
   '2': {
-    applicant: 'James Wilson',
-    email: 'james.wilson@email.com',
+    applicant: 'David Miller',
+    email: 'david.miller@email.com',
     location: 'Vancouver, BC, Canada',
-    appliedFor: 'Healthcare Access Grant',
-    opportunityType: 'External Opportunity',
+    appliedFor: 'Merit Scholarship Program',
+    opportunityType: 'Internal Opportunity',
     stage: 'Shortlisted',
     stageSince: 'Jun 11, 2026',
     score: 88,
+    about: {
+      location: 'Vancouver, BC, Canada',
+      education: 'Bachelor of Arts, UBC',
+      experience: '3 years',
+      currentRole: 'Program Coordinator',
+      languages: 'English (Native)',
+    },
     timeline: [
-      { label: 'Application Submitted', date: 'Jun 11, 2026', done: true },
+      { label: 'Applied', date: 'Jun 11, 2026', done: true },
       { label: 'Under Review', date: 'Jun 11, 2026', done: true },
-      { label: 'Shortlist', date: 'Jun 12, 2026', done: true, current: true },
-      { label: 'Interview', date: 'Pending', done: false },
-      { label: 'Decision', date: 'Pending', done: false },
+      { label: 'Shortlisted', date: 'Jun 12, 2026', done: false, current: true },
+      { label: 'Interview', done: false },
+      { label: 'Decision', done: false },
     ],
   },
   '3': {
-    applicant: 'Priya Sharma',
-    email: 'priya.sharma@email.com',
+    applicant: 'Emile Clark',
+    email: 'emile.clark@email.com',
     location: 'Calgary, AB, Canada',
-    appliedFor: 'Youth Leadership Program',
+    appliedFor: 'Mentorship Program',
     opportunityType: 'Express Interest',
     stage: 'Interview',
     stageSince: 'Jun 10, 2026',
     score: 95,
     timeline: [
-      { label: 'Application Submitted', date: 'Jun 10, 2026', done: true },
+      { label: 'Applied', date: 'Jun 10, 2026', done: true },
       { label: 'Under Review', date: 'Jun 10, 2026', done: true },
-      { label: 'Shortlist', date: 'Jun 11, 2026', done: true },
-      { label: 'Interview', date: 'Jun 12, 2026', done: true, current: true },
-      { label: 'Decision', date: 'Pending', done: false },
+      { label: 'Shortlisted', date: 'Jun 11, 2026', done: true },
+      { label: 'Interview', date: 'Jun 12, 2026', done: false, current: true },
+      { label: 'Decision', done: false },
     ],
   },
   '4': {
-    applicant: 'Marcus Lee',
-    email: 'marcus.lee@email.com',
-    location: 'Montreal, QC, Canada',
-    appliedFor: 'Community Youth Mentorship',
+    applicant: 'James Wilson',
+    email: 'james.wilson@email.com',
+    location: 'Ottawa, ON, Canada',
+    appliedFor: 'Community Volunteer Program',
+    opportunityType: 'External Opportunity',
     stage: 'Accepted',
     stageSince: 'Jun 9, 2026',
     score: 97,
     timeline: [
-      { label: 'Application Submitted', date: 'Jun 9, 2026', done: true },
+      { label: 'Applied', date: 'Jun 9, 2026', done: true },
       { label: 'Under Review', date: 'Jun 9, 2026', done: true },
-      { label: 'Shortlist', date: 'Jun 10, 2026', done: true },
+      { label: 'Shortlisted', date: 'Jun 10, 2026', done: true },
       { label: 'Interview', date: 'Jun 11, 2026', done: true },
-      { label: 'Decision', date: 'Jun 12, 2026', done: true, current: true },
+      { label: 'Decision', date: 'Jun 12, 2026', done: false, current: true },
     ],
   },
   '5': {
-    applicant: 'Emily Zhang',
-    email: 'emily.zhang@email.com',
-    location: 'Ottawa, ON, Canada',
-    appliedFor: 'Summer Internship Program',
+    applicant: 'Andrea Garcia',
+    email: 'andrea.garcia@email.com',
+    location: 'Montreal, QC, Canada',
+    appliedFor: 'Startup Incubator Cohort',
+    opportunityType: 'External Opportunity',
     stage: 'Rejected',
     stageSince: 'Jun 8, 2026',
     score: 62,
     timeline: [
-      { label: 'Application Submitted', date: 'Jun 8, 2026', done: true },
+      { label: 'Applied', date: 'Jun 8, 2026', done: true },
       { label: 'Under Review', date: 'Jun 8, 2026', done: true },
-      { label: 'Shortlist', date: '—', done: false },
-      { label: 'Interview', date: '—', done: false },
-      { label: 'Decision', date: 'Jun 9, 2026', done: true, current: true },
+      { label: 'Shortlisted', done: false },
+      { label: 'Interview', done: false },
+      { label: 'Decision', date: 'Jun 9, 2026', done: false, current: true },
     ],
     notes: [
-      { author: 'David Chen', date: 'Jun 9, 2026', text: 'Application does not meet minimum eligibility criteria for this cycle.' },
+      {
+        author: 'Jessica Lee',
+        date: 'Jun 9, 2026 2:00 PM',
+        text: 'Application does not meet minimum eligibility criteria for this cycle.',
+      },
     ],
   },
 };
@@ -141,6 +199,9 @@ export function getApplicationDetail(id: string): ApplicationDetail {
     ...DEFAULT_APPLICATION_DETAIL,
     id: `APP-2026-000${id.padStart(3, '0')}`,
     ...variant,
+    about: { ...DEFAULT_APPLICATION_DETAIL.about, ...variant.about },
+    notes: variant.notes ?? DEFAULT_APPLICATION_DETAIL.notes,
+    timeline: variant.timeline ?? DEFAULT_APPLICATION_DETAIL.timeline,
   };
 }
 

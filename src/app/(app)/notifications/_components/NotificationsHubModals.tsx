@@ -16,7 +16,15 @@ import { RECENT_ACTIVITY_WIDGET, NOTIFICATION_PREFS, type NotificationItem } fro
 
 
 
-function ModalOverlay({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
+function ModalOverlay({
+  onClose,
+  children,
+  mobile,
+}: {
+  onClose: () => void;
+  children: React.ReactNode;
+  mobile?: boolean;
+}) {
 
   return (
 
@@ -24,7 +32,7 @@ function ModalOverlay({ onClose, children }: { onClose: () => void; children: Re
 
       <button type="button" className="absolute inset-0" onClick={onClose} aria-label="Close modal" />
 
-      <div className="relative w-full max-w-[720px]">{children}</div>
+      <div className={cn('relative w-full max-w-[720px]', mobile && 'max-w-[400px]')}>{children}</div>
 
     </div>
 
@@ -41,6 +49,7 @@ export function DeleteNotificationModal({
   onClose,
 
   onConfirm,
+  mobile,
 
 }: {
 
@@ -49,6 +58,7 @@ export function DeleteNotificationModal({
   onClose: () => void;
 
   onConfirm: () => void;
+  mobile?: boolean;
 
 }) {
 
@@ -58,7 +68,7 @@ export function DeleteNotificationModal({
 
   return (
 
-    <ModalOverlay onClose={onClose}>
+    <ModalOverlay onClose={onClose} mobile={mobile}>
 
       <div className="overflow-hidden rounded-[20px] border border-[#D9E1EF] bg-white shadow-[0px_6px_16px_rgba(0,0,0,0.08)]">
 
@@ -151,12 +161,14 @@ export function NotificationDetailModal({
   item,
 
   onClose,
+  mobile,
 
 }: {
 
   item: NotificationItem | null;
 
   onClose: () => void;
+  mobile?: boolean;
 
 }) {
 
@@ -174,7 +186,7 @@ export function NotificationDetailModal({
 
   return (
 
-    <ModalOverlay onClose={onClose}>
+    <ModalOverlay onClose={onClose} mobile={mobile}>
 
       <div className="overflow-hidden rounded-[20px] border border-[#D9E1EF] bg-white shadow-[0px_6px_16px_rgba(0,0,0,0.08)]">
 

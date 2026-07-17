@@ -66,20 +66,20 @@ export default function MobileView() {
           </p>
         </div>
 
-        <div className="mt-6 rounded-sm border border-[#D9E1EF] bg-white px-5 py-4 shadow-sm">
-          <div className="relative flex items-center gap-3">
-            <Search className="h-4 w-4 shrink-0 text-[#8C97AD]" />
+        <div className="mt-6">
+          <div className="anchor-search-field w-full">
+            <Search className="h-[18px] w-[18px] shrink-0 text-[#8C97AD]" />
             <input
               type="text"
               placeholder="Search interests..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="flex-1 rounded-sm border-0 bg-white text-[14px] text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
+              className="no-anchor-field min-w-0 flex-1 bg-transparent font-sans text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
             />
           </div>
           <div className="mt-3">
             <div
-              className={`inline-flex items-center gap-2 rounded-sm border px-4 py-2 font-sans text-[14px] font-medium ${
+              className={`inline-flex items-center gap-2 rounded-[10px] border px-4 py-2 font-sans text-base font-medium ${
                 hasSelected ? 'border-[#2F66C8] text-[#2F66C8]' : 'border-[#D9E1EF] text-[#8C97AD]'
               }`}
             >

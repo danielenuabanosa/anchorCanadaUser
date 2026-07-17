@@ -33,17 +33,17 @@ export function OpportunityTableRow({ row, onDelete }: OpportunityTableRowProps)
         <div className="min-w-0">
           <Link
             href={`/opportunities/${row.id}`}
-            className="truncate text-sm text-[#44516A] hover:text-[#2F66C8]"
+            className="truncate text-sm font-medium text-[#0F172A] hover:text-[#2F66C8]"
           >
             {row.name}
           </Link>
           <p className="truncate text-xs text-[#8C97AD]">{row.category}</p>
         </div>
       </div>
-      <span className={`inline-flex w-fit rounded-[6px] px-1.5 py-0.5 text-sm font-medium ${TYPE_STYLES[row.type]}`}>
+      <span className={`inline-flex w-fit rounded-[4px] px-1.5 py-0.5 text-sm font-medium ${TYPE_STYLES[row.type]}`}>
         {row.type === 'express-interest' ? 'Express Int..' : TYPE_LABELS[row.type]}
       </span>
-      <span className={`inline-flex w-fit rounded-[6px] px-1.5 py-0.5 text-sm font-medium ${STATUS_STYLES[row.status]}`}>
+      <span className={`inline-flex w-fit rounded-[4px] px-1.5 py-0.5 text-sm font-medium ${STATUS_STYLES[row.status]}`}>
         {row.status}
       </span>
       <div>

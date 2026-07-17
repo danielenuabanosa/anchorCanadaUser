@@ -16,6 +16,7 @@ export default function MobileView() {
   const details = useMemo(() => recordToDetails(detailsRecord), [detailsRecord]);
   const setDetails = useOpportunityBuilderStore((s) => s.setDetails);
   const requirementCount = useOpportunityBuilderStore((s) => s.requirementFields.length);
+  const estimatedTime = useOpportunityBuilderStore((s) => s.applicationConfig.estimatedTime);
 
   const canContinue = details.title.trim().length > 0 && details.summary.trim().length > 0;
 
@@ -24,7 +25,7 @@ export default function MobileView() {
   }, [router]);
 
   useRegisterBuilderNav({
-    step: 4,
+    step: 3,
     backHref: '/opportunities/create/requirements',
     onContinue: handleContinue,
     continueDisabled: !canContinue,
@@ -42,8 +43,13 @@ export default function MobileView() {
       />
 
       <div className="mt-10 flex flex-col gap-6">
-        <ApplicantPreviewPanel details={details} requirementCount={requirementCount} compact />
-        <DetailsForm details={details} onChange={setDetails} />
+        <DetailsForm details={details} onChange={setDetails} collapseSecondary />
+        <ApplicantPreviewPanel
+          details={details}
+          requirementCount={requirementCount}
+          estimatedTime={estimatedTime}
+          compact
+        />
       </div>
     </div>
   );

@@ -1,32 +1,35 @@
 'use client';
 
-import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
-import { HubFilterField } from '@/shared/components/hub/HubFilterField';
-import { FILTER_LABELS } from './teamManagementData';
+import { useEffect, useState } from 'react';
+import { HubMenuSelect } from '@/shared/components/hub/HubMenuSelect';
+import {
+  DEFAULT_TEAM_HUB_FILTERS,
+  TEAM_DEPARTMENT_FILTER_OPTIONS,
+  TEAM_ROLE_FILTER_OPTIONS,
+  TEAM_STATUS_FILTER_OPTIONS,
+  type TeamHubFilters,
+} from './teamManagementData';
 
 interface TeamFilterModalProps {
   open: boolean;
   onClose: () => void;
-  onApply?: () => void;
+  value?: TeamHubFilters;
+  onApply?: (filters: TeamHubFilters) => void;
 }
 
-const FILTER_OPTIONS: Record<string, string[]> = {
-  'All Roles': ['All Roles', 'Administrator', 'Manager', 'Reviewer', 'Interviewer', 'Coordinator'],
-  'All Departments': ['All Departments', 'Operations', 'Programs', 'Outreach'],
-  'All Statuses': ['All Statuses', 'Active', 'Pending Invite', 'Suspended'],
-};
+export function TeamFilterModal({
+  open,
+  onClose,
+  value = DEFAULT_TEAM_HUB_FILTERS,
+  onApply,
+}: TeamFilterModalProps) {
+  const [selections, setSelections] = useState<TeamHubFilters>(value);
 
-const FILTER_DEFAULTS: Record<string, string> = Object.fromEntries(FILTER_LABELS.map((l) => [l, l]));
-
-export function TeamFilterModal({ open, onClose, onApply }: TeamFilterModalProps) {
-  const [selections, setSelections] = useState(FILTER_DEFAULTS);
+  useEffect(() => {
+    if (open) setSelections(value);
+  }, [open, value]);
 
   if (!open) return null;
-
-  function clearAll() {
-    setSelections(FILTER_DEFAULTS);
-  }
 
   return (
     <div className="fixed inset-0 z-50 md:flex md:items-center md:justify-center md:bg-black/40 md:p-4">
@@ -35,29 +38,38 @@ export function TeamFilterModal({ open, onClose, onApply }: TeamFilterModalProps
         <div className="border-b border-[#EEF2F8] p-5">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-[#0F172A]">Filters</h2>
-            <button type="button" onClick={clearAll} className="text-sm text-[#2F66C8]">
+            <button
+              type="button"
+              onClick={() => setSelections(DEFAULT_TEAM_HUB_FILTERS)}
+              className="text-sm text-[#2F66C8]"
+            >
               Clear all
             </button>
           </div>
         </div>
 
         <div className="flex max-h-[60vh] flex-col gap-4 overflow-y-auto p-5">
-          {FILTER_LABELS.map((label) => (
-            <HubFilterField
-              key={label}
-              label={label}
-              value={selections[label]}
-              icon={ChevronDown}
-              onClick={() => {
-                const options = FILTER_OPTIONS[label] ?? [label];
-                const idx = options.indexOf(selections[label]);
-                setSelections((s) => ({
-                  ...s,
-                  [label]: options[(idx + 1) % options.length],
-                }));
-              }}
-            />
-          ))}
+          <HubMenuSelect
+            variant="field"
+            label="All Roles"
+            value={selections.role}
+            options={[...TEAM_ROLE_FILTER_OPTIONS]}
+            onChange={(role) => setSelections((s) => ({ ...s, role }))}
+          />
+          <HubMenuSelect
+            variant="field"
+            label="All Statuses"
+            value={selections.status}
+            options={[...TEAM_STATUS_FILTER_OPTIONS]}
+            onChange={(status) => setSelections((s) => ({ ...s, status }))}
+          />
+          <HubMenuSelect
+            variant="field"
+            label="All Departments"
+            value={selections.department}
+            options={[...TEAM_DEPARTMENT_FILTER_OPTIONS]}
+            onChange={(department) => setSelections((s) => ({ ...s, department }))}
+          />
         </div>
 
         <div className="flex gap-3 border-t border-[#EEF2F8] p-5">
@@ -71,7 +83,7 @@ export function TeamFilterModal({ open, onClose, onApply }: TeamFilterModalProps
           <button
             type="button"
             onClick={() => {
-              onApply?.();
+              onApply?.(selections);
               onClose();
             }}
             className="flex-1 rounded-[6px] bg-[#2F66C8] py-2.5 text-sm font-medium text-white"

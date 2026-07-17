@@ -1,17 +1,19 @@
 'use client';
 
-import DesktopView from './_components/DesktopView';
-import MobileView from './_components/MobileView';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
+/** Template step is removed from the 6-step Figma flow. Redirect to Requirements. */
 export default function TemplatePage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace('/opportunities/create/requirements');
+  }, [router]);
+
   return (
-    <>
-      <div className="hidden w-full md:block">
-        <DesktopView />
-      </div>
-      <div className="block w-full md:hidden">
-        <MobileView />
-      </div>
-    </>
+    <div className="flex flex-1 items-center justify-center p-10 text-sm text-[#8C97AD]">
+      Redirecting to Requirements…
+    </div>
   );
 }

@@ -3,58 +3,71 @@
 import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { BuilderPageHeading } from '@/features/opportunity-builder/components/BuilderPageHeading';
-import { BuilderSelectionBanner } from '@/features/opportunity-builder/components/BuilderSelectionBanner';
-import { RequirementListBuilder } from '@/features/opportunity-builder/components/RequirementListBuilder';
-import { RequirementTypeLibrary } from '@/features/opportunity-builder/components/RequirementTypeLibrary';
+import { RequirementsConfigForm } from '@/features/opportunity-builder/components/RequirementsConfigForm';
 import { useRegisterBuilderNav } from '@/features/opportunity-builder/context/BuilderNavContext';
 import { BUILDER_PAGE_COPY } from '@/features/opportunity-builder/lib/builderData';
-import { createRequirementFromType } from '@/features/opportunity-builder/lib/requirementsData';
+import {
+  DEFAULT_APPLICATION_CONFIG,
+  DEFAULT_DOCUMENT_REQUIREMENTS,
+} from '@/features/opportunity-builder/lib/documentRequirementsData';
+import { DEFAULT_EXTERNAL_CONFIG } from '@/features/opportunity-builder/lib/workflowData';
 import { useOpportunityBuilderStore } from '@/store/opportunityBuilderStore';
 
 export default function MobileView() {
   const router = useRouter();
-  const requirementFields = useOpportunityBuilderStore((s) => s.requirementFields);
+  const documentRequirements =
+    useOpportunityBuilderStore((s) => s.documentRequirements) ?? DEFAULT_DOCUMENT_REQUIREMENTS;
+  const applicationConfig =
+    useOpportunityBuilderStore((s) => s.applicationConfig) ?? DEFAULT_APPLICATION_CONFIG;
+  const opportunityType = useOpportunityBuilderStore((s) => s.opportunityType);
+  const externalWorkflow =
+    useOpportunityBuilderStore((s) => s.externalWorkflow) ?? DEFAULT_EXTERNAL_CONFIG;
   const initRequirementsFromTemplate = useOpportunityBuilderStore((s) => s.initRequirementsFromTemplate);
-  const addRequirement = useOpportunityBuilderStore((s) => s.addRequirement);
-  const removeRequirement = useOpportunityBuilderStore((s) => s.removeRequirement);
-  const reorderRequirements = useOpportunityBuilderStore((s) => s.reorderRequirements);
-  const updateRequirement = useOpportunityBuilderStore((s) => s.updateRequirement);
+  const toggleDocument = useOpportunityBuilderStore((s) => s.toggleDocument);
+  const removeDocument = useOpportunityBuilderStore((s) => s.removeDocument);
+  const addCustomDocument = useOpportunityBuilderStore((s) => s.addCustomDocument);
+  const setApplicationConfig = useOpportunityBuilderStore((s) => s.setApplicationConfig);
+  const setBuilderData = useOpportunityBuilderStore((s) => s.setBuilderData);
   const copy = BUILDER_PAGE_COPY.requirements;
 
   useEffect(() => {
     initRequirementsFromTemplate();
   }, [initRequirementsFromTemplate]);
 
+  const enabledCount = documentRequirements.filter((d) => d.enabled).length;
+
   const handleContinue = useCallback(() => {
     router.push('/opportunities/create/details');
   }, [router]);
 
   useRegisterBuilderNav({
-    step: 3,
-    backHref: '/opportunities/create/template',
+    step: 2,
+    backHref: '/opportunities/create/category',
     onContinue: handleContinue,
-    continueDisabled: requirementFields.length === 0,
+    continueDisabled: enabledCount === 0,
   });
-
-  function handleAddType(typeId: string) {
-    const field = createRequirementFromType(typeId);
-    if (field) addRequirement(field);
-  }
 
   return (
     <div className="mx-auto flex w-full flex-1 flex-col px-5 pb-16 pt-10">
       <BuilderPageHeading title={copy.title} titleAccent={copy.titleAccent} subtitle={copy.subtitle} mobile />
 
-      <div className="mt-10 flex flex-col gap-6">
-        <BuilderSelectionBanner />
-        <RequirementListBuilder
-          fields={requirementFields}
-          onReorder={reorderRequirements}
-          onUpdate={updateRequirement}
-          onRemove={removeRequirement}
-          onAdd={(fields) => fields.forEach(addRequirement)}
+      <div className="mt-10 w-full">
+        <RequirementsConfigForm
+          documents={documentRequirements}
+          applicationConfig={applicationConfig}
+          applicationUrl={externalWorkflow.applicationUrl}
+          destinationName={externalWorkflow.destinationName}
+          opportunityType={opportunityType}
+          onToggleDocument={toggleDocument}
+          onRemoveDocument={removeDocument}
+          onAddCustomDocument={addCustomDocument}
+          onApplicationConfigChange={setApplicationConfig}
+          onDestinationChange={(patch) =>
+            setBuilderData({
+              externalWorkflow: { ...externalWorkflow, ...patch },
+            })
+          }
         />
-        <RequirementTypeLibrary onAddType={handleAddType} />
       </div>
     </div>
   );

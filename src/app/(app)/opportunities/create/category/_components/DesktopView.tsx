@@ -17,7 +17,7 @@ export default function DesktopView() {
   const handleContinue = useCallback(() => {
     if (!selected) return;
     setBuilderData({ category: selected });
-    router.push('/opportunities/create/template');
+    router.push('/opportunities/create/requirements');
   }, [selected, setBuilderData, router]);
 
   useRegisterBuilderNav({

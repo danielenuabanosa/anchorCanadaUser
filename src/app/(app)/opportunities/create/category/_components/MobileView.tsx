@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BuilderPageHeading } from '@/features/opportunity-builder/components/BuilderPageHeading';
 import { CategoryGroupCard } from '@/features/opportunity-builder/components/CategoryGroupCard';
+import { CategoryRecommendationBanner } from '@/features/opportunity-builder/components/CategoryRecommendationBanner';
 import { useRegisterBuilderNav } from '@/features/opportunity-builder/context/BuilderNavContext';
 import { BUILDER_CATEGORY_GROUPS, BUILDER_PAGE_COPY } from '@/features/opportunity-builder/lib/builderData';
 import { useOpportunityBuilderStore } from '@/store/opportunityBuilderStore';
@@ -16,7 +17,7 @@ export default function MobileView() {
   const handleContinue = useCallback(() => {
     if (!selected) return;
     setBuilderData({ category: selected });
-    router.push('/opportunities/create/template');
+    router.push('/opportunities/create/requirements');
   }, [selected, setBuilderData, router]);
 
   useRegisterBuilderNav({
@@ -37,15 +38,18 @@ export default function MobileView() {
         mobile
       />
 
-      <div className="mt-10 flex flex-col gap-3">
-        {BUILDER_CATEGORY_GROUPS.map((group) => (
-          <CategoryGroupCard
-            key={group.id}
-            group={group}
-            selectedId={selected}
-            onSelect={setSelected}
-          />
-        ))}
+      <div className="mt-10 flex flex-col gap-5">
+        <CategoryRecommendationBanner />
+        <div className="flex flex-col gap-3">
+          {BUILDER_CATEGORY_GROUPS.map((group) => (
+            <CategoryGroupCard
+              key={group.id}
+              group={group}
+              selectedId={selected}
+              onSelect={setSelected}
+            />
+          ))}
+        </div>
       </div>
     </main>
   );

@@ -1,5 +1,7 @@
-/** Shared form field class names matching login email/password fields. */
+/** Shared form field class names — matches admin panel TextField. */
 export const ANCHOR_FIELD = 'anchor-field';
+export const ANCHOR_FIELD_SHELL = 'anchor-field-shell';
+export const ANCHOR_FIELD_INPUT = 'anchor-field-input no-anchor-field';
 export const ANCHOR_FIELD_ICON_LEFT = 'anchor-field anchor-field--icon-left';
 export const ANCHOR_FIELD_ICON_RIGHT = 'anchor-field anchor-field--icon-right';
 export const ANCHOR_FIELD_ICON_BOTH = 'anchor-field anchor-field--icon-left anchor-field--icon-right';

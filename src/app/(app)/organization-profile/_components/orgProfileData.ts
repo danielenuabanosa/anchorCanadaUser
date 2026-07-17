@@ -13,7 +13,6 @@ import {
   GraduationCap,
   IdCard,
   MapPin,
-  Palette,
   Phone,
   Target,
   User,
@@ -42,8 +41,6 @@ export type EditProfileSection =
   | 'basic'
   | 'contact'
   | 'location'
-  | 'branding'
-  | 'story'
   | 'focus';
 
 export type VerificationStatus = 'submitted' | 'under_review' | 'verified' | 'not_submitted';
@@ -145,17 +142,12 @@ export const EDIT_PROFILE_SECTIONS: {
   { id: 'basic', label: 'Basic Information', icon: BadgeInfo },
   { id: 'contact', label: 'Contact Information', icon: Phone },
   { id: 'location', label: 'Location', icon: MapPin },
-  { id: 'branding', label: 'Branding', icon: Palette },
-  { id: 'story', label: 'Organization Story', icon: Building2 },
   { id: 'focus', label: 'Focus Areas', icon: Target },
 ];
 
 export const ORG_ACTION_ITEMS = [
   { id: 'edit', label: 'Edit Profile' },
   { id: 'verification', label: 'Manage Verification' },
-  { id: 'branding', label: 'Update Branding' },
-  { id: 'download', label: 'Download Profile' },
-  { id: 'share', label: 'Share Public Link' },
 ] as const;
 
 export const VERIFICATION_STATUS_STYLES: Record<

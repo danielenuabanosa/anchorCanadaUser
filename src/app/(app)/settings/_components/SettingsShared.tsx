@@ -2,9 +2,10 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Check, ChevronDown, ExternalLink } from 'lucide-react';
+import { Check, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ANCHOR_FIELD, ANCHOR_SELECT } from '@/shared/styles/fieldStyles';
+import { ANCHOR_FIELD } from '@/shared/styles/fieldStyles';
+import { HubMenuSelect } from '@/shared/components/hub/HubMenuSelect';
 import { Toggle, textSecondary } from '@/shared/components/app/page-ui';
 import { useHelpCenterStore } from '@/store/helpCenterStore';
 import {
@@ -286,20 +287,12 @@ export function SelectField({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={cn(ANCHOR_SELECT, 'appearance-none pr-10')}
-      >
-        {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
-      <ChevronDown className="pointer-events-none absolute right-4 h-[18px] w-[18px] text-[#44516A]" strokeWidth={1.75} />
-    </div>
+    <HubMenuSelect
+      variant="default"
+      value={value}
+      options={options.map((opt) => ({ value: opt, label: opt }))}
+      onChange={onChange}
+    />
   );
 }
 

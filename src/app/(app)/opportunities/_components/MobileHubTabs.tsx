@@ -32,7 +32,7 @@ export function MobileHubTabs<T extends string>({ tabs, activeTab, onChange }: M
                   : 'text-[#0F172A]',
               )}
             >
-              {tab.label} ({tab.count})
+              {tab.label} ({tab.count.toLocaleString()})
             </button>
           );
         })}

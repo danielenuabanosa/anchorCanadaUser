@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, Download } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { Download } from 'lucide-react';
 import { HubStatCard } from '@/app/(app)/opportunities/_components/HubStatCard';
 import { MobileHubPageHero } from '@/app/(app)/opportunities/_components/MobileHubPageHero';
+import { DateRangeTrigger } from '@/shared/components/ui/DatePicker';
 import { ANALYTICS_DATE_RANGE, ANALYTICS_INSIGHTS, ANALYTICS_STATS } from './analyticsData';
 import {
   ApplicantDemographicsPanel,
@@ -17,14 +19,18 @@ import {
   TeamPerformanceMobile,
   TopOpportunitiesMobile,
 } from './AnalyticsSections';
-import { AnalyticsFilterModal } from './AnalyticsFilterModal';
 import { ExportAnalyticsModal, InsightDetailModal } from './AnalyticsHubModals';
 
 export default function MobileView() {
+  const searchParams = useSearchParams();
+  const demoState = searchParams.get('demo');
+  const forceLoading = demoState === 'loading';
+
   const [loading, setLoading] = useState(true);
-  const [filterOpen, setFilterOpen] = useState(false);
-  const [exportOpen, setExportOpen] = useState(false);
-  const [insightId, setInsightId] = useState<string | null>(null);
+  const [exportOpen, setExportOpen] = useState(demoState === 'export');
+  const [insightId, setInsightId] = useState<string | null>(
+    demoState === 'insight' ? (ANALYTICS_INSIGHTS[0]?.id ?? null) : null,
+  );
   const [dateRange, setDateRange] = useState(ANALYTICS_DATE_RANGE);
 
   const selectedInsight = useMemo(
@@ -33,9 +39,13 @@ export default function MobileView() {
   );
 
   useEffect(() => {
+    if (forceLoading) {
+      setLoading(true);
+      return;
+    }
     const timer = window.setTimeout(() => setLoading(false), 700);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [forceLoading]);
 
   function openInsight(id: string) {
     setInsightId(id);
@@ -53,14 +63,13 @@ export default function MobileView() {
         subtitle="Manage your organization's performance and optimize your opportunities."
         action={
           <div className="flex gap-2.5">
-            <button
-              type="button"
-              onClick={() => setFilterOpen(true)}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-[6px] border border-[#D9E1EF] bg-white px-3 py-2.5 text-sm font-medium text-[#0F172A]"
-            >
-              <CalendarDays className="h-[18px] w-[18px] shrink-0" />
-              <span className="truncate">{dateRange}</span>
-            </button>
+            <DateRangeTrigger
+              value={dateRange}
+              onChange={setDateRange}
+              align="left"
+              className="min-w-0 flex-1"
+              buttonClassName="w-full justify-center px-3 py-2.5 text-sm"
+            />
             <button
               type="button"
               onClick={() => setExportOpen(true)}
@@ -95,16 +104,6 @@ export default function MobileView() {
         onViewAllClick={openFirstInsight}
       />
 
-      <AnalyticsFilterModal
-        open={filterOpen}
-        onClose={() => setFilterOpen(false)}
-        mobile
-        dateRange={dateRange}
-        onApply={(filters) => {
-          setDateRange(filters.dateRange);
-          setFilterOpen(false);
-        }}
-      />
       <ExportAnalyticsModal open={exportOpen} onClose={() => setExportOpen(false)} mobile />
       <InsightDetailModal
         open={Boolean(insightId)}

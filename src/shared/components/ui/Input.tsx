@@ -36,7 +36,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
         <div className="relative flex items-center">
           {leftIcon && (
-            <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8C97AD]">
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#8C97AD]">
               {leftIcon}
             </span>
           )}
@@ -55,7 +55,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {rightIcon && (
-            <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8C97AD]">
+            <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#8C97AD]">
               {rightIcon}
             </span>
           )}

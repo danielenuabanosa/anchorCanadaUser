@@ -1,62 +1,64 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { BuilderPageHeading } from '@/features/opportunity-builder/components/BuilderPageHeading';
-import { WorkflowModelCard } from '@/features/opportunity-builder/components/WorkflowModelCard';
+import { OpportunityConfigForm } from '@/features/opportunity-builder/components/OpportunityConfigForm';
 import { useRegisterBuilderNav } from '@/features/opportunity-builder/context/BuilderNavContext';
-import { BUILDER_PAGE_COPY } from '@/features/opportunity-builder/lib/builderData';
-import { WORKFLOW_MODELS, WORKFLOW_SUB_ROUTES } from '@/features/opportunity-builder/lib/workflowData';
-import { useOpportunityBuilderStore, type WorkflowType } from '@/store/opportunityBuilderStore';
+import { BUILDER_CATEGORY_GROUPS, BUILDER_PAGE_COPY } from '@/features/opportunity-builder/lib/builderData';
+import {
+  getCategoryConfigSchema,
+  isCategoryConfigComplete,
+} from '@/features/opportunity-builder/lib/categoryConfigData';
+import { useOpportunityBuilderStore } from '@/store/opportunityBuilderStore';
 
 export default function MobileView() {
   const router = useRouter();
-  const storedWorkflow = useOpportunityBuilderStore((s) => s.workflowType);
-  const setBuilderData = useOpportunityBuilderStore((s) => s.setBuilderData);
-  const [selected, setSelected] = useState<WorkflowType | null>(storedWorkflow);
+  const category = useOpportunityBuilderStore((s) => s.category);
+  const categoryConfig = useOpportunityBuilderStore((s) => s.categoryConfig);
+  const setCategoryConfig = useOpportunityBuilderStore((s) => s.setCategoryConfig);
   const copy = BUILDER_PAGE_COPY.workflow;
 
-  const handleSelect = useCallback(
-    (id: WorkflowType) => {
-      setSelected(id);
-      setBuilderData({ workflowType: id });
-    },
-    [setBuilderData],
+  const categoryGroup = useMemo(
+    () =>
+      BUILDER_CATEGORY_GROUPS.find(
+        (g) => g.id === category || g.subcategories.some((s) => s.id === category),
+      ) ?? null,
+    [category],
   );
 
+  const schema = useMemo(
+    () => getCategoryConfigSchema(categoryGroup?.id ?? null),
+    [categoryGroup?.id],
+  );
+  const continueDisabled = !isCategoryConfigComplete(schema, categoryConfig);
+
   const handleContinue = useCallback(() => {
-    if (!selected) return;
-    router.push(WORKFLOW_SUB_ROUTES[selected]);
-  }, [selected, router]);
+    router.push('/opportunities/create/review');
+  }, [router]);
 
   useRegisterBuilderNav({
-    step: 5,
+    step: 4,
     backHref: '/opportunities/create/details',
     onContinue: handleContinue,
-    continueDisabled: !selected,
+    continueDisabled,
   });
 
   return (
-    <main className="px-5 pb-8 pt-10">
+    <div className="mx-auto flex w-full flex-1 flex-col px-5 pb-16 pt-10">
       <BuilderPageHeading
         title={copy.title}
         titleAccent={copy.titleAccent}
-        combinedTitle={copy.mobileTitle}
-        subtitleLines={copy.subtitleLines}
+        subtitle={copy.subtitle}
         mobile
       />
-
-      <div className="mt-10 flex flex-col gap-5">
-        {WORKFLOW_MODELS.map((model) => (
-          <WorkflowModelCard
-            key={model.id}
-            model={model}
-            selected={selected === model.id}
-            onSelect={() => handleSelect(model.id)}
-            compact
-          />
-        ))}
+      <div className="mt-10 w-full">
+        <OpportunityConfigForm
+          categoryGroup={categoryGroup}
+          config={categoryConfig}
+          onChange={setCategoryConfig}
+        />
       </div>
-    </main>
+    </div>
   );
 }

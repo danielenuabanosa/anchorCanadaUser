@@ -16,11 +16,14 @@ import {
   CircleHelp,
   LogOut,
   ChevronRight,
+  PanelLeftClose,
+  PanelLeftOpen,
   ShieldCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouteHash } from '@/shared/hooks/useRouteHash';
 import { isNavActive } from '@/shared/lib/navActive';
+import { useSidebar } from '@/shared/context/SidebarContext';
 import { useAuthStore } from '@/store/authStore';
 import { useHelpCenterStore } from '@/store/helpCenterStore';
 import { isStaticMode } from '@/lib/staticMode';
@@ -64,6 +67,7 @@ function NavItem({
   badge,
   active,
   logout,
+  collapsed,
 }: {
   label: string;
   href: string;
@@ -71,6 +75,7 @@ function NavItem({
   badge?: number;
   active: boolean;
   logout?: boolean;
+  collapsed?: boolean;
 }) {
   const isLogoutActive = logout && active;
 
@@ -78,9 +83,10 @@ function NavItem({
     <Link
       href={href}
       aria-current={active ? 'page' : undefined}
+      title={collapsed ? label : undefined}
       className={cn(
         'group flex w-full items-center rounded-[10px] p-4 transition-colors',
-        badge ? 'justify-between' : 'gap-5',
+        collapsed ? 'justify-center' : badge ? 'justify-between' : 'gap-5',
         isLogoutActive
           ? 'bg-[#EF4444] text-white'
           : active
@@ -88,7 +94,7 @@ function NavItem({
             : 'text-[#8C97AD] hover:bg-[#1C2436] hover:text-white',
       )}
     >
-      <span className={cn('flex min-w-0 items-center gap-5', badge && 'max-w-[240px] flex-1')}>
+      <span className={cn('flex min-w-0 items-center', collapsed ? 'justify-center' : 'gap-5', badge && !collapsed && 'max-w-[240px] flex-1')}>
         <Icon
           className={cn(
             'h-6 w-6 shrink-0',
@@ -97,11 +103,13 @@ function NavItem({
           strokeWidth={1.75}
           aria-hidden
         />
-        <span className={cn('truncate text-base leading-none', active ? 'font-medium' : 'font-normal')}>
-          {label}
-        </span>
+        {!collapsed ? (
+          <span className={cn('truncate text-base leading-none', active ? 'font-medium' : 'font-normal')}>
+            {label}
+          </span>
+        ) : null}
       </span>
-      {badge ? <NavBadge count={badge} active={active} /> : null}
+      {!collapsed && badge ? <NavBadge count={badge} active={active} /> : null}
     </Link>
   );
 }
@@ -109,6 +117,7 @@ function NavItem({
 export function Sidebar() {
   const pathname = usePathname();
   const hash = useRouteHash();
+  const { collapsed, toggleCollapsed } = useSidebar();
   const { user, isAuthenticated } = useAuthStore();
   const helpCenterOpen = useHelpCenterStore((s) => s.isOpen || s.reportOpen);
   const openHelpCenter = useHelpCenterStore((s) => s.open);
@@ -119,25 +128,47 @@ export function Sidebar() {
   if (!isStaticMode() && !isAuthenticated) return null;
 
   return (
-    <aside className="app-sidebar relative z-30 hidden shrink-0 flex-col justify-between border-r border-[#EEF2F8] bg-[#0F172A] md:flex" aria-label="Provider navigation">
+    <aside
+      className={cn(
+        'app-sidebar relative z-30 hidden shrink-0 flex-col justify-between border-r border-[#EEF2F8] bg-[#0F172A] md:flex',
+        collapsed && 'app-sidebar-collapsed',
+      )}
+      aria-label="Provider navigation"
+    >
       <div className="flex w-full shrink-0 flex-col">
-        <div className="shrink-0 border-b border-[#2F3B52] px-5 py-[30px]">
-          <Link href="/dashboard" aria-label="Anchor Canada Provider Portal" className="relative inline-flex flex-col gap-2.5">
-            <Image
-              src={anchorLogo}
-              alt="Anchor Canada"
-              width={153}
-              height={50}
-              priority
-              className="h-[50px] w-auto"
-            />
-            <span className="absolute left-[51px] top-9 text-[10px] font-medium leading-none text-[#8C97AD]">
-              Provider Portal
-            </span>
-          </Link>
+        <div className={cn('shrink-0 border-b border-[#2F3B52] px-5 py-[30px]', collapsed && 'px-3')}>
+          <div className={cn('flex items-start', collapsed ? 'flex-col items-center gap-3' : 'justify-between gap-2')}>
+            <Link href="/dashboard" aria-label="Anchor Canada Provider Portal" className="relative inline-flex flex-col gap-2.5">
+              <Image
+                src={anchorLogo}
+                alt="Anchor Canada"
+                width={153}
+                height={50}
+                priority
+                className={cn('h-[50px] w-auto', collapsed && 'h-10 w-10 object-cover object-left')}
+              />
+              {!collapsed ? (
+                <span className="absolute left-[51px] top-9 text-[10px] font-medium leading-none text-[#8C97AD]">
+                  Provider Portal
+                </span>
+              ) : null}
+            </Link>
+            <button
+              type="button"
+              onClick={toggleCollapsed}
+              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              className="rounded-[8px] p-2 text-[#8C97AD] transition-colors hover:bg-[#1C2436] hover:text-white"
+            >
+              {collapsed ? (
+                <PanelLeftOpen className="h-5 w-5" strokeWidth={1.75} />
+              ) : (
+                <PanelLeftClose className="h-5 w-5" strokeWidth={1.75} />
+              )}
+            </button>
+          </div>
         </div>
 
-        <nav className="flex flex-col gap-2.5 p-5" aria-label="Primary">
+        <nav className={cn('flex flex-col gap-2.5 p-5', collapsed && 'px-2')} aria-label="Primary">
           {NAV_ITEMS.map(({ label, href, icon, ...rest }) => {
             const badge = 'badge' in rest ? rest.badge : undefined;
             return (
@@ -148,6 +179,7 @@ export function Sidebar() {
                 icon={icon}
                 badge={badge}
                 active={isNavActive(pathname, href, hash)}
+                collapsed={collapsed}
               />
             );
           })}
@@ -155,7 +187,7 @@ export function Sidebar() {
       </div>
 
       <div className="flex w-full shrink-0 flex-col">
-        <div className="flex flex-col gap-2.5 p-5">
+        <div className={cn('flex flex-col gap-2.5 p-5', collapsed && 'px-2')}>
           {BOTTOM_NAV.map(({ label, href, icon, ...rest }) => {
             const logout = 'logout' in rest ? rest.logout : undefined;
             const active = href === '/help' ? helpCenterOpen : isNavActive(pathname, href, hash);
@@ -166,9 +198,11 @@ export function Sidebar() {
                   key={href}
                   type="button"
                   onClick={() => openHelpCenter()}
+                  title={collapsed ? label : undefined}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'group flex w-full items-center gap-5 rounded-[10px] p-4 transition-colors',
+                    'group flex w-full items-center rounded-[10px] p-4 transition-colors',
+                    collapsed ? 'justify-center' : 'gap-5',
                     active
                       ? 'bg-[#2F66C8] text-white'
                       : 'text-[#8C97AD] hover:bg-[#1C2436] hover:text-white',
@@ -179,40 +213,58 @@ export function Sidebar() {
                     strokeWidth={1.75}
                     aria-hidden
                   />
-                  <span className={cn('truncate text-base leading-none', active ? 'font-medium' : 'font-normal')}>
-                    {label}
-                  </span>
+                  {!collapsed ? (
+                    <span className={cn('truncate text-base leading-none', active ? 'font-medium' : 'font-normal')}>
+                      {label}
+                    </span>
+                  ) : null}
                 </button>
               );
             }
 
             return (
-              <NavItem key={href} label={label} href={href} icon={icon} active={active} logout={logout} />
+              <NavItem
+                key={href}
+                label={label}
+                href={href}
+                icon={icon}
+                active={active}
+                logout={logout}
+                collapsed={collapsed}
+              />
             );
           })}
         </div>
 
-        <div className="p-5 pt-0">
+        <div className={cn('p-5 pt-0', collapsed && 'px-2')}>
           <Link
             href="/organization-profile"
-            className="flex w-full items-center justify-between rounded-[10px] border border-[#2F3B52] bg-[#1C2436] px-2.5 py-4 shadow-[0px_2px_4px_rgba(0,0,0,0.05)] transition-colors hover:bg-[#243047]"
+            title={collapsed ? orgName : undefined}
+            className={cn(
+              'flex w-full items-center rounded-[10px] border border-[#2F3B52] bg-[#1C2436] px-2.5 py-4 shadow-[0px_2px_4px_rgba(0,0,0,0.05)] transition-colors hover:bg-[#243047]',
+              collapsed ? 'justify-center' : 'justify-between',
+            )}
           >
-            <div className="flex min-w-0 flex-1 items-center gap-3.5">
+            <div className={cn('flex min-w-0 items-center', collapsed ? '' : 'flex-1 gap-3.5')}>
               <Avatar
                 src={avatarSrc}
                 fallback={orgName}
                 size="sm"
                 className="h-[46px] w-[46px] shrink-0"
               />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-base font-medium leading-none text-white">{orgName}</p>
-                <p className="mt-1 flex items-center gap-1 text-xs leading-none text-[#8C97AD]">
-                  Verified Organization
-                  <ShieldCheck className="h-3 w-3 shrink-0 text-[#2F66C8]" strokeWidth={2.5} aria-hidden />
-                </p>
-              </div>
+              {!collapsed ? (
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-base font-medium leading-none text-white">{orgName}</p>
+                  <p className="mt-1 flex items-center gap-1 text-xs leading-none text-[#8C97AD]">
+                    Verified Organization
+                    <ShieldCheck className="h-3 w-3 shrink-0 text-[#2F66C8]" strokeWidth={2.5} aria-hidden />
+                  </p>
+                </div>
+              ) : null}
             </div>
-            <ChevronRight className="h-6 w-6 shrink-0 text-[#8C97AD]" strokeWidth={1.75} aria-hidden />
+            {!collapsed ? (
+              <ChevronRight className="h-6 w-6 shrink-0 text-[#8C97AD]" strokeWidth={1.75} aria-hidden />
+            ) : null}
           </Link>
         </div>
       </div>

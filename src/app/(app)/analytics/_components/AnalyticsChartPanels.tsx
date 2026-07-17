@@ -2,15 +2,29 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Check, ChevronDown, Lightbulb } from 'lucide-react';
+import {
+  CartesianGrid,
+  Cell,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import { cn } from '@/lib/utils';
 import {
   APPLICATION_FUNNEL,
   APPLICATIONS_OVER_TIME,
+  APPLICATIONS_OVER_TIME_Y_MAX,
   ANALYTICS_INSIGHTS,
   CHART_GRANULARITY_OPTIONS,
   CHART_TIME_RANGE_OPTIONS,
   TOP_COUNTRIES,
   TRAFFIC_SOURCES,
+  TRAFFIC_SOURCES_PIE,
 } from './analyticsData';
 import { ApplicantDemographicsMap } from './ApplicantDemographicsMap';
 
@@ -54,7 +68,7 @@ function ChartPeriodSelect({
       {open ? (
         <>
           <button type="button" className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-label="Close period menu" />
-          <div className="absolute right-0 top-[calc(100%+4px)] z-50 w-[150px] overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white shadow-[0px_2px_8px_rgba(0,0,0,0.05)]">
+          <div className="absolute right-0 top-[calc(100%+4px)] z-50 w-[170px] overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white shadow-[0px_2px_8px_rgba(0,0,0,0.05)]">
             {options.map((option) => {
               const selected = option === value;
               return (
@@ -109,46 +123,29 @@ function PanelShell({
   );
 }
 
-const Y_LABELS = ['400', '300', '200', '100', '0'] as const;
-const CHART_MAX = 400;
-
-function scaleY(value: number, height: number) {
-  return height - (value / CHART_MAX) * height;
-}
-
-function buildAreaPath(values: number[], width: number, height: number) {
-  const points = values.map((value, i) => {
-    const x = (i / (values.length - 1)) * width;
-    const y = scaleY(value, height);
-    return `${x},${y}`;
-  });
-  return `M0,${height} L${points.join(' L')} L${width},${height} Z`;
-}
-
-function buildLinePoints(values: number[], width: number, height: number) {
-  return values
-    .map((value, i) => {
-      const x = (i / (values.length - 1)) * width;
-      const y = scaleY(value, height);
-      return `${x},${y}`;
-    })
-    .join(' ');
-}
+const CHART_TICK = { fontFamily: 'DM Sans, sans-serif', fontSize: 12, fill: '#8C97AD' } as const;
 
 export function ApplicationsOverTimeChart({ skeleton }: { skeleton?: boolean }) {
   const [timeRange, setTimeRange] = useState<string>(CHART_TIME_RANGE_OPTIONS[1]);
+  const yMax = APPLICATIONS_OVER_TIME_Y_MAX;
+  const ticks = [0, yMax / 4, yMax / 2, (yMax * 3) / 4, yMax];
 
   if (skeleton) {
     return (
-      <PanelShell title="Applications Over Time">
-        <div className="h-[290px] animate-pulse rounded-[8px] bg-[#EEF2F8]" />
+      <PanelShell
+        title="Applications Over Time"
+        periodControl={
+          <ChartPeriodSelect
+            options={CHART_TIME_RANGE_OPTIONS}
+            value={timeRange}
+            onChange={setTimeRange}
+          />
+        }
+      >
+        <div className="h-[254px] animate-pulse rounded-[8px] bg-[#EEF2F8]" />
       </PanelShell>
     );
   }
-
-  const width = 486;
-  const height = 254;
-  const values = APPLICATIONS_OVER_TIME.map((d) => d.value);
 
   return (
     <PanelShell
@@ -161,49 +158,72 @@ export function ApplicationsOverTimeChart({ skeleton }: { skeleton?: boolean }) 
         />
       }
     >
-      <div className="relative h-[254px] w-full">
-        <div className="flex h-full">
-          <div className="flex w-10 shrink-0 flex-col justify-between py-2 text-right text-xs text-[#8C97AD]">
-            {Y_LABELS.map((label) => (
-              <span key={label}>{label}</span>
-            ))}
-          </div>
-          <div className="relative min-w-0 flex-1">
-            <div className="absolute inset-x-0 top-2 bottom-9 flex flex-col justify-between">
-              {Y_LABELS.map((label) => (
-                <div key={label} className="h-px w-full bg-[#EEF2F8]" />
-              ))}
-            </div>
-            <svg
-              viewBox={`0 0 ${width} ${height}`}
-              className="absolute inset-x-0 top-0 h-[254px] w-full"
-              preserveAspectRatio="none"
-              aria-hidden
+      <div className="flex flex-col gap-6">
+        <div className="h-[254px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[...APPLICATIONS_OVER_TIME]}
+              margin={{ left: -10, right: 8, top: 8, bottom: 0 }}
             >
-              <defs>
-                <linearGradient id="analyticsAppsArea" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#2F66C8" stopOpacity="0.35" />
-                  <stop offset="100%" stopColor="#2F66C8" stopOpacity="0.02" />
-                </linearGradient>
-              </defs>
-              <path d={buildAreaPath(values, width, height)} fill="url(#analyticsAppsArea)" />
-              <polyline
-                fill="none"
-                stroke="#2F66C8"
-                strokeWidth="2.5"
-                points={buildLinePoints(values, width, height)}
+              <CartesianGrid strokeDasharray="3 3" stroke="#EEF2F8" vertical={false} />
+              <XAxis
+                dataKey="label"
+                tick={CHART_TICK}
+                axisLine={false}
+                tickLine={false}
               />
-              {values.map((value, i) => {
-                const x = (i / (values.length - 1)) * width;
-                const y = scaleY(value, height);
-                return <circle key={i} cx={x} cy={y} r="3.8" fill="#2F66C8" />;
-              })}
-            </svg>
-            <div className="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-[#8C97AD]">
-              {APPLICATIONS_OVER_TIME.map((point) => (
-                <span key={point.label}>{point.label}</span>
-              ))}
-            </div>
+              <YAxis
+                tick={CHART_TICK}
+                axisLine={false}
+                tickLine={false}
+                domain={[0, yMax]}
+                ticks={ticks}
+              />
+              <Tooltip
+                contentStyle={{
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 12,
+                  borderRadius: 8,
+                  border: '1px solid #EEF2F8',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="thisPeriod"
+                name="This period"
+                stroke="#2F66C8"
+                strokeWidth={2.5}
+                dot={false}
+                activeDot={{ r: 5, fill: '#2F66C8' }}
+              />
+              <Line
+                type="monotone"
+                dataKey="lastPeriod"
+                name="Previous period"
+                stroke="#93B4F5"
+                strokeWidth={2}
+                strokeDasharray="6 4"
+                dot={false}
+                activeDot={{ r: 5, fill: '#93B4F5' }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="flex items-center justify-center gap-5">
+          <div className="flex items-center gap-2.5">
+            <span className="block h-[3px] w-9 rounded-full bg-[#2F66C8]" />
+            <span className="text-sm font-medium text-[#44516A]">This period</span>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <span
+              className="block h-[3px] w-9 rounded-full"
+              style={{
+                background:
+                  'repeating-linear-gradient(90deg,#93B4F5 0,#93B4F5 6px,transparent 6px,transparent 10px)',
+              }}
+            />
+            <span className="text-sm font-medium text-[#44516A]">Previous period</span>
           </div>
         </div>
       </div>
@@ -216,8 +236,35 @@ export function ApplicationFunnelPanel({ skeleton, mobile }: { skeleton?: boolea
 
   if (skeleton) {
     return (
-      <PanelShell title="Application Funnel">
-        <div className={cn('animate-pulse rounded-[8px] bg-[#EEF2F8]', mobile ? 'h-[547px]' : 'h-[290px]')} />
+      <PanelShell
+        title="Application Funnel"
+        periodControl={
+          <ChartPeriodSelect
+            options={CHART_GRANULARITY_OPTIONS}
+            value={granularity}
+            onChange={setGranularity}
+          />
+        }
+      >
+        <div className={cn('flex gap-5', mobile ? 'flex-col' : 'flex-row items-center')}>
+          <div
+            className={cn(
+              'animate-pulse rounded-[8px] bg-[#EEF2F8]',
+              mobile ? 'mx-auto h-[260px] w-full max-w-[253px]' : 'h-[260px] w-[253px] shrink-0',
+            )}
+          />
+          <div className="min-w-0 flex-1 divide-y divide-[#EEF2F8] rounded-[8px] border border-[#EEF2F8]">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex items-center justify-between px-4 py-3.5">
+                <span className="flex items-center gap-2.5">
+                  <span className="h-3 w-3 animate-pulse rounded-full bg-[#EEF2F8]" />
+                  <span className="h-4 w-24 animate-pulse rounded bg-[#EEF2F8]" />
+                </span>
+                <span className="h-4 w-12 animate-pulse rounded bg-[#EEF2F8]" />
+              </div>
+            ))}
+          </div>
+        </div>
       </PanelShell>
     );
   }
@@ -274,8 +321,33 @@ export function ApplicantDemographicsPanel({ skeleton }: { skeleton?: boolean })
 
   if (skeleton) {
     return (
-      <PanelShell title="Applicant Demographics">
-        <div className="h-[290px] animate-pulse rounded-[8px] bg-[#EEF2F8]" />
+      <PanelShell
+        title="Applicant Demographics"
+        periodControl={
+          <ChartPeriodSelect
+            options={CHART_GRANULARITY_OPTIONS}
+            value={granularity}
+            onChange={setGranularity}
+          />
+        }
+      >
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center">
+          <div className="h-[220px] w-full animate-pulse rounded-[8px] bg-[#EEF2F8] lg:h-[260px] lg:max-w-[320px] lg:shrink-0" />
+          <div className="min-w-0 flex-1 divide-y divide-[#EEF2F8] rounded-[8px] border border-[#EEF2F8]">
+            <div className="px-4 py-3.5">
+              <p className="text-sm font-medium text-[#0F172A]">Top Countries</p>
+            </div>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center justify-between px-4 py-3.5">
+                <span className="h-4 w-28 animate-pulse rounded bg-[#EEF2F8]" />
+                <span className="flex items-center gap-5">
+                  <span className="h-4 w-10 animate-pulse rounded bg-[#EEF2F8]" />
+                  <span className="h-4 w-8 animate-pulse rounded bg-[#EEF2F8]" />
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </PanelShell>
     );
   }
@@ -317,13 +389,43 @@ export function TrafficSourcesPanel({ skeleton }: { skeleton?: boolean }) {
 
   if (skeleton) {
     return (
-      <PanelShell title="Traffic Sources">
-        <div className="h-[240px] animate-pulse rounded-[8px] bg-[#EEF2F8]" />
+      <PanelShell
+        title="Traffic Sources"
+        periodControl={
+          <ChartPeriodSelect
+            options={CHART_GRANULARITY_OPTIONS}
+            value={granularity}
+            onChange={setGranularity}
+          />
+        }
+        footer={
+          <div className="border-t border-[#EEF2F8] px-4 py-4">
+            <button type="button" className="w-full text-left text-sm text-[#2F66C8]">
+              View Full Report
+            </button>
+          </div>
+        }
+      >
+        <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
+          <div className="h-[167px] w-[167px] shrink-0 animate-pulse rounded-full bg-[#EEF2F8]" />
+          <div className="min-w-0 flex-1 divide-y divide-[#EEF2F8] overflow-hidden rounded-[10px] border border-[#EEF2F8]">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center justify-between gap-3 px-4 py-3.5">
+                <span className="flex items-center gap-2.5">
+                  <span className="h-3 w-3 shrink-0 animate-pulse rounded-full bg-[#EEF2F8]" />
+                  <span className="h-4 w-28 animate-pulse rounded bg-[#EEF2F8]" />
+                </span>
+                <span className="flex items-center gap-5">
+                  <span className="h-4 w-10 animate-pulse rounded bg-[#EEF2F8]" />
+                  <span className="h-4 w-10 animate-pulse rounded bg-[#EEF2F8]" />
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </PanelShell>
     );
   }
-
-  const segments = TRAFFIC_SOURCES.map((s) => parseFloat(s.percent));
 
   return (
     <PanelShell
@@ -345,45 +447,42 @@ export function TrafficSourcesPanel({ skeleton }: { skeleton?: boolean }) {
     >
       <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
         <div className="relative h-[167px] w-[167px] shrink-0">
-          <svg viewBox="0 0 167 167" className="h-full w-full -rotate-90" aria-hidden>
-            {segments.reduce<{ offset: number; nodes: ReactNode[] }>(
-              (acc, pct, i) => {
-                const circumference = 2 * Math.PI * 55;
-                const dash = (pct / 100) * circumference;
-                acc.nodes.push(
-                  <circle
-                    key={TRAFFIC_SOURCES[i].label}
-                    cx="83.5"
-                    cy="83.5"
-                    r="55"
-                    fill="none"
-                    stroke={TRAFFIC_SOURCES[i].color}
-                    strokeWidth="28"
-                    strokeDasharray={`${dash} ${circumference - dash}`}
-                    strokeDashoffset={-acc.offset}
-                  />,
-                );
-                acc.offset += dash;
-                return acc;
-              },
-              { offset: 0, nodes: [] },
-            ).nodes}
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <p className="text-xl font-bold text-[#0F172A]">24,842</p>
-            <p className="text-xs text-[#44516A]">Total Views</p>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={TRAFFIC_SOURCES_PIE}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius={48}
+                outerRadius={78}
+                paddingAngle={2}
+                stroke="none"
+                startAngle={90}
+                endAngle={-270}
+              >
+                {TRAFFIC_SOURCES_PIE.map((entry) => (
+                  <Cell key={entry.name} fill={entry.color} />
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+            <p className="text-lg font-semibold leading-none text-[#0F172A]">24,842</p>
+            <p className="mt-1 text-xs text-[#44516A]">Total Views</p>
           </div>
         </div>
-        <div className="min-w-0 flex-1 divide-y divide-[#EEF2F8] rounded-[8px] border border-[#EEF2F8]">
+        <div className="min-w-0 flex-1 divide-y divide-[#EEF2F8] overflow-hidden rounded-[10px] border border-[#EEF2F8]">
           {TRAFFIC_SOURCES.map((row) => (
-            <div key={row.label} className="flex items-center justify-between px-4 py-3.5">
-              <span className="flex items-center gap-2.5 text-sm text-[#0F172A]">
-                <span className="h-3 w-3 rounded-full" style={{ backgroundColor: row.color }} />
-                {row.label}
+            <div key={row.label} className="flex items-center justify-between gap-3 px-4 py-3.5">
+              <span className="flex min-w-0 items-center gap-2.5 text-sm font-medium text-[#0F172A]">
+                <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: row.color }} />
+                <span className="truncate">{row.label}</span>
               </span>
-              <span className="flex items-center gap-5 text-sm text-[#44516A]">
+              <span className="flex shrink-0 items-center gap-5 text-sm text-[#44516A]">
                 <span>{row.percent}</span>
-                <span>{row.count}</span>
+                <span className="w-10 text-right">{row.count}</span>
               </span>
             </div>
           ))}
@@ -404,10 +503,34 @@ export function InsightsPanel({
 }) {
   if (skeleton) {
     return (
-      <PanelShell title="Insights & Recommendations">
+      <PanelShell
+        title="Insights & Recommendations"
+        footer={
+          <div className="border-t border-[#EEF2F8] px-5 py-4">
+            <button type="button" className="w-full text-left text-sm text-[#2F66C8]">
+              View all insights
+            </button>
+          </div>
+        }
+      >
+        <div className="mb-1 flex items-center justify-end">
+          <span className="text-sm text-[#2F66C8]">View All</span>
+        </div>
         <div className="space-y-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-[88px] animate-pulse rounded-[8px] bg-[#EEF2F8]" />
+            <div
+              key={i}
+              className="w-full rounded-[8px] border border-[#EEF2F8] bg-[#F8FAFC] p-3"
+            >
+              <div className="flex gap-4">
+                <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-[#2F66C8]" strokeWidth={1.75} />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <div className="h-4 w-40 animate-pulse rounded bg-[#EEF2F8]" />
+                  <div className="h-4 w-full animate-pulse rounded bg-[#EEF2F8]" />
+                  <div className="h-4 w-[75%] animate-pulse rounded bg-[#EEF2F8]" />
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       </PanelShell>

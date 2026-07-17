@@ -114,7 +114,7 @@ export function ExportAnalyticsModal({
     <div
       className={cn(
         'fixed inset-0 z-50 flex bg-[#0F172A]/60 backdrop-blur-[5px]',
-        mobile ? 'items-end justify-center p-0' : 'items-center justify-center p-4',
+        mobile ? 'items-start justify-center p-5 pt-[83px]' : 'items-center justify-center p-4',
       )}
       role="dialog"
       aria-modal="true"
@@ -123,7 +123,7 @@ export function ExportAnalyticsModal({
       <div
         className={cn(
           'relative flex max-h-[90vh] w-full flex-col overflow-hidden border border-[#D9E1EF] bg-white shadow-[0px_6px_16px_rgba(0,0,0,0.08)]',
-          mobile ? 'max-w-full rounded-t-[20px]' : 'max-w-[720px] rounded-[20px]',
+          mobile ? 'max-w-[400px] rounded-[20px]' : 'max-w-[720px] rounded-[20px]',
         )}
       >
         <div className="flex items-start justify-between border-b border-[#EEF2F8] p-[26px]">
@@ -186,18 +186,24 @@ export function ExportAnalyticsModal({
         </div>
 
         <div className="flex justify-end border-t border-[#EEF2F8] bg-[#F8FAFC] p-[26px]">
-          <div className="flex gap-5">
+          <div className={cn('flex gap-5', mobile && 'w-full')}>
             <button
               type="button"
               onClick={onClose}
-              className="min-w-[86px] rounded-[6px] border border-[#EEF2F8] bg-white px-5 py-3 text-sm font-medium text-[#44516A]"
+              className={cn(
+                'rounded-[6px] border border-[#EEF2F8] bg-white px-5 py-3 text-sm font-medium text-[#44516A]',
+                mobile ? 'flex-1' : 'min-w-[86px]',
+              )}
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-[6px] bg-[#2F66C8] px-5 py-3 text-sm font-medium text-white shadow-[0px_2px_4px_rgba(0,0,0,0.05)]"
+              className={cn(
+                'rounded-[6px] bg-[#2F66C8] px-5 py-3 text-sm font-medium text-white shadow-[0px_2px_4px_rgba(0,0,0,0.05)]',
+                mobile && 'flex-1',
+              )}
             >
               Export Report
             </button>

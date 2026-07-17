@@ -1,33 +1,40 @@
 'use client';
 
-import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
-import { HubFilterField } from '@/shared/components/hub/HubFilterField';
-import { FILTER_LABELS } from './applicationsHubData';
+import { useEffect, useState } from 'react';
+import { HubMenuSelect } from '@/shared/components/hub/HubMenuSelect';
+import {
+  APP_OPPORTUNITY_FILTER_OPTIONS,
+  APP_REVIEWER_FILTER_OPTIONS,
+  APP_STATUS_FILTER_OPTIONS,
+  APP_TIME_FILTER_OPTIONS,
+  APP_TYPE_FILTER_OPTIONS,
+  DEFAULT_APP_HUB_FILTERS,
+  type ApplicationHubFilters,
+} from './applicationsHubData';
 
 interface ApplicationFilterModalProps {
   open: boolean;
   onClose: () => void;
-  onApply?: () => void;
+  value?: ApplicationHubFilters;
+  onApply?: (filters: ApplicationHubFilters) => void;
 }
 
-const FILTER_OPTIONS: Record<string, string[]> = {
-  'All Opportunities': ['All Opportunities', 'Youth Innovation Grant', 'Healthcare Access Grant', 'Digital Skills Scholarship'],
-  'All Statuses': ['All Statuses', 'Under Review', 'Shortlisted', 'Interview', 'Accepted', 'Rejected'],
-  'All Types': ['All Types', 'Internal', 'External', 'Express Interest'],
-  'All Reviewers': ['All Reviewers', 'Michael Adams', 'Jessica Lee', 'Sarah Patel'],
-  'All Time': ['All Time', 'Last 7 days', 'Last 30 days', 'Last 90 days', 'Custom range'],
-};
+export function ApplicationFilterModal({
+  open,
+  onClose,
+  value = DEFAULT_APP_HUB_FILTERS,
+  onApply,
+}: ApplicationFilterModalProps) {
+  const [selections, setSelections] = useState<ApplicationHubFilters>(value);
 
-const FILTER_DEFAULTS: Record<string, string> = Object.fromEntries(FILTER_LABELS.map((l) => [l, l]));
-
-export function ApplicationFilterModal({ open, onClose, onApply }: ApplicationFilterModalProps) {
-  const [selections, setSelections] = useState(FILTER_DEFAULTS);
+  useEffect(() => {
+    if (open) setSelections(value);
+  }, [open, value]);
 
   if (!open) return null;
 
   function clearAll() {
-    setSelections(FILTER_DEFAULTS);
+    setSelections(DEFAULT_APP_HUB_FILTERS);
   }
 
   return (
@@ -44,22 +51,41 @@ export function ApplicationFilterModal({ open, onClose, onApply }: ApplicationFi
         </div>
 
         <div className="flex max-h-[60vh] flex-col gap-4 overflow-y-auto p-5">
-          {FILTER_LABELS.map((label) => (
-            <HubFilterField
-              key={label}
-              label={label}
-              value={selections[label]}
-              icon={ChevronDown}
-              onClick={() => {
-                const options = FILTER_OPTIONS[label] ?? [label];
-                const idx = options.indexOf(selections[label]);
-                setSelections((s) => ({
-                  ...s,
-                  [label]: options[(idx + 1) % options.length],
-                }));
-              }}
-            />
-          ))}
+          <HubMenuSelect
+            variant="field"
+            label="Opportunity"
+            value={selections.opportunity}
+            options={[...APP_OPPORTUNITY_FILTER_OPTIONS]}
+            onChange={(opportunity) => setSelections((s) => ({ ...s, opportunity }))}
+          />
+          <HubMenuSelect
+            variant="field"
+            label="Status"
+            value={selections.status}
+            options={[...APP_STATUS_FILTER_OPTIONS]}
+            onChange={(status) => setSelections((s) => ({ ...s, status }))}
+          />
+          <HubMenuSelect
+            variant="field"
+            label="Type"
+            value={selections.type}
+            options={[...APP_TYPE_FILTER_OPTIONS]}
+            onChange={(type) => setSelections((s) => ({ ...s, type }))}
+          />
+          <HubMenuSelect
+            variant="field"
+            label="Reviewer"
+            value={selections.reviewer}
+            options={[...APP_REVIEWER_FILTER_OPTIONS]}
+            onChange={(reviewer) => setSelections((s) => ({ ...s, reviewer }))}
+          />
+          <HubMenuSelect
+            variant="field"
+            label="Time"
+            value={selections.time}
+            options={[...APP_TIME_FILTER_OPTIONS]}
+            onChange={(time) => setSelections((s) => ({ ...s, time }))}
+          />
         </div>
 
         <div className="flex justify-end gap-2.5 border-t border-[#EEF2F8] bg-[#F8FAFC] p-5">
@@ -73,7 +99,7 @@ export function ApplicationFilterModal({ open, onClose, onApply }: ApplicationFi
           <button
             type="button"
             onClick={() => {
-              onApply?.();
+              onApply?.(selections);
               onClose();
             }}
             className="min-w-[140px] rounded-[6px] bg-[#2F66C8] px-4 py-2.5 text-sm font-medium text-white"

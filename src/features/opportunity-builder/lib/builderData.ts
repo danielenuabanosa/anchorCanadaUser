@@ -45,13 +45,11 @@ export const BUILDER_STEPS = [
 
   'CATEGORY',
 
-  'TEMPLATE',
-
   'REQUIREMENTS',
 
   'DETAILS',
 
-  'WORKFLOW',
+  'CONFIG',
 
   'REVIEW & PUBLISH',
 
@@ -60,14 +58,13 @@ export const BUILDER_STEPS = [
 export const BUILDER_STEP_LABELS = [
   'Opportunity Type',
   'Category',
-  'Template',
   'Requirements',
   'Details',
-  'Workflow',
+  'Config',
   'Review & Publish',
 ] as const;
 
-export type BuilderStepIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+export type BuilderStepIndex = 0 | 1 | 2 | 3 | 4 | 5;
 
 
 
@@ -77,15 +74,13 @@ export const BUILDER_STEP_ROUTES: Record<BuilderStepIndex, string> = {
 
   1: '/opportunities/create/category',
 
-  2: '/opportunities/create/template',
+  2: '/opportunities/create/requirements',
 
-  3: '/opportunities/create/requirements',
+  3: '/opportunities/create/details',
 
-  4: '/opportunities/create/details',
+  4: '/opportunities/create/workflow',
 
-  5: '/opportunities/create/workflow',
-
-  6: '/opportunities/create/review',
+  5: '/opportunities/create/review',
 
 };
 
@@ -107,7 +102,7 @@ export const BUILDER_PAGE_COPY = {
 
   category: {
 
-    title: 'What Type OF Opportunity Are You',
+    title: 'What Type Of Opportunity Are You',
 
     titleAccent: 'Creating?',
 
@@ -115,7 +110,7 @@ export const BUILDER_PAGE_COPY = {
 
       'Select the category that best describes your opportunity.',
 
-      "We'll automatically recommend templates, application requirements, and workflows based on your selection.",
+      "We'll recommend application requirements and workflows based on your selection.",
 
     ],
 
@@ -139,13 +134,13 @@ export const BUILDER_PAGE_COPY = {
 
   requirements: {
 
-    title: 'Configure Application',
+    title: 'Opportunity',
 
     titleAccent: 'Requirements',
 
     subtitle:
 
-      'Select what applicants must submit. Start with the recommended requirements from your template and customize as needed.',
+      'Select what applicants must submit. Choose document requirements and how applications will be collected.',
 
   },
 
@@ -161,19 +156,18 @@ export const BUILDER_PAGE_COPY = {
 
   workflow: {
 
-    title: 'Workflow',
+    title: 'Opportunity',
 
     titleAccent: 'Configuration',
 
-    mobileTitle: 'Workflow Configuration',
+    mobileTitle: 'Opportunity Configuration',
 
-    subtitle:
-
-      'Define how applicants will move through this opportunity. Choose the workflow structure that best matches how applications will be managed and processed.',
+    subtitle: 'Configure this opportunity based on the category selected.',
 
     subtitleLines: [
-      'Define how Applicants will move through this opportunity.',
-      'Choose the workflow structure that best matches how applications will be managed and processed.',
+
+      'Configure this opportunity based on the category selected.',
+
     ],
 
   },
@@ -249,7 +243,7 @@ export const OPPORTUNITY_TYPES: OpportunityTypeDef[] = [
 
     title: 'Internal Opportunity',
 
-    description: 'Collect and manage applications directly within Anchor.',
+    description: 'Collect and manage applications directly within anchor.',
 
     tags: [
 
@@ -297,7 +291,7 @@ export const OPPORTUNITY_TYPES: OpportunityTypeDef[] = [
 
     title: 'External Opportunity',
 
-    description: 'Redirect applicants to an external website or application portal.',
+    description: 'Redirect applicant to an external website or application portal.',
 
     tags: [
 
@@ -385,6 +379,12 @@ export const OPPORTUNITY_TYPES: OpportunityTypeDef[] = [
 
 ];
 
+/** Opportunity type cards shown in the builder Type step (Figma: Internal + External only). */
+export const SELECTABLE_OPPORTUNITY_TYPES = OPPORTUNITY_TYPES.filter(
+  (t): t is OpportunityTypeDef & { id: 'internal' | 'external' } =>
+    t.id === 'internal' || t.id === 'external',
+);
+
 
 
 export interface CategoryGroupDef {
@@ -410,221 +410,117 @@ export interface CategoryGroupDef {
 export const BUILDER_CATEGORY_GROUPS: CategoryGroupDef[] = [
 
   {
-
-    id: 'jobs',
-
-    title: 'Job',
-
+    id: 'employment-skills',
+    title: 'Employment & Skills',
     icon: briefcaseCatIcon,
-
     iconBg: '#EFF4FF',
-
     tagBg: '#EFF4FF',
-
     tagColor: '#2F66C8',
-
     subcategories: [
-
-      { id: 'jobs-fulltime', label: 'Fulltime' },
-
-      { id: 'jobs-parttime', label: 'Part-time' },
-
-      { id: 'jobs-internship', label: 'Internship' },
-
-      { id: 'jobs-contract', label: 'Contract' },
-
+      { id: 'employment-job', label: 'Job' },
+      { id: 'employment-training', label: 'Training' },
+      { id: 'employment-internships', label: 'Internships' },
+      { id: 'employment-counselling', label: 'Counselling' },
+      { id: 'employment-resume', label: 'Resume Workshop' },
     ],
-
   },
-
   {
-
-    id: 'grants',
-
-    title: 'Grants',
-
-    icon: handCoinsIcon,
-
-    iconBg: '#E3F6E9',
-
-    tagBg: '#E3F6E9',
-
-    tagColor: '#158435',
-
-    subcategories: [
-
-      { id: 'grants-business', label: 'Business Grants' },
-
-      { id: 'grants-research', label: 'Research Funding' },
-
-      { id: 'grants-innovation', label: 'Innovation Funds' },
-
-    ],
-
-  },
-
-  {
-
-    id: 'scholarships',
-
-    title: 'Scholarships',
-
-    icon: graduationIcon,
-
-    iconBg: '#ECE4FD',
-
-    tagBg: '#ECE4FD',
-
-    tagColor: '#4213C6',
-
-    subcategories: [
-
-      { id: 'scholarships-academic', label: 'Academic' },
-
-      { id: 'scholarships-merit', label: 'Merit-Based' },
-
-      { id: 'scholarships-need', label: 'Need-Based' },
-
-      { id: 'scholarships-research', label: 'Research Awards' },
-
-    ],
-
-  },
-
-  {
-
-    id: 'programs',
-
-    title: 'Programs',
-
+    id: 'food-nutrition',
+    title: 'Food & Nutrition',
     icon: boxIcon,
-
-    iconBg: '#FEEED9',
-
-    tagBg: '#FEEED9',
-
-    tagColor: '#EE7116',
-
+    iconBg: '#E3F6E9',
+    tagBg: '#E3F6E9',
+    tagColor: '#158435',
     subcategories: [
-
-      { id: 'programs-accelerator', label: 'Accelerator' },
-
-      { id: 'programs-incubator', label: 'Incubator' },
-
-      { id: 'programs-fellowship', label: 'Fellowship' },
-
-      { id: 'programs-community', label: 'Community Programs' },
-
+      { id: 'food-bank', label: 'Food Bank' },
+      { id: 'food-community', label: 'Community' },
+      { id: 'food-delivery', label: 'Food Delivery' },
+      { id: 'food-school-meals', label: 'School Meals' },
     ],
-
   },
-
   {
-
-    id: 'training',
-
-    title: 'Training',
-
-    icon: bookOpenIcon,
-
+    id: 'grants-bursaries',
+    title: 'Grants & Bursaries',
+    icon: handCoinsIcon,
     iconBg: '#ECE4FD',
-
     tagBg: '#ECE4FD',
-
     tagColor: '#4213C6',
-
     subcategories: [
-
-      { id: 'training-bootcamps', label: 'Bootcamps' },
-
-      { id: 'training-workshops', label: 'Workshops' },
-
-      { id: 'training-courses', label: 'Courses' },
-
-      { id: 'training-skills', label: 'Skill Development' },
-
+      { id: 'grants-innovation', label: 'Innovation Grant' },
+      { id: 'grants-bursary', label: 'Student Bursary' },
+      { id: 'grants-startup', label: 'Startup Grant' },
+      { id: 'grants-financial-aid', label: 'Financial Aid' },
     ],
-
   },
-
   {
-
-    id: 'volunteer',
-
-    title: 'Volunteer',
-
-    icon: heartIcon,
-
-    iconBg: '#FDE8EB',
-
-    tagBg: '#FDE8EB',
-
-    tagColor: '#DE1735',
-
-    subcategories: [
-
-      { id: 'volunteer-community', label: 'Community Service' },
-
-      { id: 'volunteer-events', label: 'Events NGOs' },
-
-      { id: 'volunteer-mentorship', label: 'Mentorship Opportunities' },
-
-    ],
-
-  },
-
-  {
-
-    id: 'housing',
-
-    title: 'Housing',
-
-    icon: starIcon,
-
-    iconBg: '#DBF5F6',
-
-    tagBg: '#DBF5F6',
-
-    tagColor: '#087C74',
-
-    subcategories: [
-
-      { id: 'housing-temp', label: 'Temp Housing' },
-
-      { id: 'housing-settlement', label: 'Settlement Support' },
-
-      { id: 'housing-accommodation', label: 'Accommodation Programs' },
-
-    ],
-
-  },
-
-  {
-
-    id: 'support-services',
-
-    title: 'Support Services',
-
+    id: 'mental-health',
+    title: 'Mental Health & Wellness',
     icon: loveIcon,
-
-    iconBg: '#FEF5DD',
-
-    tagBg: '#FEF5DD',
-
-    tagColor: '#D48A01',
-
+    iconBg: '#FEEED9',
+    tagBg: '#FEEED9',
+    tagColor: '#EE7116',
     subcategories: [
-
-      { id: 'support-legal', label: 'Legal Aid' },
-
-      { id: 'support-mental', label: 'Mental Health' },
-
-      { id: 'support-career', label: 'Career' },
-
-      { id: 'support-settlement', label: 'Settlement Services' },
-
+      { id: 'mental-counselling', label: 'Counselling' },
+      { id: 'mental-support-group', label: 'Support Group' },
+      { id: 'mental-workshops', label: 'Workshops' },
+      { id: 'mental-addiction', label: 'Addiction Support' },
     ],
-
+  },
+  {
+    id: 'education-training',
+    title: 'Education & Training',
+    icon: bookOpenIcon,
+    iconBg: '#ECE4FD',
+    tagBg: '#ECE4FD',
+    tagColor: '#4213C6',
+    subcategories: [
+      { id: 'edu-linc', label: 'LINC/ESL' },
+      { id: 'edu-tutoring', label: 'Tutoring' },
+      { id: 'edu-literacy', label: 'Literacy Program' },
+      { id: 'edu-digital', label: 'Digital Skills' },
+    ],
+  },
+  {
+    id: 'volunteer',
+    title: 'Volunteer',
+    icon: heartIcon,
+    iconBg: '#FDE8EB',
+    tagBg: '#FDE8EB',
+    tagColor: '#DE1735',
+    subcategories: [
+      { id: 'volunteer-cleanup', label: 'Env Cleanup' },
+      { id: 'volunteer-hospitals', label: 'Hospitals' },
+      { id: 'volunteer-animal', label: 'Animal Shelter' },
+      { id: 'volunteer-mentoring', label: 'Youth Mentoring' },
+    ],
+  },
+  {
+    id: 'housing-shelter',
+    title: 'Housing & Shelter',
+    icon: starIcon,
+    iconBg: '#DBF5F6',
+    tagBg: '#DBF5F6',
+    tagColor: '#087C74',
+    subcategories: [
+      { id: 'housing-shelter', label: 'Shelter' },
+      { id: 'housing-rent', label: 'Rent Supplement' },
+      { id: 'housing-repair', label: 'Home Repair' },
+      { id: 'housing-youth', label: 'Youth Housing' },
+    ],
+  },
+  {
+    id: 'settlement-services',
+    title: 'Settlement Services',
+    icon: graduationIcon,
+    iconBg: '#FEF5DD',
+    tagBg: '#FEF5DD',
+    tagColor: '#D48A01',
+    subcategories: [
+      { id: 'settlement-orientation', label: 'Orientation' },
+      { id: 'settlement-legal', label: 'Legal Aid' },
+      { id: 'settlement-immigration', label: 'Immigration' },
+      { id: 'settlement-cred', label: 'Cred Recognition' },
+    ],
   },
 
 ];
@@ -974,13 +870,13 @@ export const BUILDER_CATEGORY_CARDS: OptionCardDef[] = BUILDER_CATEGORIES.map((c
 
 
 export const CREATE_OPTIONS = [
-
-  { id: 'internal' as const, label: 'Internal Opportunity', href: '/opportunities/create/type' },
-
-  { id: 'external' as const, label: 'External Opportunity', href: '/opportunities/create/type' },
-
-  { id: 'express-interest' as const, label: 'Express Interest', href: '/opportunities/create/type' },
-
+  { id: 'internal' as const, label: 'Create Internal Opportunity', href: '/opportunities/create/category' },
+  { id: 'external' as const, label: 'Create External Opportunity', href: '/opportunities/create/category' },
+  {
+    id: 'express-interest' as const,
+    label: 'Create Express Interest Opportunity',
+    href: '/opportunities/create/category',
+  },
 ] as const;
 
 
@@ -1001,7 +897,12 @@ export function getCategoryRecommendation(opportunityType: string | null) {
 
       ],
 
-      recommendedLabels: ['Jobs', 'Grants', 'Programs', 'Training'],
+      recommendedLabels: [
+        'Employment & Skills',
+        'Grants & Bursaries',
+        'Education & Training',
+        'Food & Nutrition',
+      ],
 
     };
 
@@ -1021,7 +922,12 @@ export function getCategoryRecommendation(opportunityType: string | null) {
 
       ],
 
-      recommendedLabels: ['Volunteer', 'Programs', 'Support Services', 'Training'],
+      recommendedLabels: [
+        'Volunteer',
+        'Settlement Services',
+        'Mental Health & Wellness',
+        'Education & Training',
+      ],
 
     };
 
@@ -1033,13 +939,16 @@ export function getCategoryRecommendation(opportunityType: string | null) {
 
     descriptionLines: [
 
-      "Since you're creating an internal opportunity, the following categories support",
-
-      'full opportunity workflows.',
+      "Since you're creating an internal Opportunity, the following categories support full opportunities workflows.",
 
     ],
 
-    recommendedLabels: ['Jobs', 'Grants', 'Scholarships', 'Programs', 'Training'],
+    recommendedLabels: [
+      'Volunteer',
+      'Settlement Services',
+      'Mental Health & Wellness',
+      'Housing & Shelter',
+    ],
 
   };
 

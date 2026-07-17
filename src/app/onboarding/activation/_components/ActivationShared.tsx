@@ -44,7 +44,7 @@ export const ACTIVATION_FEATURES = [
     description: 'Create and manage jobs, grants, programs and community initiatives.',
     icon: briefcaseIcon,
     iconBg: '#E3EBFE',
-    href: '/opportunities/create/type',
+    href: '/opportunities/create/category',
   },
   {
     title: 'Manage Applications',
@@ -340,7 +340,7 @@ export function ActivationActionButtons({
       onCreateOpportunity();
       return;
     }
-    router.push('/opportunities/create/type');
+    router.push('/opportunities/create/category');
   }
 
   const createButton = (

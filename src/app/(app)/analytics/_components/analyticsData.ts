@@ -86,9 +86,16 @@ export interface FunnelStep {
   color: string;
 }
 
-export const ANALYTICS_DATE_RANGE = 'May 1 - May 31, 2026';
+export const ANALYTICS_DATE_RANGE = '01 May 2026 - 31 May 2026';
 
-export const CHART_TIME_RANGE_OPTIONS = ['Last 7 days', 'Last 30 days', 'Last 90 days', 'This year'] as const;
+export const CHART_TIME_RANGE_OPTIONS = [
+  'Last 7 days',
+  'Last 30 days',
+  'Last 90 days',
+  'This Quarter',
+  'Last Year',
+  'Custom Range',
+] as const;
 
 export const CHART_GRANULARITY_OPTIONS = ['Daily', 'Weekly', 'Monthly'] as const;
 
@@ -104,16 +111,15 @@ export const ANALYTICS_STATS: AnalyticsStat[] = [
   {
     label: 'Applications',
     value: '1,284',
-    change: '8%',
+    change: '9%',
     icon: UserCheck,
     iconBg: 'bg-[#ECFDF5]',
     iconColor: 'text-[#15803D]',
   },
   {
-    label: 'Conversion Rates',
+    label: 'Conversion Rate',
     value: '5.17%',
-    change: '1%',
-    changeNegative: true,
+    change: '4%',
     icon: Timer,
     iconBg: 'bg-[#FFF7ED]',
     iconColor: 'text-[#C2410C]',
@@ -121,7 +127,7 @@ export const ANALYTICS_STATS: AnalyticsStat[] = [
   {
     label: 'Interview Rate',
     value: '21.6%',
-    change: '2%',
+    change: '3%',
     icon: ShieldUser,
     iconBg: 'bg-[#F4F1FE]',
     iconColor: 'text-[#7C3AED]',
@@ -129,7 +135,7 @@ export const ANALYTICS_STATS: AnalyticsStat[] = [
   {
     label: 'Acceptance Rate',
     value: '12.4%',
-    change: '15%',
+    change: '6%',
     icon: UserSearch,
     iconBg: 'bg-[#E0F2FE]',
     iconColor: 'text-[#0369A1]',
@@ -144,18 +150,21 @@ export const ANALYTICS_STATS: AnalyticsStat[] = [
   },
 ];
 
+/** Dual-series line chart data (matches admin Application Over Time / GrowthChart). */
 export const APPLICATIONS_OVER_TIME = [
-  { label: 'May 1', value: 195 },
-  { label: 'May 6', value: 285 },
-  { label: 'May 11', value: 320 },
-  { label: 'May 16', value: 260 },
-  { label: 'May 21', value: 310 },
-  { label: 'May 26', value: 365 },
-  { label: 'May 31', value: 340 },
+  { label: 'May 1', thisPeriod: 195, lastPeriod: 140 },
+  { label: 'May 6', thisPeriod: 285, lastPeriod: 210 },
+  { label: 'May 11', thisPeriod: 320, lastPeriod: 260 },
+  { label: 'May 16', thisPeriod: 260, lastPeriod: 290 },
+  { label: 'May 21', thisPeriod: 310, lastPeriod: 240 },
+  { label: 'May 26', thisPeriod: 365, lastPeriod: 280 },
+  { label: 'May 31', thisPeriod: 340, lastPeriod: 310 },
 ] as const;
 
+export const APPLICATIONS_OVER_TIME_Y_MAX = 400;
+
 export const APPLICATION_FUNNEL: FunnelStep[] = [
-  { label: 'Views', value: '24,642', color: '#154EDF' },
+  { label: 'Views', value: '24,842', color: '#154EDF' },
   { label: 'Saves', value: '2,842', color: '#2F66C8' },
   { label: 'Applications', value: '1,284', color: '#4B83D3' },
   { label: 'Shortlisted', value: '276', color: '#6899DE' },
@@ -172,12 +181,18 @@ export const TOP_COUNTRIES: CountryRow[] = [
 ];
 
 export const TRAFFIC_SOURCES: TrafficSourceRow[] = [
-  { label: 'Anchor Search', percent: '45.2%', count: '11,240', color: '#154EDF' },
-  { label: 'Direct Link', percent: '23.7%', count: '5,888', color: '#2F66C8' },
-  { label: 'Email Campaign', percent: '15.3%', count: '3,812', color: '#6899DE' },
-  { label: 'Social Media', percent: '9.8%', count: '2,432', color: '#85AFE9' },
-  { label: 'Organization Profile', percent: '6.0%', count: '1,470', color: '#A2C5F4' },
+  { label: 'Anchor Search', percent: '45.2%', count: '11,240', color: '#2F66C8' },
+  { label: 'Direct Link', percent: '23.7%', count: '5,888', color: '#7C3AED' },
+  { label: 'Email Campaign', percent: '15.3%', count: '3,812', color: '#D97706' },
+  { label: 'Social Media', percent: '9.8%', count: '2,432', color: '#0891B2' },
+  { label: 'Organization Profile', percent: '6.0%', count: '1,470', color: '#8C97AD' },
 ];
+
+export const TRAFFIC_SOURCES_PIE = TRAFFIC_SOURCES.map((s) => ({
+  name: s.label,
+  value: parseFloat(s.percent),
+  color: s.color,
+}));
 
 export const ANALYTICS_INSIGHTS: InsightDetail[] = [
   {
@@ -389,7 +404,7 @@ export const OPPORTUNITY_TYPE_STYLES: Record<OpportunityTypeTag, string> = {
 
 export const OPPORTUNITY_STATUS_STYLES: Record<OpportunityStatusTag, string> = {
   Active: 'bg-[#ECFDF5] text-[#15803D]',
-  Paused: 'bg-[#F1F5F9] text-[#64748B]',
+  Paused: 'bg-[#FFF7ED] text-[#C2410C]',
 };
 
 export const ANALYTICS_FILTER_OPTIONS = {

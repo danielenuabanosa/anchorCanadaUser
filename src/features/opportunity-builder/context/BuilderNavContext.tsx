@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 export interface BuilderNavAction {
   label: string;
@@ -19,9 +19,7 @@ export interface BuilderNavState {
   secondaryAction?: BuilderNavAction;
 }
 
-interface BuilderNavContextValue extends BuilderNavState {
-  register: (state: BuilderNavState) => void;
-}
+type RegisterFn = (state: BuilderNavState) => void;
 
 const defaultState: BuilderNavState = {
   step: 0,
@@ -32,47 +30,102 @@ const defaultState: BuilderNavState = {
   showMobileHelp: true,
 };
 
-const BuilderNavContext = createContext<BuilderNavContextValue | null>(null);
+/** Stable — step pages subscribe only to register, so nav updates do not re-render them. */
+const BuilderNavRegisterContext = createContext<RegisterFn | null>(null);
+/** Layout chrome reads current nav values. */
+const BuilderNavStateContext = createContext<BuilderNavState>(defaultState);
 
 export function BuilderNavProvider({ children }: { children: React.ReactNode }) {
   const [nav, setNav] = useState<BuilderNavState>(defaultState);
 
   const register = useCallback((state: BuilderNavState) => {
-    setNav(state);
+    setNav((prev) => {
+      const sameSecondary =
+        prev.secondaryAction?.label === state.secondaryAction?.label &&
+        prev.secondaryAction?.disabled === state.secondaryAction?.disabled &&
+        prev.secondaryAction?.onClick === state.secondaryAction?.onClick;
+
+      if (
+        prev.step === state.step &&
+        prev.backHref === state.backHref &&
+        prev.onContinue === state.onContinue &&
+        prev.continueDisabled === state.continueDisabled &&
+        prev.continueLabel === state.continueLabel &&
+        prev.showMobileHelp === state.showMobileHelp &&
+        prev.headerVariant === state.headerVariant &&
+        sameSecondary
+      ) {
+        return prev;
+      }
+      return state;
+    });
   }, []);
 
-  const value = useMemo(
-    () => ({
-      ...nav,
-      register,
-    }),
-    [nav, register],
+  return (
+    <BuilderNavRegisterContext.Provider value={register}>
+      <BuilderNavStateContext.Provider value={nav}>{children}</BuilderNavStateContext.Provider>
+    </BuilderNavRegisterContext.Provider>
   );
-
-  return <BuilderNavContext.Provider value={value}>{children}</BuilderNavContext.Provider>;
 }
 
 export function useBuilderNav() {
-  const ctx = useContext(BuilderNavContext);
-  if (!ctx) throw new Error('useBuilderNav must be used within BuilderNavProvider');
-  return ctx;
+  return useContext(BuilderNavStateContext);
 }
 
 /** Call from each builder step page to wire the shared top header. */
 export function useRegisterBuilderNav(state: BuilderNavState) {
-  const { register } = useBuilderNav();
+  const register = useContext(BuilderNavRegisterContext);
+  if (!register) {
+    throw new Error('useRegisterBuilderNav must be used within BuilderNavProvider');
+  }
+
+  const onContinueRef = useRef(state.onContinue);
+  const secondaryOnClickRef = useRef(state.secondaryAction?.onClick);
+
+  onContinueRef.current = state.onContinue;
+  secondaryOnClickRef.current = state.secondaryAction?.onClick;
+
+  const stableContinue = useCallback(() => {
+    onContinueRef.current();
+  }, []);
+
+  const stableSecondaryOnClick = useCallback(() => {
+    secondaryOnClickRef.current?.();
+  }, []);
+
+  const hasSecondary = Boolean(state.secondaryAction);
+  const secondaryLabel = state.secondaryAction?.label;
+  const secondaryDisabled = state.secondaryAction?.disabled;
 
   useEffect(() => {
-    register(state);
+    register({
+      step: state.step,
+      backHref: state.backHref,
+      onContinue: stableContinue,
+      continueDisabled: state.continueDisabled,
+      continueLabel: state.continueLabel,
+      showMobileHelp: state.showMobileHelp,
+      headerVariant: state.headerVariant,
+      secondaryAction: hasSecondary
+        ? {
+            label: secondaryLabel ?? '',
+            disabled: secondaryDisabled,
+            onClick: stableSecondaryOnClick,
+          }
+        : undefined,
+    });
   }, [
     register,
+    stableContinue,
+    stableSecondaryOnClick,
     state.step,
     state.backHref,
-    state.onContinue,
     state.continueDisabled,
     state.continueLabel,
     state.showMobileHelp,
     state.headerVariant,
-    state.secondaryAction,
+    hasSecondary,
+    secondaryLabel,
+    secondaryDisabled,
   ]);
 }

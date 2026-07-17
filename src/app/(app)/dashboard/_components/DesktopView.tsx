@@ -1,7 +1,8 @@
 'use client';
 
-import { Calendar } from 'lucide-react';
+import { useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
+import { DateRangeTrigger } from '@/shared/components/ui/DatePicker';
 import { ActiveOpportunitiesTable } from './ActiveOpportunitiesTable';
 import { DashboardQuickActions } from './DashboardQuickActions';
 import { DashboardStatCard } from './DashboardStatCard';
@@ -9,11 +10,12 @@ import { OpportunityPerformanceCard } from './OpportunityPerformanceCard';
 import { OrganizationStatusCard } from './OrganizationStatusCard';
 import { RecentApplicationsList } from './RecentApplicationsList';
 import { TeamActivityList } from './TeamActivityList';
-import { PROVIDER_STATS } from './dashboardData';
+import { DASHBOARD_DATE_RANGE, PROVIDER_STATS } from './dashboardData';
 
 export default function DesktopView() {
   const { user } = useAuthStore();
   const orgName = user?.name ?? 'Maple Futures Nonprofit';
+  const [dateRange, setDateRange] = useState(DASHBOARD_DATE_RANGE);
 
   return (
     <div className="flex flex-col gap-2.5">
@@ -27,13 +29,12 @@ export default function DesktopView() {
             Here&apos;s an overview of your organization&apos;s activity and opportunities
           </p>
         </div>
-        <button
-          type="button"
-          className="inline-flex h-[41px] items-center gap-2.5 rounded-[6px] border border-[#D9E1EF] bg-white px-4 text-base font-medium text-[#0F172A]"
-        >
-          <Calendar className="h-[18px] w-[18px]" />
-          May 19 – May 25, 2026
-        </button>
+        <DateRangeTrigger
+          value={dateRange}
+          onChange={setDateRange}
+          align="right"
+          buttonClassName="h-[41px] py-0"
+        />
       </div>
 
       <div className="flex flex-col gap-2.5 xl:flex-row xl:items-stretch">
