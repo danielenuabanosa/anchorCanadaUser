@@ -27,7 +27,11 @@ export default function LoginMobileView() {
 
   const router = useRouter();
   const setAuth = useAuthStore(s => s.setAuth);
-  const emailValid = isStaticMode() ? email.trim().length > 0 : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const emailValid = isStaticMode()
+    ? email.trim().length > 0
+    : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const passwordValid = isStaticMode() ? password.length > 0 : password.length >= 8;
+  const canSubmit = emailValid && passwordValid && !isSubmitting;
 
   function handleKeyDown(e: React.KeyboardEvent) {
     setCapsLock(e.getModifierState('CapsLock'));
@@ -116,7 +120,9 @@ export default function LoginMobileView() {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Minimum 8 characters"
+                  placeholder={
+                    isStaticMode() ? 'Any password' : 'Minimum 8 characters'
+                  }
                   className="anchor-field anchor-field--icon-left anchor-field--icon-right"
                   autoComplete="current-password"
                 />
@@ -176,7 +182,7 @@ export default function LoginMobileView() {
           <button
             type="submit"
             form="login-form-mobile"
-            disabled={isSubmitting}
+            disabled={!canSubmit}
             className="bg-[#2f66c8] rounded-[6px] flex items-center justify-center gap-2.5 px-6 py-4 text-sm text-white w-full hover:bg-[#2454a4] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {isSubmitting ? (

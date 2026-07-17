@@ -31,11 +31,24 @@ assets/
 ## Development
 
 ```bash
+cp .env.example .env.local
 npm install
-npm run dev    # http://localhost:3002
+npm run dev    # http://localhost:3000
 ```
 
+### Offline auth (until APIs are ready)
+
+`NEXT_PUBLIC_STATIC_MODE=true` (default in `.env.example`) lets you:
+
+- Open any dashboard route without a live backend
+- Sign in with **any** email + password
+- Continue as guest from `/guest`
+
+When auth APIs are live, set `NEXT_PUBLIC_STATIC_MODE=false` in `.env.local`.
+
 ## Demo Credentials
+
+While static mode is on, any credentials work. Example:
 
 - **Email:** `demo@provider.anchorcanada.ca`
 - **Password:** `Demo@1234`

@@ -1,18 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Sidebar } from '@/shared/components/layout/Sidebar';
 import { Topbar } from '@/shared/components/layout/Topbar';
 import { OpportunityManagementTopbar } from '@/shared/components/layout/OpportunityManagementTopbar';
 import { BottomNav } from '@/shared/components/layout/BottomNav';
+<<<<<<< HEAD
 import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
 import { SidebarProvider } from '@/shared/context/SidebarContext';
 import { useAuthStore } from '@/store/authStore';
 import { isStaticMode } from '@/lib/staticMode';
+=======
+>>>>>>> e0aeb99b7d0932e297749c27dab196cb786b5ba7
 import { cn } from '@/lib/utils';
 import { isHubListPage, usesOpportunityManagementTopbar } from '@/shared/lib/hubRoutes';
 import { HelpCenterRoot } from '@/features/help-center/HelpCenterRoot';
+import { useAuthBootstrap } from '@/shared/hooks/useAuthBootstrap';
 
 function resolveTopbar(pathname: string) {
   if (pathname === '/logout') return null;
@@ -47,25 +51,20 @@ function resolveTopbar(pathname: string) {
 }
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
-  const [hydrated, setHydrated] = useState(false);
+  const { ready, isAuthenticated, isOfflineMode } = useAuthBootstrap();
 
   useEffect(() => {
-    setHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    if (isStaticMode()) return;
+    if (!ready) return;
+    if (isOfflineMode) return;
     if (!isAuthenticated) {
-      router.push('/login');
+      router.replace('/login');
     }
-  }, [hydrated, isAuthenticated, router]);
+  }, [ready, isOfflineMode, isAuthenticated, router]);
 
-  if (!hydrated) return null;
-  if (!isStaticMode() && !isAuthenticated) return null;
+  if (!ready) return null;
+  if (!isOfflineMode && !isAuthenticated) return null;
 
   const topbar = resolveTopbar(pathname);
   const isBuilder = pathname.startsWith('/opportunities/create');
