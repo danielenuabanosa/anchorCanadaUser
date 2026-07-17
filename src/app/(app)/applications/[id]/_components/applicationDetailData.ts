@@ -68,7 +68,7 @@ export const DEFAULT_APPLICATION_DETAIL = {
     { label: 'Shortlisted', done: false },
     { label: 'Interview', done: false },
     { label: 'Decision', done: false },
-  ] satisfies TimelineStep[],
+  ] as TimelineStep[],
   answers: [
     {
       question: 'Why are you applying for this grant?',
