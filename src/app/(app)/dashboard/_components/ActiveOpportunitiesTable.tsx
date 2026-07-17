@@ -22,14 +22,14 @@ function toHubRow(item: ActiveOpportunity): OpportunityRow {
     id: item.id,
     name: item.name,
     category: 'General',
-    type: 'Internal',
+    type: 'internal',
     status: item.status,
     applications: item.applications,
     applicationsDelta: '0%',
     views: 0,
     deadline: item.deadline,
     daysLeft: '—',
-    health: 'Healthy',
+    health: 'High Engagement',
     tab: 'all',
   };
 }
