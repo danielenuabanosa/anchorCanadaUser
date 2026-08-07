@@ -19,6 +19,7 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ApplicationDetailSkeleton } from '@/shared/components/ui/PageSkeletons';
 import {
   ApplicationActionsDropdown,
   getActionsForStage,
@@ -32,19 +33,25 @@ import {
   MarkInterviewCompletedModal,
   RejectApplicationModal,
   ReopenApplicationModal,
+  RequestDocumentsModal,
   ReviewerAssignedSuccessModal,
   ScheduleInterviewModal,
   SendOfferModal,
   ShortlistApplicationModal,
 } from '../../_components/ApplicationHubModals';
-import { APPLICANTS } from '../../_components/applicationsHubData';
 import {
-  APPLICATION_DETAIL_TABS,
   STAGE_STYLES,
-  getApplicationDetail,
+  applicationDetailTabs,
+  type ApplicationDetail,
   type ApplicationDetailTab,
   type TimelineStep,
 } from './applicationDetailData';
+import { useApplicationDetail } from '@/features/provider/hooks/useApplicationDetail';
+import { providerApi } from '@/features/provider/services/providerApi';
+import { downloadApplicationSubmission } from '@/features/provider/lib/downloadSubmission';
+import { applicationStatusFromHubAction } from '@/features/provider/lib/mapApplicationDetail';
+import { useProviderApplications } from '@/features/provider/hooks/useProviderHubData';
+import avatar1 from '@assets/images/profile-avatar.png';
 
 function PanelHeader({ title }: { title: string }) {
   return (
@@ -75,7 +82,7 @@ function TimelineDot({ step }: { step: TimelineStep }) {
   return <span className="h-6 w-6 shrink-0 rounded-full border-2 border-[#D9E1EF] bg-white" />;
 }
 
-function OverviewPanel({ data }: { data: ReturnType<typeof getApplicationDetail> }) {
+function OverviewPanel({ data }: { data: ApplicationDetail }) {
   const primaryNote = data.notes[0];
   const aboutFields: [string, string][] = [
     ['Location', data.about.location],
@@ -174,7 +181,14 @@ function OverviewPanel({ data }: { data: ReturnType<typeof getApplicationDetail>
   );
 }
 
-function ApplicationPanel({ data }: { data: ReturnType<typeof getApplicationDetail> }) {
+function ApplicationPanel({ data }: { data: ApplicationDetail }) {
+  if (data.answers.length === 0) {
+    return (
+      <div className="rounded-[10px] border border-[#EEF2F8] bg-white p-5 text-sm text-[#8C97AD]">
+        No application answers submitted.
+      </div>
+    );
+  }
   return (
     <div className="space-y-4">
       {data.answers.map((item) => (
@@ -187,31 +201,56 @@ function ApplicationPanel({ data }: { data: ReturnType<typeof getApplicationDeta
   );
 }
 
-function DocumentsPanel({ data }: { data: ReturnType<typeof getApplicationDetail> }) {
+function DocumentsPanel({ data }: { data: ApplicationDetail }) {
   return (
-    <div className="divide-y divide-[#EEF2F8] rounded-[10px] border border-[#EEF2F8] bg-white">
-      {data.documents.map((doc) => (
-        <div key={doc.name} className="flex items-center justify-between px-5 py-4">
-          <div>
-            <p className="text-sm font-medium text-[#0F172A]">{doc.name}</p>
-            <p className="text-xs text-[#8C97AD]">{doc.size}</p>
-          </div>
-          <span className="rounded-[4px] bg-[#ECFDF5] px-2 py-0.5 text-xs font-medium text-[#15803D]">
-            {doc.status}
-          </span>
-        </div>
-      ))}
+    <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white">
+      <PanelHeader title="Submitted Documents" />
+      <div className="divide-y divide-[#EEF2F8]">
+        {data.documents.length === 0 ? (
+          <p className="p-5 text-sm text-[#8C97AD]">No documents submitted.</p>
+        ) : (
+          data.documents.map((doc) => (
+            <div key={doc.name} className="flex items-center justify-between gap-4 px-5 py-4">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-[#0F172A]">{doc.name}</p>
+                <p className="mt-1 text-xs text-[#8C97AD]">
+                  {doc.size} · {doc.status}
+                </p>
+              </div>
+              {doc.url ? (
+                <a
+                  href={doc.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="shrink-0 text-sm font-medium text-[#2F66C8] hover:underline"
+                >
+                  Download
+                </a>
+              ) : (
+                <span className="shrink-0 text-sm text-[#8C97AD]">Uploaded</span>
+              )}
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
 
-function EvaluationPanel({ data }: { data: ReturnType<typeof getApplicationDetail> }) {
+function EvaluationPanel({ data }: { data: ApplicationDetail }) {
   return (
     <div className="rounded-[10px] border border-[#EEF2F8] bg-white p-5">
       <p className="text-sm text-[#8C97AD]">Overall Score</p>
-      <p className="mt-1 text-[48px] font-bold leading-none text-[#2F66C8]">{data.score}%</p>
+      <p className="mt-1 text-[48px] font-bold leading-none text-[#2F66C8]">
+        {data.score > 0 ? `${data.score}%` : '—'}
+      </p>
+      {data.score <= 0 ? (
+        <p className="mt-3 text-sm text-[#8C97AD]">
+          Scoring is not configured yet. Use notes and status updates to evaluate applicants.
+        </p>
+      ) : null}
       {data.notes.map((note) => (
-        <div key={note.date} className="mt-5 rounded-[8px] border border-[#EEF2F8] p-4">
+        <div key={note.date + note.author} className="mt-5 rounded-[8px] border border-[#EEF2F8] p-4">
           <p className="text-sm font-medium text-[#0F172A]">{note.author}</p>
           <p className="text-xs text-[#8C97AD]">{note.date}</p>
           <p className="mt-2 whitespace-pre-line text-sm text-[#44516A]">{note.text}</p>
@@ -221,7 +260,7 @@ function EvaluationPanel({ data }: { data: ReturnType<typeof getApplicationDetai
   );
 }
 
-function ActivityPanel({ data }: { data: ReturnType<typeof getApplicationDetail> }) {
+function ActivityPanel({ data }: { data: ApplicationDetail }) {
   return (
     <div className="space-y-3">
       {data.activity.map((item) => (
@@ -269,21 +308,80 @@ export function ApplicationDetailView({
     applicantName: string;
   } | null>(null);
 
-  const data = getApplicationDetail(applicationId);
-  const actionItems = getActionsForStage(data.stage).filter(
+  const { data, loading, error, refetch } = useApplicationDetail(applicationId);
+  const { rows: applicants } = useProviderApplications();
+  const actionItems = getActionsForStage(data?.stage ?? 'Under Review').filter(
     (item) => item.label !== 'View Applicant',
   );
   const isMobile = variant === 'mobile';
+  const tabs = applicationDetailTabs(data?.documents.length ?? 0);
 
   const { prevId, nextId } = useMemo(() => {
-    const ids = APPLICANTS.map((a) => a.id);
+    const ids = applicants.map((a) => a.id);
     const index = ids.indexOf(applicationId);
     if (index < 0) return { prevId: null as string | null, nextId: null as string | null };
     return {
-      prevId: index > 0 ? ids[index - 1] : null,
-      nextId: index < ids.length - 1 ? ids[index + 1] : null,
+      prevId: index > 0 ? ids[index - 1]! : null,
+      nextId: index < ids.length - 1 ? ids[index + 1]! : null,
     };
-  }, [applicationId]);
+  }, [applicationId, applicants]);
+
+  async function applyStatusUpdate(
+    status: 'shortlisted' | 'rejected' | 'interview' | 'accepted' | 'under_review',
+    note?: string,
+  ) {
+    await providerApi.updateApplicationStatus(applicationId, { status, note });
+    await refetch();
+  }
+
+  async function handleActionConfirm(type: HubActionModalType, note?: string) {
+    if (type === 'note' && note) {
+      const currentStatus =
+        data?.stage === 'Shortlisted'
+          ? 'shortlisted'
+          : data?.stage === 'Interview'
+            ? 'interview'
+            : data?.stage === 'Accepted'
+              ? 'accepted'
+              : data?.stage === 'Rejected'
+                ? 'rejected'
+                : 'under_review';
+      await providerApi.updateApplicationStatus(applicationId, {
+        status: currentStatus,
+        note,
+      });
+      await refetch();
+      return;
+    }
+    if (type === 'archive') {
+      await providerApi.archiveApplication(applicationId, note || 'Archived by provider');
+      await refetch();
+      return;
+    }
+    if (type === 'reopen') {
+      try {
+        await providerApi.unarchiveApplication(applicationId);
+      } catch {
+        // not archived
+      }
+      await applyStatusUpdate('under_review', note);
+      return;
+    }
+    if (type === 'interview' || type === 'reschedule' || type === 'complete') {
+      await providerApi.scheduleInterview(applicationId, {
+        date: new Date().toISOString().slice(0, 10),
+        time: '12:00',
+        duration: 30,
+        interviewType: type === 'complete' ? 'Completed' : 'Interview',
+        notes: note,
+        mode: type === 'complete' ? 'complete' : type === 'reschedule' ? 'reschedule' : 'schedule',
+      });
+      await refetch();
+      return;
+    }
+    const status = applicationStatusFromHubAction(type);
+    if (status) await applyStatusUpdate(status, note);
+  }
 
   function goTo(id: string | null) {
     if (!id) return;
@@ -300,9 +398,27 @@ export function ApplicationDetailView({
       setNoteOpen(true);
       return;
     }
-    const next = hubActionModalForLabel(label, data.applicant);
+    if (label === 'Download Submission') {
+      void downloadApplicationSubmission(applicationId, data?.applicant).catch(console.error);
+      return;
+    }
+    const next = hubActionModalForLabel(label, data?.applicant ?? 'Applicant');
     if (next) setActionModal(next);
   }
+
+  if (loading && !data) {
+    return <ApplicationDetailSkeleton />;
+  }
+
+  if (error && !data) {
+    return <p className="py-10 text-sm text-[#B91C1C]">{error}</p>;
+  }
+
+  if (!data) {
+    return <p className="py-10 text-sm text-[#8C97AD]">Application not found.</p>;
+  }
+
+  const avatarSrc = typeof data.avatar === 'string' ? data.avatar : data.avatar;
 
   return (
     <div className={cn('flex flex-col', isMobile && 'pb-4')}>
@@ -384,10 +500,11 @@ export function ApplicationDetailView({
           >
             <div className={cn('flex min-w-0', isMobile ? 'flex-col gap-5' : 'items-center gap-10')}>
               <Image
-                src={data.avatar}
+                src={avatarSrc || avatar1}
                 alt=""
                 width={isMobile ? 80 : 120}
                 height={isMobile ? 80 : 120}
+                unoptimized={typeof avatarSrc === 'string'}
                 className={cn(
                   'shrink-0 rounded-full object-cover',
                   isMobile ? 'h-20 w-20' : 'h-[120px] w-[120px]',
@@ -535,7 +652,7 @@ export function ApplicationDetailView({
         {/* Tab panel — Figma 515:18022 */}
         <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white">
           <div className="flex h-[52px] gap-2.5 overflow-x-auto border-b border-[#EEF2F8] px-2.5">
-            {APPLICATION_DETAIL_TABS.map((t) => (
+            {tabs.map((t) => (
               <button
                 key={t.id}
                 type="button"
@@ -565,52 +682,84 @@ export function ApplicationDetailView({
         open={noteOpen}
         applicantName={data.applicant}
         onClose={() => setNoteOpen(false)}
+        onConfirm={(note) => handleActionConfirm('note', note)}
+      />
+      <RequestDocumentsModal
+        open={actionModal?.type === 'request-documents'}
+        applicantName={actionModal?.applicantName ?? data.applicant}
+        onClose={() => setActionModal(null)}
+        onConfirm={async (payload) => {
+          await providerApi.requestDocuments(applicationId, {
+            message: payload.message,
+            documentTypes: payload.documentTypes,
+          });
+          setActionModal(null);
+          await refetch();
+        }}
       />
       <AssignReviewerModal
         open={assignOpen}
         onClose={() => setAssignOpen(false)}
-        onAssigned={(reviewerName) => setAssignSuccess({ open: true, reviewerName })}
+        onAssigned={async (reviewer) => {
+          await providerApi.assignReviewer(applicationId, reviewer.id);
+          setAssignSuccess({ open: true, reviewerName: reviewer.name });
+          await refetch();
+        }}
       />
       <ReviewerAssignedSuccessModal
         open={assignSuccess.open}
         reviewerName={assignSuccess.reviewerName}
+        count={1}
         onClose={() => setAssignSuccess((s) => ({ ...s, open: false }))}
       />
       <ShortlistApplicationModal
         open={actionModal?.type === 'shortlist'}
         applicantName={actionModal?.applicantName ?? ''}
         onClose={() => setActionModal(null)}
+        onConfirm={() => handleActionConfirm('shortlist')}
       />
       <RejectApplicationModal
         open={actionModal?.type === 'reject'}
         applicantName={actionModal?.applicantName ?? ''}
         onClose={() => setActionModal(null)}
+        onConfirm={(note) => handleActionConfirm('reject', note)}
       />
       <ScheduleInterviewModal
         open={actionModal?.type === 'interview' || actionModal?.type === 'reschedule'}
         applicantName={actionModal?.applicantName ?? ''}
         mode={actionModal?.type === 'reschedule' ? 'reschedule' : 'schedule'}
         onClose={() => setActionModal(null)}
+        onConfirm={async (payload) => {
+          await providerApi.scheduleInterview(applicationId, {
+            ...payload,
+            mode: actionModal?.type === 'reschedule' ? 'reschedule' : 'schedule',
+          });
+          await refetch();
+        }}
       />
       <MarkInterviewCompletedModal
         open={actionModal?.type === 'complete'}
         applicantName={actionModal?.applicantName ?? ''}
         onClose={() => setActionModal(null)}
+        onConfirm={() => handleActionConfirm('complete', 'Interview marked completed')}
       />
       <SendOfferModal
         open={actionModal?.type === 'offer'}
         applicantName={actionModal?.applicantName ?? ''}
         onClose={() => setActionModal(null)}
+        onConfirm={() => handleActionConfirm('offer')}
       />
       <ArchiveApplicationModal
         open={actionModal?.type === 'archive'}
         applicantName={actionModal?.applicantName ?? ''}
         onClose={() => setActionModal(null)}
+        onConfirm={() => handleActionConfirm('archive')}
       />
       <ReopenApplicationModal
         open={actionModal?.type === 'reopen'}
         applicantName={actionModal?.applicantName ?? ''}
         onClose={() => setActionModal(null)}
+        onConfirm={() => handleActionConfirm('reopen')}
       />
     </div>
   );

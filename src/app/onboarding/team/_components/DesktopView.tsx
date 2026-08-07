@@ -7,6 +7,8 @@ import { OnboardingInfoBar } from '@/features/onboarding/components/OnboardingIn
 import { TEAM_INFO_MESSAGE } from '@/features/onboarding/lib/teamData';
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
 import { OnboardingNavButtons } from '@/shared/components/onboarding/OnboardingNavButtons';
+import { useProviderOnboardingStore } from '@/store/onboardingStore';
+import { saveOnboardingDraft } from '@/features/provider/lib/completeOnboarding';
 import {
   InviteMembersSection,
   OrganizationOwnerSection,
@@ -16,12 +18,35 @@ import {
   useTeamMembers,
 } from './TeamShared';
 
+function continueAfterTeam(
+  members: Array<{ id: string; email: string; role: string; fullName?: string }>,
+  router: ReturnType<typeof useRouter>,
+) {
+  useProviderOnboardingStore.getState().setOnboardingData({
+    teamMembers: members
+      .filter((m) => m.email.trim() && m.role)
+      .map((m) => ({
+        id: m.id,
+        fullName: m.fullName?.trim() || undefined,
+        email: m.email.trim(),
+        role: m.role as
+          | 'Admin'
+          | 'Recruiter'
+          | 'Program Coordinator'
+          | 'Viewer'
+          | 'Editor',
+      })),
+  });
+  void saveOnboardingDraft('team').catch(() => undefined);
+  router.push('/onboarding/activation');
+}
+
 export default function DesktopView() {
   const router = useRouter();
   const { members, setMembers } = useTeamMembers(1);
 
   function handleContinue() {
-    router.push('/onboarding/activation');
+    continueAfterTeam(members, router);
   }
 
   return (

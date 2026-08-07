@@ -52,28 +52,42 @@ export function InviteTeamMemberModal({
 }: {
   open: boolean;
   onClose: () => void;
-  onSent: (payload: InvitePayload) => void;
+  onSent: (payload: InvitePayload & { notes?: string }) => void | Promise<void>;
 }) {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('');
   const [department, setDepartment] = useState('');
   const [notes, setNotes] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   if (!open) return null;
 
-  function handleSend() {
-    if (!email.trim() || !role) return;
-    onSent({
-      email: email.trim(),
-      name: emailToDisplayName(email.trim()),
-      role,
-      department: department || 'Programs',
-      avatar: avatar1,
-    });
+  async function handleSend() {
+    if (!email.trim() || !role || saving) return;
+    setSaving(true);
+    setError('');
+    try {
+      await onSent({
+        email: email.trim(),
+        name: emailToDisplayName(email.trim()),
+        role,
+        department: department || 'Programs',
+        avatar: avatar1,
+        notes: notes.trim() || undefined,
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not send invitation.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   const body = (
     <div className="space-y-10">
+      {error ? (
+        <p className="rounded-[8px] border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+      ) : null}
       <Field label="Email Address" required>
         <div className="flex items-center gap-2.5 rounded-[10px] border border-[#D9E1EF] bg-white p-4 transition-colors focus-within:border-[#2F66C8]">
           <Mail className="h-[18px] w-[18px] text-[#8C97AD]" />
@@ -125,7 +139,11 @@ export function InviteTeamMemberModal({
   );
 
   const footer = (
-    <SlideOverFooter onCancel={onClose} confirmLabel="Send Invitation" onConfirm={handleSend} />
+    <SlideOverFooter
+      onCancel={onClose}
+      confirmLabel={saving ? 'Sending…' : 'Send Invitation'}
+      onConfirm={() => void handleSend()}
+    />
   );
 
   return (
@@ -203,13 +221,14 @@ export function ResendInvitationModal({
   open: boolean;
   onClose: () => void;
   member: TeamMemberRow;
-  onSent: (payload: InvitePayload) => void;
+  onSent: (payload: InvitePayload) => void | Promise<void>;
 }) {
   const [role, setRole] = useState(member.role);
   const [department, setDepartment] = useState(member.department);
   const [notes, setNotes] = useState(
     "e.g. You've been invited to join Maple Future Foundation. Please accept the invitation to get started.",
   );
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -277,8 +296,17 @@ export function ResendInvitationModal({
   const footer = (
     <SlideOverFooter
       onCancel={onClose}
-      confirmLabel="Send Invitation"
-      onConfirm={() => onSent({ ...memberToInvitePayload(member), role, department })}
+      confirmLabel={saving ? 'Sending…' : 'Send Invitation'}
+      onConfirm={() => {
+        void (async () => {
+          setSaving(true);
+          try {
+            await onSent({ ...memberToInvitePayload(member), role, department });
+          } finally {
+            setSaving(false);
+          }
+        })();
+      }}
     />
   );
 
@@ -351,7 +379,7 @@ export function CancelInvitationModal({
   open: boolean;
   onClose: () => void;
   member: TeamMemberRow;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
 }) {
   if (!open) return null;
 
@@ -370,7 +398,9 @@ export function CancelInvitationModal({
           </button>
           <button
             type="button"
-            onClick={onConfirm}
+            onClick={() => {
+              void onConfirm();
+            }}
             className="flex flex-1 items-center justify-center rounded-[6px] bg-[#EF4444] px-5 py-3 text-sm font-medium text-white shadow-[0px_2px_4px_rgba(0,0,0,0.05)]"
           >
             Cancel Invitation
@@ -410,24 +440,28 @@ export function EditRoleModal({
   open,
   onClose,
   member,
+  onSave,
 }: {
   open: boolean;
   onClose: () => void;
   member: TeamMemberRow;
+  onSave?: (payload: { role: string; title?: string; permissions: string[] }) => void | Promise<void>;
 }) {
-  return <RolePermissionBuilderModal open={open} onClose={onClose} member={member} />;
+  return <RolePermissionBuilderModal open={open} onClose={onClose} member={member} onSave={onSave} />;
 }
 
 export function EditPermissionsModal({
   open,
   onClose,
   member,
+  onSave,
 }: {
   open: boolean;
   onClose: () => void;
   member: TeamMemberRow;
+  onSave?: (payload: { role: string; title?: string; permissions: string[] }) => void | Promise<void>;
 }) {
-  return <RolePermissionBuilderModal open={open} onClose={onClose} member={member} />;
+  return <RolePermissionBuilderModal open={open} onClose={onClose} member={member} onSave={onSave} />;
 }
 
 /** Figma 580:18987 (desktop slide-over) / 580:17877 (mobile centered modal) — Role & Permission Builder */
@@ -435,10 +469,12 @@ export function RolePermissionBuilderModal({
   open,
   onClose,
   member,
+  onSave,
 }: {
   open: boolean;
   onClose: () => void;
   member: TeamMemberRow;
+  onSave?: (payload: { role: string; title?: string; permissions: string[] }) => void | Promise<void>;
 }) {
   const roleIdFromMember = TEAM_ROLES.find((r) => r.label === member.role)?.id ?? 'administrator';
   const allPermissionKeys = useMemo(
@@ -567,7 +603,24 @@ export function RolePermissionBuilderModal({
     </div>
   );
 
-  const footer = <SlideOverFooter onCancel={onClose} confirmLabel="Save Role" onConfirm={onClose} />;
+  const footer = (
+    <SlideOverFooter
+      onCancel={onClose}
+      confirmLabel="Save Role"
+      onConfirm={() => {
+        void (async () => {
+          const roleLabel =
+            TEAM_ROLES.find((r) => r.id === selectedRole)?.label ?? member.role;
+          await onSave?.({
+            role: selectedRole === 'custom' ? (customRoleName.trim() || 'Coordinator') : roleLabel,
+            title: selectedRole === 'custom' ? customRoleName.trim() || member.title : undefined,
+            permissions: Array.from(permissions),
+          });
+          onClose();
+        })();
+      }}
+    />
+  );
 
   return (
     <>
@@ -619,7 +672,15 @@ function getPresetPermissions(roleId: string, allKeys: string[]): Set<string> {
 }
 
 /** Figma 523:18553 desktop / 523:19412 mobile — Export Team Members */
-export function ExportTeamMembersModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function ExportTeamMembersModal({
+  open,
+  onClose,
+  rows,
+}: {
+  open: boolean;
+  onClose: () => void;
+  rows?: TeamMemberRow[];
+}) {
   const [format, setFormat] = useState<'csv' | 'excel' | 'pdf'>('csv');
   const [checks, setChecks] = useState({
     info: true,
@@ -630,6 +691,8 @@ export function ExportTeamMembersModal({ open, onClose }: { open: boolean; onClo
 
   if (!open) return null;
 
+  const exportRows = rows?.length ? rows : TEAM_MEMBERS;
+
   function handleGenerate() {
     const headers = [
       ...(checks.info ? ['Name', 'Email', 'Title'] : []),
@@ -639,7 +702,7 @@ export function ExportTeamMembersModal({ open, onClose }: { open: boolean; onClo
       ...(checks.activity ? ['Last Active'] : []),
     ];
 
-    const rows = TEAM_MEMBERS.map((m) => {
+    const tableRows = exportRows.map((m) => {
       const row: Array<string | number> = [];
       if (checks.info) row.push(m.name, m.email, m.title);
       if (checks.roles) row.push(m.role, m.permissions);
@@ -649,7 +712,7 @@ export function ExportTeamMembersModal({ open, onClose }: { open: boolean; onClo
       return row;
     });
 
-    downloadTableExport(format, 'team-members-export', headers, rows, {
+    downloadTableExport(format, 'team-members-export', headers, tableRows, {
       title: 'Export Team Members',
       sheetName: 'Team Members',
     });
@@ -736,10 +799,12 @@ export function SuspendMemberModal({
   open,
   onClose,
   member,
+  onConfirm,
 }: {
   open: boolean;
   onClose: () => void;
   member: TeamMemberRow;
+  onConfirm?: () => void | Promise<void>;
 }) {
   if (!open) return null;
 
@@ -749,7 +814,12 @@ export function SuspendMemberModal({
       footer={
         <ConfirmActionFooter
           onCancel={onClose}
-          onConfirm={onClose}
+          onConfirm={() => {
+            void (async () => {
+              await onConfirm?.();
+              onClose();
+            })();
+          }}
           confirmLabel="Suspend Member"
           danger
         />
@@ -772,10 +842,12 @@ export function ActivateMemberModal({
   open,
   onClose,
   member,
+  onConfirm,
 }: {
   open: boolean;
   onClose: () => void;
   member: TeamMemberRow;
+  onConfirm?: () => void | Promise<void>;
 }) {
   if (!open) return null;
 
@@ -785,7 +857,12 @@ export function ActivateMemberModal({
       footer={
         <ConfirmActionFooter
           onCancel={onClose}
-          onConfirm={onClose}
+          onConfirm={() => {
+            void (async () => {
+              await onConfirm?.();
+              onClose();
+            })();
+          }}
           confirmLabel="Activate Member"
         />
       }
@@ -807,10 +884,12 @@ export function RemoveMemberModal({
   open,
   onClose,
   member,
+  onConfirm,
 }: {
   open: boolean;
   onClose: () => void;
   member: TeamMemberRow;
+  onConfirm?: () => void | Promise<void>;
 }) {
   if (!open) return null;
 
@@ -820,7 +899,12 @@ export function RemoveMemberModal({
       footer={
         <ConfirmActionFooter
           onCancel={onClose}
-          onConfirm={onClose}
+          onConfirm={() => {
+            void (async () => {
+              await onConfirm?.();
+              onClose();
+            })();
+          }}
           confirmLabel="Remove Member"
           danger
         />
@@ -890,10 +974,27 @@ export function TeamHubModalLayer({
   modal,
   onClose,
   onSetModal,
+  onInvite,
+  onResend,
+  onCancelInvite,
+  onSaveRole,
+  onSuspend,
+  onActivate,
+  onRemove,
 }: {
   modal: TeamHubModal | null;
   onClose: () => void;
   onSetModal: (modal: TeamHubModal | null) => void;
+  onInvite?: (payload: InvitePayload & { notes?: string }) => Promise<InvitePayload>;
+  onResend?: (member: TeamMemberRow, payload: InvitePayload) => Promise<InvitePayload>;
+  onCancelInvite?: (member: TeamMemberRow) => Promise<void>;
+  onSaveRole?: (
+    member: TeamMemberRow,
+    payload: { role: string; title?: string; permissions: string[] },
+  ) => Promise<void>;
+  onSuspend?: (member: TeamMemberRow) => Promise<void>;
+  onActivate?: (member: TeamMemberRow) => Promise<void>;
+  onRemove?: (member: TeamMemberRow) => Promise<void>;
 }) {
   if (!modal) return null;
 
@@ -902,7 +1003,10 @@ export function TeamHubModalLayer({
       <InviteTeamMemberModal
         open
         onClose={onClose}
-        onSent={(payload) => onSetModal({ type: 'invitation-sent', payload })}
+        onSent={async (payload) => {
+          const sent = onInvite ? await onInvite(payload) : payload;
+          onSetModal({ type: 'invitation-sent', payload: sent });
+        }}
       />
     );
   }
@@ -917,7 +1021,10 @@ export function TeamHubModalLayer({
         open
         member={modal.member}
         onClose={onClose}
-        onSent={(payload) => onSetModal({ type: 'invitation-sent', payload })}
+        onSent={async (payload) => {
+          const sent = onResend ? await onResend(modal.member, payload) : payload;
+          onSetModal({ type: 'invitation-sent', payload: sent });
+        }}
       />
     );
   }
@@ -938,25 +1045,73 @@ export function TeamHubModalLayer({
         open
         member={modal.member}
         onClose={onClose}
-        onConfirm={onClose}
+        onConfirm={async () => {
+          await onCancelInvite?.(modal.member);
+          onClose();
+        }}
       />
     );
   }
 
   if (modal.type === 'role') {
-    return <EditRoleModal open onClose={onClose} member={modal.member} />;
+    return (
+      <EditRoleModal
+        open
+        onClose={onClose}
+        member={modal.member}
+        onSave={async (payload) => {
+          await onSaveRole?.(modal.member, payload);
+        }}
+      />
+    );
   }
   if (modal.type === 'permissions') {
-    return <EditPermissionsModal open onClose={onClose} member={modal.member} />;
+    return (
+      <EditPermissionsModal
+        open
+        onClose={onClose}
+        member={modal.member}
+        onSave={async (payload) => {
+          await onSaveRole?.(modal.member, payload);
+        }}
+      />
+    );
   }
   if (modal.type === 'suspend') {
-    return <SuspendMemberModal open onClose={onClose} member={modal.member} />;
+    return (
+      <SuspendMemberModal
+        open
+        onClose={onClose}
+        member={modal.member}
+        onConfirm={async () => {
+          await onSuspend?.(modal.member);
+        }}
+      />
+    );
   }
   if (modal.type === 'activate') {
-    return <ActivateMemberModal open onClose={onClose} member={modal.member} />;
+    return (
+      <ActivateMemberModal
+        open
+        onClose={onClose}
+        member={modal.member}
+        onConfirm={async () => {
+          await onActivate?.(modal.member);
+        }}
+      />
+    );
   }
   if (modal.type === 'remove') {
-    return <RemoveMemberModal open onClose={onClose} member={modal.member} />;
+    return (
+      <RemoveMemberModal
+        open
+        onClose={onClose}
+        member={modal.member}
+        onConfirm={async () => {
+          await onRemove?.(modal.member);
+        }}
+      />
+    );
   }
 
   return null;

@@ -1,5 +1,6 @@
 'use client';
 
+import { createElement } from 'react';
 import Image from 'next/image';
 import { Briefcase, Calendar, Check, GraduationCap, Plus, Settings, Star, Users } from 'lucide-react';
 import type { BuilderTemplateDef } from '../lib/builderData';
@@ -46,7 +47,8 @@ export function TemplateOptionCard({
   onSelect: () => void;
   compact?: boolean;
 }) {
-  const FooterIcon = template.id === 'scratch' ? FOOTER_ICONS.settings : resolveFooterIcon(template);
+  const footerIcon =
+    template.id === 'scratch' ? FOOTER_ICONS.settings : resolveFooterIcon(template);
 
   return (
     <button
@@ -101,7 +103,10 @@ export function TemplateOptionCard({
               className="mt-auto flex items-center justify-center gap-2.5 rounded-[10px] py-3"
               style={{ backgroundColor: template.footerBg }}
             >
-              <FooterIcon className="h-5 w-5" style={{ color: template.footerColor }} />
+              {createElement(footerIcon, {
+                className: 'h-5 w-5',
+                style: { color: template.footerColor },
+              })}
               <span className="font-sans text-[14px] font-medium" style={{ color: template.footerColor }}>
                 {template.footerLabel}
               </span>

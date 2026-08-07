@@ -101,7 +101,10 @@ export function usePersonalizationProgress(onComplete?: () => void) {
   const [feedStep, setFeedStep] = useState(0);
   const [progress, setProgress] = useState(0);
   const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
+
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   useEffect(() => {
     setFeedStep(0);

@@ -34,7 +34,7 @@ export function VerifyEmailForm() {
     setIsSubmitting(true);
     try {
       const result = await authService.verifyEmailOtp(email, digits.join(''));
-      setAuth(result.user, result.token);
+      setAuth(result.user, result.token, result.refreshToken);
       sessionStorage.removeItem('provider_signup_email');
       const nextPath = sessionStorage.getItem('provider_signup_next') ?? '/onboarding/organization-type';
       sessionStorage.removeItem('provider_signup_next');

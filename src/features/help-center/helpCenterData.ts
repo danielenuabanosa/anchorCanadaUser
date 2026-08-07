@@ -118,13 +118,10 @@ export interface ReportAttachment {
   size: string;
 }
 
-export const DEFAULT_REPORT_ATTACHMENTS: ReportAttachment[] = [
-  { id: 'screenshot', name: 'screenshot.png', size: '1.2 MB' },
-  { id: 'error-log', name: 'error-log.txt', size: '16 MB' },
-];
+export const DEFAULT_REPORT_ATTACHMENTS: ReportAttachment[] = [];
 
 export const REPORT_SUBMITTER = {
-  name: 'Sarah Johnson',
-  email: 'sarah.j@maplefuture.ca',
-  referenceId: '#HD-2087',
+  name: '',
+  email: '',
+  referenceId: '',
 };

@@ -21,6 +21,7 @@ export interface Opportunity {
 
 export interface OpportunityFilters {
   type?: OpportunityType;
+  category?: string;
   province?: string;
   query?: string;
   page?: number;

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import Link from 'next/link';
 import anchorLogo from '@assets/icons/anchor-logo.png';
+import { LANDING_URL } from '@/shared/constants';
 
 export const metadata: Metadata = {
   title: { template: '%s | Provider Portal', default: 'Provider Portal' },
@@ -12,9 +12,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
       {/* Navbar */}
       <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between border-b border-[rgba(217,225,239,0.8)] bg-white/80 backdrop-blur-md px-10 py-5">
-        <Link href="https://anchorcanada.ca">
+        <a href={LANDING_URL} aria-label="Anchor Canada home">
           <Image src={anchorLogo} alt="Anchor Canada" height={50} className="h-[50px] w-auto" />
-        </Link>
+        </a>
         <div className="flex items-center gap-2 text-neutral-400 text-sm">
           <span>Need Help?</span>
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

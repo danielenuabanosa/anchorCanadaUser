@@ -1,16 +1,37 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useOpportunities } from '../hooks/useOpportunities';
 import { OpportunityCard } from './OpportunityCard';
 import { OpportunityFilters } from './OpportunityFilters';
 import { SkeletonList } from '@/shared/components/ui/Skeleton';
 import { Button } from '@/shared/components/ui/Button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import type { OpportunityFilters as Filters } from '../types';
+import type { OpportunityFilters as Filters, OpportunityType } from '../types';
 
-export function OpportunityList() {
-  const [filters, setFilters] = useState<Filters>({ page: 1, limit: 12 });
+export function OpportunityList({
+  initialType,
+  initialCategory,
+}: {
+  initialType?: OpportunityType;
+  initialCategory?: string;
+} = {}) {
+  const [filters, setFilters] = useState<Filters>({
+    page: 1,
+    limit: 12,
+    ...(initialType ? { type: initialType } : {}),
+    ...(initialCategory ? { category: initialCategory } : {}),
+  });
+
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      page: 1,
+      ...(initialType ? { type: initialType } : { type: undefined }),
+      ...(initialCategory ? { category: initialCategory } : { category: undefined }),
+    }));
+  }, [initialType, initialCategory]);
+
   const { data, isLoading, isError } = useOpportunities(filters);
 
   return (

@@ -7,8 +7,8 @@ import orgLogo from '@assets/images/prov-sickkids.png';
 export const DEFAULT_OPPORTUNITY_DETAIL = {
   id: 'OP-2026-00025',
   title: 'Merit Scholarship Program',
-  status: 'Published' as const,
-  opportunityType: 'Internal Opportunity',
+  status: 'Published' as string,
+  opportunityType: 'Internal Opportunity' as string,
   category: 'Scholarships',
   description:
     'The Merit Scholarship Program recognizes outstanding academic achievement and community leadership among post-secondary students across Canada.',

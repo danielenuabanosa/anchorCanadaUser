@@ -1,13 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, type ElementType, type Dispatch, type SetStateAction } from 'react';
+import { type ElementType, type Dispatch, type SetStateAction } from 'react';
 import {
   ChevronDown,
   Check,
   CircleHelp,
   Clock,
   File,
+  FileBadge,
   MailCheck,
   MailX,
   Send,
@@ -18,7 +19,6 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { HubMenuSelect } from '@/shared/components/hub/HubMenuSelect';
 import {
   EDIT_PROFILE_SECTIONS,
   FOCUS_AREA_OPTIONS,
@@ -26,11 +26,8 @@ import {
   ORG_ACTION_ITEMS,
   ORG_SIZE_OPTIONS,
   ORG_TYPE_OPTIONS,
-  UPLOADED_FILES,
-  VERIFICATION_COMPLETED,
-  VERIFICATION_ITEMS,
+  VERIFICATION_ITEM_ICONS,
   VERIFICATION_STATUS_STYLES,
-  VERIFICATION_TOTAL,
   type EditProfileSection,
   type OrgProfileModal,
 } from './orgProfileData';
@@ -159,6 +156,7 @@ const SECTION_TITLES: Record<EditProfileSection, string> = {
   basic: 'Basic Information',
   contact: 'Contact Information',
   location: 'Location',
+  about: 'About & Mission',
   focus: 'Focus Areas',
 };
 
@@ -237,6 +235,21 @@ function EditSectionForm({
           <FormField label="Postal Code" value={form.postalCode} onChange={(v) => update('postalCode', v)} />
           <FormField label="Country" value={form.country} onChange={(v) => update('country', v)} />
         </div>
+      </div>
+    );
+  }
+
+  if (section === 'about') {
+    return (
+      <div className="space-y-2.5">
+        <FormField
+          label="About Organization"
+          value={form.about}
+          onChange={(v) => update('about', v)}
+          textarea
+        />
+        <FormField label="Mission" value={form.mission} onChange={(v) => update('mission', v)} textarea />
+        <FormField label="Vision" value={form.vision} onChange={(v) => update('vision', v)} textarea />
       </div>
     );
   }
@@ -332,10 +345,13 @@ export function EditProfileModal({
           </button>
           <button
             type="button"
-            onClick={hub.closeModal}
-            className="rounded-[6px] bg-[#2F66C8] px-5 py-3 text-sm font-medium text-white shadow-[0px_2px_4px_rgba(0,0,0,0.05)]"
+            disabled={hub.saving}
+            onClick={() => {
+              void hub.saveProfile();
+            }}
+            className="rounded-[6px] bg-[#2F66C8] px-5 py-3 text-sm font-medium text-white shadow-[0px_2px_4px_rgba(0,0,0,0.05)] disabled:opacity-50"
           >
-            Save Changes
+            {hub.saving ? 'Saving…' : 'Save Changes'}
           </button>
         </div>
       </div>
@@ -398,7 +414,26 @@ export function VerificationChecklistModal({
 }) {
   if (!open) return null;
 
-  const progress = (VERIFICATION_COMPLETED / VERIFICATION_TOTAL) * 100;
+  const completed = hub.verificationCompleted;
+  const total = hub.verificationTotal || hub.verificationItems.length || 1;
+  const progress = Math.round((completed / total) * 100);
+  const overall = hub.profile.verificationStatus;
+  const statusLabel =
+    overall === 'verified'
+      ? 'Verified'
+      : overall === 'pending'
+        ? 'Under Review'
+        : overall === 'rejected'
+          ? 'Not Approved'
+          : 'Not Submitted';
+  const statusBody =
+    overall === 'verified'
+      ? 'Your organization is verified and visible to more applicants.'
+      : overall === 'pending'
+        ? 'Your documents are being reviewed. This usually takes 1 – 3 business days.'
+        : overall === 'rejected'
+          ? 'Please review feedback and re-upload the required documents.'
+          : 'Upload the required documents and submit for verification.';
 
   return (
     <ModalBackdrop onClose={hub.closeModal} drawer={!mobile}>
@@ -423,7 +458,7 @@ export function VerificationChecklistModal({
             <div className="flex items-center justify-between text-sm font-medium text-[#0F172A]">
               <span>Overall Progress</span>
               <span>
-                {VERIFICATION_COMPLETED} of {VERIFICATION_TOTAL} completed
+                {completed} of {total} completed
               </span>
             </div>
             <div className="mt-5 flex h-3 flex-col justify-center rounded-full bg-[#EEF2F8] pr-[45px]">
@@ -434,25 +469,53 @@ export function VerificationChecklistModal({
 
           <div className={cn('gap-5', mobile ? 'flex flex-col' : 'flex')}>
             <div className="flex-1 overflow-hidden rounded-[10px] border border-[#EEF2F8]">
-              {VERIFICATION_ITEMS.map((item) => (
-                <VerificationItemRow
-                  key={item.id}
-                  {...item}
-                  onAction={() => {
-                    if (item.action === 'Upload') hub.openUpload(item.id);
-                    else if (item.status === 'verified') hub.openModal('verified');
-                    else if (item.status === 'under_review') hub.openModal('inProgress');
-                    else hub.openModal('submitted');
-                  }}
-                />
-              ))}
+              {hub.verificationItems.length === 0 ? (
+                <p className="p-4 text-sm text-[#44516A]">No verification requirements loaded.</p>
+              ) : (
+                hub.verificationItems.map((item) => (
+                  <VerificationItemRow
+                    key={item.id}
+                    title={item.title}
+                    description={item.description}
+                    status={item.status}
+                    action={item.action}
+                    icon={VERIFICATION_ITEM_ICONS[item.id] ?? FileBadge}
+                    onAction={() => {
+                      if (item.id === 'website') {
+                        hub.openWebsiteEdit();
+                        return;
+                      }
+                      if (
+                        item.action === 'Upload' ||
+                        item.action === 'Update' ||
+                        item.status === 'not_submitted'
+                      ) {
+                        hub.openUpload(item.id);
+                        return;
+                      }
+                      if (item.status === 'verified') {
+                        hub.openModal('verified');
+                      } else if (item.status === 'under_review') {
+                        hub.openModal('inProgress');
+                      } else {
+                        hub.openModal('submitted');
+                      }
+                    }}
+                  />
+                ))
+              )}
             </div>
 
             {!mobile ? (
               <div className="flex w-[320px] shrink-0 flex-col gap-5">
                 <button
                   type="button"
-                  onClick={() => hub.openModal('inProgress')}
+                  onClick={() => {
+                    if (overall === 'verified') hub.openModal('verified');
+                    else if (overall === 'pending') hub.openModal('inProgress');
+                    else if (overall === 'rejected') hub.openModal('notApproved');
+                    else hub.openModal('completeVerification');
+                  }}
                   className="rounded-[10px] border border-[#EEF2F8] bg-white p-5 text-left transition-colors hover:border-[#D9E1EF]"
                 >
                   <p className="text-sm font-semibold text-[#0F172A]">Verification Status</p>
@@ -461,10 +524,8 @@ export function VerificationChecklistModal({
                       <Clock className="h-5 w-5 text-[#B45309]" strokeWidth={1.75} />
                     </span>
                     <div>
-                      <p className="text-sm font-medium text-[#0F172A]">Under Review</p>
-                      <p className="mt-1 text-xs leading-[1.4] text-[#44516A]">
-                        Your documents are being reviewed. This usually takes 1 – 3 business days.
-                      </p>
+                      <p className="text-sm font-medium text-[#0F172A]">{statusLabel}</p>
+                      <p className="mt-1 text-xs leading-[1.4] text-[#44516A]">{statusBody}</p>
                     </div>
                   </div>
                 </button>
@@ -485,13 +546,25 @@ export function VerificationChecklistModal({
           </div>
         </div>
 
-        <div className="border-t border-[#EEF2F8] bg-[#F8FAFC] p-[26px]">
+        <div className="flex flex-wrap justify-end gap-3 border-t border-[#EEF2F8] bg-[#F8FAFC] p-[26px]">
           <Link
             href="/help"
-            className="flex w-full items-center justify-center rounded-[6px] bg-[#2F66C8] py-3 text-sm font-medium text-white md:ml-auto md:w-auto md:px-5"
+            className="inline-flex items-center justify-center rounded-[6px] border border-[#D9E1EF] bg-white px-5 py-3 text-sm font-medium text-[#2F66C8]"
           >
             View Help Center
           </Link>
+          {overall !== 'verified' ? (
+            <button
+              type="button"
+              disabled={hub.saving}
+              onClick={() => {
+                void hub.submitVerification();
+              }}
+              className="inline-flex items-center justify-center rounded-[6px] bg-[#2F66C8] px-5 py-3 text-sm font-medium text-white disabled:opacity-50"
+            >
+              {hub.saving ? 'Submitting…' : 'Submit for Verification'}
+            </button>
+          ) : null}
         </div>
       </div>
     </ModalBackdrop>
@@ -509,6 +582,8 @@ export function UploadDocumentModal({
 }) {
   if (!open) return null;
 
+  const files = hub.sessionUploads;
+
   return (
     <ModalBackdrop onClose={hub.closeModal} drawer={!mobile}>
       <div
@@ -523,20 +598,44 @@ export function UploadDocumentModal({
         </div>
 
         <div className="flex-1 space-y-5 overflow-y-auto px-[26px] py-10">
+          {hub.error ? (
+            <p className="rounded-[8px] border border-[#FEE2E2] bg-[#FEF2F2] px-3 py-2 text-sm text-[#B91C1C]">
+              {hub.error}
+            </p>
+          ) : null}
+
           <label className="block space-y-2.5">
             <span className="text-sm font-semibold text-[#0F172A]">
               Attachments <span className="text-[#EF4444]">*</span>
             </span>
-            <div className="flex min-h-[140px] flex-col items-center justify-center rounded-[10px] border border-dashed border-[#D9E1EF] bg-[#F8FAFC] px-4 py-8 text-center">
+            <div
+              className="relative flex min-h-[140px] flex-col items-center justify-center rounded-[10px] border border-dashed border-[#D9E1EF] bg-[#F8FAFC] px-4 py-8 text-center"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                void hub.addUploadedFiles(e.dataTransfer.files);
+              }}
+            >
               <p className="text-sm text-[#44516A]">
                 Drag and drop files here or <span className="text-[#2F66C8]">browse files</span>
               </p>
+              <input
+                type="file"
+                multiple
+                accept=".pdf,.jpg,.jpeg,.png"
+                disabled={hub.uploading}
+                className="absolute inset-0 cursor-pointer opacity-0 disabled:cursor-wait"
+                onChange={(e) => {
+                  void hub.addUploadedFiles(e.target.files);
+                  e.target.value = '';
+                }}
+              />
             </div>
             <p className="text-xs text-[#8C97AD]">Supported formats PDF, JPG, PNG. Max size: 10MB</p>
           </label>
 
           <div className="grid gap-2.5 sm:grid-cols-2">
-            {UPLOADED_FILES.filter((file) => hub.uploadedFiles.includes(file.id)).map((file) => (
+            {files.map((file) => (
               <div
                 key={file.id}
                 className="flex items-center gap-3 rounded-[10px] border border-[#EEF2F8] bg-white p-3"
@@ -546,17 +645,23 @@ export function UploadDocumentModal({
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-[#0F172A]">{file.name}</p>
-                  <p className="text-xs text-[#8C97AD]">{file.size}</p>
+                  <p className="text-xs text-[#8C97AD]">
+                    {file.id.startsWith('local-') ? 'Uploading…' : file.size}
+                  </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => hub.requestDeleteFile(file.id)}
-                  aria-label={`Delete ${file.name}`}
-                  className="shrink-0 text-[#8C97AD] transition-colors hover:text-[#EF4444]"
-                >
-                  <Trash2 className="h-[18px] w-[18px]" strokeWidth={1.75} />
-                </button>
-                <Check className="h-5 w-5 shrink-0 text-[#15803D]" strokeWidth={2.5} />
+                {!file.id.startsWith('local-') ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => hub.requestDeleteFile(file.id)}
+                      aria-label={`Delete ${file.name}`}
+                      className="shrink-0 text-[#8C97AD] transition-colors hover:text-[#EF4444]"
+                    >
+                      <Trash2 className="h-[18px] w-[18px]" strokeWidth={1.75} />
+                    </button>
+                    <Check className="h-5 w-5 shrink-0 text-[#15803D]" strokeWidth={2.5} />
+                  </>
+                ) : null}
               </div>
             ))}
           </div>
@@ -572,10 +677,11 @@ export function UploadDocumentModal({
           </button>
           <button
             type="button"
-            onClick={() => hub.openModal('confirmSubmit')}
-            className="rounded-[6px] bg-[#2F66C8] px-5 py-3 text-sm font-medium text-white"
+            onClick={hub.finishUploadSession}
+            disabled={hub.uploading || files.length === 0 || files.some((f) => f.id.startsWith('local-'))}
+            className="rounded-[6px] bg-[#2F66C8] px-5 py-3 text-sm font-medium text-white disabled:opacity-50"
           >
-            Upload
+            {hub.uploading ? 'Uploading…' : 'Done'}
           </button>
         </div>
       </div>
@@ -828,7 +934,9 @@ export function ConfirmSubmitModal({ open, hub }: { open: boolean; hub: OrgProfi
       body="Once submitted, you won't be able to edit your documents until review is complete"
       confirmLabel="Submit"
       onCancel={hub.closeModal}
-      onConfirm={() => hub.openModal('submitted')}
+      onConfirm={() => {
+        void hub.submitVerification();
+      }}
     />
   );
 }

@@ -1,5 +1,5 @@
 import apiClient from '@/lib/api';
-import { getApiErrorMessage, getStoredToken } from '@/lib/apiError';
+import { getApiErrorMessage, getRawStoredToken } from '@/lib/apiError';
 import { createOfflineAuthResponse } from '@/lib/offlineAuth';
 import { isStaticMode } from '@/lib/staticMode';
 import {
@@ -35,11 +35,6 @@ export const authService = {
       const { data } = await apiClient.post<AuthResponse>('/auth/login', dto);
       return data;
     } catch (error) {
-      // While the backend is unavailable, fall back to an offline session
-      // instead of trapping the user on the login screen.
-      if (!apiClientIsReachable(error)) {
-        return toAuthResponse(dto.email);
-      }
       throw new Error(getApiErrorMessage(error, 'Login failed.'));
     }
   },
@@ -58,9 +53,6 @@ export const authService = {
       const { data } = await apiClient.post<RegisterResult>('/auth/register', dto);
       return data;
     } catch (error) {
-      if (!apiClientIsReachable(error)) {
-        return toAuthResponse(dto.email, dto.name);
-      }
       throw new Error(getApiErrorMessage(error, 'Registration failed.'));
     }
   },
@@ -81,13 +73,13 @@ export const authService = {
   },
 
   async getSession(): Promise<AuthResponse | null> {
-    const token = getStoredToken();
-    if (!token) return null;
+    const rawToken = getRawStoredToken();
+    if (!rawToken) return null;
 
-    if (isStaticMode() || isOfflineProviderSession(token)) {
+    if (isStaticMode() || isOfflineProviderSession(rawToken)) {
       const user = useAuthStore.getState().user;
       if (!user) return null;
-      return { user, token };
+      return { user, token: rawToken };
     }
 
     try {
@@ -120,6 +112,15 @@ export const authService = {
       await apiClient.post('/auth/resend-otp', { email: _email });
     } catch (error) {
       throw new Error(getApiErrorMessage(error, 'Could not resend code.'));
+    }
+  },
+
+  async forgotPassword(email: string): Promise<void> {
+    if (isStaticMode()) return;
+    try {
+      await apiClient.post('/auth/forgot-password', { email });
+    } catch (error) {
+      throw new Error(getApiErrorMessage(error, 'Could not send recovery email.'));
     }
   },
 };

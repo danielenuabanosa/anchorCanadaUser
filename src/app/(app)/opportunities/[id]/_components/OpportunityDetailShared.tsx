@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import {
   ArrowLeft,
   ArrowUp,
@@ -15,6 +16,7 @@ import {
   Edit,
   ExternalLink,
   Eye,
+  FolderOpen,
   Globe,
   MoreHorizontal,
   MousePointerClick,
@@ -26,6 +28,7 @@ import {
   Users,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { DetailPageSkeleton } from '@/shared/components/ui/PageSkeletons';
 import {
   DEFAULT_OPPORTUNITY_DETAIL,
   PIPELINE_COLORS,
@@ -33,6 +36,8 @@ import {
 } from './opportunityDetailData';
 import { ExportOpportunitiesModal } from '../../_components/OpportunityHubModals';
 import type { OpportunityRow } from '../../_components/opportunitiesHubData';
+import { useOpportunityDetail } from '@/features/provider/hooks/useOpportunityDetail';
+import { providerApi } from '@/features/provider/services/providerApi';
 
 const FUNNEL_WIDTHS = [100, 85, 70, 55, 40];
 
@@ -190,18 +195,40 @@ function MoreActionsMenu({
   open,
   onClose,
   onExport,
+  onPause,
+  onUnpause,
+  onCloseOpportunity,
+  onReopen,
+  onDelete,
+  isPaused,
+  isClosed,
 }: {
   open: boolean;
   onClose: () => void;
   onExport: () => void;
+  onPause: () => void;
+  onUnpause: () => void;
+  onCloseOpportunity: () => void;
+  onReopen: () => void;
+  onDelete: () => void;
+  isPaused?: boolean;
+  isClosed?: boolean;
 }) {
   if (!open) return null;
   const items = [
-    { label: 'Pause Opportunity', icon: Pause, action: 'close' as const },
-    { label: 'Close Opportunity', icon: SquareX, action: 'close' as const },
+    ...(isClosed
+      ? [{ label: 'Reopen as Draft', icon: FolderOpen, action: 'reopen' as const }]
+      : [
+          {
+            label: isPaused ? 'Unpause Opportunity' : 'Pause Opportunity',
+            icon: Pause,
+            action: isPaused ? ('unpause' as const) : ('pause' as const),
+          },
+          { label: 'Close Opportunity', icon: SquareX, action: 'close' as const },
+        ]),
     { label: 'Export Opportunity', icon: Download, action: 'export' as const },
-    { label: 'View Opportunity', icon: ExternalLink, action: 'close' as const },
-    { label: 'Delete Opportunity', icon: Trash2, danger: true, action: 'close' as const },
+    { label: 'View Opportunity', icon: ExternalLink, action: 'view' as const },
+    { label: 'Delete Opportunity', icon: Trash2, danger: true, action: 'delete' as const },
   ];
   return (
     <>
@@ -213,11 +240,19 @@ function MoreActionsMenu({
             type="button"
             onClick={() => {
               if (item.action === 'export') onExport();
+              if (item.action === 'pause') onPause();
+              if (item.action === 'unpause') onUnpause();
+              if (item.action === 'close') onCloseOpportunity();
+              if (item.action === 'reopen') onReopen();
+              if (item.action === 'delete') onDelete();
+              if (item.action === 'view') {
+                window.open(`/opportunities/${window.location.pathname.split('/').pop() ?? ''}`, '_blank');
+              }
               onClose();
             }}
             className={cn(
               'flex w-full items-center gap-3 px-4 py-2.5 text-left text-[14px] hover:bg-[#F8FAFC]',
-              item.danger ? 'text-[#B91C1C]' : 'text-[#0F172A]',
+              'danger' in item && item.danger ? 'text-[#B91C1C]' : 'text-[#0F172A]',
             )}
           >
             <item.icon className="h-4 w-4" />
@@ -230,10 +265,17 @@ function MoreActionsMenu({
 }
 
 export function OpportunityDetailView({ variant }: { variant: 'desktop' | 'mobile' }) {
+  const params = useParams<{ id: string }>();
+  const opportunityId = params?.id ?? '';
+  const { data: loaded, loading, error, refetch } = useOpportunityDetail(opportunityId);
   const [moreOpen, setMoreOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
-  const data = DEFAULT_OPPORTUNITY_DETAIL;
+  const [actionBusy, setActionBusy] = useState(false);
+  const [shareNote, setShareNote] = useState('');
+  const data = loaded ?? DEFAULT_OPPORTUNITY_DETAIL;
   const isMobile = variant === 'mobile';
+  const isPaused = String(data.status).toLowerCase().includes('pause');
+  const isClosed = String(data.status).toLowerCase().includes('closed');
 
   const exportRow: OpportunityRow = {
     id: data.id,
@@ -244,15 +286,115 @@ export function OpportunityDetailView({ variant }: { variant: 'desktop' | 'mobil
       : data.opportunityType.toLowerCase().includes('express')
         ? 'express-interest'
         : 'internal',
-    status: data.status === 'Published' ? 'Active' : 'Draft',
+    status: data.status === 'Published' ? 'Active' : data.status === 'Closed' ? 'Closed' : 'Draft',
     applications: Number(String(data.metrics.applications.value).replace(/,/g, '')) || 0,
     applicationsDelta: data.metrics.applications.change,
     views: Number(String(data.metrics.views.value).replace(/,/g, '')) || 0,
     deadline: data.deadline,
     daysLeft: '',
-    health: 'High Engagement',
+    health:
+      Number(String(data.metrics.applications.value).replace(/,/g, '')) >= 20
+        ? 'High Engagement'
+        : Number(String(data.metrics.applications.value).replace(/,/g, '')) >= 5
+          ? 'Moderate Engagement'
+          : data.status === 'Published'
+            ? 'Low Engagement'
+            : '-',
     tab: 'all',
   };
+
+  async function handleClose() {
+    if (!opportunityId || actionBusy) return;
+    setActionBusy(true);
+    try {
+      await providerApi.closeOpportunity(opportunityId);
+      window.location.href = '/opportunities';
+    } catch (err) {
+      console.error(err);
+      setActionBusy(false);
+    }
+  }
+
+  async function handleReopen() {
+    if (!opportunityId || actionBusy) return;
+    setActionBusy(true);
+    try {
+      await providerApi.reopenOpportunity(opportunityId);
+      await refetch();
+      window.location.href = `/opportunities/create/details?id=${encodeURIComponent(opportunityId)}`;
+    } catch (err) {
+      console.error(err);
+      setActionBusy(false);
+    }
+  }
+
+  async function handlePause() {
+    if (!opportunityId || actionBusy) return;
+    setActionBusy(true);
+    try {
+      await providerApi.pauseOpportunity(opportunityId);
+      await refetch();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setActionBusy(false);
+    }
+  }
+
+  async function handleUnpause() {
+    if (!opportunityId || actionBusy) return;
+    setActionBusy(true);
+    try {
+      await providerApi.unpauseOpportunity(opportunityId);
+      await refetch();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setActionBusy(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!opportunityId || actionBusy) return;
+    setActionBusy(true);
+    try {
+      await providerApi.deleteOpportunity(opportunityId);
+      window.location.href = '/opportunities';
+    } catch (err) {
+      console.error(err);
+      setActionBusy(false);
+    }
+  }
+
+  async function handleShare() {
+    const url =
+      typeof window !== 'undefined'
+        ? `${window.location.origin}/opportunities/${opportunityId}`
+        : `/opportunities/${opportunityId}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareNote('Link copied');
+      window.setTimeout(() => setShareNote(''), 2000);
+    } catch {
+      setShareNote('Could not copy');
+      window.setTimeout(() => setShareNote(''), 2000);
+    }
+  }
+
+  if (loading) {
+    return <DetailPageSkeleton />;
+  }
+
+  if (error || !loaded) {
+    return (
+      <div className="flex flex-col gap-4 py-10">
+        <p className="text-sm text-red-600">{error || 'Opportunity not found.'}</p>
+        <Link href="/opportunities" className="text-sm font-medium text-[#2F66C8]">
+          Back to opportunities
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className={cn('flex flex-col gap-5', isMobile && 'pb-4')}>
@@ -291,19 +433,22 @@ export function OpportunityDetailView({ variant }: { variant: 'desktop' | 'mobil
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
+            <Link
+              href={`/opportunities/create/details?id=${opportunityId}`}
               className="inline-flex items-center gap-2 rounded-[6px] border border-[#D9E1EF] px-4 py-2.5 text-[14px] font-medium text-[#0F172A]"
             >
               <Edit className="h-4 w-4" />
               Edit Opportunity
-            </button>
+            </Link>
             <button
               type="button"
+              onClick={() => {
+                void handleShare();
+              }}
               className="inline-flex items-center gap-2 rounded-[6px] border border-[#D9E1EF] px-4 py-2.5 text-[14px] font-medium text-[#0F172A]"
             >
               <Share2 className="h-4 w-4" />
-              Share
+              {shareNote || 'Share'}
             </button>
             <div className="relative">
               <button
@@ -318,6 +463,23 @@ export function OpportunityDetailView({ variant }: { variant: 'desktop' | 'mobil
                 open={moreOpen}
                 onClose={() => setMoreOpen(false)}
                 onExport={() => setExportOpen(true)}
+                onPause={() => {
+                  void handlePause();
+                }}
+                onUnpause={() => {
+                  void handleUnpause();
+                }}
+                onCloseOpportunity={() => {
+                  void handleClose();
+                }}
+                onReopen={() => {
+                  void handleReopen();
+                }}
+                onDelete={() => {
+                  void handleDelete();
+                }}
+                isPaused={isPaused}
+                isClosed={isClosed}
               />
             </div>
           </div>

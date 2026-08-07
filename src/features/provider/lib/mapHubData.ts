@@ -4,6 +4,7 @@ import type {
   OpportunityRow,
   OpportunityStatus,
   OpportunityTab,
+  HealthStatus,
 } from '@/app/(app)/opportunities/_components/opportunitiesHubData';
 
 export type ApiProviderOpportunity = {
@@ -15,6 +16,10 @@ export type ApiProviderOpportunity = {
   location?: string | null;
   deadline?: string | null;
   createdAt: string;
+  applicationCount?: number;
+  savesCount?: number;
+  viewsCount?: number;
+  health?: string;
 };
 
 export type ApiProviderApplication = {
@@ -22,8 +27,15 @@ export type ApiProviderApplication = {
   opportunityTitle?: string;
   applicantName: string;
   applicantEmail: string;
-  status: 'new' | 'under_review' | 'shortlisted' | 'rejected' | 'accepted';
+  status: 'new' | 'under_review' | 'shortlisted' | 'interview' | 'rejected' | 'accepted' | 'withdrawn';
   createdAt: string;
+  reviewerMemberId?: string | null;
+  reviewer?: { id: string; name: string; email?: string } | null;
+  opportunity?: {
+    location?: string | null;
+    province?: string | null;
+    opportunityType?: 'internal' | 'external' | 'express-interest';
+  };
 };
 
 function formatDate(value?: string | null) {
@@ -66,9 +78,12 @@ function mapApplicationStatus(status: ApiProviderApplication['status']): Applica
       return 'Under Review';
     case 'shortlisted':
       return 'Shortlisted';
+    case 'interview':
+      return 'Interview';
     case 'accepted':
       return 'Accepted';
     case 'rejected':
+    case 'withdrawn':
       return 'Rejected';
     default:
       return 'Under Review';
@@ -82,13 +97,37 @@ function mapApplicationTab(status: ApiProviderApplication['status']): Applicatio
       return 'under-review';
     case 'shortlisted':
       return 'shortlisted';
+    case 'interview':
+      return 'interview';
     case 'accepted':
       return 'accepted';
     case 'rejected':
+    case 'withdrawn':
       return 'rejected';
     default:
       return 'all';
   }
+}
+
+/** Map API application status → hub row status + tab (for optimistic updates). */
+export function applicationRowFieldsFromApiStatus(
+  status: ApiProviderApplication['status'] | 'under_review' | 'shortlisted' | 'interview' | 'accepted' | 'rejected',
+): { status: ApplicationStatus; tab: ApplicationTab } {
+  const normalized = status === 'new' ? 'under_review' : status;
+  return {
+    status: mapApplicationStatus(normalized as ApiProviderApplication['status']),
+    tab: mapApplicationTab(normalized as ApiProviderApplication['status']),
+  };
+}
+
+function mapHealth(value?: string, applications = 0, status?: ApiProviderOpportunity['status']): HealthStatus {
+  if (value === 'High Engagement' || value === 'Moderate Engagement' || value === 'Low Engagement' || value === '-') {
+    return value;
+  }
+  if (applications >= 20) return 'High Engagement';
+  if (applications >= 5) return 'Moderate Engagement';
+  if (status === 'live') return 'Low Engagement';
+  return '-';
 }
 
 export function mapApiOpportunityToRow(item: ApiProviderOpportunity): OpportunityRow {
@@ -99,6 +138,7 @@ export function mapApiOpportunityToRow(item: ApiProviderOpportunity): Opportunit
       : uiStatus === 'Closed'
         ? 'closed'
         : item.opportunityType;
+  const applications = item.applicationCount ?? 0;
 
   return {
     id: item.id,
@@ -106,32 +146,43 @@ export function mapApiOpportunityToRow(item: ApiProviderOpportunity): Opportunit
     category: item.category ?? 'General',
     type: item.opportunityType,
     status: uiStatus,
-    applications: 0,
-    applicationsDisplay: 0,
-    applicationsDelta: '-',
-    views: 0,
+    applications,
+    applicationsDisplay: applications,
+    applicationsDelta: applications > 0 ? `${applications} total` : '-',
+    views: item.viewsCount ?? 0,
     deadline: formatDate(item.deadline),
     daysLeft: daysLeft(item.deadline),
-    health: '-',
+    health: mapHealth(item.health, applications, item.status),
     tab,
+    postedDate: formatDate(item.createdAt),
   };
 }
 
 export function mapApiApplicationToRow(item: ApiProviderApplication): ApplicantRow {
   const created = item.createdAt ? new Date(item.createdAt) : null;
+  const locationParts = [item.opportunity?.location, item.opportunity?.province].filter(Boolean);
+  const typeMap = {
+    internal: 'Internal',
+    external: 'External',
+    'express-interest': 'Express Interest',
+  } as const;
+  const opportunityType = item.opportunity?.opportunityType
+    ? typeMap[item.opportunity.opportunityType]
+    : 'Internal';
+
   return {
     id: item.id,
     applicant: item.applicantName,
     email: item.applicantEmail,
-    location: 'Canada',
+    location: locationParts.join(', ') || 'Canada',
     opportunity: item.opportunityTitle ?? 'Opportunity',
-    opportunityType: 'Internal',
+    opportunityType,
     status: mapApplicationStatus(item.status),
     appliedAt: formatDate(item.createdAt),
     appliedTime: created
       ? created.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit' })
       : undefined,
-    reviewer: 'Unassigned',
+    reviewer: item.reviewer?.name || 'Unassigned',
     reviewerAvatar: avatar1,
     avatar: avatar1,
     tab: mapApplicationTab(item.status),

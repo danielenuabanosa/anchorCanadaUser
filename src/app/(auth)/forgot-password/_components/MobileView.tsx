@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 import mailIcon from '@assets/icons/mail.png';
 import shieldIcon from '@assets/icons/shield-check.png';
+import { authService } from '@/features/auth/services/auth.service';
 
 export default function ForgotPasswordMobileView() {
   const [email, setEmail] = useState('');
@@ -18,9 +19,15 @@ export default function ForgotPasswordMobileView() {
     e.preventDefault();
     if (!emailValid) return;
     setIsSubmitting(true);
-    await new Promise(r => setTimeout(r, 1200));
-    setIsSubmitting(false);
-    setSubmitted(true);
+    try {
+      await authService.forgotPassword(email);
+      setSubmitted(true);
+    } catch {
+      console.error('Forgot password request failed');
+      setSubmitted(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (

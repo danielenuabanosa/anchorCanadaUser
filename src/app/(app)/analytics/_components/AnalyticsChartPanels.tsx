@@ -9,23 +9,17 @@ import {
   LineChart,
   Pie,
   PieChart,
-  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
 import { cn } from '@/lib/utils';
+import { ResponsiveChart } from '@/shared/components/charts/ResponsiveChart';
 import {
-  APPLICATION_FUNNEL,
-  APPLICATIONS_OVER_TIME,
-  APPLICATIONS_OVER_TIME_Y_MAX,
-  ANALYTICS_INSIGHTS,
   CHART_GRANULARITY_OPTIONS,
   CHART_TIME_RANGE_OPTIONS,
-  TOP_COUNTRIES,
-  TRAFFIC_SOURCES,
-  TRAFFIC_SOURCES_PIE,
 } from './analyticsData';
+import { useAnalyticsData } from './AnalyticsDataContext';
 import { ApplicantDemographicsMap } from './ApplicantDemographicsMap';
 
 function ChartPeriodSelect({
@@ -126,9 +120,11 @@ function PanelShell({
 const CHART_TICK = { fontFamily: 'DM Sans, sans-serif', fontSize: 12, fill: '#8C97AD' } as const;
 
 export function ApplicationsOverTimeChart({ skeleton }: { skeleton?: boolean }) {
+  const analytics = useAnalyticsData();
   const [timeRange, setTimeRange] = useState<string>(CHART_TIME_RANGE_OPTIONS[1]);
-  const yMax = APPLICATIONS_OVER_TIME_Y_MAX;
+  const yMax = analytics.applicationsOverTimeYMax;
   const ticks = [0, yMax / 4, yMax / 2, (yMax * 3) / 4, yMax];
+  const chartData = analytics.applicationsOverTime;
 
   if (skeleton) {
     return (
@@ -158,11 +154,10 @@ export function ApplicationsOverTimeChart({ skeleton }: { skeleton?: boolean }) 
         />
       }
     >
-      <div className="flex flex-col gap-6">
-        <div className="h-[254px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="flex flex-col gap-6">
+          <ResponsiveChart height={254}>
             <LineChart
-              data={[...APPLICATIONS_OVER_TIME]}
+              data={chartData}
               margin={{ left: -10, right: 8, top: 8, bottom: 0 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#EEF2F8" vertical={false} />
@@ -208,8 +203,7 @@ export function ApplicationsOverTimeChart({ skeleton }: { skeleton?: boolean }) 
                 activeDot={{ r: 5, fill: '#93B4F5' }}
               />
             </LineChart>
-          </ResponsiveContainer>
-        </div>
+          </ResponsiveChart>
         <div className="flex items-center justify-center gap-5">
           <div className="flex items-center gap-2.5">
             <span className="block h-[3px] w-9 rounded-full bg-[#2F66C8]" />
@@ -232,6 +226,7 @@ export function ApplicationsOverTimeChart({ skeleton }: { skeleton?: boolean }) 
 }
 
 export function ApplicationFunnelPanel({ skeleton, mobile }: { skeleton?: boolean; mobile?: boolean }) {
+  const { funnel: APPLICATION_FUNNEL } = useAnalyticsData();
   const [granularity, setGranularity] = useState<string>(CHART_GRANULARITY_OPTIONS[0]);
 
   if (skeleton) {
@@ -317,6 +312,7 @@ export function ApplicationFunnelPanel({ skeleton, mobile }: { skeleton?: boolea
 
 
 export function ApplicantDemographicsPanel({ skeleton }: { skeleton?: boolean }) {
+  const { topCountries: TOP_COUNTRIES } = useAnalyticsData();
   const [granularity, setGranularity] = useState<string>(CHART_GRANULARITY_OPTIONS[0]);
 
   if (skeleton) {
@@ -385,6 +381,12 @@ export function ApplicantDemographicsPanel({ skeleton }: { skeleton?: boolean })
 }
 
 export function TrafficSourcesPanel({ skeleton }: { skeleton?: boolean }) {
+  const { trafficSources: TRAFFIC_SOURCES } = useAnalyticsData();
+  const TRAFFIC_SOURCES_PIE = TRAFFIC_SOURCES.map((s) => ({
+    name: s.label,
+    value: parseFloat(s.percent) || 0,
+    color: s.color,
+  }));
   const [granularity, setGranularity] = useState<string>(CHART_GRANULARITY_OPTIONS[0]);
 
   if (skeleton) {
@@ -447,7 +449,7 @@ export function TrafficSourcesPanel({ skeleton }: { skeleton?: boolean }) {
     >
       <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
         <div className="relative h-[167px] w-[167px] shrink-0">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveChart height={167} className="!w-[167px]">
             <PieChart>
               <Pie
                 data={TRAFFIC_SOURCES_PIE}
@@ -467,7 +469,7 @@ export function TrafficSourcesPanel({ skeleton }: { skeleton?: boolean }) {
                 ))}
               </Pie>
             </PieChart>
-          </ResponsiveContainer>
+          </ResponsiveChart>
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
             <p className="text-lg font-semibold leading-none text-[#0F172A]">24,842</p>
             <p className="mt-1 text-xs text-[#44516A]">Total Views</p>
@@ -501,6 +503,7 @@ export function InsightsPanel({
   onInsightClick?: (id: string) => void;
   onViewAllClick?: () => void;
 }) {
+  const { insights: INSIGHTS } = useAnalyticsData();
   if (skeleton) {
     return (
       <PanelShell
@@ -558,7 +561,7 @@ export function InsightsPanel({
         </button>
       </div>
       <div className="space-y-4">
-        {ANALYTICS_INSIGHTS.map((insight) => (
+        {INSIGHTS.map((insight) => (
           <button
             key={insight.id}
             type="button"

@@ -19,6 +19,8 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   ShieldCheck,
+  LayoutGrid,
+  MessageCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouteHash } from '@/shared/hooks/useRouteHash';
@@ -28,6 +30,10 @@ import { useAuthStore } from '@/store/authStore';
 import { useHelpCenterStore } from '@/store/helpCenterStore';
 import { isStaticMode } from '@/lib/staticMode';
 import { Avatar } from '@/shared/components/ui/Avatar';
+import {
+  useProviderUnreadMessageCount,
+  useProviderUnreadNotificationCount,
+} from '@/features/messages/hooks/useUnreadCounts';
 import anchorLogo from '@assets/icons/anchor-logo-full.png';
 import orgAvatar from '@assets/images/prov-sickkids.png';
 
@@ -35,9 +41,11 @@ const NAV_ITEMS = [
   { label: 'Dashboard', href: '/dashboard', icon: House },
   { label: 'Opportunities', href: '/opportunities', icon: BadgeCheck },
   { label: 'Applications', href: '/applications', icon: FileText },
+  { label: 'Providers', href: '/categories', icon: LayoutGrid },
   { label: 'Providers Team', href: '/team', icon: Users },
   { label: 'Analytics', href: '/analytics', icon: ChartPie },
-  { label: 'Notifications', href: '/notifications', icon: Bell, badge: 12 },
+  { label: 'Notifications', href: '/notifications', icon: Bell, showBadge: 'notifications' as const },
+  { label: 'Messages', href: '/messages', icon: MessageCircle, showBadge: 'messages' as const },
   { label: 'Organization Profile', href: '/organization-profile', icon: Building2 },
   { label: 'Settings', href: '/settings', icon: Settings },
 ] as const;
@@ -121,6 +129,8 @@ export function Sidebar() {
   const { user, isAuthenticated } = useAuthStore();
   const helpCenterOpen = useHelpCenterStore((s) => s.isOpen || s.reportOpen);
   const openHelpCenter = useHelpCenterStore((s) => s.open);
+  const { data: unreadNotifications = 0 } = useProviderUnreadNotificationCount();
+  const { data: unreadMessages = 0 } = useProviderUnreadMessageCount();
 
   const orgName = user?.name ?? 'Maple Future Nonprofit';
   const avatarSrc = user?.avatarUrl ?? orgAvatar.src;
@@ -170,14 +180,20 @@ export function Sidebar() {
 
         <nav className={cn('flex flex-col gap-2.5 p-5', collapsed && 'px-2')} aria-label="Primary">
           {NAV_ITEMS.map(({ label, href, icon, ...rest }) => {
-            const badge = 'badge' in rest ? rest.badge : undefined;
+            const showBadge = 'showBadge' in rest ? rest.showBadge : undefined;
+            const badge =
+              showBadge === 'notifications'
+                ? unreadNotifications
+                : showBadge === 'messages'
+                  ? unreadMessages
+                  : undefined;
             return (
               <NavItem
                 key={href}
                 label={label}
                 href={href}
                 icon={icon}
-                badge={badge}
+                badge={badge && badge > 0 ? badge : undefined}
                 active={isNavActive(pathname, href, hash)}
                 collapsed={collapsed}
               />

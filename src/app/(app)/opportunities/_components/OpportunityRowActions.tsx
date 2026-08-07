@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import {
   Archive,
@@ -22,6 +23,7 @@ import {
   ExtendDeadlineModal,
   PauseOpportunityModal,
 } from './OpportunityHubModals';
+import { providerApi } from '@/features/provider/services/providerApi';
 
 interface OpportunityRowActionsProps {
   row: OpportunityRow;
@@ -49,7 +51,11 @@ const MENU_ITEMS: Array<{
   { id: 'delete', label: 'Delete Draft', icon: Trash2, danger: true },
 ];
 
+const MENU_WIDTH = 240;
+
 type HubModal = 'archive' | 'delete' | 'pause' | 'extend' | 'download' | null;
+
+type MenuCoords = { top: number; left: number };
 
 export function OpportunityRowActions({
   row,
@@ -62,14 +68,55 @@ export function OpportunityRowActions({
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [modal, setModal] = useState<HubModal>(null);
+  const [coords, setCoords] = useState<MenuCoords | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!menuOpen) {
+      setCoords(null);
+      return;
+    }
+
+    function updatePosition() {
+      const button = buttonRef.current;
+      if (!button) return;
+
+      const rect = button.getBoundingClientRect();
+      const menuHeight = menuRef.current?.offsetHeight ?? 420;
+      const gap = 4;
+      const spaceBelow = window.innerHeight - rect.bottom - gap;
+      const openUp = spaceBelow < menuHeight && rect.top > spaceBelow;
+
+      const top = openUp ? rect.top - menuHeight - gap : rect.bottom + gap;
+      const left = Math.min(
+        Math.max(8, rect.right - MENU_WIDTH),
+        window.innerWidth - MENU_WIDTH - 8,
+      );
+
+      setCoords({ top, left });
+    }
+
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
+  }, [menuOpen]);
 
   useEffect(() => {
     if (!menuOpen) return;
     function handleClick(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setMenuOpen(false);
-      }
+      const target = event.target as Node;
+      if (buttonRef.current?.contains(target) || menuRef.current?.contains(target)) return;
+      setMenuOpen(false);
     }
     function handleKey(event: KeyboardEvent) {
       if (event.key === 'Escape') setMenuOpen(false);
@@ -95,7 +142,20 @@ export function OpportunityRowActions({
         router.push('/analytics');
         break;
       case 'duplicate':
-        router.push('/opportunities/create/category');
+        void (async () => {
+          try {
+            const created = await providerApi.duplicateOpportunity(row.id);
+            const newId = (created as { id?: string })?.id;
+            if (newId) {
+              router.push(`/opportunities/create/details?id=${encodeURIComponent(newId)}`);
+            } else {
+              router.push('/opportunities/create/category');
+            }
+          } catch (err) {
+            console.error(err);
+            router.push('/opportunities/create/category');
+          }
+        })();
         break;
       case 'pause':
         setModal('pause');
@@ -121,23 +181,18 @@ export function OpportunityRowActions({
     setModal(null);
   }
 
-  return (
-    <>
-      <div ref={menuRef} className="relative">
-        <button
-          type="button"
-          onClick={() => setMenuOpen((open) => !open)}
-          className={`flex items-center justify-center rounded-[6px] border border-[#EEF2F8] text-[#44516A] hover:bg-[#F8FAFC] ${
-            compact ? 'h-[30px] w-[30px]' : 'h-8 w-8'
-          }`}
-          aria-label={`Actions for ${row.name}`}
-          aria-expanded={menuOpen}
-        >
-          <Ellipsis className="h-[18px] w-[18px]" />
-        </button>
-
-        {menuOpen ? (
-          <div className="absolute right-0 top-full z-50 mt-1 w-[240px] overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white py-1 shadow-[0px_6px_16px_rgba(0,0,0,0.08)]">
+  const menu =
+    mounted && menuOpen
+      ? createPortal(
+          <div
+            ref={menuRef}
+            style={
+              coords
+                ? { top: coords.top, left: coords.left, width: MENU_WIDTH }
+                : { visibility: 'hidden', top: 0, left: 0, width: MENU_WIDTH }
+            }
+            className="fixed z-[200] overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white py-1 shadow-[0px_6px_16px_rgba(0,0,0,0.08)]"
+          >
             {MENU_ITEMS.map((item) => {
               const Icon = item.icon;
               const label =
@@ -160,8 +215,27 @@ export function OpportunityRowActions({
                 </button>
               );
             })}
-          </div>
-        ) : null}
+          </div>,
+          document.body,
+        )
+      : null;
+
+  return (
+    <>
+      <div className="relative">
+        <button
+          ref={buttonRef}
+          type="button"
+          onClick={() => setMenuOpen((open) => !open)}
+          className={`flex items-center justify-center rounded-[6px] border border-[#EEF2F8] text-[#44516A] hover:bg-[#F8FAFC] ${
+            compact ? 'h-[30px] w-[30px]' : 'h-8 w-8'
+          }`}
+          aria-label={`Actions for ${row.name}`}
+          aria-expanded={menuOpen}
+        >
+          <Ellipsis className="h-[18px] w-[18px]" />
+        </button>
+        {menu}
       </div>
 
       <ArchiveOpportunityModal

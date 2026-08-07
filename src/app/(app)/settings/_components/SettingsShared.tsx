@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { Check, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -9,8 +8,9 @@ import { HubMenuSelect } from '@/shared/components/hub/HubMenuSelect';
 import { Toggle, textSecondary } from '@/shared/components/app/page-ui';
 import { useHelpCenterStore } from '@/store/helpCenterStore';
 import {
-  COMPLETION_CHECKLIST,
+  DEFAULT_COMPLETION_CHECKLIST,
   SETTINGS_TABS,
+  type CompletionChecklistItem,
   type SettingsTab,
 } from './settingsData';
 
@@ -150,7 +150,17 @@ function ChecklistItem({ completed, label, soon }: { completed: boolean; label: 
   );
 }
 
-export function OrgInfoSidebar({ mobile = false, className }: { mobile?: boolean; className?: string }) {
+export function OrgInfoSidebar({
+  mobile = false,
+  className,
+  completionPercent = 0,
+  checklist = DEFAULT_COMPLETION_CHECKLIST,
+}: {
+  mobile?: boolean;
+  className?: string;
+  completionPercent?: number;
+  checklist?: CompletionChecklistItem[];
+}) {
   const openHelp = useHelpCenterStore((s) => s.open);
 
   return (
@@ -169,9 +179,9 @@ export function OrgInfoSidebar({ mobile = false, className }: { mobile?: boolean
             : 'flex flex-col items-center gap-[30px] px-4 py-[26px]',
         )}
       >
-        <CompletionRing percent={86} />
+        <CompletionRing percent={completionPercent} />
         <div className={cn('flex flex-col gap-2.5', mobile && 'min-w-0 flex-1')}>
-          {COMPLETION_CHECKLIST.map((item) => (
+          {checklist.map((item) => (
             <ChecklistItem key={item.id} completed={item.completed} label={item.label} soon={item.soon} />
           ))}
         </div>
@@ -259,11 +269,13 @@ export function TextInput({
   value,
   onChange,
   readOnly,
+  placeholder,
   className,
 }: {
   value: string;
   onChange?: (v: string) => void;
   readOnly?: boolean;
+  placeholder?: string;
   className?: string;
 }) {
   return (
@@ -271,6 +283,7 @@ export function TextInput({
       type="text"
       value={value}
       readOnly={readOnly}
+      placeholder={placeholder}
       onChange={(e) => onChange?.(e.target.value)}
       className={cn(ANCHOR_FIELD, className)}
     />

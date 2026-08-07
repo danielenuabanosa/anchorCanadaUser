@@ -33,6 +33,7 @@ export interface RegisterDto {
 export interface AuthResponse {
   user: AuthUser;
   token: string;
+  refreshToken?: string;
 }
 
 export type RegisterResult =

@@ -12,6 +12,7 @@ import { OnboardingInfoBar } from '@/features/onboarding/components/OnboardingIn
 import { ProviderOptionCard } from '@/features/onboarding/components/ProviderOptionCard';
 import { OPPORTUNITY_CATEGORIES } from '@/features/onboarding/lib/onboardingData';
 import { useProviderOnboardingStore } from '@/store/onboardingStore';
+import { saveOnboardingDraft } from '@/features/provider/lib/completeOnboarding';
 import circleCheckIcon from '@assets/icons/circle-check.png';
 
 export default function MobileView() {
@@ -39,6 +40,7 @@ export default function MobileView() {
   function handleContinue() {
     if (!hasSelected) return;
     setOnboardingData({ categories: Array.from(selected) });
+    void saveOnboardingDraft('categories').catch(() => undefined);
     router.push('/onboarding/organization-info');
   }
 

@@ -7,7 +7,7 @@ const dmSans = DM_Sans({
   variable: '--font-dm-sans',
   subsets: ['latin'],
   display: 'swap',
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700'],
 });
 
 const instrumentSerif = Instrument_Serif({
@@ -16,6 +16,8 @@ const instrumentSerif = Instrument_Serif({
   display: 'swap',
   weight: ['400'],
   style: ['normal', 'italic'],
+  // Avoid unused preload warnings for display font on data-heavy pages.
+  preload: false,
 });
 
 export const metadata: Metadata = {

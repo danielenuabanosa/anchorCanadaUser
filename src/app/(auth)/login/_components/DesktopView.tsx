@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
 import { authService } from '@/features/auth/services/auth.service';
 import { getApiErrorMessage } from '@/lib/apiError';
@@ -17,6 +17,11 @@ import googleIcon from '@assets/icons/google.png';
 import lightBulbIcon from '@assets/icons/light-bulb.png';
 
 const MIN_PASSWORD_LENGTH = 8;
+
+function safeNextPath(raw: string | null) {
+  if (!raw || !raw.startsWith('/') || raw.startsWith('//')) return '/dashboard';
+  return raw;
+}
 
 function isValidLoginEmail(email: string) {
   if (isStaticMode()) return email.trim().length > 0;
@@ -33,6 +38,7 @@ export default function LoginDesktopView() {
   const [error, setError] = useState('');
 
   const router = useRouter();
+  const searchParams = useSearchParams();
   const setAuth = useAuthStore((s) => s.setAuth);
   const emailValid = isValidLoginEmail(email);
   const passwordValid = isStaticMode() ? password.length > 0 : password.length >= MIN_PASSWORD_LENGTH;
@@ -59,12 +65,21 @@ export default function LoginDesktopView() {
 
     try {
       const loginEmail = isStaticMode() ? resolveDevLoginEmail(email) : email.trim();
-      const { user, token } = await authService.login({
+      const { user, token, refreshToken } = await authService.login({
         email: loginEmail,
         password,
       });
-      setAuth(user, token);
-      router.push('/dashboard');
+      setAuth(user, token, refreshToken);
+      const next = safeNextPath(searchParams.get('next'));
+      if (
+        next === '/dashboard' &&
+        user.provider &&
+        user.provider.onboardingCompleted === false
+      ) {
+        router.push('/onboarding');
+        return;
+      }
+      router.push(next);
     } catch (err) {
       setError(getApiErrorMessage(err, 'Sign-in failed. Please try again.'));
       setIsSubmitting(false);
@@ -85,6 +100,25 @@ export default function LoginDesktopView() {
           <p className="type-subtitle">Your provider workspace is waiting.</p>
         </div>
 
+        <div className="flex flex-col gap-5">
+             
+                <div className="flex w-full cursor-pointer items-center justify-center gap-5 rounded-[6px] border border-[#d9e1ef] bg-white px-6 py-4 transition-colors hover:bg-[#f8fafc]">
+                  <Image src={googleIcon} alt="" width={24} height={24} />
+                  <span className="text-base font-medium text-[#0f172a]">Google</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-5">
+                <div className="flex items-center gap-5">
+                  <div className="h-px flex-1 bg-[#d9e1ef]" />
+                  <span className="text-base whitespace-nowrap text-[#44516a]">
+                    Or continue with
+                  </span>
+                  <div className="h-px flex-1 bg-[#d9e1ef]" />
+                </div>
+                
+              </div>
+
         <div className="flex w-full flex-col gap-10">
           <div className="flex w-full flex-col gap-8">
             {error && (
@@ -94,7 +128,7 @@ export default function LoginDesktopView() {
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="2"
+                  strokeWidth="2"   
                 >
                   <circle cx="12" cy="12" r="10" />
                   <path d="M12 8v4M12 16h.01" />
@@ -110,8 +144,8 @@ export default function LoginDesktopView() {
                   <span className="text-[#ef4444]">*</span>
                 </div>
                 <div className="relative">
-                  <span className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2">
-                    <Image src={mailIcon} alt="" width={18} height={18} className="opacity-60" />
+                  <span className="pointer-events-none absolute top-1/2 left-3.5 z-[1] -translate-y-1/2">
+                    <Image src={mailIcon} alt="" width={18} height={18} />
                   </span>
                   <input
                     type={isStaticMode() ? 'text' : 'email'}
@@ -122,7 +156,7 @@ export default function LoginDesktopView() {
                     autoComplete="email"
                   />
                   {emailValid && (
-                    <div className="pointer-events-none absolute top-1/2 right-3.5 flex shrink-0 -translate-y-1/2 items-center justify-center rounded-[10px] bg-[#15803d] p-1.5">
+                    <div className="pointer-events-none absolute top-1/2 right-3.5 z-[1] flex shrink-0 -translate-y-1/2 items-center justify-center rounded-[10px] bg-[#15803d] p-1.5">
                       <svg className="h-2.5 w-2.5 text-white" viewBox="0 0 12 12" fill="none">
                         <path
                           d="M2 6l3 3 5-5"
@@ -143,8 +177,8 @@ export default function LoginDesktopView() {
                   <span className="text-[#ef4444]">*</span>
                 </div>
                 <div className="relative">
-                  <span className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2">
-                    <Image src={lockIcon} alt="" width={18} height={18} className="opacity-60" />
+                  <span className="pointer-events-none absolute top-1/2 left-3.5 z-[1] -translate-y-1/2">
+                    <Image src={lockIcon} alt="" width={18} height={18} />
                   </span>
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -158,7 +192,7 @@ export default function LoginDesktopView() {
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className="absolute top-1/2 right-3.5 -translate-y-1/2 text-[#8c97ad] hover:text-[#44516a]"
+                    className="absolute top-1/2 right-3.5 z-[1] -translate-y-1/2 text-[#8c97ad] hover:text-[#44516a]"
                   >
                     {showPassword ? (
                       <Eye className="h-[18px] w-[18px]" />
@@ -212,77 +246,9 @@ export default function LoginDesktopView() {
                 </Link>
               </div>
 
-              <div className="flex flex-col gap-5">
-                <div className="flex items-center gap-5">
-                  <div className="h-px flex-1 bg-[#d9e1ef]" />
-                  <span className="text-base whitespace-nowrap text-[#44516a]">
-                    Or continue with
-                  </span>
-                  <div className="h-px flex-1 bg-[#d9e1ef]" />
-                </div>
-                <div className="flex w-full cursor-pointer items-center justify-center gap-5 rounded-[6px] border border-[#d9e1ef] bg-white px-6 py-4 transition-colors hover:bg-[#f8fafc]">
-                  <Image src={googleIcon} alt="" width={24} height={24} />
-                  <span className="text-base font-medium text-[#0f172a]">Google</span>
-                </div>
-              </div>
 
-              <div className="flex w-full items-center justify-between gap-4">
-                <Link
-                  href="/guest"
-                  className="flex items-center gap-2.5 rounded-[6px] border border-[#d9e1ef] bg-white px-5 py-3.5 text-sm text-[#2f66c8] transition-colors hover:bg-[#f8fafc]"
-                >
-                  <svg
-                    className="h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path
-                      d="M19 12H5M12 19l-7-7 7-7"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  Back
-                </Link>
-                <button
-                  type="submit"
-                  form="login-form"
-                  disabled={!canSubmit}
-                  className="flex items-center gap-2.5 rounded-[6px] bg-[#2f66c8] px-5 py-3.5 text-sm text-white transition-colors hover:bg-[#2454a4] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {isSubmitting ? (
-                    <svg
-                      className="h-4 w-4 animate-spin"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0" />
-                    </svg>
-                  ) : (
-                    <>
-                      Enter Anchor
-                      <svg
-                        className="h-4 w-4"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path
-                          d="M5 12h14M12 5l7 7-7 7"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </>
-                  )}
-                </button>
-              </div>
-
+             {/* Security card */}
+              
               <div className="flex w-full items-center gap-4 rounded-[10px] bg-white p-4">
                 <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-[#eff4ff]">
                   <Image src={shieldIcon} alt="" width={28} height={28} />
@@ -296,6 +262,45 @@ export default function LoginDesktopView() {
                   </span>
                 </div>
               </div>
+
+              <div className="flex w-full items-center">
+  <button
+    type="submit"
+    form="login-form"
+    disabled={!canSubmit}
+    className="flex w-full items-center justify-center gap-2.5 rounded-[6px] bg-[#2f66c8] px-5 py-3.5 text-sm text-white transition-colors hover:bg-[#2454a4] disabled:cursor-not-allowed disabled:opacity-60"
+  >
+    {isSubmitting ? (
+      <svg
+        className="h-4 w-4 animate-spin"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
+        <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0" />
+      </svg>
+    ) : (
+      <>
+        Enter Anchor
+        <svg
+          className="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path
+            d="M5 12h14M12 5l7 7-7 7"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </>
+    )}
+  </button>
+</div>
+
             </form>
           </div>
         </div>

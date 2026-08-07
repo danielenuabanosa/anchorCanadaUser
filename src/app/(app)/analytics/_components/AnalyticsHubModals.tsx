@@ -12,13 +12,11 @@ import {
 import { cn } from '@/lib/utils';
 import { downloadTableExport, type ExportRow } from '@/lib/exportTable';
 import {
-  ANALYTICS_STATS,
   EXPORT_INCLUDE_OPTIONS,
-  TEAM_PERFORMANCE,
-  TOP_OPPORTUNITIES,
   type ExportIncludeKey,
   type InsightDetail,
 } from './analyticsData';
+import { useAnalyticsData } from './AnalyticsDataContext';
 
 type ExportFormat = 'csv' | 'excel' | 'pdf';
 
@@ -98,6 +96,7 @@ export function ExportAnalyticsModal({
   onClose: () => void;
   mobile?: boolean;
 }) {
+  const analytics = useAnalyticsData();
   const [format, setFormat] = useState<ExportFormat>('csv');
   const [includes, setIncludes] = useState(DEFAULT_EXPORT_INCLUDES);
 
@@ -119,18 +118,18 @@ export function ExportAnalyticsModal({
     const rows: ExportRow[] = [];
 
     if (includes.overview) {
-      ANALYTICS_STATS.forEach((stat) => {
+      analytics.stats.forEach((stat) => {
         rows.push([
           'Overview',
           stat.label,
-          stat.value,
+          String(stat.value),
           stat.change ? `${stat.changeNegative ? '-' : '+'}${stat.change}` : (stat.subtext ?? ''),
         ]);
       });
     }
 
     if (includes.opportunityPerformance) {
-      TOP_OPPORTUNITIES.forEach((opp) => {
+      analytics.topOpportunities.forEach((opp) => {
         rows.push([
           'Opportunity Performance',
           opp.name,
@@ -141,7 +140,7 @@ export function ExportAnalyticsModal({
     }
 
     if (includes.teamPerformance) {
-      TEAM_PERFORMANCE.forEach((member) => {
+      analytics.teamPerformance.forEach((member) => {
         rows.push([
           'Team Performance',
           member.name,
@@ -152,36 +151,30 @@ export function ExportAnalyticsModal({
     }
 
     if (includes.applicantFunnel) {
-      rows.push(
-        ['Applicant Funnel', 'Submitted', '1,284', 'All applications'],
-        ['Applicant Funnel', 'Under Review', '342', 'Pending review'],
-        ['Applicant Funnel', 'Shortlisted', '186', 'Advanced'],
-        ['Applicant Funnel', 'Accepted', '64', 'Final decisions'],
-      );
+      analytics.funnel.forEach((step) => {
+        rows.push(['Applicant Funnel', step.label, step.value, '']);
+      });
+      if (!analytics.funnel.length) {
+        rows.push(['Applicant Funnel', '—', '0', 'No funnel data']);
+      }
     }
 
     if (includes.demographics) {
-      rows.push(
-        ['Demographics', 'Canada', '42%', 'Primary market'],
-        ['Demographics', 'Nigeria', '18%', 'International'],
-        ['Demographics', 'Other', '40%', 'Rest of world'],
-      );
+      analytics.topCountries.forEach((c) => {
+        rows.push(['Demographics', c.country, c.percent, `${c.count} applicants`]);
+      });
     }
 
     if (includes.trafficSources) {
-      rows.push(
-        ['Traffic Sources', 'Organic Search', '38%', '9,842 visits'],
-        ['Traffic Sources', 'Direct', '27%', '6,991 visits'],
-        ['Traffic Sources', 'Social', '21%', '5,438 visits'],
-        ['Traffic Sources', 'Referral', '14%', '3,625 visits'],
-      );
+      analytics.trafficSources.forEach((s) => {
+        rows.push(['Traffic Sources', s.label, s.percent, s.count]);
+      });
     }
 
     if (includes.insights) {
-      rows.push(
-        ['Insights', 'High conversion opportunities', '6.5%+', 'Promote top performers'],
-        ['Insights', 'Review bottlenecks', '4.6 days', 'Reduce average review time'],
-      );
+      analytics.insights.forEach((insight) => {
+        rows.push(['Insights', insight.title, '', insight.description]);
+      });
     }
 
     if (rows.length === 0) {

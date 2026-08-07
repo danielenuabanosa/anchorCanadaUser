@@ -108,6 +108,8 @@ export interface OpportunityRow {
 
   tab: OpportunityTab;
 
+  postedDate?: string;
+
 }
 
 

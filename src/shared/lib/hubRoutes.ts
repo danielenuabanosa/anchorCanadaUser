@@ -2,6 +2,7 @@
 export const PROVIDER_HUB_ROUTES = [
   '/opportunities',
   '/applications',
+  '/categories',
   '/team',
   '/analytics',
   '/notifications',

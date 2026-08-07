@@ -44,7 +44,7 @@ export function CategoryDetailContent({ slug }: CategoryDetailContentProps) {
         </div>
       )}
 
-      <OpportunityList />
+      {!isLoading && category ? <OpportunityList initialType={category.type} /> : null}
     </div>
   );
 }

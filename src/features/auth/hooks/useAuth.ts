@@ -4,6 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { authService } from '../services/auth.service';
 import { useAuthStore } from '@/store/authStore';
+import { LANDING_URL } from '@/shared/constants';
 import type { LoginDto, RegisterDto } from '../types';
 
 export function useLogin() {
@@ -12,8 +13,8 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: (dto: LoginDto) => authService.login(dto),
-    onSuccess: ({ user, token }) => {
-      setAuth(user, token);
+    onSuccess: ({ user, token, refreshToken }) => {
+      setAuth(user, token, refreshToken);
       router.push('/dashboard');
     },
   });
@@ -30,7 +31,7 @@ export function useRegister() {
         router.push(`/onboarding/verify-email?email=${encodeURIComponent(result.email)}`);
         return;
       }
-      setAuth(result.user, result.token);
+      setAuth(result.user, result.token, result.refreshToken);
       router.push('/dashboard');
     },
   });
@@ -38,13 +39,12 @@ export function useRegister() {
 
 export function useLogout() {
   const { clearAuth } = useAuthStore();
-  const router = useRouter();
 
   return useMutation({
     mutationFn: () => authService.logout(),
     onSettled: () => {
       clearAuth();
-      router.push('/login');
+      window.location.assign(LANDING_URL);
     },
   });
 }

@@ -8,8 +8,9 @@ export type UserRole = AuthUser['role'];
 interface AuthState {
   user: AuthUser | null;
   token: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
-  setAuth: (user: AuthUser, token: string) => void;
+  setAuth: (user: AuthUser, token: string, refreshToken?: string | null) => void;
   clearAuth: () => void;
   updateUser: (partial: Partial<AuthUser>) => void;
 }
@@ -19,17 +20,28 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       token: null,
+      refreshToken: null,
       isAuthenticated: false,
 
-      setAuth: (user, token) =>
-        set({ user, token, isAuthenticated: true }),
+      setAuth: (user, token, refreshToken = null) =>
+        set({
+          user,
+          token,
+          refreshToken: refreshToken ?? null,
+          isAuthenticated: true,
+        }),
 
       clearAuth: () =>
-        set({ user: null, token: null, isAuthenticated: false }),
+        set({
+          user: null,
+          token: null,
+          refreshToken: null,
+          isAuthenticated: false,
+        }),
 
       updateUser: (partial) =>
         set((state) =>
-          state.user ? { user: { ...state.user, ...partial } } : {}
+          state.user ? { user: { ...state.user, ...partial } } : {},
         ),
     }),
     {
@@ -37,8 +49,9 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         user: state.user,
         token: state.token,
+        refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
-    }
-  )
+    },
+  ),
 );

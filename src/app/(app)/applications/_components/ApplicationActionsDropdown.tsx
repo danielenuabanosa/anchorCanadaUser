@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef, type ElementType } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ElementType, type RefObject } from 'react';
+import { createPortal } from 'react-dom';
 import {
   CircleCheckBig,
   Download,
@@ -89,7 +90,8 @@ export type HubActionModalType =
   | 'note'
   | 'offer'
   | 'archive'
-  | 'reopen';
+  | 'reopen'
+  | 'request-documents';
 
 export function hubActionModalForLabel(
   label: string,
@@ -105,10 +107,15 @@ export function hubActionModalForLabel(
     'Send Offer': 'offer',
     'Archive Application': 'archive',
     'Reopen Application': 'reopen',
+    'Request Documents': 'request-documents',
   };
   const type = map[label];
   return type ? { type, applicantName } : null;
 }
+
+const MENU_WIDTH = 220;
+
+type MenuCoords = { top: number; left: number };
 
 interface ApplicationActionsDropdownProps {
   open: boolean;
@@ -117,6 +124,8 @@ interface ApplicationActionsDropdownProps {
   className?: string;
   align?: 'left' | 'right';
   items?: typeof APPLICATION_ACTION_ITEMS;
+  /** Optional explicit trigger; otherwise uses the previous sibling button. */
+  anchorRef?: RefObject<HTMLElement | null>;
 }
 
 export function ApplicationActionsDropdown({
@@ -126,77 +135,135 @@ export function ApplicationActionsDropdown({
   className,
   align = 'right',
   items = APPLICATION_ACTION_ITEMS,
+  anchorRef,
 }: ApplicationActionsDropdownProps) {
+  const markerRef = useRef<HTMLSpanElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
+
+  const [mounted, setMounted] = useState(false);
+  const [coords, setCoords] = useState<MenuCoords | null>(null);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!open) {
+      setCoords(null);
+      return;
+    }
+
+    function resolveAnchor(): HTMLElement | null {
+      if (anchorRef?.current) return anchorRef.current;
+      const prev = markerRef.current?.previousElementSibling;
+      return prev instanceof HTMLElement ? prev : null;
+    }
+
+    function updatePosition() {
+      const anchor = resolveAnchor();
+      if (!anchor) return;
+
+      const rect = anchor.getBoundingClientRect();
+      const menuHeight = menuRef.current?.offsetHeight ?? 320;
+      const gap = 4;
+      const spaceBelow = window.innerHeight - rect.bottom - gap;
+      const openUp = spaceBelow < menuHeight && rect.top > spaceBelow;
+      const top = openUp ? rect.top - menuHeight - gap : rect.bottom + gap;
+      const preferredLeft = align === 'right' ? rect.right - MENU_WIDTH : rect.left;
+      const left = Math.min(Math.max(8, preferredLeft), window.innerWidth - MENU_WIDTH - 8);
+
+      setCoords({ top, left });
+    }
+
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
+  }, [open, align, anchorRef]);
 
   useEffect(() => {
     if (!open) return;
 
     function handlePointer(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        onCloseRef.current();
-      }
+      const target = event.target as Node;
+      const anchor = anchorRef?.current ?? markerRef.current?.previousElementSibling;
+      if (menuRef.current?.contains(target)) return;
+      if (anchor instanceof HTMLElement && anchor.contains(target)) return;
+      onCloseRef.current();
     }
 
     function handleKey(event: KeyboardEvent) {
       if (event.key === 'Escape') onCloseRef.current();
     }
 
-    function handleScroll() {
-      onCloseRef.current();
-    }
-
-    // Defer so the opening click doesn't immediately close the menu.
     const timer = window.setTimeout(() => {
       document.addEventListener('mousedown', handlePointer);
       document.addEventListener('keydown', handleKey);
-      window.addEventListener('scroll', handleScroll, true);
     }, 0);
 
     return () => {
       window.clearTimeout(timer);
       document.removeEventListener('mousedown', handlePointer);
       document.removeEventListener('keydown', handleKey);
-      window.removeEventListener('scroll', handleScroll, true);
     };
-  }, [open]);
+  }, [open, anchorRef]);
 
   if (!open) return null;
 
+  const menu =
+    mounted &&
+    createPortal(
+      <div
+        ref={menuRef}
+        style={
+          coords
+            ? { top: coords.top, left: coords.left, width: MENU_WIDTH }
+            : { visibility: 'hidden', top: 0, left: 0, width: MENU_WIDTH }
+        }
+        className={cn(
+          'fixed z-[200] rounded-[10px] border-[0.6px] border-[#EEF2F8] bg-[#F8FAFC] p-1 shadow-[0px_2px_4px_rgba(0,0,0,0.05)]',
+          className,
+        )}
+        role="menu"
+      >
+        <div className="overflow-hidden rounded-[9px] border-[0.6px] border-[#EEF2F8] bg-white">
+          {items.map((item, index) => (
+            <button
+              key={item.label}
+              type="button"
+              role="menuitem"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                onAction?.(item.label);
+                onClose();
+              }}
+              className={cn(
+                'flex w-full items-center gap-2.5 p-3 text-left text-sm font-normal text-[#0F172A] hover:bg-[#F8FAFC]',
+                index < items.length - 1 && 'border-b border-[#EEF2F8]',
+              )}
+            >
+              <item.icon className="h-[18px] w-[18px] shrink-0 text-[#44516A]" strokeWidth={1.75} />
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </div>,
+      document.body,
+    );
+
   return (
-    <div
-      ref={menuRef}
-      className={cn(
-        'absolute top-full z-50 mt-1 w-[220px] rounded-[10px] border-[0.6px] border-[#EEF2F8] bg-[#F8FAFC] p-1 shadow-[0px_2px_4px_rgba(0,0,0,0.05)]',
-        align === 'right' ? 'right-0' : 'left-0',
-        className,
-      )}
-      role="menu"
-    >
-      <div className="overflow-hidden rounded-[9px] border-[0.6px] border-[#EEF2F8] bg-white">
-        {items.map((item, index) => (
-          <button
-            key={item.label}
-            type="button"
-            role="menuitem"
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              onAction?.(item.label);
-              onClose();
-            }}
-            className={cn(
-              'flex w-full items-center gap-2.5 p-3 text-left text-sm font-normal text-[#0F172A] hover:bg-[#F8FAFC]',
-              index < items.length - 1 && 'border-b border-[#EEF2F8]',
-            )}
-          >
-            <item.icon className="h-[18px] w-[18px] shrink-0 text-[#44516A]" strokeWidth={1.75} />
-            {item.label}
-          </button>
-        ))}
-      </div>
-    </div>
+    <>
+      <span ref={markerRef} className="pointer-events-none absolute h-0 w-0" aria-hidden />
+      {menu}
+    </>
   );
 }

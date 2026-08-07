@@ -1,9 +1,10 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { ChevronRight, FileText, Headset, Search, Video } from 'lucide-react';
+import { useMemo, useState, type FormEvent } from 'react';
+import { ChevronRight, FileText, Search, Video } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useHelpCenterStore } from '@/store/helpCenterStore';
+import { providerApi } from '@/features/provider/services/providerApi';
 import { HELP_ARTICLES, HELP_FAQS } from './helpCenterData';
 import { CommandCenterNav } from './CommandCenterNav';
 import {
@@ -135,6 +136,84 @@ function FaqPanel() {
   );
 }
 
+function ContactPanel() {
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!message.trim()) return;
+    setSending(true);
+    setError('');
+    try {
+      await providerApi.createSupportTicket({
+        category: 'Contact Support',
+        subject: subject.trim() || 'Contact support',
+        description: message.trim(),
+        priority: 'normal',
+        metadata: { source: 'provider-help-contact' },
+      });
+      setSent(true);
+      setSubject('');
+      setMessage('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not send message.');
+    } finally {
+      setSending(false);
+    }
+  }
+
+  if (sent) {
+    return (
+      <div className="flex w-full flex-col items-center gap-5 py-10 text-center">
+        <p className="font-serif text-2xl text-[#0F172A]">Message sent</p>
+        <p className="text-sm text-[#44516A]">Our team will get back to you shortly.</p>
+        <button
+          type="button"
+          onClick={() => setSent(false)}
+          className="rounded-[6px] bg-[#2F66C8] px-5 py-3 text-sm font-medium text-white"
+        >
+          Send another
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <p className="font-serif text-2xl text-[#0F172A] md:text-[28px]">Contact Support</p>
+      <p className="text-sm text-[#44516A]">Tell us how we can help your organization.</p>
+      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4">
+        <input
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+          placeholder="Subject"
+          className="h-[45px] w-full rounded-[6px] border border-[#D9E1EF] px-3 text-sm outline-none focus:border-[#2F66C8]"
+        />
+        <textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value.slice(0, 2000))}
+          rows={5}
+          placeholder="How can we help?"
+          className="w-full resize-none rounded-[6px] border border-[#D9E1EF] p-3 text-sm outline-none focus:border-[#2F66C8]"
+          required
+        />
+        {error ? <p className="text-sm text-[#B91C1C]">{error}</p> : null}
+        <button
+          type="submit"
+          disabled={sending || !message.trim()}
+          className="self-start rounded-[6px] bg-[#2F66C8] px-5 py-3 text-sm font-medium text-white disabled:opacity-60"
+        >
+          {sending ? 'Sending…' : 'Send message'}
+        </button>
+      </form>
+    </>
+  );
+}
+
 function ComingSoonPanel({ label, icon: Icon }: { label: string; icon: typeof FileText }) {
   return (
     <div className="flex w-full flex-col items-center gap-5 py-[60px] text-center">
@@ -171,7 +250,7 @@ export function HelpCenterModal() {
             {tab === 'faq' ? <FaqPanel /> : null}
             {tab === 'documentation' ? <ComingSoonPanel label="Documentation" icon={FileText} /> : null}
             {tab === 'video' ? <ComingSoonPanel label="Video Tutorials" icon={Video} /> : null}
-            {tab === 'contact' ? <ComingSoonPanel label="Contact Support" icon={Headset} /> : null}
+            {tab === 'contact' ? <ContactPanel /> : null}
           </div>
         </div>
 

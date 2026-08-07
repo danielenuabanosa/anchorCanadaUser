@@ -413,12 +413,40 @@ select:not(.sr-only):not(.no-anchor-field):focus {
   box-shadow: none;
 }
 
-.anchor-field--icon-left {
+/* Icon gutters must beat the typed-input padding rule above (higher specificity). */
+.anchor-field.anchor-field--icon-left,
+input[type='text']:not(.sr-only):not(.no-anchor-field).anchor-field--icon-left,
+input[type='email']:not(.sr-only):not(.no-anchor-field).anchor-field--icon-left,
+input[type='password']:not(.sr-only):not(.no-anchor-field).anchor-field--icon-left,
+input[type='search']:not(.sr-only):not(.no-anchor-field).anchor-field--icon-left,
+input[type='tel']:not(.sr-only):not(.no-anchor-field).anchor-field--icon-left,
+input[type='url']:not(.sr-only):not(.no-anchor-field).anchor-field--icon-left,
+input[type='number']:not(.sr-only):not(.no-anchor-field).anchor-field--icon-left {
   padding-left: 2.75rem;
 }
 
-.anchor-field--icon-right {
+.anchor-field.anchor-field--icon-right,
+input[type='text']:not(.sr-only):not(.no-anchor-field).anchor-field--icon-right,
+input[type='email']:not(.sr-only):not(.no-anchor-field).anchor-field--icon-right,
+input[type='password']:not(.sr-only):not(.no-anchor-field).anchor-field--icon-right,
+input[type='search']:not(.sr-only):not(.no-anchor-field).anchor-field--icon-right,
+input[type='tel']:not(.sr-only):not(.no-anchor-field).anchor-field--icon-right,
+input[type='url']:not(.sr-only):not(.no-anchor-field).anchor-field--icon-right,
+input[type='number']:not(.sr-only):not(.no-anchor-field).anchor-field--icon-right {
   padding-right: 2.75rem;
+}
+
+/* Keep autofill from washing out field chrome (esp. password). */
+.anchor-field:-webkit-autofill,
+.anchor-field:-webkit-autofill:hover,
+.anchor-field:-webkit-autofill:focus,
+input[type='email']:not(.sr-only):not(.no-anchor-field):-webkit-autofill,
+input[type='password']:not(.sr-only):not(.no-anchor-field):-webkit-autofill,
+input[type='text']:not(.sr-only):not(.no-anchor-field):-webkit-autofill {
+  -webkit-text-fill-color: #0f172a;
+  caret-color: #0f172a;
+  box-shadow: 0 0 0 1000px #ffffff inset;
+  transition: background-color 99999s ease-out;
 }
 
 .anchor-field--error,

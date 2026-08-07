@@ -8,10 +8,9 @@ import { HubSortSelect } from '@/shared/components/hub/HubSortSelect';
 import {
   OPPORTUNITY_STATUS_STYLES,
   OPPORTUNITY_TYPE_STYLES,
-  TEAM_PERFORMANCE,
-  TOP_OPPORTUNITIES,
   type TopOpportunityRow,
 } from './analyticsData';
+import { useAnalyticsData } from './AnalyticsDataContext';
 
 function SortDropdown() {
   const [sort, setSort] = useState('newest');
@@ -35,6 +34,7 @@ function StatusPill({ status }: { status: TopOpportunityRow['status'] }) {
 }
 
 export function TopOpportunitiesDesktop({ skeleton }: { skeleton?: boolean }) {
+  const { topOpportunities: TOP_OPPORTUNITIES } = useAnalyticsData();
   if (skeleton) {
     return (
       <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white">
@@ -201,6 +201,7 @@ export function TopOpportunityMobileCard({ row }: { row: TopOpportunityRow }) {
 }
 
 export function TopOpportunitiesMobile({ skeleton }: { skeleton?: boolean }) {
+  const { topOpportunities: TOP_OPPORTUNITIES } = useAnalyticsData();
   if (skeleton) {
     return (
       <div className="space-y-4">
@@ -256,6 +257,7 @@ export function TopOpportunitiesMobile({ skeleton }: { skeleton?: boolean }) {
 }
 
 export function TeamPerformanceDesktop({ skeleton }: { skeleton?: boolean }) {
+  const { teamPerformance: TEAM_PERFORMANCE } = useAnalyticsData();
   if (skeleton) {
     return (
       <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white">
@@ -348,6 +350,7 @@ export function TeamPerformanceDesktop({ skeleton }: { skeleton?: boolean }) {
 }
 
 export function TeamPerformanceMobile({ skeleton }: { skeleton?: boolean }) {
+  const { teamPerformance: TEAM_PERFORMANCE } = useAnalyticsData();
   if (skeleton) {
     return (
       <div className="space-y-4">

@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { CheckCheck, ListFilter, Settings } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { HubStatCard } from '@/app/(app)/opportunities/_components/HubStatCard';
 import { MobileHubPageHero } from '@/app/(app)/opportunities/_components/MobileHubPageHero';
-import { NOTIFICATION_PREFS, NOTIFICATION_SUMMARY, NOTIFICATION_TABS } from './notificationsData';
+// Card / tab counts now come from live API via useNotificationsHub
 import { NotificationTabChips } from './NotificationTabChips';
 import { NotificationSortDropdown } from './NotificationSortDropdown';
 import { NotificationsFilterModal } from './NotificationsFilterModal';
@@ -17,11 +17,12 @@ import {
   NotificationsSidePanels,
 } from './NotificationsHubModals';
 import { useNotificationsHub } from './useNotificationsHub';
+import { useNotificationChannelPrefs } from '@/features/provider/hooks/useNotificationChannelPrefs';
 
 export default function MobileView() {
   const hub = useNotificationsHub();
   const { clearSelection, setActionsOpenId, setDeleteTargetId, setDetailTargetId, toggleSelect } = hub;
-  const [prefs, setPrefs] = useState(NOTIFICATION_PREFS);
+  const { prefs, togglePref } = useNotificationChannelPrefs();
 
   const searchParams = useSearchParams();
   const demo = searchParams.get('demo');
@@ -84,17 +85,17 @@ export default function MobileView() {
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-2.5">
-        {NOTIFICATION_SUMMARY.slice(0, 4).map((card) => (
+        {hub.cards.slice(0, 4).map((card) => (
           <HubStatCard key={card.label} {...card} />
         ))}
         <div className="col-span-2">
-          <HubStatCard {...NOTIFICATION_SUMMARY[4]} />
+          <HubStatCard {...hub.cards[4]} />
         </div>
       </div>
 
       <div className="mt-5">
         <NotificationTabChips
-          tabs={NOTIFICATION_TABS}
+          tabs={hub.tabs}
           activeTab={hub.activeTab}
           onChange={(tab) => {
             hub.setActiveTab(tab);
@@ -146,11 +147,10 @@ export default function MobileView() {
         <NotificationsSidePanels
           mobile
           prefs={prefs}
-          onPrefToggle={(id) =>
-            setPrefs((current) =>
-              current.map((pref) => (pref.id === id ? { ...pref, enabled: !pref.enabled } : pref)),
-            )
-          }
+          recentActivity={hub.recentActivity}
+          onPrefToggle={(id) => {
+            void togglePref(id);
+          }}
         />
       </div>
 

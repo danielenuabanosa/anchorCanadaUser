@@ -119,8 +119,14 @@ export const PERFORMANCE_CHART = [
   { label: 'Jun', views: 40000, saves: 20000, applications: 14000 },
 ] as const;
 
-export type OpportunityStatus = 'Active' | 'Draft' | 'Closed';
-export type ApplicationStatus = 'New' | 'Under Review' | 'Shortlisted' | 'Rejected';
+export type OpportunityStatus = 'Active' | 'Draft' | 'Scheduled' | 'Closed';
+export type ApplicationStatus =
+  | 'New'
+  | 'Under Review'
+  | 'Shortlisted'
+  | 'Interview'
+  | 'Accepted'
+  | 'Rejected';
 
 export interface ActiveOpportunity {
   id: string;
@@ -300,11 +306,14 @@ export const STATUS_STYLES: Record<ApplicationStatus, string> = {
   New: 'bg-[#EFF4FF] border border-[#DCE7FF] text-[#2F66C8]',
   'Under Review': 'bg-[#ECFDF5] border border-[#D1FAE5] text-[#15803D]',
   Shortlisted: 'bg-[#FFFBEB] border border-[#FEF3C7] text-[#B45309]',
+  Interview: 'bg-[#F5F3FF] border border-[#EDE9FE] text-[#7C3AED]',
+  Accepted: 'bg-[#ECFDF5] border border-[#D1FAE5] text-[#15803D]',
   Rejected: 'bg-[#FEF2F2] border border-[#FEE2E2] text-[#B91C1C]',
 };
 
 export const OPPORTUNITY_STATUS_STYLES: Record<OpportunityStatus, string> = {
   Active: 'bg-[#ECFDF5] text-[#15803D]',
+  Scheduled: 'bg-[#EFF4FF] text-[#2F66C8]',
   Draft: 'bg-[#FFFBEB] text-[#B45309]',
   Closed: 'bg-[#FEF2F2] text-[#B91C1C]',
 };

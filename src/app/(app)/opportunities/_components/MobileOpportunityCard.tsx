@@ -33,6 +33,9 @@ const DEFAULT_ICON = { icon: Users, bg: 'bg-[#EAF1FE]', color: 'text-[#2F66C8]' 
 interface MobileOpportunityCardProps {
   row: OpportunityRow;
   onDelete?: (id: string) => void;
+  onArchive?: (id: string) => void;
+  onPause?: (id: string) => void;
+  onExtendDeadline?: (id: string, date: string) => void;
 }
 
 function MetricColumn({
@@ -59,7 +62,13 @@ function MetricColumn({
   );
 }
 
-export function MobileOpportunityCard({ row, onDelete }: MobileOpportunityCardProps) {
+export function MobileOpportunityCard({
+  row,
+  onDelete,
+  onArchive,
+  onPause,
+  onExtendDeadline,
+}: MobileOpportunityCardProps) {
   const iconConfig = MOBILE_CARD_ICONS[row.id] ?? DEFAULT_ICON;
   const Icon = iconConfig.icon;
   const daysLeftClass =
@@ -87,7 +96,14 @@ export function MobileOpportunityCard({ row, onDelete }: MobileOpportunityCardPr
             </div>
           </div>
         </div>
-        <OpportunityRowActions row={row} onDelete={onDelete} compact />
+        <OpportunityRowActions
+          row={row}
+          onDelete={onDelete}
+          onArchive={onArchive}
+          onPause={onPause}
+          onExtendDeadline={onExtendDeadline}
+          compact
+        />
       </div>
 
       <div className="flex gap-5">

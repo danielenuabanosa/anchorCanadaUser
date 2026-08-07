@@ -16,12 +16,10 @@ import {
   Phone,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { DetailPageSkeleton } from '@/shared/components/ui/PageSkeletons';
 import { ROLE_STYLES, STATUS_STYLES } from '../../_components/teamManagementData';
-import {
-  getAdjacentMemberIds,
-  getTeamMemberDetail,
-  type TeamMemberDetailTab,
-} from './teamMemberDetailData';
+import { useTeamMemberDetail } from '@/features/provider/hooks/useTeamMemberDetail';
+import { type TeamMemberDetailTab } from './teamMemberDetailData';
 
 function MetaIcon({ children }: { children: ReactNode }) {
   return (
@@ -61,13 +59,16 @@ export function TeamMemberDetailView({
 }) {
   const [tab, setTab] = useState<TeamMemberDetailTab>('overview');
   const router = useRouter();
-  const data = getTeamMemberDetail(memberId);
-  const { prev, next } = getAdjacentMemberIds(memberId);
+  const { data, prev, next, loading } = useTeamMemberDetail(memberId);
   const isMobile = variant === 'mobile';
 
   function goTo(id: string | null) {
     if (!id) return;
     router.push(`/team/${id}`);
+  }
+
+  if (loading && !data?.id) {
+    return <DetailPageSkeleton />;
   }
 
   return (

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
 import { authService } from '@/features/auth/services/auth.service';
 import { getApiErrorMessage } from '@/lib/apiError';
@@ -17,6 +17,11 @@ import googleIcon from '@assets/icons/google.png';
 import lightBulbIcon from '@assets/icons/light-bulb.png';
 
 const MIN_PASSWORD_LENGTH = 8;
+
+function safeNextPath(raw: string | null) {
+  if (!raw || !raw.startsWith('/') || raw.startsWith('//')) return '/dashboard';
+  return raw;
+}
 
 function isValidLoginEmail(email: string) {
   if (isStaticMode()) return email.trim().length > 0;
@@ -33,6 +38,7 @@ export default function LoginMobileView() {
   const [error, setError] = useState('');
 
   const router = useRouter();
+  const searchParams = useSearchParams();
   const setAuth = useAuthStore((s) => s.setAuth);
   const emailValid = isValidLoginEmail(email);
   const passwordValid = isStaticMode() ? password.length > 0 : password.length >= MIN_PASSWORD_LENGTH;
@@ -59,12 +65,21 @@ export default function LoginMobileView() {
 
     try {
       const loginEmail = isStaticMode() ? resolveDevLoginEmail(email) : email.trim();
-      const { user, token } = await authService.login({
+      const { user, token, refreshToken } = await authService.login({
         email: loginEmail,
         password,
       });
-      setAuth(user, token);
-      router.push('/dashboard');
+      setAuth(user, token, refreshToken);
+      const next = safeNextPath(searchParams.get('next'));
+      if (
+        next === '/dashboard' &&
+        user.provider &&
+        user.provider.onboardingCompleted === false
+      ) {
+        router.push('/onboarding');
+        return;
+      }
+      router.push(next);
     } catch (err) {
       setError(getApiErrorMessage(err, 'Sign-in failed. Please try again.'));
       setIsSubmitting(false);
@@ -106,8 +121,8 @@ export default function LoginMobileView() {
                 <span className="text-[#ef4444]">*</span>
               </div>
               <div className="relative">
-                <span className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2">
-                  <Image src={mailIcon} alt="" width={16} height={16} className="opacity-60" />
+                <span className="pointer-events-none absolute top-1/2 left-3.5 z-[1] -translate-y-1/2">
+                  <Image src={mailIcon} alt="" width={16} height={16} />
                 </span>
                 <input
                   type={isStaticMode() ? 'text' : 'email'}
@@ -118,7 +133,7 @@ export default function LoginMobileView() {
                   autoComplete="email"
                 />
                 {emailValid && (
-                  <div className="pointer-events-none absolute top-1/2 right-3.5 flex shrink-0 -translate-y-1/2 items-center justify-center rounded-[9px] bg-[#15803d] p-1">
+                  <div className="pointer-events-none absolute top-1/2 right-3.5 z-[1] flex shrink-0 -translate-y-1/2 items-center justify-center rounded-[9px] bg-[#15803d] p-1">
                     <svg className="h-2.5 w-2.5 text-white" viewBox="0 0 12 12" fill="none">
                       <path
                         d="M2 6l3 3 5-5"
@@ -139,8 +154,8 @@ export default function LoginMobileView() {
                 <span className="text-[#ef4444]">*</span>
               </div>
               <div className="relative">
-                <span className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2">
-                  <Image src={lockIcon} alt="" width={16} height={16} className="opacity-60" />
+                <span className="pointer-events-none absolute top-1/2 left-3.5 z-[1] -translate-y-1/2">
+                  <Image src={lockIcon} alt="" width={16} height={16} />
                 </span>
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -154,7 +169,7 @@ export default function LoginMobileView() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute top-1/2 right-3.5 -translate-y-1/2 text-[#8c97ad]"
+                  className="absolute top-1/2 right-3.5 z-[1] -translate-y-1/2 text-[#8c97ad]"
                 >
                   {showPassword ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                 </button>

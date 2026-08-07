@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Archive, Eye, EyeOff, TextCursorInput, Trash2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { providerApi } from '@/features/provider/services/providerApi';
 import type { SettingsHub } from './useSettingsHub';
 
 function ModalBackdrop({ onClose, children, drawer }: { onClose: () => void; children: React.ReactNode; drawer?: boolean }) {
@@ -154,8 +155,36 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
   const [current, setCurrent] = useState('');
   const [next, setNext] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   const strength = next.length >= 12 ? 3 : next.length >= 8 ? 2 : next.length >= 4 ? 1 : 0;
+
+  async function handleUpdate() {
+    if (saving) return;
+    if (!current || !next) {
+      setError('Enter your current and new password.');
+      return;
+    }
+    if (next !== confirm) {
+      setError('New password and confirmation do not match.');
+      return;
+    }
+    if (next.length < 8) {
+      setError('New password must be at least 8 characters.');
+      return;
+    }
+    setSaving(true);
+    setError('');
+    try {
+      await providerApi.changePassword({ currentPassword: current, password: next });
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not update password.');
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <ModalBackdrop onClose={onClose} drawer>
@@ -165,6 +194,9 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
           <ModalCloseButton onClose={onClose} />
         </div>
         <div className="flex flex-col gap-5 overflow-y-auto px-[26px] py-10">
+          {error ? (
+            <p className="rounded-[8px] border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+          ) : null}
           <PasswordField label="Current Password" value={current} onChange={setCurrent} />
           <PasswordField label="New Password" value={next} onChange={setNext} />
           <PasswordField label="Confirm New Password" value={confirm} onChange={setConfirm} />
@@ -182,7 +214,12 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
             </div>
           ) : null}
         </div>
-        <ModalFooter cancelLabel="Cancel" confirmLabel="Update Password" onCancel={onClose} onConfirm={onClose} />
+        <ModalFooter
+          cancelLabel="Cancel"
+          confirmLabel={saving ? 'Updating…' : 'Update Password'}
+          onCancel={onClose}
+          onConfirm={() => void handleUpdate()}
+        />
       </ModalPanel>
     </ModalBackdrop>
   );
@@ -190,6 +227,22 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
 
 function DeleteOrganizationModal({ onClose }: { onClose: () => void }) {
   const [confirmText, setConfirmText] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleDelete() {
+    if (confirmText.trim().toUpperCase() !== 'DELETE' || saving) return;
+    setSaving(true);
+    setError('');
+    try {
+      await providerApi.deleteOrganization();
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not delete organization.');
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <ModalBackdrop onClose={onClose}>
@@ -205,6 +258,11 @@ function DeleteOrganizationModal({ onClose }: { onClose: () => void }) {
             This action cannot be undone. All data including opportunities, applications and team members will be
             permanently deleted.
           </p>
+          {error ? (
+            <p className="mt-3 w-full rounded-[8px] border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+              {error}
+            </p>
+          ) : null}
           <div className="mt-4 flex w-full items-center justify-between anchor-field anchor-field--icon-left p-4">
             <div className="flex min-w-0 flex-1 items-center gap-2.5">
               <TextCursorInput className="h-[18px] w-[18px] shrink-0 text-[#8C97AD]" strokeWidth={1.75} />
@@ -220,9 +278,9 @@ function DeleteOrganizationModal({ onClose }: { onClose: () => void }) {
         </div>
         <ModalFooter
           cancelLabel="Cancel"
-          confirmLabel="Delete Organization"
+          confirmLabel={saving ? 'Deleting…' : 'Delete Organization'}
           onCancel={onClose}
-          onConfirm={onClose}
+          onConfirm={() => void handleDelete()}
           confirmClassName="bg-[#EF4444]"
         />
       </ModalPanel>
@@ -231,6 +289,23 @@ function DeleteOrganizationModal({ onClose }: { onClose: () => void }) {
 }
 
 function ArchiveOrganizationModal({ onClose }: { onClose: () => void }) {
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleArchive() {
+    if (saving) return;
+    setSaving(true);
+    setError('');
+    try {
+      await providerApi.archiveOrganization();
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not archive organization.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <ModalBackdrop onClose={onClose}>
       <ModalPanel>
@@ -245,12 +320,17 @@ function ArchiveOrganizationModal({ onClose }: { onClose: () => void }) {
             Archiving will hide your organization from public view. You can restore it at any time from your account
             settings.
           </p>
+          {error ? (
+            <p className="mt-3 w-full rounded-[8px] border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+              {error}
+            </p>
+          ) : null}
         </div>
         <ModalFooter
           cancelLabel="Cancel"
-          confirmLabel="Archive Organization"
+          confirmLabel={saving ? 'Archiving…' : 'Archive Organization'}
           onCancel={onClose}
-          onConfirm={onClose}
+          onConfirm={() => void handleArchive()}
           confirmClassName="bg-[#B45309]"
         />
       </ModalPanel>

@@ -17,6 +17,11 @@ import {
 } from '@/features/onboarding/lib/organizationInfoData';
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
 import { useProviderOnboardingStore } from '@/store/onboardingStore';
+import { saveOnboardingDraft } from '@/features/provider/lib/completeOnboarding';
+import {
+  uploadOrganizationCoverFile,
+  uploadOrganizationLogoFile,
+} from '@/features/provider/lib/uploadOrganizationAssets';
 import {
   FieldLabel,
   FileUploadZone,
@@ -63,20 +68,6 @@ const SECTION_META: { id: SectionId; number: number; title: string; optional?: b
   { id: 'social', number: 4, title: 'Social & Online Presence', optional: true, icon: shareIcon },
 ];
 
-function simulateUpload(setState: (state: UploadState) => void, file: File) {
-  setState({ fileName: file.name, progress: 0, previewUrl: URL.createObjectURL(file) });
-  let progress = 0;
-  const interval = setInterval(() => {
-    progress += 17;
-    if (progress >= 100) {
-      clearInterval(interval);
-      setState({ fileName: file.name, progress: 100, previewUrl: URL.createObjectURL(file) });
-      return;
-    }
-    setState({ fileName: file.name, progress, previewUrl: URL.createObjectURL(file) });
-  }, 200);
-}
-
 export default function MobileView() {
   const router = useRouter();
   const setOnboardingData = useProviderOnboardingStore((s) => s.setOnboardingData);
@@ -92,6 +83,7 @@ export default function MobileView() {
   const [logo, setLogo] = useState<UploadState>({});
   const [cover, setCover] = useState<UploadState>({});
   const [social, setSocial] = useState({ linkedin: '', twitter: '', facebook: '', instagram: '' });
+  const [saving, setSaving] = useState(false);
 
   const basicComplete = orgName && email && website && phone;
   const detailsComplete = description && orgSize && operatingRegion;
@@ -107,8 +99,9 @@ export default function MobileView() {
 
   const canContinue = basicComplete && detailsComplete && brandingComplete;
 
-  function handleContinue() {
-    if (!canContinue) return;
+  async function handleContinue() {
+    if (!canContinue || saving) return;
+    setSaving(true);
     setOnboardingData({
       organizationName: orgName.trim(),
       organizationEmail: email.trim(),
@@ -116,8 +109,17 @@ export default function MobileView() {
       organizationDescription: description.trim(),
       organizationPhone: phone.trim(),
       organizationProvince: operatingRegion,
+      organizationSize: orgSize,
+      social,
       verificationEmail: email.trim().toLowerCase(),
+      logoUrl: logo.previewUrl ?? null,
+      coverUrl: cover.previewUrl ?? null,
     });
+    try {
+      await saveOnboardingDraft('organization-info');
+    } catch {
+      // best-effort
+    }
     router.push('/onboarding/verification');
   }
 
@@ -181,8 +183,13 @@ export default function MobileView() {
                 fileName={logo.fileName}
                 progress={logo.progress}
                 previewUrl={logo.previewUrl}
-                onFileSelect={(file) => simulateUpload(setLogo, file)}
-                onRemove={() => setLogo({})}
+                onFileSelect={(file) => {
+                  void uploadOrganizationLogoFile(file, setLogo).catch(() => setLogo({}));
+                }}
+                onRemove={() => {
+                  setLogo({});
+                  setOnboardingData({ logoUrl: null });
+                }}
               />
             </div>
             <div>
@@ -193,8 +200,13 @@ export default function MobileView() {
                 fileName={cover.fileName}
                 progress={cover.progress}
                 previewUrl={cover.previewUrl}
-                onFileSelect={(file) => simulateUpload(setCover, file)}
-                onRemove={() => setCover({})}
+                onFileSelect={(file) => {
+                  void uploadOrganizationCoverFile(file, setCover).catch(() => setCover({}));
+                }}
+                onRemove={() => {
+                  setCover({});
+                  setOnboardingData({ coverUrl: null });
+                }}
               />
             </div>
           </div>

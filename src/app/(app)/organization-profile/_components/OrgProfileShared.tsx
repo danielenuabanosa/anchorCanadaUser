@@ -1,16 +1,11 @@
 'use client';
 
-import { ArrowUp, ChevronDown, ExternalLink, SquarePen } from 'lucide-react';
+import { ArrowUp, Building, ChevronDown, ExternalLink, FileBadge, UserStar } from 'lucide-react';
 import type { ElementType } from 'react';
 import { cn } from '@/lib/utils';
 import { HubStatCard } from '@/app/(app)/opportunities/_components/HubStatCard';
 import { Avatar } from '@/shared/components/ui/Avatar';
-import {
-  ORG_ABOUT_SECTIONS,
-  ORG_DETAIL_ROWS,
-  ORG_PROFILE,
-  ORG_PROFILE_STATS,
-} from './orgProfileData';
+import { useOrgProfileDisplay } from './OrgProfileDisplayContext';
 
 export function FocusTag({ label }: { label: string }) {
   return (
@@ -97,6 +92,7 @@ export function OrgIdentityCard({
   avatarSrc: string;
   mobile?: boolean;
 }) {
+  const { profile: ORG_PROFILE } = useOrgProfileDisplay();
   return (
     <div className="flex flex-col gap-5">
       <div className={cn('flex items-center', mobile ? 'gap-5' : 'gap-10')}>
@@ -105,11 +101,13 @@ export function OrgIdentityCard({
           fallback={ORG_PROFILE.name}
           className={cn('shrink-0', mobile ? 'h-[100px] w-[100px]' : 'h-[120px] w-[120px]')}
         />
-        <div className="flex min-w-0 flex-1 flex-col gap-2.5">
+          <div className="flex min-w-0 flex-1 flex-col gap-2.5">
           {ORG_PROFILE.verified ? <VerifiedBadge /> : null}
           <div className="flex flex-col gap-1.5">
-            <h2 className="text-[28px] leading-none font-serif text-[#0F172A]">{ORG_PROFILE.name}</h2>
-            <p className="text-sm text-[#44516A]">{ORG_PROFILE.type}</p>
+            <h2 className="text-[28px] leading-none font-serif text-[#0F172A]">
+              {ORG_PROFILE.name || 'Your Organization'}
+            </h2>
+            <p className="text-sm text-[#44516A]">{ORG_PROFILE.type || 'Organization'}</p>
           </div>
         </div>
       </div>
@@ -126,7 +124,8 @@ export function OrgIdentityCard({
 }
 
 export function OrgStatsRow({ mobile }: { mobile?: boolean }) {
-  const stats = ORG_PROFILE_STATS.map((s) => ({ ...s, subtext: 'from last month' }));
+  const { stats: baseStats } = useOrgProfileDisplay();
+  const stats = baseStats.map((s) => ({ ...s, subtext: 'from last month' }));
 
   if (mobile) {
     return (
@@ -168,7 +167,13 @@ export function OrgStatsRow({ mobile }: { mobile?: boolean }) {
 }
 
 export function AboutOrganizationCard({ mobile }: { mobile?: boolean }) {
-  const [first, ...rest] = ORG_ABOUT_SECTIONS;
+  const { profile } = useOrgProfileDisplay();
+  const sections = [
+    { id: 'about', title: 'About Organization', content: profile.about || 'No description added yet.' },
+    { id: 'mission', title: 'Mission', content: profile.mission || 'No mission added yet.' },
+    { id: 'vision', title: 'Vision', content: profile.vision || 'No vision added yet.' },
+  ];
+  const [first, ...rest] = sections;
   return (
     <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white">
       <div className="border-b border-[#EEF2F8] p-4">
@@ -192,9 +197,11 @@ export function AboutOrganizationCard({ mobile }: { mobile?: boolean }) {
       </div>
       <div className="p-4">
         <div className="flex flex-wrap gap-2.5">
-          {ORG_PROFILE.focusAreas.map((area) => (
-            <FocusTag key={area} label={area} />
-          ))}
+          {profile.focusAreas.length ? (
+            profile.focusAreas.map((area) => <FocusTag key={area} label={area} />)
+          ) : (
+            <p className="text-sm text-[#44516A]">No focus areas added yet.</p>
+          )}
         </div>
       </div>
     </div>
@@ -202,43 +209,81 @@ export function AboutOrganizationCard({ mobile }: { mobile?: boolean }) {
 }
 
 export function OrganizationInfoCard({ mobile }: { mobile?: boolean }) {
+  const { profile: ORG_PROFILE } = useOrgProfileDisplay();
   const content = (
     <div className="space-y-[29px]">
       <div>
         <p className="text-xs text-[#44516A]">Website</p>
-        <div className="mt-2 flex items-center justify-between">
-          <p className="text-sm font-medium text-[#0F172A]">{ORG_PROFILE.website}</p>
-          <ExternalLink className="h-4 w-4 text-[#8C97AD]" strokeWidth={1.75} />
+        <div className="mt-2 flex items-center justify-between gap-2">
+          {ORG_PROFILE.website ? (
+            <a
+              href={
+                ORG_PROFILE.website.startsWith('http')
+                  ? ORG_PROFILE.website
+                  : `https://${ORG_PROFILE.website}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="truncate text-sm font-medium text-[#2F66C8] hover:underline"
+            >
+              {ORG_PROFILE.website}
+            </a>
+          ) : (
+            <p className="text-sm font-medium text-[#0F172A]">—</p>
+          )}
+          {ORG_PROFILE.website ? (
+            <a
+              href={
+                ORG_PROFILE.website.startsWith('http')
+                  ? ORG_PROFILE.website
+                  : `https://${ORG_PROFILE.website}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Open website in new tab"
+              className="shrink-0 text-[#8C97AD] hover:text-[#2F66C8]"
+            >
+              <ExternalLink className="h-4 w-4" strokeWidth={1.75} />
+            </a>
+          ) : (
+            <ExternalLink className="h-4 w-4 shrink-0 text-[#8C97AD]" strokeWidth={1.75} />
+          )}
         </div>
       </div>
       <div>
         <p className="text-xs text-[#44516A]">Email</p>
-        <p className="mt-2 text-sm font-medium text-[#0F172A]">{ORG_PROFILE.email}</p>
+        <p className="mt-2 text-sm font-medium text-[#0F172A]">{ORG_PROFILE.email || '—'}</p>
       </div>
       <div>
         <p className="text-xs text-[#44516A]">Phone</p>
-        <p className="mt-2 text-sm font-medium text-[#0F172A]">{ORG_PROFILE.phone}</p>
+        <p className="mt-2 text-sm font-medium text-[#0F172A]">{ORG_PROFILE.phone || '—'}</p>
       </div>
       <div>
         <p className="text-xs text-[#44516A]">Address</p>
-        <p className="mt-2 text-sm font-medium leading-[18px] text-[#0F172A]">{ORG_PROFILE.address}</p>
+        <p className="mt-2 text-sm font-medium leading-[18px] text-[#0F172A]">
+          {ORG_PROFILE.address || '—'}
+        </p>
       </div>
       <div>
         <p className="text-xs text-[#44516A]">Socials</p>
         <div className="mt-2 flex gap-2.5">
-          {ORG_PROFILE.socials.map((social) => (
-            <button
-              key={social.id}
-              type="button"
-              aria-label={social.label}
-              className={cn(
-                'flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white',
-                social.color,
-              )}
-            >
-              {social.label.charAt(0)}
-            </button>
-          ))}
+          {ORG_PROFILE.socials.length ? (
+            ORG_PROFILE.socials.map((social) => (
+              <button
+                key={social.id}
+                type="button"
+                aria-label={social.label}
+                className={cn(
+                  'flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white',
+                  social.color,
+                )}
+              >
+                {social.label.charAt(0)}
+              </button>
+            ))
+          ) : (
+            <p className="text-sm text-[#44516A]">—</p>
+          )}
         </div>
       </div>
     </div>
@@ -259,21 +304,27 @@ export function IdentityDetailsCard({
   mobile,
   onCompleteVerification,
 }: {
-  avatarSrc: string;
+  avatarSrc?: string;
   mobile?: boolean;
   onCompleteVerification?: () => void;
 }) {
+  const { profile } = useOrgProfileDisplay();
+  const detailRows = [
+    { label: 'Member Since', value: profile.memberSince || '—', icon: UserStar },
+    { label: 'Org. Size', value: profile.orgSize || '—', icon: Building },
+    { label: 'Reg. Number', value: profile.regNumber || '—', icon: FileBadge },
+  ];
   return (
     <div className="rounded-[10px] border border-[#EEF2F8] bg-white p-5">
-      <OrgIdentityCard avatarSrc={avatarSrc} mobile={mobile} />
+      <OrgIdentityCard avatarSrc={avatarSrc || profile.logoUrl || ''} mobile={mobile} />
       <div className="mt-5 space-y-2.5">
-        {ORG_DETAIL_ROWS.map((row) => (
+        {detailRows.map((row) => (
           <OrgDetailRow key={row.label} {...row} />
         ))}
       </div>
       <div className="mt-5">
         <ProfileCompletionBar
-          completion={ORG_PROFILE.completion}
+          completion={profile.completion}
           onCompleteVerification={onCompleteVerification}
         />
       </div>

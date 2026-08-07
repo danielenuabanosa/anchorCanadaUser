@@ -11,6 +11,7 @@ import { OnboardingInfoBar } from '@/features/onboarding/components/OnboardingIn
 import { ProviderOptionCard } from '@/features/onboarding/components/ProviderOptionCard';
 import { ORG_TYPES } from '@/features/onboarding/lib/onboardingData';
 import { useProviderOnboardingStore } from '@/store/onboardingStore';
+import { saveOnboardingDraft } from '@/features/provider/lib/completeOnboarding';
 
 export default function MobileView() {
   const [selected, setSelected] = useState<string | null>(null);
@@ -20,6 +21,7 @@ export default function MobileView() {
   function handleContinue() {
     if (!selected) return;
     setOnboardingData({ organizationType: selected });
+    void saveOnboardingDraft('organization-type').catch(() => undefined);
     router.push('/onboarding/categories');
   }
 

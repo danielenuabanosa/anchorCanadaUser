@@ -1,11 +1,16 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Bell, ChevronDown, Command, MessageCircle, Search } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { Avatar } from '@/shared/components/ui/Avatar';
 import { StartBuilderDropdown } from '@/features/opportunity-builder/components/StartBuilderDropdown';
+import {
+  useProviderUnreadMessageCount,
+  useProviderUnreadNotificationCount,
+} from '@/features/messages/hooks/useUnreadCounts';
 import orgAvatar from '@assets/images/prov-sickkids.png';
 import avatar1 from '@assets/images/profile-avatar.png';
 import avatar2 from '@assets/images/profile-google.png';
@@ -19,15 +24,35 @@ const TEAM_AVATARS = [avatar1, avatar2, avatar3] as const;
  */
 export function OpportunityManagementTopbar() {
   const { user } = useAuthStore();
-  const [query, setQuery] = useState('');
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get('q') ?? '');
+  const { data: unreadNotifications = 0 } = useProviderUnreadNotificationCount();
+  const { data: unreadMessages = 0 } = useProviderUnreadMessageCount();
+
+  useEffect(() => {
+    setQuery(searchParams.get('q') ?? '');
+  }, [searchParams]);
 
   function dispatchSearch(value: string) {
     window.dispatchEvent(new CustomEvent('opp-hub-search', { detail: value.trim() }));
   }
 
+  function syncUrl(value: string) {
+    const trimmed = value.trim();
+    const params = new URLSearchParams(searchParams.toString());
+    if (trimmed) params.set('q', trimmed);
+    else params.delete('q');
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }
+
   function handleSearch(e: FormEvent) {
     e.preventDefault();
-    dispatchSearch(query);
+    const trimmed = query.trim();
+    dispatchSearch(trimmed);
+    syncUrl(trimmed);
   }
 
   function handleQueryChange(value: string) {
@@ -66,22 +91,29 @@ export function OpportunityManagementTopbar() {
           {/* Bell + badge, messages, avatar stack — Figma Frame 23 */}
           <div className="flex items-center gap-5">
             <Link
-              href="#notifications"
+              href="/notifications"
               className="relative flex h-8 w-8 items-center justify-center text-[#44516A] hover:text-[#0F172A]"
-              aria-label="Notifications"
+              aria-label={`Notifications${unreadNotifications ? `, ${unreadNotifications} unread` : ''}`}
             >
               <Bell className="h-[21px] w-[21px]" strokeWidth={1.75} />
-              <span className="absolute -right-0.5 top-0 flex h-[10px] min-w-[12px] items-center justify-center rounded-[5px] bg-[#EF4444] px-0.5 text-[9px] font-medium leading-none text-white">
-                12
-              </span>
+              {unreadNotifications > 0 ? (
+                <span className="absolute -right-0.5 top-0 flex h-[10px] min-w-[12px] items-center justify-center rounded-[5px] bg-[#EF4444] px-0.5 text-[9px] font-medium leading-none text-white">
+                  {unreadNotifications > 99 ? '99+' : unreadNotifications}
+                </span>
+              ) : null}
             </Link>
 
             <Link
-              href="#messages"
-              className="flex h-8 w-8 items-center justify-center text-[#44516A] hover:text-[#0F172A]"
-              aria-label="Messages"
+              href="/messages"
+              className="relative flex h-8 w-8 items-center justify-center text-[#44516A] hover:text-[#0F172A]"
+              aria-label={`Messages${unreadMessages ? `, ${unreadMessages} unread` : ''}`}
             >
               <MessageCircle className="h-[21px] w-[21px]" strokeWidth={1.75} />
+              {unreadMessages > 0 ? (
+                <span className="absolute -right-0.5 top-0 flex h-[10px] min-w-[12px] items-center justify-center rounded-[5px] bg-[#EF4444] px-0.5 text-[9px] font-medium leading-none text-white">
+                  {unreadMessages > 99 ? '99+' : unreadMessages}
+                </span>
+              ) : null}
             </Link>
 
             <button

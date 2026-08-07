@@ -98,5 +98,5 @@ export function useProviderApplications() {
     };
   }, []);
 
-  return { rows, loading, error };
+  return { rows, setRows, loading, error };
 }

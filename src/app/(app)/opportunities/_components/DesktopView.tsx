@@ -10,6 +10,13 @@ import { HubFilterBar } from '@/shared/components/hub/HubFilterBar';
 import { ListPagination } from '@/shared/components/ui/ListPagination';
 import { OpportunityGridCard } from '@/features/opportunity-builder/components/OpportunityGridCard';
 import { useProviderOpportunities } from '@/features/provider/hooks/useProviderHubData';
+import { useProviderOpportunitiesOverview } from '@/features/provider/hooks/useProviderOpportunitiesOverview';
+import {
+  buildOpportunityHubStats,
+  buildOpportunityTabCounts,
+} from '@/features/provider/lib/hubStats';
+import { HubSortSelect } from '@/shared/components/hub/HubSortSelect';
+import type { HubMenuOption } from '@/shared/components/hub/HubMenuSelect';
 import {
   ArchiveOpportunityModal,
   DeleteOpportunityModal,
@@ -21,37 +28,81 @@ import { HubStatCard } from './HubStatCard';
 import { OpportunityTableRow } from './OpportunityTableRow';
 import { useOpportunityHubSearch } from './useOpportunityHubSearch';
 import {
-  DEFAULT_OPP_HUB_FILTERS,
-  HUB_STATS,
+  StatCardsSkeleton,
+  TableRowsSkeleton,
+  OpportunityGridSkeleton,
+} from '@/shared/components/ui/PageSkeletons';
+import { DEFAULT_OPP_HUB_FILTERS,
   HUB_TABS,
   OPP_CATEGORY_FILTER_OPTIONS,
   OPP_DATE_CREATED_FILTER_OPTIONS,
   OPP_DEADLINE_FILTER_OPTIONS,
   OPP_STATUS_FILTER_OPTIONS,
   OPP_TYPE_FILTER_OPTIONS,
-  RECENT_ACTIVITY,
   filterByHubFilters,
   filterByQuery,
   filterByTab,
   type OpportunityHubFilters,
+  type OpportunityRow,
   type OpportunityTab,
 } from './opportunitiesHubData';
+import { providerApi } from '@/features/provider/services/providerApi';
+import avatar1 from '@assets/images/profile-avatar.png';
+
+const OPP_SORT_OPTIONS: HubMenuOption[] = [
+  { value: 'newest', label: 'Newest Created' },
+  { value: 'oldest', label: 'Oldest Created' },
+  { value: 'name-asc', label: 'Name A–Z' },
+  { value: 'name-desc', label: 'Name Z–A' },
+  { value: 'deadline', label: 'Deadline Soonest' },
+];
+
+function sortOpportunities(rows: OpportunityRow[], sort: string) {
+  const next = [...rows];
+  switch (sort) {
+    case 'oldest':
+      return next.sort((a, b) => String(a.postedDate).localeCompare(String(b.postedDate)));
+    case 'name-asc':
+      return next.sort((a, b) => a.name.localeCompare(b.name));
+    case 'name-desc':
+      return next.sort((a, b) => b.name.localeCompare(a.name));
+    case 'deadline':
+      return next.sort((a, b) => String(a.deadline).localeCompare(String(b.deadline)));
+    case 'newest':
+    default:
+      return next.sort((a, b) => String(b.postedDate).localeCompare(String(a.postedDate)));
+  }
+}
 
 export default function DesktopView() {
   const [activeTab, setActiveTab] = useState<OpportunityTab>('all');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [localSearch, setLocalSearch] = useState('');
+  const [sort, setSort] = useState('newest');
   const [filters, setFilters] = useState<OpportunityHubFilters>(DEFAULT_OPP_HUB_FILTERS);
   const [exportOpen, setExportOpen] = useState(false);
   const { rows, setRows, loading, error } = useProviderOpportunities();
+  const { recentActivity } = useProviderOpportunitiesOverview();
   const topbarQuery = useOpportunityHubSearch();
   const query = localSearch || topbarQuery;
 
   const filtered = useMemo(() => {
     const byTab = filterByTab(rows, activeTab);
     const byFilters = filterByHubFilters(byTab, filters);
-    return filterByQuery(byFilters, query);
-  }, [activeTab, filters, query, rows]);
+    const byQuery = filterByQuery(byFilters, query);
+    return sortOpportunities(byQuery, sort);
+  }, [activeTab, filters, query, rows, sort]);
+
+  const stats = useMemo(() => buildOpportunityHubStats(rows), [rows]);
+  const tabCounts = useMemo(() => buildOpportunityTabCounts(rows), [rows]);
+  const tabs = useMemo(
+    () =>
+      HUB_TABS.map((tab) => ({
+        ...tab,
+        count: tabCounts[tab.id as keyof typeof tabCounts] ?? 0,
+      })),
+    [tabCounts],
+  );
 
   const { page, pageSize, total, pageItems, goToPage, changePageSize, setPage } = usePagination(
     filtered,
@@ -65,7 +116,46 @@ export default function DesktopView() {
   const hasActiveFilters = Object.values(filters).some((v) => v !== 'all');
 
   function handleDeleteRow(id: string) {
-    setRows((prev) => prev.filter((row) => row.id !== id));
+    const row = rows.find((r) => r.id === id);
+    setRows((prev) => prev.filter((r) => r.id !== id));
+    if (row?.status === 'Draft' || row?.status === 'Scheduled') {
+      void providerApi.deleteOpportunity(id).catch(() => {
+        // restore on failure by refetching would be ideal; keep optimistic for now
+      });
+      return;
+    }
+    void providerApi.closeOpportunity(id).catch(console.error);
+  }
+
+  function handleArchiveRow(id: string) {
+    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, status: 'Closed' as const } : r)));
+    void providerApi.closeOpportunity(id).catch(console.error);
+  }
+
+  function handlePauseRow(id: string) {
+    void providerApi.pauseOpportunity(id).then(() => {
+      setRows((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, status: 'Closed' as const } : r)),
+      );
+    }).catch(console.error);
+  }
+
+  function handleExtendDeadline(id: string, date: string) {
+    setRows((prev) =>
+      prev.map((r) =>
+        r.id === id
+          ? {
+              ...r,
+              deadline: new Date(date).toLocaleDateString('en-CA', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              }),
+            }
+          : r,
+      ),
+    );
+    void providerApi.updateOpportunity(id, { deadline: date }).catch(console.error);
   }
 
   function setFilter<K extends keyof OpportunityHubFilters>(key: K, value: OpportunityHubFilters[K]) {
@@ -77,7 +167,6 @@ export default function DesktopView() {
       {error ? (
         <p className="rounded-[10px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>
       ) : null}
-      {loading ? <p className="text-sm text-[#44516A]">Loading your opportunities…</p> : null}
 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -96,11 +185,15 @@ export default function DesktopView() {
         </button>
       </div>
 
+      {loading ? (
+        <StatCardsSkeleton count={5} />
+      ) : (
       <div className="grid grid-cols-5 gap-2.5">
-        {HUB_STATS.map((stat) => (
+        {stats.map((stat) => (
           <HubStatCard key={stat.label} {...stat} />
         ))}
       </div>
+      )}
 
       <HubFilterBar
         searchPlaceholder="Search opportunities..."
@@ -146,6 +239,7 @@ export default function DesktopView() {
         ]}
         trailing={
           <>
+            <HubSortSelect value={sort} onChange={setSort} options={OPP_SORT_OPTIONS} showLabel={false} />
             <button
               type="button"
               onClick={() => setViewMode('table')}
@@ -179,7 +273,7 @@ export default function DesktopView() {
       {viewMode === 'table' ? (
         <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white">
           <div className="flex h-[52px] gap-2.5 overflow-x-auto border-b border-[#EEF2F8] px-2.5">
-            {HUB_TABS.map((tab) => (
+            {tabs.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
@@ -206,11 +300,20 @@ export default function DesktopView() {
             )}
           </div>
           <div className="px-5">
-            {pageItems.length === 0 ? (
+            {loading ? (
+              <TableRowsSkeleton rows={5} />
+            ) : pageItems.length === 0 ? (
               <p className="py-10 text-center text-sm text-[#44516A]">No opportunities match your filters.</p>
             ) : (
               pageItems.map((row) => (
-                <OpportunityTableRow key={row.id} row={row} onDelete={handleDeleteRow} />
+                <OpportunityTableRow
+                  key={row.id}
+                  row={row}
+                  onDelete={handleDeleteRow}
+                  onArchive={handleArchiveRow}
+                  onPause={handlePauseRow}
+                  onExtendDeadline={handleExtendDeadline}
+                />
               ))
             )}
           </div>
@@ -225,27 +328,40 @@ export default function DesktopView() {
         </div>
       ) : (
         <div className="flex flex-col gap-5">
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {pageItems.length === 0 ? (
-              <p className="col-span-full py-10 text-center text-sm text-[#44516A]">
-                No opportunities match your filters.
-              </p>
-            ) : (
-              pageItems.map((row) => (
-                <OpportunityGridCard key={row.id} row={row} onDelete={handleDeleteRow} />
-              ))
-            )}
-          </div>
-          <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white">
-            <ListPagination
-              page={page}
-              pageSize={pageSize}
-              total={total}
-              noun="opportunities"
-              onPageChange={goToPage}
-              onPageSizeChange={changePageSize}
-            />
-          </div>
+          {loading ? (
+            <OpportunityGridSkeleton count={6} />
+          ) : (
+            <>
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+                {pageItems.length === 0 ? (
+                  <p className="col-span-full py-10 text-center text-sm text-[#44516A]">
+                    No opportunities match your filters.
+                  </p>
+                ) : (
+                  pageItems.map((row) => (
+                    <OpportunityGridCard
+                      key={row.id}
+                      row={row}
+                      onDelete={handleDeleteRow}
+                      onArchive={handleArchiveRow}
+                      onPause={handlePauseRow}
+                      onExtendDeadline={handleExtendDeadline}
+                    />
+                  ))
+                )}
+              </div>
+              <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white">
+                <ListPagination
+                  page={page}
+                  pageSize={pageSize}
+                  total={total}
+                  noun="opportunities"
+                  onPageChange={goToPage}
+                  onPageSizeChange={changePageSize}
+                />
+              </div>
+            </>
+          )}
         </div>
       )}
 
@@ -257,20 +373,30 @@ export default function DesktopView() {
           </Link>
         </div>
         <ul className="flex flex-col">
-          {RECENT_ACTIVITY.map((item) => (
-            <li key={item.id} className="flex items-center gap-4 py-2.5">
-              <div className="h-[52px] w-[52px] shrink-0 overflow-hidden rounded-full">
-                <Image src={item.avatar} alt="" width={52} height={52} className="h-full w-full object-cover" />
-              </div>
-              <div className="flex min-w-0 flex-1 items-end justify-between gap-5">
-                <div className="min-w-0">
-                  <p className="truncate text-base font-medium text-[#0F172A]">{item.name}</p>
-                  <p className="truncate text-sm text-[#44516A]">{item.action}</p>
+          {recentActivity.length === 0 ? (
+            <li className="py-4 text-sm text-[#44516A]">No recent applications yet.</li>
+          ) : (
+            recentActivity.map((item) => (
+              <li key={item.id} className="flex items-center gap-4 py-2.5">
+                <div className="h-[52px] w-[52px] shrink-0 overflow-hidden rounded-full">
+                  <Image
+                    src={item.avatar ?? avatar1}
+                    alt=""
+                    width={52}
+                    height={52}
+                    className="h-full w-full object-cover"
+                  />
                 </div>
-                <span className="shrink-0 text-sm text-[#44516A]">{item.time}</span>
-              </div>
-            </li>
-          ))}
+                <div className="flex min-w-0 flex-1 items-end justify-between gap-5">
+                  <div className="min-w-0">
+                    <p className="truncate text-base font-medium text-[#0F172A]">{item.name}</p>
+                    <p className="truncate text-sm text-[#44516A]">{item.action}</p>
+                  </div>
+                  <span className="shrink-0 text-sm text-[#44516A]">{item.time}</span>
+                </div>
+              </li>
+            ))
+          )}
         </ul>
       </div>
 

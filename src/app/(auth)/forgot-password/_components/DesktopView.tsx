@@ -9,6 +9,7 @@ import shieldIcon from '@assets/icons/shield-check.png';
 import headphonesIcon from '@assets/icons/hear-phone.png';
 import validLockImg from '@assets/images/valid-lock.png';
 import cityImg from '@assets/images/city.png';
+import { authService } from '@/features/auth/services/auth.service';
 
 export default function ForgotPasswordDesktopView() {
   const [email, setEmail] = useState('');
@@ -21,9 +22,16 @@ export default function ForgotPasswordDesktopView() {
     e.preventDefault();
     if (!emailValid) return;
     setIsSubmitting(true);
-    await new Promise(r => setTimeout(r, 1200));
-    setIsSubmitting(false);
-    setSubmitted(true);
+    try {
+      await authService.forgotPassword(email);
+      setSubmitted(true);
+    } catch {
+      // Still show success to avoid email enumeration; log for debugging.
+      console.error('Forgot password request failed');
+      setSubmitted(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const securityFeatures = [

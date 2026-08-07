@@ -8,7 +8,7 @@ import Image from 'next/image';
 
 import { useRouter } from 'next/navigation';
 
-import { Archive, CheckCircle2, CircleCheckBig, Trash2, X } from 'lucide-react';
+import { Archive, BadgeCheck, CheckCircle2, CircleCheckBig, FileUser, ShieldAlert, ShieldUser, Trash2, Users, X } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
@@ -406,6 +406,8 @@ export function NotificationsSidePanels({
 
   prefs,
 
+  recentActivity,
+
   onPrefToggle,
 
   mobile,
@@ -413,6 +415,15 @@ export function NotificationsSidePanels({
 }: {
 
   prefs: (typeof NOTIFICATION_PREFS[number] & { enabled: boolean })[];
+
+  recentActivity?: Array<{
+    id: string;
+    category: string;
+    label: string;
+    subtitle: string;
+    time: string;
+    createdAt?: string;
+  }>;
 
   onPrefToggle: (id: string) => void;
 
@@ -440,55 +451,147 @@ export function NotificationsSidePanels({
 
         <ul>
 
-          {RECENT_ACTIVITY_WIDGET.map((item) => {
+          {recentActivity && recentActivity.length ? (
 
-            const Icon = item.icon;
+            recentActivity.map((item) => {
 
-            return (
+              const tab =
 
-              <li key={item.id} className="py-3.5">
+                item.category === 'applications' ||
 
-                <div className="flex items-center gap-4">
+                item.category === 'team' ||
 
-                  <span
+                item.category === 'opportunities' ||
 
-                    className={cn(
+                item.category === 'system' ||
 
-                      'flex h-10 w-10 shrink-0 items-center justify-center rounded-[20px] p-2.5',
+                item.category === 'security'
 
-                      item.iconBg,
+                  ? item.category
 
-                    )}
+                  : 'system';
 
-                  >
+              const meta =
 
-                    <Icon className={cn('h-5 w-5', item.iconColor)} strokeWidth={1.75} />
+                tab === 'applications'
 
-                  </span>
+                  ? { Icon: FileUser, iconBg: 'bg-[#E0F4EA]', iconColor: 'text-[#15803D]' }
 
-                  <div className="min-w-0 flex-1">
+                  : tab === 'team'
 
-                    <p className="text-sm font-medium text-[#0F172A]">{item.label}</p>
+                    ? { Icon: Users, iconBg: 'bg-[#FFFBEB]', iconColor: 'text-[#C2410C]' }
 
-                    <p className="mt-1 text-sm text-[#44516A]">
+                    : tab === 'opportunities'
 
-                      {item.subtitle}
+                      ? { Icon: BadgeCheck, iconBg: 'bg-[#FEF2E7]', iconColor: 'text-[#D97706]' }
 
-                      <span className="mx-2.5">•</span>
+                      : tab === 'security'
 
-                      {item.time}
+                        ? { Icon: ShieldUser, iconBg: 'bg-[#FEF2F2]', iconColor: 'text-[#B91C1C]' }
 
-                    </p>
+                        : { Icon: ShieldAlert, iconBg: 'bg-[#E0F4EA]', iconColor: 'text-[#15803D]' };
+
+              const Icon = meta.Icon;
+
+              return (
+
+                <li key={item.id} className="py-3.5">
+
+                  <div className="flex items-center gap-4">
+
+                    <span
+
+                      className={cn(
+
+                        'flex h-10 w-10 shrink-0 items-center justify-center rounded-[20px] p-2.5',
+
+                        meta.iconBg,
+
+                      )}
+
+                    >
+
+                      <Icon className={cn('h-5 w-5', meta.iconColor)} strokeWidth={1.75} />
+
+                    </span>
+
+                    <div className="min-w-0 flex-1">
+
+                      <p className="text-sm font-medium text-[#0F172A]">{item.label}</p>
+
+                      <p className="mt-1 text-sm text-[#44516A]">
+
+                        {item.subtitle}
+
+                        <span className="mx-2.5">•</span>
+
+                        {item.time}
+
+                      </p>
+
+                    </div>
 
                   </div>
 
-                </div>
+                </li>
 
-              </li>
+              );
 
-            );
+            })
 
-          })}
+          ) : (
+
+            RECENT_ACTIVITY_WIDGET.map((item) => {
+
+              const Icon = item.icon;
+
+              return (
+
+                <li key={item.id} className="py-3.5">
+
+                  <div className="flex items-center gap-4">
+
+                    <span
+
+                      className={cn(
+
+                        'flex h-10 w-10 shrink-0 items-center justify-center rounded-[20px] p-2.5',
+
+                        item.iconBg,
+
+                      )}
+
+                    >
+
+                      <Icon className={cn('h-5 w-5', item.iconColor)} strokeWidth={1.75} />
+
+                    </span>
+
+                    <div className="min-w-0 flex-1">
+
+                      <p className="text-sm font-medium text-[#0F172A]">{item.label}</p>
+
+                      <p className="mt-1 text-sm text-[#44516A]">
+
+                        {item.subtitle}
+
+                        <span className="mx-2.5">•</span>
+
+                        {item.time}
+
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </li>
+
+              );
+
+            })
+
+          )}
 
         </ul>
 

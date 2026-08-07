@@ -19,11 +19,10 @@ import { StepProgress } from '@/shared/components/onboarding/StepProgress';
 import { OnboardingNavButtons } from '@/shared/components/onboarding/OnboardingNavButtons';
 import { FileUploadZone } from '@/app/onboarding/organization-info/_components/FormFields';
 import { WhyVerifiedPanel } from './WhyVerifiedPanel';
-import {
-  clearUploadState,
-  simulateFileUpload,
-  type UploadState,
-} from '@/shared/lib/simulateFileUpload';
+import { clearUploadState, type UploadState } from '@/shared/lib/simulateFileUpload';
+import { uploadVerificationDoc } from '@/features/provider/lib/uploadVerificationDoc';
+import { saveOnboardingDraft } from '@/features/provider/lib/completeOnboarding';
+import { useProviderOnboardingStore } from '@/store/onboardingStore';
 
 import shieldCheckIcon from '@assets/icons/shield-check.png';
 import bookIcon from '@assets/icons/book-open.png';
@@ -43,8 +42,10 @@ function handleDocUpload(
   file: File,
   setDocs: React.Dispatch<React.SetStateAction<DocUploadState>>,
 ) {
-  simulateFileUpload(file, (state) => {
+  void uploadVerificationDoc(docId, file, (state) => {
     setDocs((prev) => ({ ...prev, [docId]: state }));
+  }).catch(() => {
+    setDocs((prev) => ({ ...prev, [docId]: clearUploadState(prev[docId]) }));
   });
 }
 
@@ -64,8 +65,12 @@ export default function DesktopView() {
   const requiredComplete = requiredDocs.every((doc) => documents[doc.id].progress === 100);
   const canSubmit = verificationType !== null && requiredComplete;
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!canSubmit) return;
+    useProviderOnboardingStore.getState().setOnboardingData({
+      verificationType,
+    });
+    void saveOnboardingDraft('verification').catch(() => undefined);
     router.push('/onboarding/team');
   }
 

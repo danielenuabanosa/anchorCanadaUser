@@ -101,7 +101,12 @@ export default function MobileView() {
       await finishActivation();
       router.push('/dashboard');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not complete onboarding.');
+      const message = err instanceof Error ? err.message : 'Could not complete onboarding.';
+      if (message.toLowerCase().includes('sign in') || message.toLowerCase().includes('create your provider')) {
+        router.push('/onboarding/account');
+        return;
+      }
+      setError(message);
     }
   }
 

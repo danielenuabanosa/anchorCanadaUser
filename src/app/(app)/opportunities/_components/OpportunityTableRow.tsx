@@ -16,9 +16,18 @@ import {
 interface OpportunityTableRowProps {
   row: OpportunityRow;
   onDelete?: (id: string) => void;
+  onArchive?: (id: string) => void;
+  onPause?: (id: string) => void;
+  onExtendDeadline?: (id: string, date: string) => void;
 }
 
-export function OpportunityTableRow({ row, onDelete }: OpportunityTableRowProps) {
+export function OpportunityTableRow({
+  row,
+  onDelete,
+  onArchive,
+  onPause,
+  onExtendDeadline,
+}: OpportunityTableRowProps) {
   const icon = TYPE_ICONS[row.type];
 
   return (
@@ -69,7 +78,13 @@ export function OpportunityTableRow({ row, onDelete }: OpportunityTableRowProps)
           <p className="text-sm text-[#8C97AD]">-</p>
         )}
       </div>
-      <OpportunityRowActions row={row} onDelete={onDelete} />
+      <OpportunityRowActions
+        row={row}
+        onDelete={onDelete}
+        onArchive={onArchive}
+        onPause={onPause}
+        onExtendDeadline={onExtendDeadline}
+      />
     </div>
   );
 }

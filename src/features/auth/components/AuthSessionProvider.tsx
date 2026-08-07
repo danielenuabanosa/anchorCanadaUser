@@ -3,13 +3,13 @@
 import { useEffect } from 'react';
 import { authService } from '@/features/auth/services/auth.service';
 import { useAuthStore } from '@/store/authStore';
-import { getStoredToken } from '@/lib/apiError';
+import { getRawStoredToken } from '@/lib/apiError';
 import { isOfflineProviderSession } from '@/lib/providerSession';
 import { isStaticMode } from '@/lib/staticMode';
 
 /**
  * Syncs persisted auth with the API when online auth is enabled.
- * Offline / demo sessions are left untouched.
+ * Offline / demo sessions are only kept when STATIC_MODE is on.
  */
 export function AuthSessionProvider({ children }: { children: React.ReactNode }) {
   const setAuth = useAuthStore((s) => s.setAuth);
@@ -19,9 +19,15 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
     let mounted = true;
 
     async function syncSession() {
-      const token = getStoredToken();
+      const rawToken = getRawStoredToken() ?? useAuthStore.getState().token;
 
-      if (isStaticMode() || isOfflineProviderSession(token)) {
+      // Live API mode cannot use local/guest placeholders — force a real login.
+      if (!isStaticMode() && isOfflineProviderSession(rawToken)) {
+        if (mounted) clearAuth();
+        return;
+      }
+
+      if (isStaticMode() || isOfflineProviderSession(rawToken)) {
         return;
       }
 
@@ -30,14 +36,12 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
         if (!mounted) return;
 
         if (session) {
-          setAuth(session.user, session.token);
-        } else if (token) {
-          // Token exists but session is invalid — clear only when APIs are authoritative.
+          setAuth(session.user, session.token, session.refreshToken);
+        } else if (rawToken) {
           clearAuth();
         }
       } catch {
-        // Network failures must not wipe a usable local session while APIs are down.
-        if (mounted && !getStoredToken()) {
+        if (mounted && !getRawStoredToken()) {
           clearAuth();
         }
       }

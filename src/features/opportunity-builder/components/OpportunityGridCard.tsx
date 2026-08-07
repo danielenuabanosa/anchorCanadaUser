@@ -16,9 +16,18 @@ import {
 interface OpportunityGridCardProps {
   row: OpportunityRow;
   onDelete?: (id: string) => void;
+  onArchive?: (id: string) => void;
+  onPause?: (id: string) => void;
+  onExtendDeadline?: (id: string, date: string) => void;
 }
 
-export function OpportunityGridCard({ row, onDelete }: OpportunityGridCardProps) {
+export function OpportunityGridCard({
+  row,
+  onDelete,
+  onArchive,
+  onPause,
+  onExtendDeadline,
+}: OpportunityGridCardProps) {
   const icon = TYPE_ICONS[row.type];
   const iconBg = TYPE_ICON_BG[row.type];
   const daysLeftClass =
@@ -47,7 +56,13 @@ export function OpportunityGridCard({ row, onDelete }: OpportunityGridCardProps)
               >
                 {row.name}
               </Link>
-              <OpportunityRowActions row={row} onDelete={onDelete} />
+              <OpportunityRowActions
+                row={row}
+                onDelete={onDelete}
+                onArchive={onArchive}
+                onPause={onPause}
+                onExtendDeadline={onExtendDeadline}
+              />
             </div>
             <div className="mt-2.5 flex flex-wrap gap-2">
               <span

@@ -7,9 +7,6 @@ import {
   Trash2,
   type LucideIcon,
 } from 'lucide-react';
-import orgLogo from '@assets/images/prov-sickkids.png';
-import orgCover from '@assets/images/settings/org-cover.png';
-import type { StaticImageData } from 'next/image';
 
 export const SETTINGS_TABS = [
   { id: 'general' as const, label: 'General', icon: BadgeInfo },
@@ -42,8 +39,8 @@ export interface GeneralSettings {
 }
 
 export interface OrganizationSettings {
-  logo: StaticImageData;
-  coverImage: StaticImageData;
+  logoUrl: string | null;
+  coverUrl: string | null;
   publicProfileUrl: string;
 }
 
@@ -75,9 +72,9 @@ export interface CompletionChecklistItem {
 }
 
 export const DEFAULT_GENERAL: GeneralSettings = {
-  organizationName: 'Maple Future Foundation',
+  organizationName: '',
   timeZone: '(GMT -04:00) Eastern Time (ET)',
-  organizationEmail: 'info@maplefuture.ca',
+  organizationEmail: '',
   currency: 'CAD - Canadian Dollar',
   defaultLanguage: 'English',
   timeFormat: '12 Hour (e.g. 02:30 PM)',
@@ -86,9 +83,9 @@ export const DEFAULT_GENERAL: GeneralSettings = {
 };
 
 export const DEFAULT_ORGANIZATION: OrganizationSettings = {
-  logo: orgLogo,
-  coverImage: orgCover,
-  publicProfileUrl: 'anchor.ca/organization/maple.future.founndation',
+  logoUrl: null,
+  coverUrl: null,
+  publicProfileUrl: '',
 };
 
 export const DEFAULT_NOTIFICATION_CHANNELS: NotificationChannelSettings = {
@@ -104,26 +101,13 @@ export const DEFAULT_NOTIFICATION_TYPES: NotificationTypeSettings = {
   marketingTips: false,
 };
 
-export const ACTIVE_SESSIONS: ActiveSession[] = [
-  {
-    id: 'macbook',
-    device: 'MacBook  Pro',
-    details: 'Safari  •  Toronto Canada  •  2 days ago',
-    isCurrent: false,
-  },
-  {
-    id: 'iphone',
-    device: 'iPhone 14',
-    details: 'Mobile app  •  Abuja, Nigeria  •  5 days ago',
-    isCurrent: false,
-  },
-];
+export const ACTIVE_SESSIONS: ActiveSession[] = [];
 
-export const COMPLETION_CHECKLIST: CompletionChecklistItem[] = [
-  { id: 'general', label: 'General Information', completed: true },
-  { id: 'branding', label: 'Organization Branding', completed: true },
-  { id: 'security', label: 'Security Setup', completed: true },
-  { id: 'notifications', label: 'Notification Preferences', completed: true },
+export const DEFAULT_COMPLETION_CHECKLIST: CompletionChecklistItem[] = [
+  { id: 'general', label: 'General Information', completed: false },
+  { id: 'branding', label: 'Organization Branding', completed: false },
+  { id: 'security', label: 'Security Setup', completed: false },
+  { id: 'notifications', label: 'Notification Preferences', completed: false },
   { id: 'integrations', label: 'Integrations', completed: false, soon: true },
 ];
 
@@ -133,12 +117,12 @@ export const TAB_PANEL_META: Record<
 > = {
   general: {
     title: 'General Settings',
-    subtitle: "Manage your organization's baasic preferences and defaults.",
+    subtitle: "Manage your organization's basic preferences and defaults.",
     hasFooter: true,
   },
   organization: {
     title: 'Organization Settings',
-    subtitle: "Manage your organization's branding nd public identity.",
+    subtitle: "Manage your organization's branding and public identity.",
     hasFooter: true,
   },
   security: {
@@ -155,11 +139,15 @@ export const TAB_PANEL_META: Record<
   },
   danger: {
     title: 'Danger Zone',
-    subtitle: 'Manage sensitive workflows, These cannot be undone.',
+    subtitle: 'Manage sensitive workflows. These cannot be undone.',
   },
 };
 
-export const TIME_ZONE_OPTIONS = [DEFAULT_GENERAL.timeZone, '(GMT -05:00) Central Time (CT)', '(GMT +00:00) Greenwich Mean Time (GMT)'];
+export const TIME_ZONE_OPTIONS = [
+  DEFAULT_GENERAL.timeZone,
+  '(GMT -05:00) Central Time (CT)',
+  '(GMT +00:00) Greenwich Mean Time (GMT)',
+];
 export const CURRENCY_OPTIONS = [DEFAULT_GENERAL.currency, 'USD - US Dollar', 'EUR - Euro'];
 export const LANGUAGE_OPTIONS = ['English', 'French'];
 export const TIME_FORMAT_OPTIONS = [DEFAULT_GENERAL.timeFormat, '24 Hour (e.g. 14:30)'];

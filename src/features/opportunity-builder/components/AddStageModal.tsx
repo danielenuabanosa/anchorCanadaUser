@@ -26,15 +26,19 @@ const VISIBILITY_OPTIONS: { id: ApplicantVisibility; title: string; description:
 ];
 
 export function AddStageModal({ open, onClose, onAdd, stages }: AddStageModalProps) {
-  const [name, setName] = useState('Assessment Review');
-  const [description, setDescription] = useState('Assess application based on program criteria');
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [stageType, setStageType] = useState<string>(STAGE_TYPE_OPTIONS[0] ?? 'Review');
   const [insertAfterId, setInsertAfterId] = useState(stages[stages.length - 1]?.id ?? '');
   const [visibility, setVisibility] = useState<ApplicantVisibility>('visible');
 
   useEffect(() => {
     if (!open) return;
+    setName('');
+    setDescription('');
+    setStageType(STAGE_TYPE_OPTIONS[0] ?? 'Review');
     setInsertAfterId(stages[stages.length - 1]?.id ?? '');
+    setVisibility('visible');
     const handleKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
     };
@@ -49,9 +53,10 @@ export function AddStageModal({ open, onClose, onAdd, stages }: AddStageModalPro
   if (!open) return null;
 
   function handleSubmit() {
+    if (!name.trim()) return;
     onAdd({
-      name,
-      description,
+      name: name.trim(),
+      description: description.trim(),
       stageType,
       applicantVisibility: visibility,
       insertAfterId,
@@ -87,6 +92,7 @@ export function AddStageModal({ open, onClose, onAdd, stages }: AddStageModalPro
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Assessment Review"
                   className="anchor-field anchor-field--icon-left"
                 />
               </div>
@@ -98,6 +104,7 @@ export function AddStageModal({ open, onClose, onAdd, stages }: AddStageModalPro
                 value={description}
                 onChange={(e) => setDescription(e.target.value.slice(0, 250))}
                 rows={4}
+                placeholder="Describe what happens in this stage..."
                 className="anchor-textarea w-full resize-none"
               />
               <p className="mt-1 text-right text-[12px] text-[#8C97AD]">{description.length} / 250</p>

@@ -57,7 +57,7 @@ export function AccountRegistrationForm() {
         return;
       }
 
-      setAuth(result.user, result.token);
+      setAuth(result.user, result.token, result.refreshToken);
 
       if (nextPath === '/dashboard') {
         try {

@@ -10,17 +10,20 @@ import { HubStatCard } from '@/app/(app)/opportunities/_components/HubStatCard';
 import { HubFilterBar } from '@/shared/components/hub/HubFilterBar';
 import { HubSortSelect } from '@/shared/components/hub/HubSortSelect';
 import { ListPagination } from '@/shared/components/ui/ListPagination';
+import { TableRowsSkeleton } from '@/shared/components/ui/PageSkeletons';
+import { useProviderTeam } from '@/features/provider/hooks/useProviderTeam';
+import { mapApiTeamMemberToRow } from '@/features/provider/lib/mapTeamData';
+import { providerApi } from '@/features/provider/services/providerApi';
 import {
   DEFAULT_TEAM_HUB_FILTERS,
   ROLE_STYLES,
   STATUS_STYLES,
   TEAM_DEPARTMENT_FILTER_OPTIONS,
-  TEAM_MEMBERS,
   TEAM_ROLE_FILTER_OPTIONS,
-  TEAM_STATS,
   TEAM_STATUS_FILTER_OPTIONS,
   filterByTeamHubFilters,
   sortTeamMembers,
+  type InvitePayload,
   type TeamHubFilters,
   type TeamMemberRow,
 } from './teamManagementData';
@@ -42,9 +45,10 @@ export default function DesktopView() {
   const [exportOpen, setExportOpen] = useState(false);
   const [menuMemberId, setMenuMemberId] = useState<string | null>(null);
   const router = useRouter();
+  const { members, stats, loading, error, refetch } = useProviderTeam();
 
   const filtered = useMemo(() => {
-    const byFilters = filterByTeamHubFilters(TEAM_MEMBERS, filters);
+    const byFilters = filterByTeamHubFilters(members, filters);
     const searched = !search.trim()
       ? byFilters
       : byFilters.filter((m) => {
@@ -57,7 +61,7 @@ export default function DesktopView() {
           );
         });
     return sortTeamMembers(searched, sort);
-  }, [search, filters, sort]);
+  }, [members, search, filters, sort]);
 
   const { page, pageSize, total, pageItems, goToPage, changePageSize, setPage } = usePagination(
     filtered,
@@ -90,8 +94,32 @@ export default function DesktopView() {
     handleTeamMemberAction(member, label, setHubModal, () => router.push(`/team/${member.id}`));
   }
 
+  async function handleInvite(payload: InvitePayload & { notes?: string }) {
+    const created = await providerApi.inviteTeamMember({
+      email: payload.email,
+      name: payload.name,
+      role: payload.role,
+      department: payload.department,
+      notes: payload.notes,
+    });
+    await refetch();
+    return {
+      ...payload,
+      ...(created && typeof created === 'object' ? mapApiTeamMemberToRow(created as never) : {}),
+      email: payload.email,
+      name: payload.name,
+      role: payload.role,
+      department: payload.department,
+      avatar: payload.avatar,
+    };
+  }
+
   return (
     <div className="flex flex-col gap-5">
+      {error ? (
+        <p className="rounded-[10px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>
+      ) : null}
+
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-serif text-[36px] leading-[56px] text-[#0F172A]">Providers Team</h1>
@@ -110,9 +138,11 @@ export default function DesktopView() {
       </div>
 
       <div className="grid grid-cols-2 gap-2.5 xl:grid-cols-6">
-        {TEAM_STATS.map((stat) => (
-          <HubStatCard key={stat.label} {...stat} />
-        ))}
+        {loading
+          ? Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-[158px] animate-pulse rounded-[8px] border border-[#EEF2F8] bg-white" />
+            ))
+          : stats.map((stat) => <HubStatCard key={stat.label} {...stat} />)}
       </div>
 
       <HubFilterBar
@@ -183,59 +213,72 @@ export default function DesktopView() {
         </div>
 
         <div className="overflow-visible p-5">
-          {pageItems.map((member) => (
-            <div
-              key={member.id}
-              className={cn(
-                'grid grid-cols-1 gap-3 border-b border-[#EEF2F8] py-0 last:border-b-0 md:grid-cols-[40px_1.4fr_140px_140px_140px_140px_1fr_100px] md:items-center md:gap-2.5 md:py-0',
-                menuMemberId === member.id && 'relative z-50',
-              )}
-            >
-              <div className="flex h-[60px] items-center">
-                <input
-                  type="checkbox"
-                  checked={selected.has(member.id)}
-                  onChange={() => toggleRow(member.id)}
-                  className="h-[18px] w-[18px] rounded border-[#D9E1EF] bg-[#EEF2F8] text-[#2F66C8]"
-                />
-              </div>
-              <div className="flex h-[60px] items-center gap-2.5">
-                <Image src={member.avatar} alt="" width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
-                <div className="min-w-0">
-                  <p className="truncate text-sm text-[#0F172A]">{member.name}</p>
-                  <p className="truncate text-xs text-[#8C97AD]">{member.email}</p>
+          {loading ? (
+            <TableRowsSkeleton rows={5} />
+          ) : pageItems.length === 0 ? (
+            <p className="py-8 text-sm text-[#8C97AD]">No team members yet. Invite your first member.</p>
+          ) : (
+            pageItems.map((member) => (
+              <div
+                key={member.id}
+                className={cn(
+                  'grid grid-cols-1 gap-3 border-b border-[#EEF2F8] py-0 last:border-b-0 md:grid-cols-[40px_1.4fr_140px_140px_140px_140px_1fr_100px] md:items-center md:gap-2.5 md:py-0',
+                  menuMemberId === member.id && 'relative z-50',
+                )}
+              >
+                <div className="flex h-[60px] items-center">
+                  <input
+                    type="checkbox"
+                    checked={selected.has(member.id)}
+                    onChange={() => toggleRow(member.id)}
+                    className="h-[18px] w-[18px] rounded border-[#D9E1EF] bg-[#EEF2F8] text-[#2F66C8]"
+                  />
+                </div>
+                <div className="flex h-[60px] items-center gap-2.5">
+                  <Image
+                    src={member.avatar}
+                    alt=""
+                    width={40}
+                    height={40}
+                    unoptimized={typeof member.avatar === 'string'}
+                    className="h-10 w-10 rounded-full object-cover"
+                  />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm text-[#0F172A]">{member.name}</p>
+                    <p className="truncate text-xs text-[#8C97AD]">{member.email}</p>
+                  </div>
+                </div>
+                <div className="flex h-[60px] items-center">
+                  <span className={cn('inline-flex rounded-[4px] px-1.5 py-0.5 text-sm font-medium', ROLE_STYLES[member.role])}>
+                    {member.role}
+                  </span>
+                </div>
+                <p className="flex h-[60px] items-center text-sm text-[#44516A]">{member.department}</p>
+                <div className="flex h-[60px] items-center">
+                  <span className={cn('inline-flex rounded-[4px] px-1.5 py-0.5 text-sm font-medium', STATUS_STYLES[member.status])}>
+                    {member.status}
+                  </span>
+                </div>
+                <p className="flex h-[60px] items-center text-sm text-[#44516A]">{member.lastActive}</p>
+                <p className="flex h-[60px] items-center truncate text-sm text-[#44516A]">{member.permissions}</p>
+                <div className="relative flex h-[60px] items-center">
+                  <button
+                    type="button"
+                    onClick={() => setMenuMemberId(menuMemberId === member.id ? null : member.id)}
+                    className="flex h-8 w-8 items-center justify-center rounded-[6px] border border-[#EEF2F8] bg-white p-1.5 text-[#44516A]"
+                  >
+                    <Ellipsis className="h-[18px] w-[18px]" />
+                  </button>
+                  <MemberActionsMenu
+                    open={menuMemberId === member.id}
+                    member={member}
+                    onClose={() => setMenuMemberId(null)}
+                    onAction={(label) => handleAction(member, label)}
+                  />
                 </div>
               </div>
-              <div className="flex h-[60px] items-center">
-                <span className={cn('inline-flex rounded-[4px] px-1.5 py-0.5 text-sm font-medium', ROLE_STYLES[member.role])}>
-                  {member.role}
-                </span>
-              </div>
-              <p className="flex h-[60px] items-center text-sm text-[#44516A]">{member.department}</p>
-              <div className="flex h-[60px] items-center">
-                <span className={cn('inline-flex rounded-[4px] px-1.5 py-0.5 text-sm font-medium', STATUS_STYLES[member.status])}>
-                  {member.status}
-                </span>
-              </div>
-              <p className="flex h-[60px] items-center text-sm text-[#44516A]">{member.lastActive}</p>
-              <p className="flex h-[60px] items-center truncate text-sm text-[#44516A]">{member.permissions}</p>
-              <div className="relative flex h-[60px] items-center">
-                <button
-                  type="button"
-                  onClick={() => setMenuMemberId(menuMemberId === member.id ? null : member.id)}
-                  className="flex h-8 w-8 items-center justify-center rounded-[6px] border border-[#EEF2F8] bg-white p-1.5 text-[#44516A]"
-                >
-                  <Ellipsis className="h-[18px] w-[18px]" />
-                </button>
-                <MemberActionsMenu
-                  open={menuMemberId === member.id}
-                  member={member}
-                  onClose={() => setMenuMemberId(null)}
-                  onAction={(label) => handleAction(member, label)}
-                />
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
         <ListPagination
@@ -250,8 +293,48 @@ export default function DesktopView() {
 
       <TeamHubBottomSections />
 
-      <TeamHubModalLayer modal={hubModal} onClose={() => setHubModal(null)} onSetModal={setHubModal} />
-      <ExportTeamMembersModal open={exportOpen} onClose={() => setExportOpen(false)} />
+      <TeamHubModalLayer
+        modal={hubModal}
+        onClose={() => setHubModal(null)}
+        onSetModal={setHubModal}
+        onInvite={handleInvite}
+        onResend={async (member) => {
+          await providerApi.resendTeamInvite(member.id);
+          await refetch();
+          return {
+            email: member.email,
+            name: member.name,
+            role: member.role,
+            department: member.department,
+            avatar: member.avatar,
+          };
+        }}
+        onCancelInvite={async (member) => {
+          await providerApi.cancelTeamInvite(member.id);
+          await refetch();
+        }}
+        onSaveRole={async (member, payload) => {
+          await providerApi.updateTeamMember(member.id, {
+            role: payload.role,
+            title: payload.title,
+            permissions: payload.permissions,
+          });
+          await refetch();
+        }}
+        onSuspend={async (member) => {
+          await providerApi.suspendTeamMember(member.id);
+          await refetch();
+        }}
+        onActivate={async (member) => {
+          await providerApi.activateTeamMember(member.id);
+          await refetch();
+        }}
+        onRemove={async (member) => {
+          await providerApi.removeTeamMember(member.id);
+          await refetch();
+        }}
+      />
+      <ExportTeamMembersModal open={exportOpen} onClose={() => setExportOpen(false)} rows={filtered} />
     </div>
   );
 }

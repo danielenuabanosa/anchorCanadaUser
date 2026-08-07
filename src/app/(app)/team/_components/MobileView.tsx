@@ -2,18 +2,21 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowUp, Search, SlidersHorizontal, UserPlus } from 'lucide-react';
+import { Search, SlidersHorizontal, UserPlus } from 'lucide-react';
 import { usePagination } from '@/lib/pagination';
 import { cn } from '@/lib/utils';
 import { MobileHubPageHero } from '@/app/(app)/opportunities/_components/MobileHubPageHero';
 import { HubSortSelect } from '@/shared/components/hub/HubSortSelect';
 import { ListPagination } from '@/shared/components/ui/ListPagination';
+import { ApplicationCardsSkeletonMobile } from '@/shared/components/ui/PageSkeletons';
+import { useProviderTeam } from '@/features/provider/hooks/useProviderTeam';
+import { mapApiTeamMemberToRow } from '@/features/provider/lib/mapTeamData';
+import { providerApi } from '@/features/provider/services/providerApi';
 import {
   DEFAULT_TEAM_HUB_FILTERS,
-  MOBILE_TEAM_STATS,
-  TEAM_MEMBERS,
   filterByTeamHubFilters,
   sortTeamMembers,
+  type InvitePayload,
   type TeamHubFilters,
   type TeamMemberRow,
 } from './teamManagementData';
@@ -36,9 +39,10 @@ export default function MobileView() {
   const [hubModal, setHubModal] = useState<TeamHubModal | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
+  const { members, stats, loading, error, refetch } = useProviderTeam();
 
   const filtered = useMemo(() => {
-    const byFilters = filterByTeamHubFilters(TEAM_MEMBERS, filters);
+    const byFilters = filterByTeamHubFilters(members, filters);
     const searched = !search.trim()
       ? byFilters
       : byFilters.filter((m) => {
@@ -50,7 +54,7 @@ export default function MobileView() {
           );
         });
     return sortTeamMembers(searched, sort);
-  }, [search, filters, sort]);
+  }, [members, search, filters, sort]);
 
   const { page, pageSize, total, pageItems, goToPage, changePageSize, setPage } = usePagination(
     filtered,
@@ -72,8 +76,76 @@ export default function MobileView() {
     handleTeamMemberAction(member, label, setHubModal, () => router.push(`/team/${member.id}`));
   }
 
+  async function handleInvite(payload: InvitePayload & { notes?: string }) {
+    const created = await providerApi.inviteTeamMember({
+      email: payload.email,
+      name: payload.name,
+      role: payload.role,
+      department: payload.department,
+      notes: payload.notes,
+    });
+    await refetch();
+    return {
+      ...payload,
+      ...(created && typeof created === 'object' ? mapApiTeamMemberToRow(created as never) : {}),
+      email: payload.email,
+      name: payload.name,
+      role: payload.role,
+      department: payload.department,
+      avatar: payload.avatar,
+    };
+  }
+
+  const modalHandlers = {
+    onInvite: handleInvite,
+    onResend: async (member: TeamMemberRow) => {
+      await providerApi.resendTeamInvite(member.id);
+      await refetch();
+      return {
+        email: member.email,
+        name: member.name,
+        role: member.role,
+        department: member.department,
+        avatar: member.avatar,
+      };
+    },
+    onCancelInvite: async (member: TeamMemberRow) => {
+      await providerApi.cancelTeamInvite(member.id);
+      await refetch();
+    },
+    onSaveRole: async (
+      member: TeamMemberRow,
+      payload: { role: string; title?: string; permissions: string[] },
+    ) => {
+      await providerApi.updateTeamMember(member.id, {
+        role: payload.role,
+        title: payload.title,
+        permissions: payload.permissions,
+      });
+      await refetch();
+    },
+    onSuspend: async (member: TeamMemberRow) => {
+      await providerApi.suspendTeamMember(member.id);
+      await refetch();
+    },
+    onActivate: async (member: TeamMemberRow) => {
+      await providerApi.activateTeamMember(member.id);
+      await refetch();
+    },
+    onRemove: async (member: TeamMemberRow) => {
+      await providerApi.removeTeamMember(member.id);
+      await refetch();
+    },
+  };
+
   return (
     <div className="flex flex-col pb-4">
+      {error ? (
+        <p className="mb-3 rounded-[10px] border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600">
+          {error}
+        </p>
+      ) : null}
+
       <MobileHubPageHero
         title="Providers Team"
         subtitle="Manage your organization's members, roles and permissions"
@@ -89,50 +161,39 @@ export default function MobileView() {
         }
       />
 
-      {/* Figma 522:3733 — 2×3 equal stat cards */}
       <section className="py-5">
-        <div className="grid grid-cols-2 gap-2.5">
-          {MOBILE_TEAM_STATS.map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <div
-                key={stat.label}
-                className="flex h-[158px] flex-col justify-between rounded-[8px] border border-[#EEF2F8] bg-white p-4"
-              >
-                <span className={cn('flex h-8 w-8 items-center justify-center rounded-2xl', stat.iconBg)}>
-                  <Icon className={cn('h-4 w-4', stat.iconColor)} strokeWidth={1.75} />
-                </span>
-                <div>
-                  <p className="text-xs leading-none text-[#44516A]">{stat.label}</p>
-                  <p className="mt-1.5 text-2xl font-bold leading-none text-[#0F172A]">
-                    {typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}
-                  </p>
-                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                    {stat.change ? (
-                      <span
-                        className={cn(
-                          'inline-flex items-center gap-1 rounded-[2px] px-1 py-0.5 text-[10px] leading-none',
-                          stat.changeNegative
-                            ? 'bg-[#FEF2F2] text-[#B91C1C]'
-                            : 'bg-[#ECFDF5] text-[#15803D]',
-                        )}
-                      >
-                        <ArrowUp
-                          className={cn('h-2.5 w-2.5', stat.changeNegative && 'rotate-180')}
-                          strokeWidth={2.5}
-                        />
-                        {stat.change.replace(/^[+-]/, '')}
-                      </span>
-                    ) : null}
+        {loading ? (
+          <div className="grid grid-cols-2 gap-2.5">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-[158px] animate-pulse rounded-[8px] border border-[#EEF2F8] bg-white" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-2.5">
+            {stats.map((stat) => {
+              const Icon = stat.icon;
+              return (
+                <div
+                  key={stat.label}
+                  className="flex h-[158px] flex-col justify-between rounded-[8px] border border-[#EEF2F8] bg-white p-4"
+                >
+                  <span className={cn('flex h-8 w-8 items-center justify-center rounded-2xl', stat.iconBg)}>
+                    <Icon className={cn('h-4 w-4', stat.iconColor)} strokeWidth={1.75} />
+                  </span>
+                  <div>
+                    <p className="text-xs leading-none text-[#44516A]">{stat.label}</p>
+                    <p className="mt-1.5 text-2xl font-bold leading-none text-[#0F172A]">
+                      {typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}
+                    </p>
                     {stat.subtext ? (
-                      <span className="text-[10px] leading-none text-[#8C97AD]">{stat.subtext}</span>
+                      <span className="mt-1.5 block text-[10px] leading-none text-[#8C97AD]">{stat.subtext}</span>
                     ) : null}
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       <div className="relative flex items-center gap-2.5">
@@ -188,9 +249,15 @@ export default function MobileView() {
       </div>
 
       <div className="mt-5 flex flex-col gap-5">
-        {pageItems.map((member) => (
-          <MobileTeamMemberCard key={member.id} member={member} onAction={handleAction} />
-        ))}
+        {loading ? (
+          <ApplicationCardsSkeletonMobile count={4} />
+        ) : pageItems.length === 0 ? (
+          <p className="text-sm text-[#8C97AD]">No team members yet. Invite your first member.</p>
+        ) : (
+          pageItems.map((member) => (
+            <MobileTeamMemberCard key={member.id} member={member} onAction={handleAction} />
+          ))
+        )}
       </div>
 
       <ListPagination
@@ -209,8 +276,13 @@ export default function MobileView() {
         <TeamPerformancePanel />
       </div>
 
-      <TeamHubModalLayer modal={hubModal} onClose={() => setHubModal(null)} onSetModal={setHubModal} />
-      <ExportTeamMembersModal open={exportOpen} onClose={() => setExportOpen(false)} />
+      <TeamHubModalLayer
+        modal={hubModal}
+        onClose={() => setHubModal(null)}
+        onSetModal={setHubModal}
+        {...modalHandlers}
+      />
+      <ExportTeamMembersModal open={exportOpen} onClose={() => setExportOpen(false)} rows={filtered} />
     </div>
   );
 }

@@ -1,11 +1,9 @@
 /**
- * Offline / demo mode — used until provider API auth endpoints are available.
+ * Offline / demo mode for the provider app.
  *
- * Enable with NEXT_PUBLIC_STATIC_MODE=true (see .env.example).
- * Disable with NEXT_PUBLIC_STATIC_MODE=false or NEXT_PUBLIC_DISABLE_AUTH=false
- * once the backend is ready.
- *
- * Development defaults to offline mode so local UI work is never blocked by APIs.
+ * Opt-in only: set NEXT_PUBLIC_STATIC_MODE=true (or NEXT_PUBLIC_DISABLE_AUTH=true)
+ * when you intentionally want mock data without a backend.
+ * Default is live API mode so onboarding/login hit real endpoints.
  */
 export function isStaticMode(): boolean {
   if (process.env.NEXT_PUBLIC_STATIC_MODE === 'false') return false;
@@ -13,8 +11,7 @@ export function isStaticMode(): boolean {
 
   return (
     process.env.NEXT_PUBLIC_STATIC_MODE === 'true' ||
-    process.env.NEXT_PUBLIC_DISABLE_AUTH === 'true' ||
-    process.env.NODE_ENV === 'development'
+    process.env.NEXT_PUBLIC_DISABLE_AUTH === 'true'
   );
 }
 

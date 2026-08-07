@@ -8,11 +8,19 @@ import { MobileHubPageHero } from '@/app/(app)/opportunities/_components/MobileH
 import { MobileHubTabs } from '@/app/(app)/opportunities/_components/MobileHubTabs';
 import { useOpportunityHubSearch } from '@/app/(app)/opportunities/_components/useOpportunityHubSearch';
 import { useProviderApplications } from '@/features/provider/hooks/useProviderHubData';
+import { useProviderTeam } from '@/features/provider/hooks/useProviderTeam';
+import {
+  buildApplicationHubStats,
+  buildApplicationTabCounts,
+} from '@/features/provider/lib/hubStats';
+import { applicationStatusFromHubAction } from '@/features/provider/lib/mapApplicationDetail';
+import { applicationRowFieldsFromApiStatus } from '@/features/provider/lib/mapHubData';
+import { providerApi } from '@/features/provider/services/providerApi';
+import { downloadApplicationSubmission } from '@/features/provider/lib/downloadSubmission';
 import { HubSortSelect } from '@/shared/components/hub/HubSortSelect';
 import { ListPagination } from '@/shared/components/ui/ListPagination';
 import { MobileApplicantCard } from './MobileApplicantCard';
 import {
-  APPLICATION_STATS,
   APPLICATION_TABS,
   DEFAULT_APP_HUB_FILTERS,
   EMPTY_APPLICATION_TABS,
@@ -31,6 +39,7 @@ import {
   MarkInterviewCompletedModal,
   RejectApplicationModal,
   ReopenApplicationModal,
+  RequestDocumentsModal,
   ReviewerAssignedSuccessModal,
   ScheduleInterviewModal,
   SendOfferModal,
@@ -51,19 +60,38 @@ export default function MobileView() {
   const [exportSuccessOpen, setExportSuccessOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
-  const [assignSuccess, setAssignSuccess] = useState<{ open: boolean; reviewerName: string }>({
+  const [assignSuccess, setAssignSuccess] = useState<{
+    open: boolean;
+    reviewerName: string;
+    count: number;
+  }>({
     open: false,
     reviewerName: 'Michael Adams',
+    count: 0,
   });
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [actionModal, setActionModal] = useState<{
     type: HubActionModalType;
     applicantName: string;
+    applicationIds: string[];
   } | null>(null);
   const [filters, setFilters] = useState<ApplicationHubFilters>(DEFAULT_APP_HUB_FILTERS);
   const [sort, setSort] = useState('newest');
   const [localSearch, setLocalSearch] = useState('');
-  const { rows: applicants, loading, error } = useProviderApplications();
+  const { rows: applicants, setRows, loading, error } = useProviderApplications();
+  const { members: teamMembers } = useProviderTeam();
+  const reviewerOptions = useMemo(
+    () =>
+      teamMembers
+        .filter((m) => m.status === 'Active')
+        .map((m) => ({
+          id: m.id,
+          name: m.name,
+          role: m.role,
+          avatar: typeof m.avatar === 'string' ? undefined : m.avatar,
+        })),
+    [teamMembers],
+  );
   const query = useOpportunityHubSearch();
   const search = localSearch || query;
 
@@ -95,18 +123,12 @@ export default function MobileView() {
   const hasActiveFilters = Object.values(filters).some((v) => v !== 'all');
   const isEmptySource = !loading && applicants.length === 0;
   const isNoMatch = !loading && applicants.length > 0 && filtered.length === 0;
+  const tabCounts = useMemo(() => buildApplicationTabCounts(applicants), [applicants]);
   const tabs = (isEmptySource ? EMPTY_APPLICATION_TABS : APPLICATION_TABS).map((tab) => ({
     ...tab,
-    count: tab.count,
+    count: isEmptySource ? 0 : (tabCounts[tab.id] ?? 0),
   }));
-  const stats = isEmptySource
-    ? APPLICATION_STATS.map((stat) => ({
-        ...stat,
-        value: 0,
-        change: undefined,
-        subtext: 'As of 24h ago',
-      }))
-    : APPLICATION_STATS;
+  const stats = useMemo(() => buildApplicationHubStats(applicants), [applicants]);
 
   function toggleSelect(id: string) {
     setSelected((prev) => {
@@ -119,6 +141,80 @@ export default function MobileView() {
 
   const firstSelectedName =
     applicants.find((a) => selected.has(a.id))?.applicant ?? 'Applicant';
+
+  async function handleActionConfirm(type: HubActionModalType, note?: string) {
+    const ids = actionModal?.applicationIds?.length
+      ? actionModal.applicationIds
+      : Array.from(selected);
+    if (ids.length === 0) return;
+
+    if (type === 'note' && note) {
+      await Promise.all(
+        ids.map(async (id) => {
+          const row = applicants.find((a) => a.id === id);
+          const current =
+            row?.status === 'Shortlisted'
+              ? 'shortlisted'
+              : row?.status === 'Interview'
+                ? 'interview'
+                : row?.status === 'Accepted'
+                  ? 'accepted'
+                  : row?.status === 'Rejected'
+                    ? 'rejected'
+                    : 'under_review';
+          await providerApi.updateApplicationStatus(id, { status: current, note });
+        }),
+      );
+      return;
+    }
+
+    if (type === 'archive') {
+      await Promise.all(ids.map((id) => providerApi.archiveApplication(id, note || 'Archived by provider')));
+      const fields = applicationRowFieldsFromApiStatus('rejected');
+      setRows((prev) =>
+        prev.map((row) => (ids.includes(row.id) ? { ...row, ...fields } : row)),
+      );
+      setSelected(new Set());
+      return;
+    }
+
+    if (type === 'reopen') {
+      await Promise.all(
+        ids.map(async (id) => {
+          try {
+            await providerApi.unarchiveApplication(id);
+          } catch {
+            // not archived
+          }
+          await providerApi.updateApplicationStatus(id, { status: 'under_review', note });
+        }),
+      );
+      const fields = applicationRowFieldsFromApiStatus('under_review');
+      setRows((prev) =>
+        prev.map((row) => (ids.includes(row.id) ? { ...row, ...fields } : row)),
+      );
+      setSelected(new Set());
+      return;
+    }
+
+    const apiStatus = applicationStatusFromHubAction(type);
+    if (!apiStatus) return;
+
+    await Promise.all(
+      ids.map((id) =>
+        providerApi.updateApplicationStatus(id, {
+          status: apiStatus,
+          note,
+        }),
+      ),
+    );
+
+    const fields = applicationRowFieldsFromApiStatus(apiStatus);
+    setRows((prev) =>
+      prev.map((row) => (ids.includes(row.id) ? { ...row, ...fields } : row)),
+    );
+    setSelected(new Set());
+  }
 
   return (
     <div className="flex flex-col gap-5 pb-4">
@@ -223,8 +319,20 @@ export default function MobileView() {
           count={selected.size}
           variant="mobile"
           onClear={() => setSelected(new Set())}
-          onShortlist={() => setActionModal({ type: 'shortlist', applicantName: firstSelectedName })}
-          onReject={() => setActionModal({ type: 'reject', applicantName: firstSelectedName })}
+          onShortlist={() =>
+            setActionModal({
+              type: 'shortlist',
+              applicantName: firstSelectedName,
+              applicationIds: Array.from(selected),
+            })
+          }
+          onReject={() =>
+            setActionModal({
+              type: 'reject',
+              applicantName: firstSelectedName,
+              applicationIds: Array.from(selected),
+            })
+          }
           onAssignReviewer={() => setAssignOpen(true)}
           onExport={() => setExportOpen(true)}
         />
@@ -271,8 +379,16 @@ export default function MobileView() {
                   setAssignOpen(true);
                 }}
                 onAction={(label, applicant) => {
+                  if (label === 'Download Submission') {
+                    void downloadApplicationSubmission(applicant.id, applicant.applicant).catch(
+                      console.error,
+                    );
+                    return;
+                  }
                   const next = hubActionModalForLabel(label, applicant.applicant);
-                  if (next) setActionModal(next);
+                  if (next) {
+                    setActionModal({ ...next, applicationIds: [applicant.id] });
+                  }
                 }}
               />
             ))}
@@ -293,58 +409,121 @@ export default function MobileView() {
         open={exportOpen}
         onClose={() => setExportOpen(false)}
         onGenerated={() => setExportSuccessOpen(true)}
+        rows={filtered.map((a) => ({
+          applicant: a.applicant,
+          email: a.email,
+          location: a.location,
+          opportunity: a.opportunity,
+          opportunityType: a.opportunityType,
+          status: a.status,
+          appliedAt: a.appliedAt,
+          reviewer: a.reviewer,
+          tab: a.tab,
+        }))}
       />
       <ExportGeneratedSuccessModal open={exportSuccessOpen} onClose={() => setExportSuccessOpen(false)} />
       <AssignReviewerModal
         open={assignOpen}
         onClose={() => setAssignOpen(false)}
-        onAssigned={(reviewerName) => setAssignSuccess({ open: true, reviewerName })}
+        reviewers={reviewerOptions}
+        onAssigned={async (reviewer) => {
+          const ids = Array.from(selected);
+          if (ids.length > 0) {
+            const result = await providerApi.assignReviewers(ids, reviewer.id);
+            setRows((prev) =>
+              prev.map((row) =>
+                ids.includes(row.id) ? { ...row, reviewer: reviewer.name } : row,
+              ),
+            );
+            setAssignSuccess({
+              open: true,
+              reviewerName: result.reviewer?.name ?? reviewer.name,
+              count: result.assigned ?? ids.length,
+            });
+          } else {
+            setAssignSuccess({ open: true, reviewerName: reviewer.name, count: 0 });
+          }
+          setSelected(new Set());
+        }}
       />
       <ReviewerAssignedSuccessModal
         open={assignSuccess.open}
         reviewerName={assignSuccess.reviewerName}
+        count={assignSuccess.count}
         onClose={() => setAssignSuccess((s) => ({ ...s, open: false }))}
       />
       <ShortlistApplicationModal
         open={actionModal?.type === 'shortlist'}
         applicantName={actionModal?.applicantName ?? ''}
         onClose={() => setActionModal(null)}
+        onConfirm={() => handleActionConfirm('shortlist')}
       />
       <RejectApplicationModal
         open={actionModal?.type === 'reject'}
         applicantName={actionModal?.applicantName ?? ''}
         onClose={() => setActionModal(null)}
+        onConfirm={(note) => handleActionConfirm('reject', note)}
       />
       <ScheduleInterviewModal
         open={actionModal?.type === 'interview' || actionModal?.type === 'reschedule'}
         applicantName={actionModal?.applicantName ?? ''}
         onClose={() => setActionModal(null)}
         mode={actionModal?.type === 'reschedule' ? 'reschedule' : 'schedule'}
+        onConfirm={(payload) =>
+          handleActionConfirm(
+            actionModal?.type === 'reschedule' ? 'reschedule' : 'interview',
+            `Interview ${payload.date} ${payload.time} (${payload.duration}m, ${payload.interviewType}) ${payload.meetingLink}${payload.notes ? ` — ${payload.notes}` : ''}`,
+          )
+        }
       />
       <MarkInterviewCompletedModal
         open={actionModal?.type === 'complete'}
         applicantName={actionModal?.applicantName ?? ''}
         onClose={() => setActionModal(null)}
+        onConfirm={() => handleActionConfirm('complete', 'Interview marked completed')}
       />
       <SendOfferModal
         open={actionModal?.type === 'offer'}
         applicantName={actionModal?.applicantName ?? ''}
         onClose={() => setActionModal(null)}
+        onConfirm={() => handleActionConfirm('offer')}
       />
       <ArchiveApplicationModal
         open={actionModal?.type === 'archive'}
         applicantName={actionModal?.applicantName ?? ''}
         onClose={() => setActionModal(null)}
+        onConfirm={() => handleActionConfirm('archive')}
       />
       <ReopenApplicationModal
         open={actionModal?.type === 'reopen'}
         applicantName={actionModal?.applicantName ?? ''}
         onClose={() => setActionModal(null)}
+        onConfirm={() => handleActionConfirm('reopen')}
       />
       <AddNoteModal
         open={actionModal?.type === 'note'}
         applicantName={actionModal?.applicantName ?? ''}
         onClose={() => setActionModal(null)}
+        onConfirm={(note) => handleActionConfirm('note', note)}
+      />
+      <RequestDocumentsModal
+        open={actionModal?.type === 'request-documents'}
+        applicantName={actionModal?.applicantName ?? ''}
+        onClose={() => setActionModal(null)}
+        onConfirm={async (payload) => {
+          const ids = actionModal?.applicationIds?.length
+            ? actionModal.applicationIds
+            : Array.from(selected);
+          await Promise.all(
+            ids.map((id) =>
+              providerApi.requestDocuments(id, {
+                message: payload.message,
+                documentTypes: payload.documentTypes,
+              }),
+            ),
+          );
+          setActionModal(null);
+        }}
       />
     </div>
   );

@@ -15,6 +15,11 @@ import {
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
 import { OnboardingNavButtons } from '@/shared/components/onboarding/OnboardingNavButtons';
 import { useProviderOnboardingStore } from '@/store/onboardingStore';
+import { saveOnboardingDraft } from '@/features/provider/lib/completeOnboarding';
+import {
+  uploadOrganizationCoverFile,
+  uploadOrganizationLogoFile,
+} from '@/features/provider/lib/uploadOrganizationAssets';
 import {
   FieldLabel,
   FileUploadZone,
@@ -53,20 +58,6 @@ type UploadState = {
   previewUrl?: string;
 };
 
-function simulateUpload(setState: (state: UploadState) => void, file: File) {
-  setState({ fileName: file.name, progress: 0, previewUrl: URL.createObjectURL(file) });
-  let progress = 0;
-  const interval = setInterval(() => {
-    progress += 17;
-    if (progress >= 100) {
-      clearInterval(interval);
-      setState({ fileName: file.name, progress: 100, previewUrl: URL.createObjectURL(file) });
-      return;
-    }
-    setState({ fileName: file.name, progress, previewUrl: URL.createObjectURL(file) });
-  }, 200);
-}
-
 export default function DesktopView() {
   const router = useRouter();
   const setOnboardingData = useProviderOnboardingStore((s) => s.setOnboardingData);
@@ -81,6 +72,7 @@ export default function DesktopView() {
   const [logo, setLogo] = useState<UploadState>({});
   const [cover, setCover] = useState<UploadState>({});
   const [social, setSocial] = useState({ linkedin: '', twitter: '', facebook: '', instagram: '' });
+  const [saving, setSaving] = useState(false);
 
   const canContinue =
     orgName.trim() !== '' &&
@@ -92,8 +84,9 @@ export default function DesktopView() {
     operatingRegion !== '' &&
     logo.progress === 100;
 
-  function handleContinue() {
-    if (!canContinue) return;
+  async function handleContinue() {
+    if (!canContinue || saving) return;
+    setSaving(true);
     setOnboardingData({
       organizationName: orgName.trim(),
       organizationEmail: email.trim(),
@@ -101,8 +94,17 @@ export default function DesktopView() {
       organizationDescription: description.trim(),
       organizationPhone: phone.trim(),
       organizationProvince: operatingRegion,
+      organizationSize: orgSize,
+      social,
       verificationEmail: email.trim().toLowerCase(),
+      logoUrl: logo.previewUrl ?? null,
+      coverUrl: cover.previewUrl ?? null,
     });
+    try {
+      await saveOnboardingDraft('organization-info');
+    } catch {
+      // Draft save is best-effort when authenticated
+    }
     router.push('/onboarding/verification');
   }
 
@@ -246,8 +248,13 @@ export default function DesktopView() {
                           fileName={logo.fileName}
                           progress={logo.progress}
                           previewUrl={logo.previewUrl}
-                          onFileSelect={(file) => simulateUpload(setLogo, file)}
-                          onRemove={() => setLogo({})}
+                          onFileSelect={(file) => {
+                            void uploadOrganizationLogoFile(file, setLogo).catch(() => setLogo({}));
+                          }}
+                          onRemove={() => {
+                            setLogo({});
+                            setOnboardingData({ logoUrl: null });
+                          }}
                         />
                       </div>
                       <div className="flex flex-1 flex-col">
@@ -263,8 +270,13 @@ export default function DesktopView() {
                           fileName={cover.fileName}
                           progress={cover.progress}
                           previewUrl={cover.previewUrl}
-                          onFileSelect={(file) => simulateUpload(setCover, file)}
-                          onRemove={() => setCover({})}
+                          onFileSelect={(file) => {
+                            void uploadOrganizationCoverFile(file, setCover).catch(() => setCover({}));
+                          }}
+                          onRemove={() => {
+                            setCover({});
+                            setOnboardingData({ coverUrl: null });
+                          }}
                         />
                       </div>
                     </div>

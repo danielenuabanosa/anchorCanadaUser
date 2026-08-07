@@ -1,15 +1,21 @@
 import avatar1 from '@assets/images/profile-avatar.png';
 import avatar2 from '@assets/images/profile-google.png';
+import type { StaticImageData } from 'next/image';
 
 export type ApplicationDetailTab = 'overview' | 'application' | 'documents' | 'evaluation' | 'activity';
 
-export const APPLICATION_DETAIL_TABS: { id: ApplicationDetailTab; label: string }[] = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'application', label: 'Application' },
-  { id: 'documents', label: 'Document (5)' },
-  { id: 'evaluation', label: 'Evaluation' },
-  { id: 'activity', label: 'Activity' },
-];
+export function applicationDetailTabs(documentCount = 0): { id: ApplicationDetailTab; label: string }[] {
+  return [
+    { id: 'overview', label: 'Overview' },
+    { id: 'application', label: 'Application' },
+    { id: 'documents', label: `Document (${documentCount})` },
+    { id: 'evaluation', label: 'Evaluation' },
+    { id: 'activity', label: 'Activity' },
+  ];
+}
+
+export const APPLICATION_DETAIL_TABS: { id: ApplicationDetailTab; label: string }[] =
+  applicationDetailTabs(5);
 
 export type ApplicationStage =
   | 'Under Review'
@@ -52,8 +58,8 @@ export const DEFAULT_APPLICATION_DETAIL = {
   appliedAt: 'Jun 12, 2026 • 2:30 PM',
   stage: 'Under Review' as ApplicationStage,
   stageSince: 'Jun 12, 2026',
-  reviewer: { name: 'Michael Adams', avatar: avatar2 },
-  avatar: avatar1,
+  reviewer: { name: 'Michael Adams', avatar: avatar2 as string | StaticImageData },
+  avatar: avatar1 as string | StaticImageData,
   score: 92,
   about: {
     location: 'Toronto, ON, Canada',
@@ -82,11 +88,11 @@ export const DEFAULT_APPLICATION_DETAIL = {
     },
   ],
   documents: [
-    { name: 'Resume.pdf', size: '245 KB', status: 'Uploaded' },
-    { name: 'Transcript.pdf', size: '512 KB', status: 'Uploaded' },
-    { name: 'Personal_Statement.pdf', size: '128 KB', status: 'Uploaded' },
-    { name: 'Reference_Letter.pdf', size: '198 KB', status: 'Uploaded' },
-    { name: 'Proof_of_Enrollment.pdf', size: '89 KB', status: 'Uploaded' },
+    { name: 'Resume.pdf', size: '245 KB', status: 'Uploaded', url: undefined as string | undefined },
+    { name: 'Transcript.pdf', size: '512 KB', status: 'Uploaded', url: undefined as string | undefined },
+    { name: 'Personal_Statement.pdf', size: '128 KB', status: 'Uploaded', url: undefined as string | undefined },
+    { name: 'Reference_Letter.pdf', size: '198 KB', status: 'Uploaded', url: undefined as string | undefined },
+    { name: 'Proof_of_Enrollment.pdf', size: '89 KB', status: 'Uploaded', url: undefined as string | undefined },
   ],
   notes: [
     {

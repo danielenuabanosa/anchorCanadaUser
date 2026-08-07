@@ -21,6 +21,12 @@ const avatarVariants = cva(
 
 const sizeMap: Record<string, number> = { xs: 24, sm: 32, md: 40, lg: 48, xl: 64 };
 
+function isRenderableImageUrl(src?: string) {
+  if (!src) return false;
+  const path = src.split('?')[0]?.toLowerCase() ?? '';
+  return /\.(avif|gif|jpe?g|png|svg|webp)$/.test(path) || src.startsWith('data:image/');
+}
+
 interface AvatarProps extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof avatarVariants> {
   src?: string;
   alt?: string;
@@ -29,12 +35,13 @@ interface AvatarProps extends HTMLAttributes<HTMLDivElement>, VariantProps<typeo
 
 function Avatar({ className, size = 'md', src, alt = '', fallback, ...props }: AvatarProps) {
   const px = sizeMap[size ?? 'md'] ?? 40;
+  const imageSrc = isRenderableImageUrl(src) ? src : undefined;
 
   return (
     <div className={cn(avatarVariants({ size }), className)} {...props}>
-      {src ? (
+      {imageSrc ? (
         <Image
-          src={src}
+          src={imageSrc}
           alt={alt}
           width={px}
           height={px}

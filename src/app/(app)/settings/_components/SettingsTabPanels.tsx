@@ -1,9 +1,8 @@
 'use client';
 
-import Image from 'next/image';
 import { Archive, Monitor, Smartphone, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ACTIVE_SESSIONS, TAB_PANEL_META } from './settingsData';
+import { TAB_PANEL_META } from './settingsData';
 import type { SettingsHub } from './useSettingsHub';
 import {
   ActionRow,
@@ -89,6 +88,7 @@ function GeneralPanel({ hub, mobile }: { hub: SettingsHub; mobile?: boolean }) {
           <TextInput
             value={hub.general.organizationName}
             onChange={(v) => updateGeneral(hub, { organizationName: v })}
+            placeholder="Enter organization name"
           />
         ),
       },
@@ -110,6 +110,7 @@ function GeneralPanel({ hub, mobile }: { hub: SettingsHub; mobile?: boolean }) {
           <TextInput
             value={hub.general.organizationEmail}
             onChange={(v) => updateGeneral(hub, { organizationEmail: v })}
+            placeholder="name@organization.ca"
           />
         ),
       },
@@ -204,21 +205,35 @@ function OrganizationPanel({ hub }: { hub: SettingsHub }) {
         <FieldLabel>Logo</FieldLabel>
         <div className="flex items-center justify-between">
           <div className="rounded-[10px] border border-[#D9E1EF] bg-white p-2.5">
-            <Image
-              src={hub.organization.logo}
-              alt=""
-              width={40}
-              height={40}
-              className="h-10 w-10 rounded-[10px] object-cover"
-            />
+            {hub.organization.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={hub.organization.logoUrl}
+                alt=""
+                width={40}
+                height={40}
+                className="h-10 w-10 rounded-[10px] object-cover"
+              />
+            ) : (
+              <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[#EEF2F8] text-xs text-[#8C97AD]">
+                Logo
+              </div>
+            )}
           </div>
           <div className="flex flex-col items-end gap-2">
-            <button
-              type="button"
-              className="rounded-[6px] border border-[#D9E1EF] bg-white px-2.5 py-1.5 text-sm font-medium text-[#2F66C8]"
-            >
-              Change
-            </button>
+            <label className="cursor-pointer rounded-[6px] border border-[#D9E1EF] bg-white px-2.5 py-1.5 text-sm font-medium text-[#2F66C8]">
+              {hub.uploadingLogo ? 'Uploading…' : 'Change'}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                disabled={hub.uploadingLogo}
+                onChange={(e) => {
+                  void hub.uploadLogo(e.target.files?.[0] ?? null);
+                  e.target.value = '';
+                }}
+              />
+            </label>
             <p className="text-xs text-[#44516A]">JPG, PNG up to 2MB</p>
           </div>
         </div>
@@ -227,21 +242,35 @@ function OrganizationPanel({ hub }: { hub: SettingsHub }) {
       <FieldCell>
         <FieldLabel>Cover Image</FieldLabel>
         <div className="flex items-center justify-between rounded-[10px] border border-[#D9E1EF] bg-white p-2.5">
-          <Image
-            src={hub.organization.coverImage}
-            alt=""
-            width={240}
-            height={80}
-            className="h-20 w-[240px] max-w-[55%] rounded-[10px] object-cover"
-          />
+          {hub.organization.coverUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={hub.organization.coverUrl}
+              alt=""
+              width={240}
+              height={80}
+              className="h-20 w-[240px] max-w-[55%] rounded-[10px] object-cover"
+            />
+          ) : (
+            <div className="flex h-20 w-[240px] max-w-[55%] items-center justify-center rounded-[10px] bg-[#EEF2F8] text-xs text-[#8C97AD]">
+              Cover image
+            </div>
+          )}
           <div className="flex flex-col items-end gap-2">
-            <button
-              type="button"
-              className="rounded-[6px] border border-[#D9E1EF] bg-white px-2.5 py-1.5 text-sm font-medium text-[#2F66C8]"
-            >
-              Change
-            </button>
-            <p className="text-xs text-[#44516A]">Recommended 1980x48px</p>
+            <label className="cursor-pointer rounded-[6px] border border-[#D9E1EF] bg-white px-2.5 py-1.5 text-sm font-medium text-[#2F66C8]">
+              {hub.uploadingCover ? 'Uploading…' : 'Change'}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                disabled={hub.uploadingCover}
+                onChange={(e) => {
+                  void hub.uploadCover(e.target.files?.[0] ?? null);
+                  e.target.value = '';
+                }}
+              />
+            </label>
+            <p className="text-xs text-[#44516A]">Recommended 1980x480px</p>
           </div>
         </div>
       </FieldCell>
@@ -253,16 +282,22 @@ function OrganizationPanel({ hub }: { hub: SettingsHub }) {
             type="text"
             value={hub.organization.publicProfileUrl}
             onChange={(e) => updateOrganization(hub, { publicProfileUrl: e.target.value })}
-            className="no-anchor-field min-w-0 flex-1 border-0 bg-transparent p-0 text-base text-[#0F172A] shadow-none outline-none focus:border-0 focus:shadow-none"
+            placeholder="https://www.yourorganization.ca"
+            className="no-anchor-field min-w-0 flex-1 border-0 bg-transparent p-0 text-base text-[#0F172A] shadow-none outline-none placeholder:text-[#8C97AD] focus:border-0 focus:shadow-none"
           />
           <button
             type="button"
+            onClick={() => {
+              if (hub.organization.publicProfileUrl) {
+                void navigator.clipboard?.writeText(hub.organization.publicProfileUrl);
+              }
+            }}
             className="shrink-0 rounded-[6px] border border-[#D9E1EF] bg-white px-2.5 py-1.5 text-sm font-medium text-[#2F66C8]"
           >
             Copy
           </button>
         </div>
-        <p className="text-xs text-[#8C97AD]">This how your organization appears publicly.</p>
+        <p className="text-xs text-[#8C97AD]">This is how your organization appears publicly.</p>
       </FieldCell>
     </div>
   );
@@ -278,14 +313,16 @@ function SecurityPanel({ hub }: { hub: SettingsHub }) {
         onAction={() => hub.setModal('changePassword')}
       />
       <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8]">
-        {ACTIVE_SESSIONS.map((session, i) => {
-          const Icon = session.device.includes('iPhone') ? Smartphone : Monitor;
+        {(hub.sessions.length ? hub.sessions : []).map((session, i, list) => {
+          const Icon = session.device.toLowerCase().includes('iphone') || session.device.toLowerCase().includes('mobile')
+            ? Smartphone
+            : Monitor;
           return (
             <div
               key={session.id}
               className={cn(
                 'flex items-center gap-5 bg-white p-5',
-                i < ACTIVE_SESSIONS.length - 1 && 'border-b border-[#EEF2F8]',
+                i < list.length - 1 && 'border-b border-[#EEF2F8]',
               )}
             >
               <div className="flex min-w-0 flex-1 items-center gap-[26px]">
@@ -293,19 +330,34 @@ function SecurityPanel({ hub }: { hub: SettingsHub }) {
                   <Icon className="h-6 w-6 text-[#44516A]" strokeWidth={1.75} />
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-[#0F172A]">{session.device}</p>
+                  <p className="truncate text-sm font-medium text-[#0F172A]">
+                    {session.device}
+                    {session.isCurrent ? ' (Current)' : ''}
+                  </p>
                   <p className="mt-2 truncate whitespace-pre text-xs text-[#44516A]">{session.details}</p>
                 </div>
               </div>
-              <button
-                type="button"
-                className="shrink-0 rounded-[6px] border border-[#D9E1EF] bg-white px-2.5 py-1.5 text-sm font-medium text-[#2F66C8]"
-              >
-                Sign Out
-              </button>
+              {!session.isCurrent ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    void hub.revokeSession(session.id);
+                  }}
+                  className="shrink-0 rounded-[6px] border border-[#D9E1EF] bg-white px-2.5 py-1.5 text-sm font-medium text-[#2F66C8]"
+                >
+                  Sign Out
+                </button>
+              ) : (
+                <span className="shrink-0 rounded-[6px] bg-[#ECFDF5] px-2.5 py-1.5 text-sm font-medium text-[#15803D]">
+                  Active
+                </span>
+              )}
             </div>
           );
         })}
+        {hub.sessions.length === 0 ? (
+          <p className="bg-white p-5 text-sm text-[#44516A]">No active sessions found.</p>
+        ) : null}
         <div className="border-t border-[#EEF2F8] bg-[#F8FAFC] px-4 py-4 text-center">
           <button type="button" className="text-sm font-medium text-[#2F66C8]">
             View all sessions

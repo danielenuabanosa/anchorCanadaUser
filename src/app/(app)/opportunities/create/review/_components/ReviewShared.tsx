@@ -72,11 +72,11 @@ function formatDisplayDate(iso?: string) {
   return d.toLocaleDateString('en-CA', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
-function daysUntil(iso?: string) {
+function daysUntil(iso: string | undefined, nowMs: number) {
   if (!iso) return null;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return null;
-  const diff = Math.ceil((d.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  const diff = Math.ceil((d.getTime() - nowMs) / (1000 * 60 * 60 * 24));
   return diff;
 }
 
@@ -194,6 +194,7 @@ export function useReviewPublish() {
   const [publishedOpen, setPublishedOpen] = useState(false);
   const [issuesOpen, setIssuesOpen] = useState(false);
   const [publishedId, setPublishedId] = useState<string | null>(null);
+  const [nowMs] = useState(() => Date.now());
 
   const typeLabel = OPPORTUNITY_TYPES.find((t) => t.id === opportunityType)?.title ?? 'Not selected';
   const categoryGroup = BUILDER_CATEGORY_GROUPS.find(
@@ -273,7 +274,7 @@ export function useReviewPublish() {
   }, [configComplete, details.title]);
 
   const warnings: ReviewWarning[] = useMemo(() => {
-    const days = daysUntil(details.deadlineDate);
+    const days = daysUntil(details.deadlineDate, nowMs);
     if (days != null && days > 0 && days <= 60) {
       return [
         {
@@ -284,7 +285,7 @@ export function useReviewPublish() {
       ];
     }
     return [];
-  }, [details.deadlineDate]);
+  }, [details.deadlineDate, nowMs]);
 
   const suggestions: ReviewWarning[] = useMemo(() => {
     const wordCount = (details.description ?? details.summary ?? '').trim().split(/\s+/).filter(Boolean).length;
@@ -304,7 +305,7 @@ export function useReviewPublish() {
     const issues: { id: string; message: string; href: string }[] = [];
 
     const deadline = details.deadlineDate ? new Date(details.deadlineDate) : null;
-    if (deadline && !Number.isNaN(deadline.getTime()) && deadline.getTime() < Date.now()) {
+    if (deadline && !Number.isNaN(deadline.getTime()) && deadline.getTime() < nowMs) {
       issues.push({
         id: 'deadline-past',
         message: 'Application deadline is in the past',
@@ -362,6 +363,7 @@ export function useReviewPublish() {
     details.title,
     enabledDocCount,
     externalWorkflow.applicationUrl,
+    nowMs,
     opportunityType,
   ]);
 

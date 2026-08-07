@@ -72,8 +72,10 @@ export function NotificationRow({
   const offsetRef = useRef(offset);
   const disableSwipeRef = useRef(disableSwipe);
 
-  offsetRef.current = offset;
-  disableSwipeRef.current = disableSwipe;
+  useEffect(() => {
+    offsetRef.current = offset;
+    disableSwipeRef.current = disableSwipe;
+  }, [offset, disableSwipe]);
 
   useEffect(() => {
     const el = viewportRef.current;

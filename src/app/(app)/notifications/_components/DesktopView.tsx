@@ -2,7 +2,7 @@
 
 
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 import Link from 'next/link';
 
@@ -12,7 +12,9 @@ import { useSearchParams } from 'next/navigation';
 
 import { HubStatCard } from '@/app/(app)/opportunities/_components/HubStatCard';
 
-import { NOTIFICATION_PREFS, NOTIFICATION_SUMMARY, NOTIFICATION_TABS } from './notificationsData';
+// Card / tab counts now come from live API via useNotificationsHub
+
+import { useNotificationChannelPrefs } from '@/features/provider/hooks/useNotificationChannelPrefs';
 
 import { NotificationTabChips } from './NotificationTabChips';
 
@@ -41,7 +43,7 @@ export default function DesktopView() {
   const hub = useNotificationsHub();
   const { clearSelection, setActionsOpenId, setDeleteTargetId, setDetailTargetId, toggleSelect } = hub;
 
-  const [prefs, setPrefs] = useState(NOTIFICATION_PREFS);
+  const { prefs, togglePref } = useNotificationChannelPrefs();
 
   const searchParams = useSearchParams();
   const demo = searchParams.get('demo');
@@ -136,7 +138,7 @@ export default function DesktopView() {
 
       <div className="grid grid-cols-2 gap-2.5 xl:grid-cols-5">
 
-        {NOTIFICATION_SUMMARY.map((card) => (
+        {hub.cards.map((card) => (
 
           <HubStatCard key={card.label} {...card} />
 
@@ -150,7 +152,7 @@ export default function DesktopView() {
 
         <NotificationTabChips
 
-          tabs={NOTIFICATION_TABS}
+          tabs={hub.tabs}
 
           activeTab={hub.activeTab}
 
@@ -250,15 +252,11 @@ export default function DesktopView() {
 
             prefs={prefs}
 
-            onPrefToggle={(id) =>
+            recentActivity={hub.recentActivity}
 
-              setPrefs((current) =>
-
-                current.map((pref) => (pref.id === id ? { ...pref, enabled: !pref.enabled } : pref)),
-
-              )
-
-            }
+            onPrefToggle={(id) => {
+              void togglePref(id);
+            }}
 
           />
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 export interface BuilderNavAction {
   label: string;
@@ -82,8 +82,10 @@ export function useRegisterBuilderNav(state: BuilderNavState) {
   const onContinueRef = useRef(state.onContinue);
   const secondaryOnClickRef = useRef(state.secondaryAction?.onClick);
 
-  onContinueRef.current = state.onContinue;
-  secondaryOnClickRef.current = state.secondaryAction?.onClick;
+  useEffect(() => {
+    onContinueRef.current = state.onContinue;
+    secondaryOnClickRef.current = state.secondaryAction?.onClick;
+  }, [state.onContinue, state.secondaryAction?.onClick]);
 
   const stableContinue = useCallback(() => {
     onContinueRef.current();

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Check, ChevronDown, ChevronRight, Clock, Link2, Plus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -24,7 +24,22 @@ export function ExportApplicationsModal({
   open,
   onClose,
   onGenerated,
-}: ExportModalProps & { onGenerated?: () => void }) {
+  rows,
+}: ExportModalProps & {
+  onGenerated?: () => void;
+  rows?: Array<{
+    applicant: string;
+    email: string;
+    location: string;
+    opportunity: string;
+    opportunityType: string;
+    status: string;
+    appliedAt: string;
+    reviewer?: string;
+    tab?: string;
+    score?: number | string;
+  }>;
+}) {
   const [format, setFormat] = useState<'csv' | 'excel' | 'pdf'>('csv');
   const [checks, setChecks] = useState({
     info: true,
@@ -35,6 +50,8 @@ export function ExportApplicationsModal({
   });
 
   if (!open) return null;
+
+  const exportRows = rows?.length ? rows : APPLICANTS;
 
   function handleGenerate() {
     const headers = [
@@ -49,18 +66,18 @@ export function ExportApplicationsModal({
       ...(checks.docs ? ['Documents'] : []),
     ];
 
-    const rows = APPLICANTS.map((a) => {
+    const tableRows = exportRows.map((a) => {
       const row: Array<string | number> = [];
       if (checks.info) row.push(a.applicant, a.email, a.location);
       row.push(a.opportunity, a.opportunityType, a.status, a.appliedAt);
       if (checks.scores) row.push(a.score ?? '');
       if (checks.notes) row.push(a.reviewer ?? '');
-      if (checks.answers) row.push(a.tab);
+      if (checks.answers) row.push(a.tab ?? '');
       if (checks.docs) row.push('Available');
       return row;
     });
 
-    downloadTableExport(format, 'applications-export', headers, rows, {
+    downloadTableExport(format, 'applications-export', headers, tableRows, {
       title: 'Export Applications',
       sheetName: 'Applications',
     });
@@ -92,7 +109,7 @@ export function ExportApplicationsModal({
         <div>
           <p className="mb-2 text-sm font-medium text-[#0F172A]">Selection</p>
           <button type="button" className="flex w-full items-center justify-between rounded-[8px] border border-[#D9E1EF] px-4 py-3 text-sm text-[#0F172A]">
-            All Applicants ({APPLICANTS.length})
+            All Applicants ({exportRows.length})
             <ChevronDown className="h-4 w-4 text-[#8C97AD]" />
           </button>
         </div>
@@ -145,12 +162,26 @@ export function AssignReviewerModal({
   open,
   onClose,
   onAssigned,
-}: AssignModalProps & { onAssigned?: (reviewerName: string) => void }) {
-  const [selected, setSelected] = useState('1');
+  reviewers = REVIEWERS,
+}: AssignModalProps & {
+  onAssigned?: (reviewer: { id: string; name: string }) => void | Promise<void>;
+  reviewers?: Array<{ id: string; name: string; role: string; active?: number; avatar?: typeof avatar2 }>;
+}) {
+  const [selected, setSelected] = useState(reviewers[0]?.id ?? '');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (open) {
+      setSelected(reviewers[0]?.id ?? '');
+      setError('');
+    }
+  }, [open, reviewers]);
 
   if (!open) return null;
 
-  const selectedReviewer = REVIEWERS.find((r) => r.id === selected) ?? REVIEWERS[0];
+  const list = reviewers.length > 0 ? reviewers : REVIEWERS;
+  const selectedReviewer = list.find((r) => r.id === selected) ?? list[0];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0F172A]/60 p-4 backdrop-blur-[5px]">
@@ -173,18 +204,23 @@ export function AssignReviewerModal({
         </div>
 
         <div className="overflow-y-auto px-[26px] py-10">
+          {error ? (
+            <p className="mb-4 rounded-[8px] border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+              {error}
+            </p>
+          ) : null}
           <div className="space-y-5">
             <div>
               <p className="mb-2.5 text-base font-semibold text-[#0F172A]">Select Reviewer</p>
               <div className="overflow-hidden rounded-[10px] border border-[#EEF2F8]">
-                {REVIEWERS.map((r, index) => (
+                {list.map((r, index) => (
                   <button
                     key={r.id}
                     type="button"
                     onClick={() => setSelected(r.id)}
                     className={cn(
                       'flex w-full items-center justify-between border-[#EEF2F8] p-4 text-left',
-                      index < REVIEWERS.length - 1 && 'border-b',
+                      index < list.length - 1 && 'border-b',
                     )}
                   >
                     <div className="flex items-center gap-5">
@@ -196,25 +232,18 @@ export function AssignReviewerModal({
                       >
                         {selected === r.id ? <span className="h-2 w-2 rounded-full bg-white" /> : null}
                       </span>
-                      <Image src={r.avatar} alt="" width={36} height={36} className="rounded-full" />
+                      <Image src={r.avatar ?? avatar2} alt="" width={36} height={36} className="rounded-full" />
                       <div>
                         <p className="text-sm font-medium text-[#0F172A]">{r.name}</p>
                         <p className="text-xs text-[#44516A]">{r.role}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2.5 text-sm text-[#44516A]">
-                      {r.active} active
+                      {r.active != null ? `${r.active} active` : r.role}
                       <ChevronRight className="h-[18px] w-[18px]" />
                     </div>
                   </button>
                 ))}
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-2.5 p-4 text-left text-sm font-medium text-[#2F66C8]"
-                >
-                  <Plus className="h-[18px] w-[18px]" />
-                  Add Another Reviewer
-                </button>
               </div>
             </div>
 
@@ -241,13 +270,25 @@ export function AssignReviewerModal({
           </button>
           <button
             type="button"
+            disabled={!selectedReviewer || saving}
             onClick={() => {
-              onClose();
-              onAssigned?.(selectedReviewer.name);
+              if (!selectedReviewer) return;
+              void (async () => {
+                setSaving(true);
+                setError('');
+                try {
+                  await onAssigned?.({ id: selectedReviewer.id, name: selectedReviewer.name });
+                  onClose();
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : 'Could not assign reviewer.');
+                } finally {
+                  setSaving(false);
+                }
+              })();
             }}
-            className="rounded-[6px] bg-[#2F66C8] px-5 py-3 text-sm font-medium text-white shadow-[0px_2px_4px_rgba(0,0,0,0.05)]"
+            className="rounded-[6px] bg-[#2F66C8] px-5 py-3 text-sm font-medium text-white shadow-[0px_2px_4px_rgba(0,0,0,0.05)] disabled:opacity-50"
           >
-            Assign Reviewer
+            {saving ? 'Assigning…' : 'Assign Reviewer'}
           </button>
         </div>
       </div>
@@ -294,15 +335,18 @@ export function ShortlistApplicationModal({
   open,
   applicantName,
   onClose,
+  onConfirm,
 }: {
   open: boolean;
   applicantName: string;
   onClose: () => void;
+  onConfirm?: () => void | Promise<void>;
 }) {
   if (!open) return null;
   return (
     <ConfirmActionShell
       onClose={onClose}
+      onConfirm={onConfirm}
       lead="Shortlist"
       accent="Applicant"
       description={`${applicantName} will be moved to Shortlisted and notified.`}
@@ -316,16 +360,19 @@ export function RejectApplicationModal({
   open,
   applicantName,
   onClose,
+  onConfirm,
 }: {
   open: boolean;
   applicantName: string;
   onClose: () => void;
+  onConfirm?: (note?: string) => void | Promise<void>;
 }) {
   const [note, setNote] = useState('');
   if (!open) return null;
   return (
     <ConfirmActionShell
       onClose={onClose}
+      onConfirm={() => onConfirm?.(note)}
       lead="Reject"
       accent="Applicant"
       description={`This will reject ${applicantName}'s application. This action can be reviewed later.`}
@@ -352,15 +399,18 @@ export function AcceptApplicationModal({
   open,
   applicantName,
   onClose,
+  onConfirm,
 }: {
   open: boolean;
   applicantName: string;
   onClose: () => void;
+  onConfirm?: () => void | Promise<void>;
 }) {
   if (!open) return null;
   return (
     <ConfirmActionShell
       onClose={onClose}
+      onConfirm={onConfirm}
       lead="Accept"
       accent="Application"
       description={`${applicantName} will be marked as Accepted and notified.`}
@@ -374,15 +424,18 @@ export function MarkInterviewCompletedModal({
   open,
   applicantName,
   onClose,
+  onConfirm,
 }: {
   open: boolean;
   applicantName: string;
   onClose: () => void;
+  onConfirm?: () => void | Promise<void>;
 }) {
   if (!open) return null;
   return (
     <ConfirmActionShell
       onClose={onClose}
+      onConfirm={onConfirm}
       lead="Mark as"
       accent="Completed"
       description={`Interview for ${applicantName} will be marked as completed.`}
@@ -396,15 +449,18 @@ export function SendOfferModal({
   open,
   applicantName,
   onClose,
+  onConfirm,
 }: {
   open: boolean;
   applicantName: string;
   onClose: () => void;
+  onConfirm?: () => void | Promise<void>;
 }) {
   if (!open) return null;
   return (
     <ConfirmActionShell
       onClose={onClose}
+      onConfirm={onConfirm}
       lead="Send"
       accent="Offer"
       description={`An offer will be prepared and sent to ${applicantName}.`}
@@ -418,15 +474,18 @@ export function ArchiveApplicationModal({
   open,
   applicantName,
   onClose,
+  onConfirm,
 }: {
   open: boolean;
   applicantName: string;
   onClose: () => void;
+  onConfirm?: () => void | Promise<void>;
 }) {
   if (!open) return null;
   return (
     <ConfirmActionShell
       onClose={onClose}
+      onConfirm={onConfirm}
       lead="Archive"
       accent="Application"
       description={`${applicantName}'s application will be archived.`}
@@ -440,15 +499,18 @@ export function ReopenApplicationModal({
   open,
   applicantName,
   onClose,
+  onConfirm,
 }: {
   open: boolean;
   applicantName: string;
   onClose: () => void;
+  onConfirm?: () => void | Promise<void>;
 }) {
   if (!open) return null;
   return (
     <ConfirmActionShell
       onClose={onClose}
+      onConfirm={onConfirm}
       lead="Reopen"
       accent="Application"
       description={`${applicantName}'s application will be moved back under review.`}
@@ -462,18 +524,27 @@ export function ScheduleInterviewModal({
   open,
   applicantName,
   onClose,
+  onConfirm,
   mode = 'schedule',
 }: {
   open: boolean;
   applicantName: string;
   onClose: () => void;
+  onConfirm?: (payload: {
+    date: string;
+    time: string;
+    duration: string;
+    interviewType: string;
+    meetingLink: string;
+    notes: string;
+  }) => void | Promise<void>;
   mode?: 'schedule' | 'reschedule';
 }) {
-  const [date, setDate] = useState('2026-06-23');
-  const [time, setTime] = useState('10:00');
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
   const [duration, setDuration] = useState('60');
   const [interviewType, setInterviewType] = useState('video');
-  const [meetingLink, setMeetingLink] = useState('https://meet.google.com/abc-defg-hij');
+  const [meetingLink, setMeetingLink] = useState('');
   const [notes, setNotes] = useState('');
   if (!open) return null;
   const isReschedule = mode === 'reschedule';
@@ -598,7 +669,19 @@ export function ScheduleInterviewModal({
           <button
             type="button"
             disabled={!canSubmit}
-            onClick={onClose}
+            onClick={() => {
+              void (async () => {
+                await onConfirm?.({
+                  date,
+                  time,
+                  duration,
+                  interviewType,
+                  meetingLink: meetingLink.trim(),
+                  notes: notes.trim(),
+                });
+                onClose();
+              })();
+            }}
             className={cn(
               'rounded-[6px] px-5 py-3 text-sm font-medium text-white shadow-[0px_2px_4px_rgba(0,0,0,0.05)]',
               canSubmit ? 'bg-[#2F66C8] hover:bg-[#1D4ED8]' : 'cursor-not-allowed bg-[#2F66C8]/40',
@@ -733,10 +816,12 @@ export function AddNoteModal({
   open,
   applicantName,
   onClose,
+  onConfirm,
 }: {
   open: boolean;
   applicantName: string;
   onClose: () => void;
+  onConfirm?: (note: string) => void | Promise<void>;
 }) {
   const [note, setNote] = useState('');
   if (!open) return null;
@@ -779,7 +864,13 @@ export function AddNoteModal({
           <button
             type="button"
             disabled={!note.trim()}
-            onClick={onClose}
+            onClick={() => {
+              void (async () => {
+                await onConfirm?.(note.trim());
+                setNote('');
+                onClose();
+              })();
+            }}
             className={cn(
               'rounded-[6px] px-5 py-3 text-sm font-medium text-white',
               note.trim() ? 'bg-[#2F66C8] hover:bg-[#1D4ED8]' : 'cursor-not-allowed bg-[#2F66C8]/40',
@@ -793,22 +884,145 @@ export function AddNoteModal({
   );
 }
 
+const DOC_TYPE_OPTIONS = [
+  'Resume / CV',
+  'Cover Letter',
+  'Transcript',
+  'ID / Work Permit',
+  'Portfolio',
+  'Other',
+];
+
+export function RequestDocumentsModal({
+  open,
+  applicantName,
+  onClose,
+  onConfirm,
+}: {
+  open: boolean;
+  applicantName: string;
+  onClose: () => void;
+  onConfirm?: (payload: { message: string; documentTypes: string[] }) => void | Promise<void>;
+}) {
+  const [message, setMessage] = useState('');
+  const [selected, setSelected] = useState<string[]>(['Resume / CV']);
+  if (!open) return null;
+
+  function toggleType(type: string) {
+    setSelected((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0F172A]/60 p-5 backdrop-blur-[5px]">
+      <button type="button" className="absolute inset-0" onClick={onClose} aria-label="Close" />
+      <div className="relative flex w-full max-w-[720px] flex-col overflow-hidden rounded-[20px] border border-[#D9E1EF] bg-white shadow-[0px_6px_16px_rgba(0,0,0,0.08)]">
+        <div className="flex items-center justify-between border-b border-[#EEF2F8] p-[26px]">
+          <div>
+            <h2 className="text-lg font-medium text-[#0F172A]">Request Documents</h2>
+            <p className="mt-1 text-sm text-[#44516A]">
+              Ask {applicantName} for additional files via their application message thread.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-[#EEF2F8]"
+            aria-label="Close"
+          >
+            <X className="h-6 w-6 text-[#44516A]" />
+          </button>
+        </div>
+        <div className="flex flex-col gap-5 px-[26px] py-8">
+          <div>
+            <p className="mb-3 text-sm font-medium text-[#0F172A]">Document types</p>
+            <div className="flex flex-wrap gap-2">
+              {DOC_TYPE_OPTIONS.map((type) => {
+                const active = selected.includes(type);
+                return (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => toggleType(type)}
+                    className={cn(
+                      'rounded-[6px] border px-3 py-2 text-sm',
+                      active
+                        ? 'border-[#2F66C8] bg-[#EFF4FF] text-[#2F66C8]'
+                        : 'border-[#EEF2F8] bg-white text-[#44516A]',
+                    )}
+                  >
+                    {type}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div>
+            <p className="mb-2 text-sm font-medium text-[#0F172A]">Message (optional)</p>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value.slice(0, 1000))}
+              rows={4}
+              placeholder="Add context for the applicant…"
+              className="anchor-textarea w-full resize-none p-4"
+            />
+          </div>
+        </div>
+        <div className="flex justify-end gap-2.5 border-t border-[#EEF2F8] bg-[#F8FAFC] p-[26px]">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-[6px] border border-[#EEF2F8] bg-white px-5 py-3 text-sm font-medium text-[#44516A]"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            disabled={selected.length === 0}
+            onClick={() => {
+              void (async () => {
+                await onConfirm?.({ message: message.trim(), documentTypes: selected });
+                setMessage('');
+                setSelected(['Resume / CV']);
+                onClose();
+              })();
+            }}
+            className={cn(
+              'rounded-[6px] px-5 py-3 text-sm font-medium text-white',
+              selected.length
+                ? 'bg-[#2F66C8] hover:bg-[#1D4ED8]'
+                : 'cursor-not-allowed bg-[#2F66C8]/40',
+            )}
+          >
+            Send Request
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ConfirmActionShell({
   onClose,
+  onConfirm,
   lead,
   accent,
   description,
   confirmLabel,
   confirmClass,
   extra,
+  confirming,
 }: {
   onClose: () => void;
+  onConfirm?: () => void | Promise<void>;
   lead: string;
   accent: string;
   description: string;
   confirmLabel: string;
   confirmClass: string;
   extra?: React.ReactNode;
+  confirming?: boolean;
 }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0F172A]/60 p-5 backdrop-blur-[5px]">
@@ -839,8 +1053,21 @@ function ConfirmActionShell({
           >
             Cancel
           </button>
-          <button type="button" onClick={onClose} className={cn('rounded-[6px] px-5 py-3 text-sm font-medium text-white', confirmClass)}>
-            {confirmLabel}
+          <button
+            type="button"
+            disabled={confirming}
+            onClick={() => {
+              void (async () => {
+                await onConfirm?.();
+                onClose();
+              })();
+            }}
+            className={cn(
+              'rounded-[6px] px-5 py-3 text-sm font-medium text-white disabled:opacity-50',
+              confirmClass,
+            )}
+          >
+            {confirming ? 'Saving…' : confirmLabel}
           </button>
         </div>
       </div>

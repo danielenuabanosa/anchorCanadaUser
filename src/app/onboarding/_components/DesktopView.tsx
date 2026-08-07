@@ -10,6 +10,7 @@ import { OnboardingInfoBar } from '@/features/onboarding/components/OnboardingIn
 import { JourneySelectionCard } from '@/features/onboarding/components/JourneySelectionCard';
 import { JOURNEY_CARDS, type JourneyId } from '@/features/onboarding/lib/onboardingData';
 import { useProviderOnboardingStore } from '@/store/onboardingStore';
+import { saveOnboardingDraft } from '@/features/provider/lib/completeOnboarding';
 
 export default function DesktopView() {
   const [selected, setSelected] = useState<JourneyId | null>(null);
@@ -19,6 +20,7 @@ export default function DesktopView() {
   function handleContinue() {
     if (!selected) return;
     setOnboardingData({ journey: selected });
+    void saveOnboardingDraft('journey').catch(() => undefined);
     if (selected === 'explore') {
       router.push('/guest');
       return;

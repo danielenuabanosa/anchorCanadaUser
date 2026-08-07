@@ -3,10 +3,15 @@
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname, useRouter } from 'next/navigation';
 import { Bell, ChevronDown, Command, MessageCircle, Search, Settings } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { Avatar } from '@/shared/components/ui/Avatar';
 import { StartBuilderDropdown } from '@/features/opportunity-builder/components/StartBuilderDropdown';
+import {
+  useProviderUnreadMessageCount,
+  useProviderUnreadNotificationCount,
+} from '@/features/messages/hooks/useUnreadCounts';
 import anchorLogoFull from '@assets/icons/anchor-logo-full.png';
 import orgAvatar from '@assets/images/prov-sickkids.png';
 import avatar1 from '@assets/images/profile-avatar.png';
@@ -15,15 +20,42 @@ import avatar3 from '@assets/images/profile-georgebrown.png';
 
 const TEAM_AVATARS = [avatar1, avatar2, avatar3] as const;
 
+function CountBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  const display = count > 99 ? '99+' : String(count);
+  return (
+    <span className="absolute -right-0.5 top-0 flex h-[10px] min-w-[12px] items-center justify-center rounded-[5px] bg-[#EF4444] px-0.5 text-[9px] font-medium leading-none text-white">
+      {display}
+    </span>
+  );
+}
+
 /** Figma dashboard header (80:2486): 110px bar with search, team avatars, Create Opportunity. */
 export function Topbar() {
   const { user } = useAuthStore();
+  const router = useRouter();
+  const pathname = usePathname();
   const [query, setQuery] = useState('');
+  const { data: unreadNotifications = 0 } = useProviderUnreadNotificationCount();
+  const { data: unreadMessages = 0 } = useProviderUnreadMessageCount();
 
   function handleSearch(e: FormEvent) {
     e.preventDefault();
     const q = query.trim();
-    if (q) window.location.hash = `search?q=${encodeURIComponent(q)}`;
+    if (!q) return;
+
+    // Prefer searching the current hub context; otherwise go to opportunities.
+    if (pathname.startsWith('/applications')) {
+      router.push(`/applications?q=${encodeURIComponent(q)}`);
+      window.dispatchEvent(new CustomEvent('opp-hub-search', { detail: q }));
+      return;
+    }
+    if (pathname.startsWith('/categories')) {
+      router.push(`/categories?q=${encodeURIComponent(q)}`);
+      return;
+    }
+    router.push(`/opportunities?q=${encodeURIComponent(q)}`);
+    window.dispatchEvent(new CustomEvent('opp-hub-search', { detail: q }));
   }
 
   const displayName = user?.name ?? 'Toronto Community Health';
@@ -55,12 +87,14 @@ export function Topbar() {
             <Link
               href="/notifications"
               className="relative inline-flex h-[21px] w-[21px] shrink-0 items-center justify-center text-[#44516A] transition-colors hover:text-[#0F172A]"
-              aria-label="Notifications, 3 unread"
+              aria-label={`Notifications${unreadNotifications ? `, ${unreadNotifications} unread` : ''}`}
             >
               <Bell className="h-[21px] w-[21px]" strokeWidth={1.75} />
-              <span className="absolute left-[12.5px] top-[1.5px] flex h-2.5 w-2.5 items-center justify-center rounded-[5px] border-[1.4px] border-white bg-[#EF4444] text-[6.5px] font-normal leading-none text-white">
-                3
-              </span>
+              {unreadNotifications > 0 ? (
+                <span className="absolute left-[12.5px] top-[1.5px] flex h-2.5 min-w-2.5 items-center justify-center rounded-[5px] border-[1.4px] border-white bg-[#EF4444] px-0.5 text-[6.5px] font-normal leading-none text-white">
+                  {unreadNotifications > 99 ? '99+' : unreadNotifications}
+                </span>
+              ) : null}
             </Link>
             <Link
               href="/organization-profile"
@@ -97,14 +131,21 @@ export function Topbar() {
         </form>
 
         <div className="ml-auto flex shrink-0 items-center gap-5">
-          <Link href="/notifications" className="relative flex h-8 w-8 items-center justify-center text-[#44516A]" aria-label="Notifications">
+          <Link
+            href="/notifications"
+            className="relative flex h-8 w-8 items-center justify-center text-[#44516A]"
+            aria-label={`Notifications${unreadNotifications ? `, ${unreadNotifications} unread` : ''}`}
+          >
             <Bell className="h-[21px] w-[21px]" strokeWidth={1.75} />
-            <span className="absolute -right-0.5 top-0 flex h-[10px] min-w-[12px] items-center justify-center rounded-[5px] bg-[#EF4444] px-0.5 text-[9px] font-medium leading-none text-white">
-              12
-            </span>
+            <CountBadge count={unreadNotifications} />
           </Link>
-          <Link href="/messages" className="flex h-8 w-8 items-center justify-center text-[#44516A]" aria-label="Messages">
+          <Link
+            href="/messages"
+            className="relative flex h-8 w-8 items-center justify-center text-[#44516A]"
+            aria-label={`Messages${unreadMessages ? `, ${unreadMessages} unread` : ''}`}
+          >
             <MessageCircle className="h-[21px] w-[21px]" strokeWidth={1.75} />
+            <CountBadge count={unreadMessages} />
           </Link>
           <button type="button" className="flex items-center gap-2 rounded-lg p-0.5 hover:bg-[#F8FAFC]" aria-label="Team members">
             <div className="flex -space-x-2">
