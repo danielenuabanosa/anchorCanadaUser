@@ -70,16 +70,7 @@ export default function LoginMobileView() {
         password,
       });
       setAuth(user, token, refreshToken);
-      const next = safeNextPath(searchParams.get('next'));
-      if (
-        next === '/dashboard' &&
-        user.provider &&
-        user.provider.onboardingCompleted === false
-      ) {
-        router.push('/onboarding');
-        return;
-      }
-      router.push(next);
+      router.push(safeNextPath(searchParams.get('next')));
     } catch (err) {
       setError(getApiErrorMessage(err, 'Sign-in failed. Please try again.'));
       setIsSubmitting(false);
@@ -122,7 +113,7 @@ export default function LoginMobileView() {
               </div>
               <div className="relative">
                 <span className="pointer-events-none absolute top-1/2 left-3.5 z-[1] -translate-y-1/2">
-                  <Image src={mailIcon} alt="" width={16} height={16} />
+                  <Image src={mailIcon} alt="" width={16} height={16} className="size-4 shrink-0" />
                 </span>
                 <input
                   type={isStaticMode() ? 'text' : 'email'}
@@ -240,7 +231,7 @@ export default function LoginMobileView() {
                 <div className="h-px flex-1 bg-[#d9e1ef]" />
               </div>
               <div className="flex w-full cursor-pointer items-center justify-center rounded-[6px] border border-[#d9e1ef] bg-white px-6 py-4 transition-colors hover:bg-[#f8fafc]">
-                <Image src={googleIcon} alt="Google" width={24} height={24} />
+                <Image src={googleIcon} alt="Google" width={24} height={24} className="size-6 shrink-0" />
               </div>
             </div>
           </form>

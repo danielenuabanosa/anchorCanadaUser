@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
+import { Avatar } from '@/shared/components/ui/Avatar';
+import { photoSrc } from '@/shared/lib/photoSrc';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Check, Ellipsis } from 'lucide-react';
@@ -42,9 +43,7 @@ export function MobileApplicantCard({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-1 gap-5">
-          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full">
-            <Image src={row.avatar} alt="" width={40} height={40} className="h-full w-full object-cover" />
-          </div>
+          <Avatar src={photoSrc(row.avatar)} fallback={row.applicant} size="sm" className="h-10 w-10 shrink-0" />
           <div className="min-w-0 flex-1">
             <p className="truncate text-base font-semibold text-[#0F172A]">{row.applicant}</p>
             <div className="mt-1 flex flex-wrap items-center gap-2.5">
@@ -123,15 +122,12 @@ export function MobileApplicantCard({
           <div className="flex items-center justify-between">
             <p className="text-xs text-[#44516A]">Reviewed By:</p>
             <div className="flex items-center gap-2">
-              {row.reviewerAvatar ? (
-                <Image
-                  src={row.reviewerAvatar}
-                  alt=""
-                  width={24}
-                  height={24}
-                  className="h-6 w-6 rounded-full object-cover"
-                />
-              ) : null}
+              <Avatar
+                src={photoSrc(row.reviewerAvatar)}
+                fallback={row.reviewer}
+                size="xs"
+                className="h-6 w-6"
+              />
               <p className="text-sm font-medium text-[#0F172A]">{row.reviewer}</p>
             </div>
           </div>

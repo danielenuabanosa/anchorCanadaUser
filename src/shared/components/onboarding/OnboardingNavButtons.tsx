@@ -46,7 +46,7 @@ export function OnboardingNavButtons({
             <button
               type="button"
               onClick={onSkip}
-              className="hidden text-[16px] text-[#2F66C8] transition-colors hover:text-[#2454A4] sm:inline"
+              className="text-[16px] text-[#2F66C8] transition-colors hover:text-[#2454A4]"
             >
               {skipLabel}
             </button>

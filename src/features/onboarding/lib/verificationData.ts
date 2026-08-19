@@ -76,19 +76,19 @@ export const VERIFICATION_DOCUMENTS: VerificationDocumentField[] = [
     id: 'registrationCertificate',
     title: 'Registration Certificate',
     description: 'Official business registration or incorporation certificate',
-    required: true,
+    required: false,
   },
   {
     id: 'proofOfOrganization',
     title: 'Proof of Organization',
     description: 'Proof of address, bylaws, or organizational letter',
-    required: true,
+    required: false,
   },
   {
     id: 'authorizedRepId',
     title: 'Authorized Representative ID',
     description: 'Government-issued ID of the authorized representative',
-    required: true,
+    required: false,
   },
   {
     id: 'supportingDocuments',

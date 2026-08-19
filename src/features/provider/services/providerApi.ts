@@ -61,6 +61,7 @@ export type ProviderDashboardResponse = {
     verificationStatus: string;
     profileComplete: number;
     memberSince: string;
+    adminNote?: string | null;
   };
   performance: {
     metrics: {
@@ -115,6 +116,28 @@ export const providerApi = {
       data: Record<string, unknown>;
       documents: unknown[];
     };
+  },
+
+  async getActivationStatus(): Promise<{
+    organizationStatus: string;
+    organizationStatusTone: 'success' | 'warning' | 'neutral';
+    verificationStatus: string;
+    verificationStatusTone: 'success' | 'warning' | 'neutral';
+    teamMembersAdded: number;
+    workspaceCreated: string;
+  }> {
+    if (isStaticMode()) {
+      return {
+        organizationStatus: 'Active',
+        organizationStatusTone: 'success',
+        verificationStatus: 'Under Review',
+        verificationStatusTone: 'warning',
+        teamMembersAdded: 0,
+        workspaceCreated: '—',
+      };
+    }
+    const { data } = await apiClient.get('/provider/activation/status');
+    return data;
   },
 
   async saveOnboarding(
@@ -439,6 +462,7 @@ export const providerApi = {
     if (isStaticMode()) {
       return {
         members: [],
+        owner: null,
         stats: {
           total: 0,
           active: 0,
@@ -450,7 +474,7 @@ export const providerApi = {
       };
     }
     const { data } = await apiClient.get('/provider/team');
-    return data;
+    return data as import('@/features/provider/lib/mapTeamData').ApiTeamResponse;
   },
 
   async getTeamMember(id: string) {
@@ -471,6 +495,25 @@ export const providerApi = {
     if (isStaticMode()) return { ok: true, ...payload };
     const { data } = await apiClient.post('/provider/team/invite', payload);
     return data;
+  },
+
+  async inviteTeamMembers(
+    members: Array<{
+      email: string;
+      name?: string;
+      role: string;
+      department?: string;
+      title?: string;
+      notes?: string;
+      permissions?: string[];
+    }>,
+  ) {
+    if (isStaticMode()) return { invited: members, errors: [] };
+    const { data } = await apiClient.post('/provider/team/invite-batch', { members });
+    return data as {
+      invited: unknown[];
+      errors: Array<{ email: string; error: string }>;
+    };
   },
 
   async resendTeamInvite(id: string) {
@@ -664,6 +707,15 @@ export const providerApi = {
     };
   },
 
+  async registerFromInvite(payload: { token: string; name: string; password: string }) {
+    const { data } = await apiClient.post('/auth/register-invite', payload);
+    return data as {
+      user: import('@/features/auth/types').AuthUser;
+      token: string;
+      refreshToken?: string;
+    };
+  },
+
   async acceptTeamInvite(token: string) {
     if (isStaticMode()) return { ok: true };
     const { data } = await apiClient.post('/provider/team/accept', { token });
@@ -819,6 +871,21 @@ export const providerApi = {
     return data;
   },
 
+  async getNotification(id: string) {
+    if (isStaticMode()) return null;
+    const { data } = await apiClient.get(`/notifications/${id}`);
+    return data as {
+      id: string;
+      category?: string;
+      title: string;
+      body?: string;
+      link?: string | null;
+      read?: boolean;
+      createdAt?: string;
+      metadata?: Record<string, unknown>;
+    };
+  },
+
   async getNotificationSummary() {
     if (isStaticMode()) {
       return {
@@ -865,6 +932,7 @@ export const providerApi = {
         subtitle: string;
         time: string;
         createdAt?: string;
+        link?: string | null;
       }>;
     };
   },

@@ -2,19 +2,21 @@
 
 import Link from 'next/link';
 import { Lightbulb, SquarePen } from 'lucide-react';
-import { BUILDER_CATEGORY_GROUPS } from '@/features/opportunity-builder/lib/builderData';
 import { OPPORTUNITY_TYPES } from '@/features/opportunity-builder/lib/builderData';
+import {
+  findCategoryGroup,
+  useBuilderCategoryGroups,
+} from '@/features/opportunity-builder/hooks/useBuilderCategoryGroups';
 import { useOpportunityBuilderStore } from '@/store/opportunityBuilderStore';
 
 export function BuilderSelectionBanner() {
   const opportunityType = useOpportunityBuilderStore((s) => s.opportunityType);
   const category = useOpportunityBuilderStore((s) => s.category);
+  const { groups } = useBuilderCategoryGroups();
 
   const typeLabel =
     OPPORTUNITY_TYPES.find((t) => t.id === opportunityType)?.title ?? 'Opportunity type';
-  const categoryGroup = BUILDER_CATEGORY_GROUPS.find(
-    (g) => g.id === category || g.subcategories.some((s) => s.id === category),
-  );
+  const categoryGroup = findCategoryGroup(groups, category);
   const categoryLabel = categoryGroup?.title ?? 'Category';
 
   return (

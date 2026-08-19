@@ -149,117 +149,50 @@ export const ORG_TYPES: OptionCardDef[] = [
   },
 ];
 
-export const OPPORTUNITY_CATEGORIES: OptionCardDef[] = [
-  {
-    id: 'employment',
-    title: 'Employment',
-    desc: 'Create jobs, internships, and recruitment opportunities.',
-    tags: [
-      { label: 'Jobs', bg: '#EFF4FF', color: '#2F66C8' },
-      { label: 'Internships', bg: '#EFF4FF', color: '#2F66C8' },
-      { label: 'Recruitment', bg: '#EFF4FF', color: '#2F66C8' },
-    ],
-    icon: briefcaseCatIcon,
-    iconBg: '#EFF4FF',
-  },
-  {
-    id: 'education',
-    title: 'Education',
-    desc: 'Offer scholarships, training programs and certifications.',
-    tags: [
-      { label: 'Scholarships', bg: '#EBE5FC', color: '#6821CD' },
-      { label: 'Training', bg: '#EBE5FC', color: '#6821CD' },
-      { label: 'Certifications', bg: '#EBE5FC', color: '#6821CD' },
-    ],
-    icon: graduationIcon,
-    iconBg: '#EBE5FC',
-  },
-  {
-    id: 'community-support',
-    title: 'Community Support',
-    desc: 'Provide housing, food support, and community resources.',
-    tags: [
-      { label: 'Housing', bg: '#DCF0EA', color: '#1A975F' },
-      { label: 'Food Support', bg: '#DCF0EA', color: '#1A975F' },
-      { label: 'Outreach', bg: '#DCF0EA', color: '#1A975F' },
-    ],
-    icon: heartHandshakeIcon,
-    iconBg: '#DCF0EA',
-  },
-  {
-    id: 'funding',
-    title: 'Funding',
-    desc: 'Publish grants, funding programs, and sponsorships',
-    tags: [
-      { label: 'Funding Programs', bg: '#FFF3E0', color: '#F99710' },
-      { label: 'Grants', bg: '#FFF3E0', color: '#F99710' },
-      { label: 'Sponsorships', bg: '#FFF3E0', color: '#F99710' },
-    ],
-    icon: handCoinsIcon,
-    iconBg: '#FFF3E0',
-  },
-  {
-    id: 'events-programs',
-    title: 'Events & Programs',
-    desc: 'Organize workshops, bootcamps and community events.',
-    tags: [
-      { label: 'Workshops', bg: '#FDF0F2', color: '#E32B60' },
-      { label: 'Bootcamps', bg: '#FDF0F2', color: '#E32B60' },
-      { label: 'Events', bg: '#FDF0F2', color: '#E32B60' },
-    ],
-    icon: boxIcon,
-    iconBg: '#FDF0F2',
-  },
-  {
-    id: 'youth',
-    title: 'Youth Opportunities',
-    desc: 'Create youth programs, mentorship, and leadership',
-    tags: [
-      { label: 'Youth Programs', bg: '#ECF1FD', color: '#0842E8' },
-      { label: 'Mentorship', bg: '#ECF1FD', color: '#0842E8' },
-      { label: 'Leadership', bg: '#ECF1FD', color: '#0842E8' },
-    ],
-    icon: starIcon,
-    iconBg: '#ECF1FD',
-  },
-  {
-    id: 'public-services',
-    title: 'Public Services',
-    desc: 'Deliver government initiatives and public resources',
-    tags: [
-      { label: 'Government Initiatives', bg: '#EDF7F0', color: '#0F6C30' },
-      { label: 'Public Resources', bg: '#EDF7F0', color: '#0F6C30' },
-      { label: 'Community Services', bg: '#EDF7F0', color: '#0F6C30' },
-    ],
-    icon: shieldIcon,
-    iconBg: '#EDF7F0',
-  },
-  {
-    id: 'health-wellness',
-    title: 'Health & Wellness',
-    desc: 'Share mental health, healthcare, and wellness programs.',
-    tags: [
-      { label: 'Mental Health', bg: '#DCF4F2', color: '#09A39A' },
-      { label: 'Healthcare', bg: '#DCF4F2', color: '#09A39A' },
-      { label: 'Wellness Programs', bg: '#DCF4F2', color: '#09A39A' },
-    ],
-    icon: loveIcon,
-    iconBg: '#DCF4F2',
-  },
-  {
-    id: 'immigration-settlement',
-    title: 'Immigration & Settlement',
-    desc: 'Support newcomers with settlement and legal aid programs.',
-    tags: [
-      { label: 'Settlement Support', bg: '#FCEAEA', color: '#E32B60' },
-      { label: 'Newcomer Programs', bg: '#FCEAEA', color: '#E32B60' },
-      { label: 'Legal Aid', bg: '#FCEAEA', color: '#E32B60' },
-    ],
-    icon: planeIcon,
-    iconBg: '#FCEAEA',
-  },
-];
+const ONBOARDING_ICON_BY_KEY: Record<string, StaticImageData> = {
+  briefcase: briefcaseCatIcon,
+  box: boxIcon,
+  'hand-coins': handCoinsIcon,
+  love: loveIcon,
+  'book-open': bookOpenIcon,
+  'heart-handshake': heartHandshakeIcon,
+  star: starIcon,
+  'graduation-cap': graduationIcon,
+  shield: shieldIcon,
+  plane: planeIcon,
+};
+
+/** Map API categories → provider onboarding option cards. */
+export function mapCategoriesToOnboardingOptions(
+  categories: Array<{
+    slug: string;
+    title: string;
+    description?: string;
+    icon?: string;
+    iconBg?: string;
+    tagBg?: string;
+    tagColor?: string;
+    color?: string;
+    status?: string;
+    tags?: Array<{ label: string }>;
+  }>,
+): OptionCardDef[] {
+  return categories
+    .filter((c) => !c.status || c.status === 'Active')
+    .map((c) => {
+      const tagBg = c.tagBg || c.color || '#EFF4FF';
+      const tagColor = c.tagColor || '#2F66C8';
+      return {
+        id: c.slug,
+        title: c.title,
+        desc: c.description || '',
+        tags: (c.tags ?? []).map((t) => ({ label: t.label, bg: tagBg, color: tagColor })),
+        icon: (c.icon && ONBOARDING_ICON_BY_KEY[c.icon]) || briefcaseCatIcon,
+        iconBg: c.iconBg || c.color || '#EFF4FF',
+      };
+    });
+}
 
 export type OrgTypeId = (typeof ORG_TYPES)[number]['id'];
-export type CategoryId = (typeof OPPORTUNITY_CATEGORIES)[number]['id'];
+export type CategoryId = string;
 export type JourneyId = JourneyCardDef['id'];

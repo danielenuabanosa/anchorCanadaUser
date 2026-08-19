@@ -7,8 +7,6 @@ import {
   DEFAULT_OPPORTUNITY_DETAIL,
   type OpportunityDetail,
 } from '@/app/(app)/opportunities/[id]/_components/opportunityDetailData';
-import orgLogo from '@assets/images/prov-sickkids.png';
-import avatar1 from '@assets/images/profile-avatar.png';
 
 type ApiDetail = {
   id: string;
@@ -63,14 +61,14 @@ function mapDetail(api: ApiDetail): OpportunityDetail {
     benefits: d.benefits ?? '—',
     eligibility: d.eligibility ?? '—',
     requirements: d.requirements ?? '—',
-    logo: orgLogo,
+    logo: '',
     metrics: api.metrics ?? DEFAULT_OPPORTUNITY_DETAIL.metrics,
     pipeline: api.pipeline ?? DEFAULT_OPPORTUNITY_DETAIL.pipeline,
     health: api.health ?? DEFAULT_OPPORTUNITY_DETAIL.health,
     timeline: api.timeline ?? DEFAULT_OPPORTUNITY_DETAIL.timeline,
     recentApplicants: (api.recentApplicants ?? []).map((a) => ({
       ...a,
-      avatar: avatar1,
+      avatar: '',
     })),
   };
 }

@@ -9,6 +9,7 @@ export type ProviderDirectoryItem = {
   opportunities: number;
   followers: string;
   logoKey: null;
+  logoUrl?: string | null;
   initials: string;
   hiringNow: boolean;
   code: string;

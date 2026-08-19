@@ -111,7 +111,14 @@ export default function GuestDesktopView() {
         </div>
 
         <div className="relative min-h-[1067px] min-w-0 flex-1 overflow-hidden rounded-[10px]">
-          <Image src={loginBg} alt="Toronto skyline" fill className="object-cover" priority />
+          <Image
+            src={loginBg}
+            alt="Toronto skyline"
+            fill
+            className="object-cover"
+            priority
+            sizes="(max-width: 1200px) 50vw, 622px"
+          />
           <div className="absolute inset-0 flex flex-col gap-10 p-[60px]">
             <div className="flex flex-col gap-2">
               <p className="text-xl font-medium text-[#0f172a]">👋 Explore as guest,</p>
@@ -140,7 +147,7 @@ export default function GuestDesktopView() {
               ))}
               <div className="flex items-center justify-between border-t border-[#eef2f8] bg-[#f8fafc] px-5 py-[26px]">
                 <div className="flex items-center gap-[10px]">
-                  <Image src={locationIcon} alt="" width={16} height={16} className="opacity-70" />
+                  <Image src={locationIcon} alt="" width={16} height={16} className="opacity-70" style={{ width: 'auto', height: 'auto' }} />
                   <span className="text-sm text-[#8c97ad]">Toronto, Ontario, Canada</span>
                   <Image src={canadaFlag} alt="Canada" width={32} height={20} className="rounded-sm object-cover" />
                 </div>

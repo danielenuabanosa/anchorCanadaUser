@@ -1,7 +1,10 @@
 'use client';
 
 import { Lightbulb } from 'lucide-react';
-import { BUILDER_CATEGORY_GROUPS } from '@/features/opportunity-builder/lib/builderData';
+import {
+  findCategoryGroup,
+  useBuilderCategoryGroups,
+} from '@/features/opportunity-builder/hooks/useBuilderCategoryGroups';
 import { useOpportunityBuilderStore } from '@/store/opportunityBuilderStore';
 
 function getOpportunityTypeLabel(type: string | null) {
@@ -11,19 +14,14 @@ function getOpportunityTypeLabel(type: string | null) {
   return 'Opportunity';
 }
 
-function getCategoryLabel(category: string | null) {
-  if (!category) return 'Grants';
-  const group = BUILDER_CATEGORY_GROUPS.find(
-    (g) => g.id === category || g.subcategories.some((s) => s.id === category),
-  );
-  return group?.title ?? 'Grants';
-}
-
 export function TemplateRecommendationBanner() {
   const opportunityType = useOpportunityBuilderStore((s) => s.opportunityType);
   const category = useOpportunityBuilderStore((s) => s.category);
+  const { groups } = useBuilderCategoryGroups();
 
-  const selectionLabels = [getOpportunityTypeLabel(opportunityType), getCategoryLabel(category)];
+  const categoryGroup = findCategoryGroup(groups, category);
+  const categoryLabel = categoryGroup?.title ?? (category ? category : 'Category');
+  const selectionLabels = [getOpportunityTypeLabel(opportunityType), categoryLabel];
 
   return (
     <div className="flex w-full flex-col gap-5 rounded-[10px] border border-[#EAF0FD] bg-[#F5F8FE] p-5 lg:flex-row lg:items-center lg:justify-between lg:gap-8">

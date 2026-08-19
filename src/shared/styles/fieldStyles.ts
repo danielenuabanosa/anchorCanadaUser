@@ -1,4 +1,4 @@
-/** Shared form field class names — matches admin panel TextField. */
+
 export const ANCHOR_FIELD = 'anchor-field';
 export const ANCHOR_FIELD_SHELL = 'anchor-field-shell';
 export const ANCHOR_FIELD_INPUT = 'anchor-field-input no-anchor-field';

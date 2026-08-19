@@ -35,7 +35,11 @@ import {
   useProviderUnreadNotificationCount,
 } from '@/features/messages/hooks/useUnreadCounts';
 import anchorLogo from '@assets/icons/anchor-logo-full.png';
-import orgAvatar from '@assets/images/prov-sickkids.png';
+import { useOrgBrandingStore } from '@/store/orgBrandingStore';
+import { photoSrc } from '@/shared/lib/photoSrc';
+import { isProviderOrgVerified } from '@/store/verificationModalStore';
+import { useProviderAccess } from '@/features/provider/hooks/useProviderAccess';
+import { PROVIDER_PERMISSIONS } from '@/features/provider/lib/permissions';
 
 const NAV_ITEMS = [
   { label: 'Dashboard', href: '/dashboard', icon: House },
@@ -132,8 +136,12 @@ export function Sidebar() {
   const { data: unreadNotifications = 0 } = useProviderUnreadNotificationCount();
   const { data: unreadMessages = 0 } = useProviderUnreadMessageCount();
 
-  const orgName = user?.name ?? 'Maple Future Nonprofit';
-  const avatarSrc = user?.avatarUrl ?? orgAvatar.src;
+  const { can } = useProviderAccess();
+  const brandingName = useOrgBrandingStore((s) => s.organizationName);
+  const brandingLogo = useOrgBrandingStore((s) => s.logoUrl);
+  const orgName = brandingName || user?.provider?.organizationName || user?.name || 'Organization';
+  const avatarSrc = photoSrc(brandingLogo);
+  const verified = isProviderOrgVerified(user?.provider?.verificationStatus);
 
   if (!isStaticMode() && !isAuthenticated) return null;
 
@@ -156,6 +164,7 @@ export function Sidebar() {
                 height={50}
                 priority
                 className={cn('h-[50px] w-auto', collapsed && 'h-10 w-10 object-cover object-left')}
+                style={{ width: 'auto', height: 'auto' }}
               />
               {!collapsed ? (
                 <span className="absolute left-[51px] top-9 text-[10px] font-medium leading-none text-[#8C97AD]">
@@ -179,7 +188,23 @@ export function Sidebar() {
         </div>
 
         <nav className={cn('flex flex-col gap-2.5 p-5', collapsed && 'px-2')} aria-label="Primary">
-          {NAV_ITEMS.map(({ label, href, icon, ...rest }) => {
+          {NAV_ITEMS.filter(({ href }) => {
+            if (href === '/opportunities') {
+              return (
+                can(PROVIDER_PERMISSIONS.OPP_CREATE) ||
+                can(PROVIDER_PERMISSIONS.OPP_EDIT) ||
+                can(PROVIDER_PERMISSIONS.OPP_ANALYTICS)
+              );
+            }
+            if (href === '/applications') {
+              return can(PROVIDER_PERMISSIONS.APP_REVIEW) || can(PROVIDER_PERMISSIONS.APP_INTERVIEW);
+            }
+            if (href === '/team') return can(PROVIDER_PERMISSIONS.ORG_TEAM);
+            if (href === '/analytics') return can(PROVIDER_PERMISSIONS.ORG_ANALYTICS) || can(PROVIDER_PERMISSIONS.OPP_ANALYTICS);
+            if (href === '/organization-profile') return can(PROVIDER_PERMISSIONS.ORG_PROFILE);
+            if (href === '/settings') return can(PROVIDER_PERMISSIONS.ORG_SETTINGS);
+            return true;
+          }).map(({ label, href, icon, ...rest }) => {
             const showBadge = 'showBadge' in rest ? rest.showBadge : undefined;
             const badge =
               showBadge === 'notifications'
@@ -272,8 +297,10 @@ export function Sidebar() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-base font-medium leading-none text-white">{orgName}</p>
                   <p className="mt-1 flex items-center gap-1 text-xs leading-none text-[#8C97AD]">
-                    Verified Organization
-                    <ShieldCheck className="h-3 w-3 shrink-0 text-[#2F66C8]" strokeWidth={2.5} aria-hidden />
+                    {verified ? 'Verified Organization' : 'Organization'}
+                    {verified ? (
+                      <ShieldCheck className="h-3 w-3 shrink-0 text-[#2F66C8]" strokeWidth={2.5} aria-hidden />
+                    ) : null}
                   </p>
                 </div>
               ) : null}

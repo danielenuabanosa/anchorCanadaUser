@@ -61,22 +61,19 @@ export default function DesktopView() {
   const [verificationType, setVerificationType] = useState<VerificationTypeId | null>(null);
   const [documents, setDocuments] = useState<DocUploadState>(INITIAL_DOCS);
 
-  const requiredDocs = VERIFICATION_DOCUMENTS.filter((doc) => doc.required);
-  const requiredComplete = requiredDocs.every((doc) => documents[doc.id].progress === 100);
-  const canSubmit = verificationType !== null && requiredComplete;
+  const uploadDocs = VERIFICATION_DOCUMENTS.filter((doc) => doc.id !== 'supportingDocuments');
 
-  async function handleSubmit() {
-    if (!canSubmit) return;
+  function goToAccount() {
     useProviderOnboardingStore.getState().setOnboardingData({
       verificationType,
     });
     void saveOnboardingDraft('verification').catch(() => undefined);
-    router.push('/onboarding/team');
+    router.push('/onboarding/account');
   }
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
-      <OnboardingNavbar />
+      <OnboardingNavbar showSignIn />
 
       <div className="mx-auto w-full max-w-[1548px] px-10 pt-10">
         <StepProgress current={4} />
@@ -147,11 +144,12 @@ export default function DesktopView() {
                     </p>
                   </div>
                   <div className="mt-5 grid grid-cols-3 gap-5">
-                    {requiredDocs.map((doc) => (
+                    {uploadDocs.map((doc) => (
                       <div key={doc.id}>
                         <div className="mb-2.5">
                           <p className="font-sans text-[16px] font-medium leading-[1.8] text-[#0F172A]">
-                            {doc.title} <span className="text-[#EF4444]">*</span>
+                            {doc.title}{' '}
+                            <span className="font-normal text-[#8C97AD]">(Optional)</span>
                           </p>
                           <p className="font-sans text-[14px] text-[#8C97AD]">{doc.description}</p>
                         </div>
@@ -205,9 +203,10 @@ export default function DesktopView() {
 
       <OnboardingNavButtons
         backHref="/onboarding/organization-info"
-        onContinue={handleSubmit}
-        continueDisabled={!canSubmit}
-        continueLabel="Submit Verification"
+        onContinue={goToAccount}
+        onSkip={goToAccount}
+        continueDisabled={false}
+        continueLabel="Continue"
         footer={<OnboardingInfoBar message={VERIFICATION_INFO_MESSAGE} />}
       />
     </div>

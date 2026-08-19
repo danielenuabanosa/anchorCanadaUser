@@ -1,5 +1,3 @@
-import avatar1 from '@assets/images/profile-avatar.png';
-import avatar2 from '@assets/images/profile-google.png';
 import { getTeamMember, TEAM_MEMBERS, type TeamMemberRow } from '../../_components/teamManagementData';
 
 export type TeamMemberDetailTab = 'overview';
@@ -13,7 +11,7 @@ export interface TeamMemberDetail extends TeamMemberRow {
   /** Figma Overview card uses short department label (e.g. "Operation") */
   departmentShort: string;
   localTime: string;
-  reportingTo: { name: string; title: string; avatar: typeof avatar1 };
+  reportingTo: { name: string; title: string; avatar: string };
   stats: {
     applicationsReviewed: number;
     interviewsConducted: number;
@@ -32,7 +30,7 @@ const DETAIL_BY_ID: Record<string, Omit<TeamMemberDetail, keyof TeamMemberRow>> 
     permissionLevel: 'Full access to all features',
     departmentShort: 'Operation',
     localTime: '2:59 PM (Est)',
-    reportingTo: { name: 'Michael Adams', title: 'Executive Director', avatar: avatar2 },
+    reportingTo: { name: 'Michael Adams', title: 'Executive Director', avatar: '' },
     stats: { applicationsReviewed: 648, interviewsConducted: 42, avgReviewTime: '2.3 Days' },
     activity: [
       { label: 'Reviewed 12 applications', date: '2 hours ago' },
@@ -48,7 +46,7 @@ const DETAIL_BY_ID: Record<string, Omit<TeamMemberDetail, keyof TeamMemberRow>> 
     permissionLevel: 'Manage programs and team members',
     departmentShort: 'Programs',
     localTime: '11:59 AM (Pst)',
-    reportingTo: { name: 'Sarah Johnson', title: 'Operations Manager', avatar: avatar1 },
+    reportingTo: { name: 'Sarah Johnson', title: 'Operations Manager', avatar: '' },
     stats: { applicationsReviewed: 312, interviewsConducted: 28, avgReviewTime: '2.8 Days' },
     activity: [
       { label: 'Assigned 4 reviewers', date: 'Yesterday' },
@@ -65,7 +63,7 @@ const DEFAULT_DETAIL: Omit<TeamMemberDetail, keyof TeamMemberRow> = {
   permissionLevel: 'Limited access based on role',
   departmentShort: 'Operations',
   localTime: '2:59 PM (Est)',
-  reportingTo: { name: 'Sarah Johnson', title: 'Operations Manager', avatar: avatar1 },
+  reportingTo: { name: 'Sarah Johnson', title: 'Operations Manager', avatar: '' },
   stats: { applicationsReviewed: 124, interviewsConducted: 18, avgReviewTime: '3.1 Days' },
   activity: [
     { label: 'Last signed in', date: 'Recently' },

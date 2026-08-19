@@ -1,143 +1,275 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { Check, Clock, Pencil, X } from 'lucide-react';
 
 import { OnboardingNavbar } from '@/features/home/components/OnboardingNavbar';
-import { OnboardingInfoBar } from '@/features/onboarding/components/OnboardingInfoBar';
 import { StepProgress } from '@/shared/components/onboarding/StepProgress';
-import {
-  LiveFeedPanel,
-  MapWithCards,
-  PersonalizationHeading,
-  ProgressBarSection,
-  usePersonalizationProgress,
-  VerificationShieldFooter,
-} from '@/app/onboarding/_components/PersonalizationShared';
-import { finishActivation } from '@/features/provider/lib/completeOnboarding';
-import {
-  ACTIVATION_INFO_MESSAGE,
-  ActivationActionButtons,
-  ActivationFeatureCards,
-  ActivationHeading,
-  ActivationHeroIllustration,
-  OrganizationStatusPanel,
-  RecommendedStepsPanel,
-} from './ActivationShared';
+import { OnboardingNavButtons } from '@/shared/components/onboarding/OnboardingNavButtons';
+import { OtpInput } from '@/shared/components/onboarding/OtpInput';
+import { Footer } from './Footer';
+import { authService } from '@/features/auth/services/auth.service';
+import { useAuthStore } from '@/store/authStore';
+import { useProviderOnboardingStore } from '@/store/onboardingStore';
+import { saveOnboardingDraft } from '@/features/provider/lib/completeOnboarding';
 
-import boxIcon from '@assets/icons/box.png';
+import mailIcon from '@assets/icons/mail.png';
+import sendIcon from '@assets/icons/send.png';
+import shieldCheckIcon from '@assets/icons/shield-check.png';
 
-function ActivationLoadingDesktop({ onComplete }: { onComplete: () => void }) {
-  const { progress, stepStatus } = usePersonalizationProgress(onComplete);
+const DIGITS_COUNT = 6;
 
+function DividerLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
-      <OnboardingNavbar />
-
-      <div className="mx-auto w-full max-w-[1548px] px-10 pt-10">
-        <StepProgress current={6} />
-      </div>
-
-      <main className="mx-auto flex w-full max-w-[1548px] flex-1 flex-col gap-10 px-10 py-12">
-        <PersonalizationHeading />
-
-        <div className="flex gap-9">
-          <div className="w-[622px] shrink-0">
-            <LiveFeedPanel stepStatus={stepStatus} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <MapWithCards />
-          </div>
-        </div>
-
-        <ProgressBarSection progress={progress} />
-        <VerificationShieldFooter />
-      </main>
+    <div className="flex w-full items-center gap-5">
+      <div className="h-px flex-1 bg-[#D9E1EF]" />
+      <p className="shrink-0 type-body">{children}</p>
+      <div className="h-px flex-1 bg-[#D9E1EF]" />
     </div>
   );
 }
 
-function ActivationWelcomeDesktop({ onContinue }: { onContinue: () => void }) {
+function resolveEmail() {
+  const store = useProviderOnboardingStore.getState();
+  const authEmail = useAuthStore.getState().user?.email;
+  const sessionEmail =
+    typeof window !== 'undefined' ? sessionStorage.getItem('provider_signup_email') : null;
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
-      <OnboardingNavbar />
-
-      <div className="mx-auto w-full max-w-[1548px] px-10 pt-10">
-        <StepProgress current={6} />
-      </div>
-
-      <main className="mx-auto w-full max-w-[1548px] flex-1 px-10 pb-10 pt-10">
-        <div className="flex flex-col items-center gap-[100px]">
-          <ActivationHeading />
-
-          <div className="flex w-full items-start gap-5">
-            <div className="flex min-w-0 flex-1 flex-col gap-[60px]">
-              <div className="flex flex-col gap-5">
-                <ActivationHeroIllustration />
-                <ActivationFeatureCards />
-              </div>
-              <ActivationActionButtons onDashboard={onContinue} />
-            </div>
-
-            <aside className="sticky top-10 hidden w-[368px] shrink-0 flex-col gap-5 lg:flex">
-              <OrganizationStatusPanel />
-              <RecommendedStepsPanel />
-            </aside>
-          </div>
-        </div>
-      </main>
-
-      <div className="mx-auto w-full max-w-[1548px] px-10 pb-10">
-        <OnboardingInfoBar
-          message={ACTIVATION_INFO_MESSAGE}
-          icon={boxIcon}
-          linkText="Explore Provider Tools"
-          linkHref="/dashboard"
-          className="mt-0"
-        />
-      </div>
-    </div>
+    store.verificationEmail?.trim() ||
+    store.organizationEmail?.trim() ||
+    authEmail?.trim() ||
+    sessionEmail?.trim() ||
+    ''
   );
 }
 
 export default function DesktopView() {
   const router = useRouter();
-  const [phase, setPhase] = useState<'loading' | 'welcome'>('loading');
-  const [loadingKey, setLoadingKey] = useState(0);
-  const [error, setError] = useState('');
+  const setOnboardingData = useProviderOnboardingStore((s) => s.setOnboardingData);
 
-  async function handleGoToDashboard() {
+  const [emailMode, setEmailMode] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+  const [savedEmail, setSavedEmail] = useState('');
+  const [digits, setDigits] = useState<string[]>(Array(DIGITS_COUNT).fill(''));
+  const [showToast, setShowToast] = useState(false);
+  const [error, setError] = useState('');
+  const [resendMessage, setResendMessage] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+
+  const filledDigits = digits.filter(Boolean).length;
+  const canVerify = filledDigits === DIGITS_COUNT && Boolean(savedEmail);
+
+  useEffect(() => {
+    const email = resolveEmail();
+    if (email) {
+      setSavedEmail(email);
+      setUserEmail(email);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (showToast) {
+      const t = setTimeout(() => setShowToast(false), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [showToast]);
+
+  function handleSaveEmail() {
+    if (!userEmail.trim()) return;
+    const next = userEmail.trim();
+    setSavedEmail(next);
+    setOnboardingData({ verificationEmail: next });
+    setEmailMode(false);
+    setDigits(Array(DIGITS_COUNT).fill(''));
+  }
+
+  async function handleVerify() {
+    if (!canVerify || !savedEmail || isVerifying) return;
     setError('');
+    setIsVerifying(true);
+
     try {
-      await finishActivation();
-      router.push('/dashboard');
+      const result = await authService.verifyEmailOtp(savedEmail, digits.join(''));
+      useAuthStore.getState().setAuth(result.user, result.token, result.refreshToken);
+      setOnboardingData({ verificationEmail: savedEmail });
+      await saveOnboardingDraft('activation').catch(() => undefined);
+      setShowToast(true);
+      setTimeout(() => router.push('/onboarding/org-ready'), 1600);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Could not complete onboarding.';
-      if (message.toLowerCase().includes('sign in') || message.toLowerCase().includes('create your provider')) {
-        router.push('/onboarding/account');
-        return;
-      }
-      setError(message);
+      setError(err instanceof Error ? err.message : 'Invalid verification code.');
+      setIsVerifying(false);
     }
   }
 
-  if (phase === 'loading') {
+  async function handleResendCode() {
+    if (!savedEmail) return;
+    setError('');
+    setResendMessage('');
+    try {
+      await authService.resendSignupOtp(savedEmail);
+      setResendMessage('A new code was sent. Check your inbox and spam folder.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not resend code.');
+    }
+  }
+
+  function EmailCard() {
+    if (emailMode) {
+      return (
+        <div className="flex w-full flex-col gap-5 rounded-[10px] border border-[#D9E1EF] bg-white p-5 shadow-[0_2px_4px_rgba(0,0,0,0.05)]">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-5">
+              <div className="flex size-[68px] shrink-0 items-center justify-center rounded-full bg-[#EFF4FF] p-[17px]">
+                <Image src={mailIcon} alt="" width={34} height={34} className="object-contain" />
+              </div>
+              <div>
+                <p className="type-section-title font-semibold">Email Address</p>
+                <p className="mt-1 type-body">Provide email to 6-digit send code</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleSaveEmail}
+              className="flex shrink-0 items-center gap-2.5 font-sans type-button text-[#2F66C8] transition-opacity hover:opacity-75"
+            >
+              Save &amp; Send
+            </button>
+          </div>
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2">
+              <Image src={mailIcon} alt="" width={18} height={18} className="opacity-60" />
+            </span>
+            <input
+              type="email"
+              value={userEmail}
+              onChange={(e) => setUserEmail(e.target.value)}
+              placeholder="Enter your email address"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSaveEmail();
+              }}
+              className="anchor-field anchor-field--icon-left border-[#2F66C8] focus:border-[#2F66C8]"
+            />
+          </div>
+        </div>
+      );
+    }
+
     return (
-      <ActivationLoadingDesktop
-        key={loadingKey}
-        onComplete={() => setPhase('welcome')}
-      />
+      <div className="flex w-full items-center justify-between rounded-[10px] border border-[#D9E1EF] bg-white p-5 shadow-[0_2px_4px_rgba(0,0,0,0.05)]">
+        <div className="flex items-center gap-5">
+          <div className="flex size-[68px] shrink-0 items-center justify-center rounded-full bg-[#EFF4FF] p-[17px]">
+            <Image src={mailIcon} alt="" width={34} height={34} className="object-contain" />
+          </div>
+          <div>
+            <p className="type-section-title font-semibold">Sent To:</p>
+            <p className="mt-1 type-body">{savedEmail || 'Add your email'}</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setEmailMode(true)}
+          className="flex items-center gap-2.5 type-button text-[#2F66C8] transition-opacity hover:opacity-75"
+        >
+          Edit
+          <Pencil className="h-4 w-4" />
+        </button>
+      </div>
     );
   }
 
   return (
-    <>
-      {error ? (
-        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-[10px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-          {error}
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
+      <OnboardingNavbar />
+
+      {showToast ? (
+        <div className="fixed right-4 top-20 z-50 flex items-center gap-3 rounded-xl border border-[#D1FAE5] bg-gradient-to-r from-[#DEFFEB] to-white px-5 py-4 shadow-[0_6px_8px_rgba(0,0,0,0.08)]">
+          <div className="flex size-10 items-center justify-center rounded-full bg-white/60">
+            <div className="flex size-6 items-center justify-center rounded-xl bg-[#22C55E]">
+              <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />
+            </div>
+          </div>
+          <div>
+            <p className="type-label">Email Verified!</p>
+            <p className="font-sans text-[14px] text-[#8C97AD]">Email verified successfully.</p>
+          </div>
+          <button type="button" onClick={() => setShowToast(false)} className="ml-2 text-[#8C97AD] hover:text-[#44516A]">
+            <X className="h-4 w-4" />
+          </button>
         </div>
       ) : null}
-      <ActivationWelcomeDesktop onContinue={handleGoToDashboard} />
-    </>
+
+      <div className="mx-auto w-full max-w-[1548px] px-10 pt-10">
+        <StepProgress current={6} />
+      </div>
+
+      <main className="mx-auto w-full max-w-[1548px] flex-1 px-10 pb-16 pt-20">
+        <div className="mx-auto flex w-full max-w-[886px] flex-col">
+            <h1 className="type-page-title">
+              Confirm Your <span className="font-serif italic text-[#2F66C8]">Email</span>
+            </h1>
+            <div className="mt-6 type-subtitle">
+              <p>We&apos;ve sent a secure verification code to your inbox.</p>
+              <p>Enter it below to activate your Anchor experience.</p>
+            </div>
+
+            <div className="mt-10 flex w-full flex-col gap-10">
+              <EmailCard />
+
+              <div className="flex flex-col items-center gap-2.5">
+                <p className="type-label font-semibold leading-[1.8]">Enter the 6-digit code</p>
+                <OtpInput digits={digits} onChange={setDigits} variant="desktop" />
+                {error ? <p className="font-sans text-sm text-red-600">{error}</p> : null}
+                {resendMessage ? <p className="font-sans text-sm text-[#15803D]">{resendMessage}</p> : null}
+                <p className="flex items-center gap-1.5 font-sans text-[14px] text-[#8C97AD]">
+                  <Clock className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+                  Verification codes expire in <span className="font-medium text-[#2F66C8]">10 minutes.</span>
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-5">
+                <DividerLabel>Didn&apos;t get the code?</DividerLabel>
+                <div className="flex gap-5">
+                  <button
+                    type="button"
+                    onClick={handleResendCode}
+                    className="flex flex-1 items-center justify-center gap-5 rounded-[6px] border border-[#D9E1EF] bg-white px-6 py-4 type-button text-[#2F66C8] transition-colors hover:bg-[#F8FAFC]"
+                  >
+                    <Image src={sendIcon} alt="" width={24} height={24} className="object-contain" />
+                    Resend Code
+                  </button>
+                  <button
+                    type="button"
+                    className="flex flex-1 items-center justify-center rounded-[6px] bg-[#EFF4FF] px-6 py-4 type-button text-[#8C97AD] transition-colors hover:bg-[#E8EFFE]"
+                  >
+                    OR Check your spam folder
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-5 rounded-[10px] border border-[#D1FAE5] bg-[#ECFDF5] p-5">
+                <div className="flex size-[68px] shrink-0 items-center justify-center rounded-full bg-[#D1FAE5] p-[17px]">
+                  <Image src={shieldCheckIcon} alt="" width={34} height={34} className="object-contain" />
+                </div>
+                <div>
+                  <p className="type-section-title font-semibold">Your security matters</p>
+                  <p className="mt-1 type-body">
+                    We verify every account to keep opportunities real, safe, and spam-free.
+                  </p>
+                </div>
+              </div>
+            </div>
+        </div>
+      </main>
+
+      <OnboardingNavButtons
+        backHref="/onboarding/account"
+        onContinue={handleVerify}
+        continueDisabled={!canVerify || isVerifying}
+        continueLabel={isVerifying ? 'Verifying…' : 'Verify & Continue'}
+        footer={<Footer />}
+      />
+    </div>
   );
 }

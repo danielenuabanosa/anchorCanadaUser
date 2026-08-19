@@ -1,5 +1,8 @@
 import type { LucideIcon } from 'lucide-react';
-import { BUILDER_CATEGORY_GROUPS, getBuilderTemplate } from '@/features/opportunity-builder/lib/builderData';
+import {
+  getBuilderTemplate,
+  type CategoryGroupDef,
+} from '@/features/opportunity-builder/lib/builderData';
 import {
   AlignLeft,
   BarChart3,
@@ -147,6 +150,7 @@ export function getSelectionSummary(
   opportunityType: string | null,
   category: string | null,
   template: string | null,
+  groups: CategoryGroupDef[] = [],
 ): string {
   const typeLabel =
     opportunityType === 'internal'
@@ -158,11 +162,11 @@ export function getSelectionSummary(
           : 'Opportunity';
 
   const group = category
-    ? BUILDER_CATEGORY_GROUPS.find(
+    ? groups.find(
         (g) => g.id === category || g.subcategories.some((s) => s.id === category),
       )
     : null;
-  const categoryLabel = group?.title ?? 'Grants';
+  const categoryLabel = group?.title ?? category ?? 'Category';
 
   const templateDef = getBuilderTemplate(template);
   const templateLabel = templateDef ? `${templateDef.title} Template` : 'Community Grant Template';

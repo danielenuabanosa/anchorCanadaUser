@@ -80,6 +80,27 @@ export default function MobileView() {
   const [localSearch, setLocalSearch] = useState('');
   const { rows: applicants, setRows, loading, error } = useProviderApplications();
   const { members: teamMembers } = useProviderTeam();
+
+  const dynamicOpportunityOptions = useMemo(() => {
+    const seen = new Set<string>();
+    const opts: { value: string; label: string }[] = [{ value: 'all', label: 'All Opportunities' }];
+    for (const a of applicants) {
+      if (a.opportunity && !seen.has(a.opportunity)) {
+        seen.add(a.opportunity);
+        opts.push({ value: a.opportunity, label: a.opportunity });
+      }
+    }
+    return opts;
+  }, [applicants]);
+
+  const dynamicReviewerOptions = useMemo(() => {
+    const opts: { value: string; label: string }[] = [{ value: 'all', label: 'All Reviewers' }];
+    for (const m of teamMembers.filter((m) => m.status === 'Active')) {
+      opts.push({ value: m.name, label: m.name });
+    }
+    return opts;
+  }, [teamMembers]);
+
   const reviewerOptions = useMemo(
     () =>
       teamMembers
@@ -307,6 +328,8 @@ export default function MobileView() {
           onClose={() => setFilterOpen(false)}
           value={filters}
           onChange={setFilters}
+          opportunityOptions={dynamicOpportunityOptions}
+          reviewerOptions={dynamicReviewerOptions}
         />
       </div>
 

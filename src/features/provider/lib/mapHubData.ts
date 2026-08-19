@@ -1,4 +1,3 @@
-import avatar1 from '@assets/images/profile-avatar.png';
 import type { ApplicantRow, ApplicationStatus, ApplicationTab } from '@/app/(app)/applications/_components/applicationsHubData';
 import type {
   OpportunityRow,
@@ -183,8 +182,8 @@ export function mapApiApplicationToRow(item: ApiProviderApplication): ApplicantR
       ? created.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit' })
       : undefined,
     reviewer: item.reviewer?.name || 'Unassigned',
-    reviewerAvatar: avatar1,
-    avatar: avatar1,
+    reviewerAvatar: undefined,
+    avatar: '',
     tab: mapApplicationTab(item.status),
   };
 }

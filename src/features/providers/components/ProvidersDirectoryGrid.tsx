@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle2 } from 'lucide-react';
+import { Avatar } from '@/shared/components/ui/Avatar';
+import { photoSrc } from '@/shared/lib/photoSrc';
 import { useRegisteredProviders } from '../hooks/useRegisteredProviders';
 import { SkeletonList } from '@/shared/components/ui/Skeleton';
 import { HubSortSelect } from '@/shared/components/hub/HubSortSelect';
@@ -34,7 +36,12 @@ function ProviderCard({ provider }: { provider: ProviderDirectoryItem }) {
 
       <div className="flex flex-col gap-2">
         <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg bg-[#f8fafc]">
-          <span className="text-xs font-bold text-[#44516a]">{provider.initials}</span>
+          <Avatar
+            src={photoSrc(provider.logoUrl)}
+            fallback={provider.name || provider.initials}
+            size="lg"
+            className="h-12 w-12 rounded-lg"
+          />
         </div>
         <div>
           <p className="text-base font-medium text-[#0f172a]">{provider.name}</p>

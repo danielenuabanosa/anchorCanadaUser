@@ -13,9 +13,9 @@ export default function HelpPage() {
     if (typeof window !== 'undefined' && window.history.length > 1) {
       router.back();
     } else {
-      router.replace('/dashboard');
+      router.replace('/onboarding');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+ 
   }, []);
 
   return null;

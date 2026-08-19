@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { DateRangeTrigger } from '@/shared/components/ui/DatePicker';
 import { useProviderDashboard } from '@/features/provider/hooks/useProviderDashboard';
@@ -12,11 +12,23 @@ import { OrganizationStatusCard } from './OrganizationStatusCard';
 import { RecentApplicationsList } from './RecentApplicationsList';
 import { TeamActivityList } from './TeamActivityList';
 import { DASHBOARD_DATE_RANGE, PROVIDER_STATS } from './dashboardData';
+import { promptUnverifiedProvider } from '@/store/verificationModalStore';
 
 export default function DesktopView() {
   const { user } = useAuthStore();
   const { data, loading, error, period, setPeriod } = useProviderDashboard('7d');
   const orgName = data?.organizationName || user?.name || 'your organization';
+
+  useEffect(() => {
+    if (loading) return;
+    promptUnverifiedProvider(
+      data?.organizationStatus ?? {
+        verificationStatus: user?.provider?.verificationStatus,
+        profileComplete: 0,
+        adminNote: '',
+      },
+    );
+  }, [data, loading, user?.provider?.verificationStatus]);
 
   const stats = useMemo(() => {
     const s = data?.stats;

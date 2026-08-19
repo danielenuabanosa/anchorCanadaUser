@@ -1,7 +1,7 @@
 import DesktopView from './_components/DesktopView';
 import MobileView from './_components/MobileView';
 
-export default function ProviderAccountPage() {
+export default function Page() {
   return (
     <>
       <div className="hidden w-full md:block">

@@ -3,13 +3,20 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import {
+  BarChart3,
   Check,
   ChevronDown,
   Crown,
+  FileUser,
+  Handshake,
+  Network,
   Plus,
+  Settings,
   Shield,
+  Timer,
   Trash2,
   UserCircle,
+  UserPlus,
   Users,
 } from 'lucide-react';
 
@@ -24,8 +31,17 @@ import {
   type TeamRoleId,
 } from '@/features/onboarding/lib/teamData';
 import { cn } from '@/lib/utils';
+import { profileService } from '@/features/profile/services/profile.service';
+import { useAuthStore } from '@/store/authStore';
+import { useProviderOnboardingStore } from '@/store/onboardingStore';
 
-import starIcon from '@assets/icons/star2.png';
+const BENEFIT_ICONS = {
+  handshake: Handshake,
+  'file-user': FileUser,
+  network: Network,
+  timer: Timer,
+  settings: Settings,
+} as const;
 
 function RoleCheck({ bg }: { bg: string }) {
   return (
@@ -82,7 +98,7 @@ function RoleSelect({
         value={value}
         onChange={(e) => onChange(e.target.value as TeamRoleId)}
         className={cn(
-          'anchor-field w-full appearance-none pl-11 pr-10 text-base',
+          'no-anchor-field w-full cursor-pointer appearance-none rounded-[10px] border border-[#D9E1EF] bg-white py-4 pl-11 pr-10 text-base text-[#0F172A] transition-colors focus:border-[#2F66C8] focus:outline-none',
           !value && 'text-[#8C97AD]',
         )}
       >
@@ -107,12 +123,17 @@ export function InviteMembersSection({
   onChange: (members: TeamMemberDraft[]) => void;
   compact?: boolean;
 }) {
+  const [open, setOpen] = useState(true);
+
   function updateMember(id: string, patch: Partial<TeamMemberDraft>) {
     onChange(members.map((m) => (m.id === id ? { ...m, ...patch } : m)));
   }
 
   function removeMember(id: string) {
-    if (members.length <= 1) return;
+    if (members.length <= 1) {
+      onChange([createEmptyMember()]);
+      return;
+    }
     onChange(members.filter((m) => m.id !== id));
   }
 
@@ -123,60 +144,72 @@ export function InviteMembersSection({
   if (compact) {
     return (
       <div className="rounded-[10px] border border-[#EEF2F8] bg-white p-5">
-        <div className="flex items-center gap-[18px]">
-          <Users className="h-6 w-6 text-[#2F66C8]" />
-          <p className="font-sans text-[16px] font-semibold leading-[180%] text-[#0F172A]">
-            1. Invite Team Members
-          </p>
-        </div>
+        <button
+          type="button"
+          onClick={() => setOpen((value) => !value)}
+          className="flex w-full items-center justify-between text-left"
+          aria-expanded={open}
+        >
+          <span className="flex items-center gap-[18px]">
+            <Users className="h-6 w-6 text-[#2F66C8]" />
+            <span className="font-sans text-[16px] font-semibold leading-[180%] text-[#0F172A]">
+              1. Invite Team Members
+            </span>
+          </span>
+          <ChevronDown className={cn('h-6 w-6 text-[#44516A] transition-transform', open && 'rotate-180')} />
+        </button>
 
-        <div className="mt-5 flex flex-col gap-4">
-          {members.map((member) => (
-            <div key={member.id} className="flex flex-col gap-3 border-b border-[#EEF2F8] pb-4 last:border-0 last:pb-0">
-              <div className="flex items-center justify-between">
-                <label className="font-sans text-[14px] font-medium text-[#0F172A]">Full Name</label>
-                {members.length > 1 ? (
+        {open ? (
+          <>
+            <div className="mt-5 flex flex-col gap-5">
+              {members.map((member) => (
+                <div key={member.id} className="flex flex-col gap-2.5">
+                  <div className="flex items-center justify-between">
+                    <label className="font-sans text-[14px] font-medium leading-[1.8] text-[#0F172A]">
+                      Full Name
+                    </label>
                   <button
                     type="button"
                     onClick={() => removeMember(member.id)}
                     className="text-[#EF4444]"
                     aria-label="Remove member"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-[18px] w-[18px]" />
                   </button>
-                ) : null}
-              </div>
-              <input
-                type="text"
-                value={member.fullName}
-                onChange={(e) => updateMember(member.id, { fullName: e.target.value })}
-                placeholder="Enter your full name"
-                className="anchor-field"
-              />
-              <input
-                type="email"
-                value={member.email}
-                onChange={(e) => updateMember(member.id, { email: e.target.value })}
-                placeholder="name@company.ca"
-                className="anchor-field"
-              />
-              <RoleSelect
-                value={member.role}
-                onChange={(role) => updateMember(member.id, { role })}
-                compact
-              />
+                  </div>
+                  <input
+                    type="text"
+                    value={member.fullName}
+                    onChange={(e) => updateMember(member.id, { fullName: e.target.value })}
+                    placeholder="Enter your full name"
+                    className="no-anchor-field"
+                  />
+                  <input
+                    type="email"
+                    value={member.email}
+                    onChange={(e) => updateMember(member.id, { email: e.target.value })}
+                    placeholder="name@company.ca"
+                    className="no-anchor-field"
+                  />
+                  <RoleSelect
+                    value={member.role}
+                    onChange={(role) => updateMember(member.id, { role })}
+                    compact
+                  />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        <button
-          type="button"
-          onClick={addMember}
-          className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-dashed border-[#D9E1EF] bg-white text-[14px] font-medium text-[#2F66C8]"
-        >
-          <Plus className="h-4 w-4" />
-          Add Another Member
-        </button>
+            <button
+              type="button"
+              onClick={addMember}
+              className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-[6px] border border-dashed border-[#D9E1EF] bg-white text-[14px] font-medium text-[#2F66C8]"
+            >
+              <Plus className="h-4 w-4" />
+              Add Another Member
+            </button>
+          </>
+        ) : null}
       </div>
     );
   }
@@ -208,14 +241,14 @@ export function InviteMembersSection({
                   value={member.fullName}
                   onChange={(e) => updateMember(member.id, { fullName: e.target.value })}
                   placeholder="Enter your full name"
-                  className="anchor-field"
+                  className="no-anchor-field"
                 />
                 <input
                   type="email"
                   value={member.email}
                   onChange={(e) => updateMember(member.id, { email: e.target.value })}
                   placeholder="name@company.ca"
-                  className="anchor-field"
+                  className="no-anchor-field"
                 />
                 <RoleSelect
                   value={member.role}
@@ -249,16 +282,28 @@ export function InviteMembersSection({
 }
 
 export function RolePermissionsSection({ compact = false }: { compact?: boolean }) {
+  const [open, setOpen] = useState(true);
+
   return (
     <div className="rounded-[10px] border border-[#EEF2F8] bg-white p-5">
-      <div className="flex items-center gap-[18px]">
-        <Shield className="h-6 w-6 text-[#2F66C8]" />
-        <p className="font-sans text-[18px] font-semibold leading-[180%] text-[#0F172A]">
-          2. Role &amp; Permissions Overview
-        </p>
-      </div>
+      <button
+        type="button"
+        onClick={() => compact && setOpen((value) => !value)}
+        className="flex w-full items-center justify-between text-left"
+        aria-expanded={!compact || open}
+      >
+        <span className="flex items-center gap-[18px]">
+          <Shield className="h-6 w-6 text-[#2F66C8]" />
+          <span className={cn('font-sans font-semibold leading-[180%] text-[#0F172A]', compact ? 'text-[16px]' : 'text-[18px]')}>
+            2. Role &amp; Permissions Overview
+          </span>
+        </span>
+        {compact ? (
+          <ChevronDown className={cn('h-6 w-6 text-[#44516A] transition-transform', open && 'rotate-180')} />
+        ) : null}
+      </button>
 
-      <div className={cn('mt-5 grid gap-2.5', compact ? 'grid-cols-1' : 'grid-cols-2 xl:grid-cols-4')}>
+      {(!compact || open) ? <div className={cn('mt-5 grid gap-2.5', compact ? 'grid-cols-1' : 'grid-cols-2 xl:grid-cols-4')}>
         {ROLE_DEFINITIONS.map((role) => (
           <div
             key={role.id}
@@ -284,41 +329,102 @@ export function RolePermissionsSection({ compact = false }: { compact?: boolean 
             </ul>
           </div>
         ))}
-      </div>
+      </div> : null}
     </div>
   );
 }
 
+function isRenderableAvatarUrl(src?: string) {
+  if (!src) return false;
+  const path = src.split('?')[0]?.toLowerCase() ?? '';
+  return /\.(avif|gif|jpe?g|png|svg|webp)$/.test(path) || src.startsWith('data:image/');
+}
+
 export function OrganizationOwnerSection({ compact = false }: { compact?: boolean }) {
+  const [open, setOpen] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const user = useAuthStore((state) => state.user);
+  const updateUser = useAuthStore((state) => state.updateUser);
+  const ownerName = user?.name?.trim() || ORGANIZATION_OWNER.name;
+  const uploadedAvatar = isRenderableAvatarUrl(user?.avatarUrl) ? user?.avatarUrl : undefined;
+
+  async function uploadOwnerAvatar(file?: File) {
+    if (!file || uploading) return;
+    setUploading(true);
+    try {
+      const result = await profileService.uploadAvatar(file);
+      updateUser({ avatarUrl: result.avatarUrl });
+    } finally {
+      setUploading(false);
+    }
+  }
+
   return (
     <div className="rounded-[10px] border border-[#EEF2F8] bg-white p-5">
-      <div className="flex items-center gap-[18px]">
-        <Crown className="h-6 w-6 text-[#2F66C8]" />
-        <p className="font-sans text-[18px] font-semibold leading-[180%] text-[#0F172A]">
-          3. Organization Owner
-        </p>
-      </div>
+      <button
+        type="button"
+        onClick={() => compact && setOpen((value) => !value)}
+        className="flex w-full items-center justify-between text-left"
+        aria-expanded={!compact || open}
+      >
+        <span className="flex items-center gap-[18px]">
+          <Crown className="h-6 w-6 text-[#2F66C8]" />
+          <span className={cn('font-sans font-semibold leading-[180%] text-[#0F172A]', compact ? 'text-[16px]' : 'text-[18px]')}>
+            3. Organization Owner
+          </span>
+        </span>
+        {compact ? (
+          <ChevronDown className={cn('h-6 w-6 text-[#44516A] transition-transform', open && 'rotate-180')} />
+        ) : null}
+      </button>
 
-      <div className={cn('mt-5 flex gap-5', compact ? 'flex-col' : 'flex-col lg:flex-row lg:items-center')}>
-        <div className="flex items-center gap-4">
-          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full">
-            <Image src={ORGANIZATION_OWNER.avatar} alt="" fill className="object-cover" />
-          </div>
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="font-sans text-[16px] font-semibold text-[#0F172A]">{ORGANIZATION_OWNER.name}</p>
-              <span className="rounded bg-[#EFF4FF] px-2 py-0.5 text-[10px] font-bold uppercase text-[#2F66C8]">
-                Owner
+      {(!compact || open) ? (
+        <div
+          className={cn(
+            'mt-5 flex gap-5',
+            compact ? 'flex-col' : 'flex-col justify-between lg:flex-row lg:items-start',
+          )}
+        >
+          <div className="flex items-center gap-5">
+            <label className="group relative h-20 w-20 shrink-0 cursor-pointer" title="Change owner photo">
+              <span
+                className={cn(
+                  'relative block h-20 w-20 overflow-hidden rounded-full ring-2 ring-transparent transition',
+                  uploading ? 'opacity-50' : 'group-hover:ring-[#D9E1EF]',
+                )}
+              >
+                <Image
+                  src={uploadedAvatar || ORGANIZATION_OWNER.avatar}
+                  alt={ownerName}
+                  fill
+                  className="object-cover"
+                  sizes="80px"
+                />
               </span>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="sr-only"
+                disabled={uploading}
+                onChange={(event) => void uploadOwnerAvatar(event.target.files?.[0])}
+              />
+            </label>
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <p className="font-serif text-[24px] leading-normal text-[#0F172A]">{ownerName}</p>
+                <span className="rounded bg-[#EFF4FF] px-1.5 py-1 text-[14px] text-[#2F66C8]">
+                  OWNER
+                </span>
+              </div>
+              <p className="text-[14px] text-[#44516A]">{ORGANIZATION_OWNER.title}</p>
             </div>
-            <p className="mt-1 text-[14px] text-[#8C97AD]">{ORGANIZATION_OWNER.title}</p>
+          </div>
+
+          <div className={cn('rounded-[10px] border border-[#EEF2F8] bg-[#EFF4FF] p-5', compact ? 'w-full' : 'w-full lg:w-[418px] lg:shrink-0')}>
+            <p className="text-[14px] leading-normal text-[#44516A]">{ORGANIZATION_OWNER.note}</p>
           </div>
         </div>
-
-        <div className="flex-1 rounded-[10px] bg-[#EFF4FF] p-4">
-          <p className="text-[14px] leading-normal text-[#44516A]">{ORGANIZATION_OWNER.note}</p>
-        </div>
-      </div>
+      ) : null}
     </div>
   );
 }
@@ -326,35 +432,55 @@ export function OrganizationOwnerSection({ compact = false }: { compact?: boolea
 export function TeamSidebarPanel() {
   return (
     <aside className="hidden w-[368px] shrink-0 xl:block">
-      <div className="sticky top-24 rounded-[20px] border border-[#EEF2F8] bg-white p-8">
-        <div className="relative mx-auto h-[180px] w-full max-w-[280px]">
-          <Image src={TEAM_SIDEBAR.illustration} alt="" fill className="object-contain" />
+      <div className="sticky top-24 flex flex-col gap-5 rounded-[10px] border border-[#EEF2F8] bg-white p-5">
+        <div className="flex flex-col items-center gap-5 pt-5">
+          <div className="relative h-[146px] w-[243px] shrink-0">
+            <Image
+              src={TEAM_SIDEBAR.illustration}
+              alt=""
+              fill
+              className="object-contain"
+              sizes="243px"
+              priority
+            />
+          </div>
+          <h2 className="text-center font-serif text-[28px] leading-[56px] text-[#0F172A]">
+            {TEAM_SIDEBAR.title}
+          </h2>
         </div>
 
-        <h2 className="mt-6 text-center font-serif text-[28px] leading-[1.2] text-[#0F172A]">
-          {TEAM_SIDEBAR.title}
-        </h2>
-
-        <ul className="mt-6 flex flex-col gap-4">
-          {WHY_TEAM_BENEFITS.map(({ icon, label }) => (
-            <li key={label} className="flex items-start gap-3 text-[14px] text-[#44516A]">
-              <Image src={icon} alt="" width={18} height={18} className="mt-0.5 shrink-0 object-contain" />
-              {label}
-            </li>
-          ))}
+        <ul className="flex w-full flex-col gap-4">
+          {WHY_TEAM_BENEFITS.map(({ icon, label }) => {
+            const Icon = BENEFIT_ICONS[icon];
+            return (
+              <li key={label} className="flex h-6 items-center gap-5">
+                <span className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-[13px] bg-[#EFF4FF]">
+                  <Icon className="h-[13px] w-[13px] text-[#2F66C8]" strokeWidth={2} />
+                </span>
+                <span className="text-[14px] leading-normal text-[#0F172A]">{label}</span>
+              </li>
+            );
+          })}
         </ul>
 
-        <div className="mt-6 flex items-center gap-3 rounded-[10px] border border-[#EEF2F8] bg-[#F8FAFC] p-4">
-          <Image src={starIcon} alt="" width={24} height={24} className="shrink-0 object-contain" />
-          <p className="text-[14px] leading-normal text-[#44516A]">
-            <span className="font-semibold text-[#0F172A]">78%</span> of organizations with teams respond faster to applicants.
-          </p>
-        </div>
+        <div className="flex w-full flex-col gap-2.5">
+          <div className="flex items-center gap-5 rounded-[10px] border border-[#EEF2F8] bg-white p-4">
+            <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[40px] bg-[#EFF4FF]">
+              <BarChart3 className="h-8 w-8 text-[#2F66C8]" strokeWidth={2} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[40px] font-bold leading-none text-[#2F66C8]">{TEAM_SIDEBAR.statPercent}</p>
+              <p className="mt-1 text-[12px] font-medium leading-normal text-[#0F172A]">
+                {TEAM_SIDEBAR.statLabel}
+              </p>
+            </div>
+          </div>
 
-        <div className="mt-4 rounded-[10px] bg-[#EFF4FF] p-4">
-          <div className="flex items-start gap-3">
-            <Users className="mt-0.5 h-5 w-5 shrink-0 text-[#2F66C8]" />
-            <p className="text-[14px] leading-normal text-[#44516A]">{TEAM_SIDEBAR.soloNote}</p>
+          <div className="flex items-center gap-5 rounded-[10px] bg-[#EFF4FF] p-4">
+            <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-[26px] bg-white">
+              <UserPlus className="h-[26px] w-[26px] text-[#2F66C8]" strokeWidth={1.75} />
+            </span>
+            <p className="text-[12px] leading-normal text-[#44516A]">{TEAM_SIDEBAR.soloNote}</p>
           </div>
         </div>
       </div>
@@ -394,8 +520,17 @@ export function MobileAccordionSection({
 }
 
 export function useTeamMembers(initialCount = 1) {
-  const [members, setMembers] = useState<TeamMemberDraft[]>(() =>
-    Array.from({ length: initialCount }, () => createEmptyMember()),
-  );
+  const storedMembers = useProviderOnboardingStore((state) => state.teamMembers);
+  const [members, setMembers] = useState<TeamMemberDraft[]>(() => {
+    if (storedMembers.length > 0) {
+      return storedMembers.map((member) => ({
+        id: member.id,
+        fullName: member.fullName ?? '',
+        email: member.email,
+        role: member.role === 'Editor' ? 'Admin' : member.role,
+      }));
+    }
+    return Array.from({ length: initialCount }, () => createEmptyMember());
+  });
   return { members, setMembers };
 }

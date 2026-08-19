@@ -19,6 +19,7 @@ import {
 } from './settingsData';
 import { providerApi } from '@/features/provider/services/providerApi';
 import { isStaticMode } from '@/lib/staticMode';
+import { useOrgBrandingStore } from '@/store/orgBrandingStore';
 
 function cloneDefaults() {
   return {
@@ -244,6 +245,7 @@ export function useSettingsHub() {
         const url = result.logoUrl || result.profile?.logoUrl || null;
         if (url) {
           setOrganization((prev) => ({ ...prev, logoUrl: url }));
+          useOrgBrandingStore.getState().setLogoUrl(url);
           markDirty();
         }
         await load();

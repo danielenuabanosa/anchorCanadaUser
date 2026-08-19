@@ -20,11 +20,33 @@ import {
 
 export default function MobileView() {
   const router = useRouter();
-  const { members, setMembers } = useTeamMembers(1);
+  const { members, setMembers } = useTeamMembers(3);
+  const completedMembers = members.filter(
+    (member) => member.fullName.trim() && member.email.includes('@') && member.role,
+  );
+  const hasPartialMember = members.some((member) => {
+    const hasAnyValue = Boolean(member.fullName.trim() || member.email.trim() || member.role);
+    const isComplete = Boolean(
+      member.fullName.trim() && member.email.includes('@') && member.role,
+    );
+    return hasAnyValue && !isComplete;
+  });
+  const canContinue = completedMembers.length > 0 && !hasPartialMember;
 
   function handleContinue() {
+    if (!canContinue) return;
+    saveTeamMembers(members);
+    router.push('/onboarding/activation');
+  }
+
+  function handleSkip() {
+    saveTeamMembers([]);
+    router.push('/onboarding/activation');
+  }
+
+  function saveTeamMembers(nextMembers: typeof members) {
     useProviderOnboardingStore.getState().setOnboardingData({
-      teamMembers: members
+      teamMembers: nextMembers
         .filter((m) => m.email.trim() && m.role)
         .map((m) => ({
           id: m.id,
@@ -39,32 +61,32 @@ export default function MobileView() {
         })),
     });
     void saveOnboardingDraft('team').catch(() => undefined);
-    router.push('/onboarding/activation');
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-[#f2f7ff]">
-      <OnboardingNavbar />
+      <OnboardingNavbar showSignIn />
 
-      <div className="px-5 pb-3 pt-4">
+      <div className="px-5 pb-3 pt-10">
         <StepProgress current={5} />
       </div>
 
-      <main className="px-5 pb-6 pt-6">
+      <main className="px-5 pb-10 pt-[60px]">
         <TeamPageHeading compact />
 
-        <div className="mt-6 flex flex-col gap-4">
+        <div className="mt-10 flex flex-col gap-5">
           <InviteMembersSection members={members} onChange={setMembers} compact />
           <RolePermissionsSection compact />
           <OrganizationOwnerSection compact />
         </div>
 
-        <div className="mt-8 border-t border-[#D9E1EF] pb-8 pt-6">
+        <div className="mt-[60px] pb-8">
           <div className="flex flex-col gap-3">
             <button
               type="button"
               onClick={handleContinue}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] bg-[#2F66C8] text-[15px] font-semibold text-white hover:bg-[#2454A4]"
+              disabled={!canContinue}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] bg-[#2F66C8] text-[15px] font-semibold text-white hover:bg-[#2454A4] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Continue
               <ArrowRight className="h-4 w-4" />
@@ -78,7 +100,7 @@ export default function MobileView() {
             </Link>
             <button
               type="button"
-              onClick={handleContinue}
+              onClick={handleSkip}
               className="text-[15px] font-medium text-[#2F66C8]"
             >
               Skip for Now

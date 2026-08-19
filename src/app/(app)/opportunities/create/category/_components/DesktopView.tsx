@@ -6,10 +6,12 @@ import { BuilderPageHeading } from '@/features/opportunity-builder/components/Bu
 import { CategoryGroupCard } from '@/features/opportunity-builder/components/CategoryGroupCard';
 import { CategoryRecommendationBanner } from '@/features/opportunity-builder/components/CategoryRecommendationBanner';
 import { useRegisterBuilderNav } from '@/features/opportunity-builder/context/BuilderNavContext';
-import { BUILDER_CATEGORY_GROUPS, BUILDER_PAGE_COPY } from '@/features/opportunity-builder/lib/builderData';
+import { BUILDER_PAGE_COPY } from '@/features/opportunity-builder/lib/builderData';
+import { useBuilderCategoryGroups } from '@/features/opportunity-builder/hooks/useBuilderCategoryGroups';
 import { useOpportunityBuilderStore } from '@/store/opportunityBuilderStore';
 
 export default function DesktopView() {
+  const { groups, isLoading, isError } = useBuilderCategoryGroups();
   const [selected, setSelected] = useState<string | null>(useOpportunityBuilderStore.getState().category);
   const router = useRouter();
   const setBuilderData = useOpportunityBuilderStore((s) => s.setBuilderData);
@@ -40,16 +42,26 @@ export default function DesktopView() {
       <div className="mt-[60px] flex w-full flex-col gap-10">
         <CategoryRecommendationBanner />
 
-        <div className="grid w-full grid-cols-4 gap-2.5">
-          {BUILDER_CATEGORY_GROUPS.map((group) => (
-            <CategoryGroupCard
-              key={group.id}
-              group={group}
-              selectedId={selected}
-              onSelect={setSelected}
-            />
-          ))}
-        </div>
+        {isLoading && groups.length === 0 ? (
+          <p className="font-sans text-sm text-[#8C97AD]">Loading categories…</p>
+        ) : isError ? (
+          <p className="font-sans text-sm text-[#DE1735]">
+            Couldn’t load categories. Please refresh and try again.
+          </p>
+        ) : groups.length === 0 ? (
+          <p className="font-sans text-sm text-[#8C97AD]">No categories available yet.</p>
+        ) : (
+          <div className="grid w-full grid-cols-4 gap-2.5">
+            {groups.map((group) => (
+              <CategoryGroupCard
+                key={group.id}
+                group={group}
+                selectedId={selected}
+                onSelect={setSelected}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </main>
   );

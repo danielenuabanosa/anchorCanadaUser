@@ -62,23 +62,19 @@ export default function MobileView() {
   const [typeOpen, setTypeOpen] = useState(true);
   const [docsOpen, setDocsOpen] = useState(true);
 
-  const requiredDocs = VERIFICATION_DOCUMENTS.filter((doc) => doc.required);
-  const requiredComplete = requiredDocs.every((doc) => documents[doc.id].progress === 100);
   const typeComplete = verificationType !== null;
-  const canSubmit = typeComplete && requiredComplete;
 
-  async function handleSubmit() {
-    if (!canSubmit) return;
+  function goToAccount() {
     useProviderOnboardingStore.getState().setOnboardingData({
       verificationType,
     });
     void saveOnboardingDraft('verification').catch(() => undefined);
-    router.push('/onboarding/team');
+    router.push('/onboarding/account');
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-[#f2f7ff]">
-      <OnboardingNavbar />
+      <OnboardingNavbar showSignIn />
 
       <div className="px-5 pb-3 pt-4">
         <StepProgress current={4} />
@@ -165,7 +161,7 @@ export default function MobileView() {
                   <p className="font-sans text-[18px] font-semibold leading-[1.8] text-[#0F172A]">
                     2. Upload Verification Documents
                   </p>
-                  <p className="font-sans text-[12px] text-[#8C97AD]">3 required • 1 optional</p>
+                  <p className="font-sans text-[12px] text-[#8C97AD]">All documents are optional</p>
                 </div>
               </div>
               <ChevronDown className={`size-6 shrink-0 text-[#8C97AD] transition-transform ${docsOpen ? 'rotate-180' : ''}`} />
@@ -179,8 +175,7 @@ export default function MobileView() {
                       <div>
                         <p className="font-sans text-[14px] font-medium text-[#0F172A]">
                           {doc.title}
-                          {doc.required && <span className="text-[#EF4444]"> *</span>}
-                          {!doc.required && <span className="font-normal text-[#8C97AD]"> (Optional)</span>}
+                          <span className="font-normal text-[#8C97AD]"> (Optional)</span>
                         </p>
                         <p className="mt-1 font-sans text-[12px] text-[#8C97AD]">{doc.description}</p>
                       </div>
@@ -210,14 +205,18 @@ export default function MobileView() {
           <div className="flex flex-col gap-3 border-t border-[#D9E1EF] pt-6">
             <button
               type="button"
-              onClick={handleSubmit}
-              disabled={!canSubmit}
-              className={`flex h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[14px] text-white ${
-                canSubmit ? 'bg-[#2F66C8] hover:bg-[#2454A4]' : 'cursor-not-allowed bg-[#2F66C8]/40'
-              }`}
+              onClick={goToAccount}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-[6px] bg-[#2F66C8] text-[14px] text-white hover:bg-[#2454A4]"
             >
-              Submit Verification
+              Continue
               <ArrowRight className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={goToAccount}
+              className="flex h-12 w-full items-center justify-center text-[14px] text-[#2F66C8]"
+            >
+              Skip for Now
             </button>
             <Link
               href="/onboarding/organization-info"

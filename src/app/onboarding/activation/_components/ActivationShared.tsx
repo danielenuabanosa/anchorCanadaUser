@@ -1,9 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import {
   ArrowRight,
   BellRing,
@@ -13,7 +12,6 @@ import {
   Copy,
   FolderClosed,
   Minus,
-  Plus,
   Rocket,
   Send,
   ShieldCheck,
@@ -25,6 +23,8 @@ import briefcaseIcon from '@assets/icons/briefcase.png';
 import activationHeroDesktop from '@assets/images/activation-hero-desktop.png';
 import activationHeroMobile from '@assets/images/activation-hero-mobile.png';
 import { cn } from '@/lib/utils';
+import { providerApi } from '@/features/provider/services/providerApi';
+import { useProviderOnboardingStore } from '@/store/onboardingStore';
 
 export const ACTIVATION_INFO_MESSAGE =
   'Thank you for helping create opportunities and stronger communities across Canada 💙';
@@ -67,8 +67,8 @@ export const ACTIVATION_FEATURES = [
 export const ORGANIZATION_STATUS_ROWS = [
   { label: 'Organization Status', value: 'Active', tone: 'success' as const },
   { label: 'Verification Status', value: 'Under Review', tone: 'warning' as const },
-  { label: 'Team Members Added', value: '4', tone: 'neutral' as const },
-  { label: 'Workspace Created', value: 'May 20, 2026', tone: 'neutral' as const },
+  { label: 'Team Members Added', value: '0', tone: 'neutral' as const },
+  { label: 'Workspace Created', value: '—', tone: 'neutral' as const },
 ];
 
 export const RECOMMENDED_STEPS = [
@@ -89,6 +89,55 @@ export const RECOMMENDED_STEPS = [
     description: 'Track views, applications, and engagement trends.',
   },
 ];
+
+type StatusTone = 'success' | 'warning' | 'neutral';
+
+type OrganizationStatusRow = {
+  label: string;
+  value: string;
+  tone: StatusTone;
+};
+
+function buildStatusRows(input?: {
+  organizationStatus: string;
+  organizationStatusTone: StatusTone;
+  verificationStatus: string;
+  verificationStatusTone: StatusTone;
+  teamMembersAdded: number;
+  workspaceCreated: string;
+} | null, draftTeamCount = 0): OrganizationStatusRow[] {
+  if (!input) {
+    return [
+      { label: 'Organization Status', value: 'Active', tone: 'success' },
+      { label: 'Verification Status', value: 'Under Review', tone: 'warning' },
+      { label: 'Team Members Added', value: String(draftTeamCount), tone: 'neutral' },
+      { label: 'Workspace Created', value: '—', tone: 'neutral' },
+    ];
+  }
+
+  return [
+    {
+      label: 'Organization Status',
+      value: input.organizationStatus,
+      tone: input.organizationStatusTone,
+    },
+    {
+      label: 'Verification Status',
+      value: input.verificationStatus,
+      tone: input.verificationStatusTone,
+    },
+    {
+      label: 'Team Members Added',
+      value: String(Math.max(input.teamMembersAdded, draftTeamCount)),
+      tone: 'neutral',
+    },
+    {
+      label: 'Workspace Created',
+      value: input.workspaceCreated,
+      tone: 'neutral',
+    },
+  ];
+}
 
 export function ActivationHeading({ compact = false }: { compact?: boolean }) {
   if (compact) {
@@ -231,6 +280,28 @@ function StatusValue({ value, tone }: { value: string; tone: 'success' | 'warnin
 
 export function OrganizationStatusPanel({ compact = false }: { compact?: boolean }) {
   const [open, setOpen] = useState(!compact);
+  const teamMembers = useProviderOnboardingStore((state) => state.teamMembers);
+  const draftTeamCount = teamMembers.filter(
+    (member) => member.email.includes('@') && member.role,
+  ).length;
+  const [rows, setRows] = useState<OrganizationStatusRow[]>(() =>
+    buildStatusRows(null, draftTeamCount),
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    void providerApi
+      .getActivationStatus()
+      .then((status) => {
+        if (!cancelled) setRows(buildStatusRows(status, draftTeamCount));
+      })
+      .catch(() => {
+        if (!cancelled) setRows(buildStatusRows(null, draftTeamCount));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [draftTeamCount]);
 
   const header = (
     <div className="flex items-center gap-[18px]">
@@ -239,9 +310,9 @@ export function OrganizationStatusPanel({ compact = false }: { compact?: boolean
     </div>
   );
 
-  const rows = (
+  const statusRows = (
     <div className={cn('space-y-0', compact ? 'mt-5 space-y-0 border-t border-[#EEF2F8] pt-5' : 'mt-[30px]')}>
-      {ORGANIZATION_STATUS_ROWS.map((row) => (
+      {rows.map((row) => (
         <div key={row.label} className="flex items-center justify-between gap-4 py-2.5">
           <span className="text-[14px] text-[#44516A]">{row.label}</span>
           <StatusValue value={row.value} tone={row.tone} />
@@ -261,7 +332,7 @@ export function OrganizationStatusPanel({ compact = false }: { compact?: boolean
           {header}
           <ChevronDown className={cn('h-6 w-6 shrink-0 text-[#44516A] transition-transform', open && 'rotate-180')} />
         </button>
-        {open ? rows : null}
+        {open ? statusRows : null}
       </div>
     );
   }
@@ -269,7 +340,7 @@ export function OrganizationStatusPanel({ compact = false }: { compact?: boolean
   return (
     <div className="rounded-[10px] border border-[#EEF2F8] bg-white px-5 py-[30px]">
       {header}
-      {rows}
+      {statusRows}
     </div>
   );
 }
@@ -326,64 +397,24 @@ export function RecommendedStepsPanel({ compact = false }: { compact?: boolean }
 
 export function ActivationActionButtons({
   onDashboard,
-  onCreateOpportunity,
   compact = false,
 }: {
   onDashboard: () => void;
-  onCreateOpportunity?: () => void;
   compact?: boolean;
 }) {
-  const router = useRouter();
-
-  function handleCreate() {
-    if (onCreateOpportunity) {
-      onCreateOpportunity();
-      return;
-    }
-    router.push('/opportunities/create/category');
-  }
-
-  const createButton = (
-    <button
-      type="button"
-      onClick={handleCreate}
-      className={cn(
-        'inline-flex items-center justify-center gap-2.5 rounded-[6px] border border-[#D9E1EF] bg-white text-[#2F66C8] transition-colors hover:bg-[#EFF4FF]',
-        compact ? 'h-12 w-full px-6 text-[14px]' : 'h-[52px] px-6 text-[16px]',
-      )}
-    >
-      Create First Opportunity
-      <Plus className="h-4 w-4" />
-    </button>
-  );
-
-  const dashboardButton = (
-    <button
-      type="button"
-      onClick={onDashboard}
-      className={cn(
-        'inline-flex items-center justify-center gap-2.5 rounded-[6px] bg-[#2F66C8] text-white transition-colors hover:bg-[#2454A4]',
-        compact ? 'h-12 w-full px-6 text-[14px]' : 'h-[52px] px-6 text-[16px]',
-      )}
-    >
-      Go to Provider Dashboard
-      <ArrowRight className="h-4 w-4" />
-    </button>
-  );
-
-  if (compact) {
-    return (
-      <div className="flex w-full flex-col gap-5">
-        {dashboardButton}
-        {createButton}
-      </div>
-    );
-  }
-
   return (
-    <div className="flex w-full items-center justify-between gap-4">
-      {createButton}
-      {dashboardButton}
+    <div className={cn('flex w-full', compact ? 'flex-col' : 'items-center justify-end')}>
+      <button
+        type="button"
+        onClick={onDashboard}
+        className={cn(
+          'inline-flex items-center justify-center gap-2.5 rounded-[6px] bg-[#2F66C8] text-white transition-colors hover:bg-[#2454A4]',
+          compact ? 'h-12 w-full px-6 text-[14px]' : 'h-[52px] px-6 text-[16px]',
+        )}
+      >
+        Go to Provider Dashboard
+        <ArrowRight className="h-4 w-4" />
+      </button>
     </div>
   );
 }

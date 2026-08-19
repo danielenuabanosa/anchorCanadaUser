@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { OnboardingNavbar } from '@/features/home/components/OnboardingNavbar';
@@ -61,9 +61,11 @@ type UploadState = {
 export default function DesktopView() {
   const router = useRouter();
   const setOnboardingData = useProviderOnboardingStore((s) => s.setOnboardingData);
+  const storedName = useProviderOnboardingStore((s) => s.organizationName);
+  const storedEmail = useProviderOnboardingStore((s) => s.organizationEmail);
 
-  const [orgName, setOrgName] = useState('');
-  const [email, setEmail] = useState('');
+  const [orgName, setOrgName] = useState(storedName);
+  const [email, setEmail] = useState(storedEmail);
   const [website, setWebsite] = useState('');
   const [phone, setPhone] = useState('');
   const [description, setDescription] = useState('');
@@ -73,6 +75,15 @@ export default function DesktopView() {
   const [cover, setCover] = useState<UploadState>({});
   const [social, setSocial] = useState({ linkedin: '', twitter: '', facebook: '', instagram: '' });
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!orgName.trim() && !email.trim()) return;
+    setOnboardingData({
+      organizationName: orgName,
+      organizationEmail: email,
+      verificationEmail: email.trim().toLowerCase() || null,
+    });
+  }, [orgName, email, setOnboardingData]);
 
   const canContinue =
     orgName.trim() !== '' &&
@@ -108,9 +119,27 @@ export default function DesktopView() {
     router.push('/onboarding/verification');
   }
 
+  function handleSkip() {
+    setOnboardingData({
+      organizationName: orgName.trim(),
+      organizationEmail: email.trim(),
+      organizationWebsite: website.trim(),
+      organizationDescription: description.trim(),
+      organizationPhone: phone.trim(),
+      organizationProvince: operatingRegion,
+      organizationSize: orgSize,
+      social,
+      verificationEmail: email.trim().toLowerCase() || null,
+      logoUrl: logo.previewUrl ?? null,
+      coverUrl: cover.previewUrl ?? null,
+    });
+    void saveOnboardingDraft('organization-info').catch(() => undefined);
+    router.push('/onboarding/verification');
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
-      <OnboardingNavbar />
+      <OnboardingNavbar showSignIn />
 
       <div className="mx-auto w-full max-w-[1548px] px-10 pt-10">
         <StepProgress current={3} />
@@ -309,6 +338,7 @@ export default function DesktopView() {
       <OnboardingNavButtons
         backHref="/onboarding/categories"
         onContinue={handleContinue}
+        onSkip={handleSkip}
         continueDisabled={!canContinue}
         footer={<OnboardingInfoBar message={ORG_INFO_INFO_MESSAGE} />}
       />

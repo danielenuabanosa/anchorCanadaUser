@@ -42,7 +42,7 @@ export interface TeamPerformanceRow {
   id: string;
   name: string;
   email: string;
-  avatar: typeof avatar1;
+  avatar?: string | { src?: string };
   applicationsReviewed: number;
   avgReviewTime: string;
   interviewsConducted: number;

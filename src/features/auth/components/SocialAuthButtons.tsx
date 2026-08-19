@@ -31,7 +31,7 @@ interface SocialAuthButtonsProps {
 
 export function SocialAuthButtons({ variant = 'desktop', className }: SocialAuthButtonsProps) {
   const providers = [
-    { label: 'Google', icon: <Image src={googleIcon} alt="" width={24} height={24} /> },
+    { label: 'Google', icon: <Image src={googleIcon} alt="" width={24} height={24} className="size-6 shrink-0" /> },
     { label: 'Apple', icon: <AppleIcon className="h-6 w-5 text-[#0f172a]" /> },
     { label: 'Microsoft', icon: <MicrosoftIcon className="h-6 w-6" /> },
   ];

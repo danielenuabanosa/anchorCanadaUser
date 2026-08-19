@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { ListPagination } from '@/shared/components/ui/ListPagination';
+import { useRouter } from 'next/navigation';
 import type { NotificationItem } from './notificationsData';
 import { NotificationGroupCheckbox, NotificationRow } from './NotificationRow';
 import { NotificationBulkBar } from './NotificationsHubModals';
@@ -57,6 +58,7 @@ export function NotificationsList({
   onBulkDelete,
   onClearSelection,
 }: NotificationsListProps) {
+  const router = useRouter();
   const grouped = GROUPS.map((group) => ({
     group,
     items: pageItems.filter((item) => item.group === group),
@@ -122,9 +124,13 @@ export function NotificationsList({
                       onToggleSelect(item.id);
                       return;
                     }
-                    if (item.detail) {
-                      onOpenDetail(item);
+                    if (item.link) {
+                      onMarkRead([item.id]);
+                      if (item.link.startsWith('http')) window.open(item.link, '_blank', 'noopener,noreferrer');
+                      else router.push(item.link);
+                      return;
                     }
+                    onOpenDetail(item);
                   }}
                   onMarkRead={() => onMarkRead([item.id])}
                   onArchive={() => onArchive([item.id])}
@@ -136,6 +142,12 @@ export function NotificationsList({
           </div>
         );
       })}
+
+      {grouped.length === 0 ? (
+        <div className="rounded-[10px] border border-[#EEF2F8] bg-white px-4 py-10 text-center text-sm text-[#44516A]">
+          No notifications yet.
+        </div>
+      ) : null}
 
       <ListPagination
         compact={mobile}

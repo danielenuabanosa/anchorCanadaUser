@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -71,10 +71,12 @@ const SECTION_META: { id: SectionId; number: number; title: string; optional?: b
 export default function MobileView() {
   const router = useRouter();
   const setOnboardingData = useProviderOnboardingStore((s) => s.setOnboardingData);
+  const storedName = useProviderOnboardingStore((s) => s.organizationName);
+  const storedEmail = useProviderOnboardingStore((s) => s.organizationEmail);
 
   const [openSection, setOpenSection] = useState<SectionId>('basic');
-  const [orgName, setOrgName] = useState('');
-  const [email, setEmail] = useState('');
+  const [orgName, setOrgName] = useState(storedName);
+  const [email, setEmail] = useState(storedEmail);
   const [website, setWebsite] = useState('');
   const [phone, setPhone] = useState('');
   const [description, setDescription] = useState('');
@@ -84,6 +86,15 @@ export default function MobileView() {
   const [cover, setCover] = useState<UploadState>({});
   const [social, setSocial] = useState({ linkedin: '', twitter: '', facebook: '', instagram: '' });
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!orgName.trim() && !email.trim()) return;
+    setOnboardingData({
+      organizationName: orgName,
+      organizationEmail: email,
+      verificationEmail: email.trim().toLowerCase() || null,
+    });
+  }, [orgName, email, setOnboardingData]);
 
   const basicComplete = orgName && email && website && phone;
   const detailsComplete = description && orgSize && operatingRegion;
@@ -120,6 +131,24 @@ export default function MobileView() {
     } catch {
       // best-effort
     }
+    router.push('/onboarding/verification');
+  }
+
+  function handleSkip() {
+    setOnboardingData({
+      organizationName: orgName.trim(),
+      organizationEmail: email.trim(),
+      organizationWebsite: website.trim(),
+      organizationDescription: description.trim(),
+      organizationPhone: phone.trim(),
+      organizationProvince: operatingRegion,
+      organizationSize: orgSize,
+      social,
+      verificationEmail: email.trim().toLowerCase() || null,
+      logoUrl: logo.previewUrl ?? null,
+      coverUrl: cover.previewUrl ?? null,
+    });
+    void saveOnboardingDraft('organization-info').catch(() => undefined);
     router.push('/onboarding/verification');
   }
 
@@ -233,7 +262,7 @@ export default function MobileView() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-[#f2f7ff]">
-      <OnboardingNavbar />
+      <OnboardingNavbar showSignIn />
 
       <div className="px-5 pb-3 pt-4">
         <StepProgress current={3} />
@@ -291,6 +320,13 @@ export default function MobileView() {
               >
                 Continue
                 <ArrowRight className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={handleSkip}
+                className="flex h-12 w-full items-center justify-center text-[14px] font-medium text-[#2F66C8]"
+              >
+                Skip for Now
               </button>
               <Link
                 href="/onboarding/categories"

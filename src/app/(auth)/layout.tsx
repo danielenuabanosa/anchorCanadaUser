@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import anchorLogo from '@assets/icons/anchor-logo.png';
+import anchorLogoFull from '@assets/icons/anchor-logo-full.png';
+import questionIcon from '@assets/icons/question-mark.png';
 import { LANDING_URL } from '@/shared/constants';
 
 export const metadata: Metadata = {
@@ -11,21 +12,31 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
       {/* Navbar */}
-      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between border-b border-[rgba(217,225,239,0.8)] bg-white/80 backdrop-blur-md px-10 py-5">
+      <header className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between border-b border-[rgba(217,225,239,0.8)] bg-white/90 px-5 py-5 backdrop-blur-[5px] md:px-10 md:py-10">
         <a href={LANDING_URL} aria-label="Anchor Canada home">
-          <Image src={anchorLogo} alt="Anchor Canada" height={50} className="h-[50px] w-auto" />
+          <Image
+            src={anchorLogoFull}
+            alt="Anchor Canada"
+            width={153}
+            height={50}
+            priority
+            loading="eager"
+            style={{ height: '50px', width: 'auto' }}
+          />
         </a>
-        <div className="flex items-center gap-2 text-neutral-400 text-sm">
-          <span>Need Help?</span>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-            <path d="M12 17h.01" />
-          </svg>
+        <div className="flex items-center gap-5">
+          <span className="font-dm-sans text-[16px] text-[#44516A]">Need Help?</span>
+          <Image
+            src={questionIcon}
+            alt=""
+            width={21}
+            height={21}
+            className="opacity-80 transition-opacity hover:opacity-100"
+          />
         </div>
       </header>
       {/* Main content */}
-      <main className="flex flex-1 items-center justify-center pt-[130px] pb-[160px] px-6">
+      <main className="flex flex-1 items-center justify-center px-6 pb-[160px] pt-[100px] md:pt-[170px]">
         {children}
       </main>
     </div>

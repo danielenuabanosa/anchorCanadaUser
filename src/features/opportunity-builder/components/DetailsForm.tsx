@@ -17,6 +17,7 @@ import {
   toggleCsvValue,
 } from '@/features/opportunity-builder/lib/detailsData';
 import { BuilderMenuSelect } from '@/features/opportunity-builder/components/BuilderMenuSelect';
+import { RichTextEditor } from '@/features/opportunity-builder/components/RichTextEditor';
 
 const CITIZENSHIP_MAX_LENGTH = 250;
 
@@ -183,11 +184,6 @@ function CheckboxOption({
   );
 }
 
-function wordCount(text: string): number {
-  const trimmed = text.trim();
-  if (!trimmed) return 0;
-  return trimmed.split(/\s+/).length;
-}
 
 function ProvinceMultiSelect({
   value,
@@ -404,47 +400,12 @@ export function DetailsForm({
 
   const descriptionSection = (
     <SectionCard title="Opportunity Description" required defaultOpen={!collapseSecondary}>
-      <div className="overflow-hidden rounded-[8px] border border-[#D9E1EF]">
-        <div className="flex flex-wrap items-center gap-1 border-b border-[#EEF2F8] bg-[#F8FAFC] px-2 py-2">
-          {[
-            { label: 'B', className: 'font-bold' },
-            { label: 'I', className: 'italic' },
-            { label: 'U', className: 'underline' },
-            { label: '•', className: 'font-semibold' },
-            { label: '1.', className: 'font-semibold' },
-            { label: '☰', className: 'font-semibold' },
-            { label: '🔗', className: 'font-semibold' },
-            { label: '❝', className: 'font-semibold' },
-          ].map((item) => (
-            <span
-              key={item.label}
-              className={cn(
-                'flex h-7 min-w-7 items-center justify-center rounded-[4px] px-1.5 text-[12px] text-[#44516A]',
-                item.className,
-              )}
-              aria-hidden
-            >
-              {item.label}
-            </span>
-          ))}
-          <span className="ml-auto inline-flex items-center gap-1 rounded-[4px] border border-[#D9E1EF] bg-white px-2 py-1 text-[11px] text-[#44516A]">
-            Paragraph
-            <ChevronDown className="h-3 w-3" />
-          </span>
-        </div>
-        <div className="relative">
-          <textarea
-            value={details.description}
-            onChange={(e) => onChange({ description: e.target.value })}
-            rows={12}
-            className="min-h-[280px] w-full resize-none border-0 bg-white px-4 py-3 pb-8 text-[14px] text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
-            placeholder="Describe the opportunity in detail..."
-          />
-          <p className="pointer-events-none absolute bottom-3 left-4 text-[12px] text-[#8C97AD]">
-            {wordCount(details.description)} words
-          </p>
-        </div>
-      </div>
+      <RichTextEditor
+        value={details.description}
+        onChange={(html) => onChange({ description: html })}
+        placeholder="Describe the opportunity in detail…"
+        minRows={12}
+      />
     </SectionCard>
   );
 

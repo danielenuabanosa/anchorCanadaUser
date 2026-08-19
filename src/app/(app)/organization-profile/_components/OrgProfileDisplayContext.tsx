@@ -265,7 +265,7 @@ export function mapApiOrgToDisplay(api: {
     completion: typeof api.completion === 'number' ? api.completion : 0,
     memberSince,
     orgSize,
-    regNumber: String(p.regNumber || ''),
+    regNumber: String(p.regNumber || od.regNumber || od.registrationNumber || ''),
     industry,
     organizationSize: orgSize,
     yearEstablished: String(p.yearEstablished || ''),

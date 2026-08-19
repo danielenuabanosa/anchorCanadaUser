@@ -4,11 +4,8 @@ import shieldCheckIcon from '@assets/icons/shield-check.png';
 import userGreenIcon from '@assets/icons/user-green.png';
 import boxIcon from '@assets/icons/box.png';
 import eyeIcon from '@assets/icons/eye.png';
-import sendIcon from '@assets/icons/send.png';
-import starIcon from '@assets/icons/star2.png';
-import userIcon from '@assets/icons/user.png';
-import ownerAvatar from '@assets/images/profile-georgebrown.png';
-import teamIllustration from '@assets/images/card2.png';
+import ownerAvatar from '@assets/images/team/owner-avatar.png';
+import teamIllustration from '@assets/images/team/sidebar/why-team-illustration.png';
 
 export type TeamRoleId = 'Admin' | 'Recruiter' | 'Program Coordinator' | 'Viewer';
 
@@ -91,15 +88,15 @@ export const ROLE_DEFINITIONS = [
 ] as const;
 
 export const WHY_TEAM_BENEFITS = [
-  { icon: sendIcon, label: 'Collaborate on opportunity management' },
-  { icon: userIcon, label: 'Review applications together' },
-  { icon: boxIcon, label: 'Assign workflows efficiently' },
-  { icon: starIcon, label: 'Improve response times' },
-  { icon: shieldCheckIcon, label: 'Centralize organization operations' },
+  { icon: 'handshake' as const, label: 'Collaborate on opportunity management' },
+  { icon: 'file-user' as const, label: 'Review applications together' },
+  { icon: 'network' as const, label: 'Assign workflows efficiently' },
+  { icon: 'timer' as const, label: 'Improve response times' },
+  { icon: 'settings' as const, label: 'Centralize organization operations' },
 ] as const;
 
 export const ORGANIZATION_OWNER = {
-  name: 'George Muskovisch',
+  name: 'George Muscovisch',
   title: 'Primary Organization Owner',
   avatar: ownerAvatar as StaticImageData,
   note: 'The owner manages billing verification and organization-wide permissions.',
@@ -108,7 +105,8 @@ export const ORGANIZATION_OWNER = {
 export const TEAM_SIDEBAR = {
   illustration: teamIllustration as StaticImageData,
   title: 'Why Add Your Team?',
-  stat: '78% of organizations with teams respond faster to applicants.',
+  statPercent: '78%',
+  statLabel: 'of organizations with teams respond faster to applicants.',
   soloNote: 'You can continue solo and invite your team later from your dashboard.',
 };
 

@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { providerApi } from '@/features/provider/services/providerApi';
 import { useAuthStore } from '@/store/authStore';
+import { isOfflineProviderSession } from '@/lib/providerSession';
 import { isStaticMode } from '@/lib/staticMode';
 
 export const PROVIDER_MESSAGE_KEYS = {
@@ -16,12 +17,13 @@ export const PROVIDER_NOTIFICATION_KEYS = {
 };
 
 export function useProviderUnreadMessageCount() {
+  const token = useAuthStore((s) => s.token);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   return useQuery({
     queryKey: PROVIDER_MESSAGE_KEYS.unread(),
     queryFn: () => providerApi.unreadMessageCount(),
-    enabled: isAuthenticated && !isStaticMode(),
+    enabled: isAuthenticated && !isStaticMode() && !isOfflineProviderSession(token),
     refetchInterval: 60_000,
     staleTime: 30_000,
     initialData: 0,
@@ -29,12 +31,13 @@ export function useProviderUnreadMessageCount() {
 }
 
 export function useProviderUnreadNotificationCount() {
+  const token = useAuthStore((s) => s.token);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   return useQuery({
     queryKey: PROVIDER_NOTIFICATION_KEYS.unread(),
     queryFn: () => providerApi.unreadNotificationCount(),
-    enabled: isAuthenticated && !isStaticMode(),
+    enabled: isAuthenticated && !isStaticMode() && !isOfflineProviderSession(token),
     refetchInterval: 60_000,
     staleTime: 30_000,
     initialData: 0,

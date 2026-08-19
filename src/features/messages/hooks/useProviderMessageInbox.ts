@@ -9,7 +9,6 @@ import {
   MESSAGE_THREADS,
   type MessageThread,
 } from '@/app/(app)/messages/_components/messagesData';
-import avatarFallback from '@assets/images/profile-avatar.png';
 
 export type InboxMessage = {
   id: string;
@@ -150,7 +149,7 @@ export function useProviderMessageInbox() {
             formatRelative(row.lastMessageAt) ||
             '',
           unread: row.unreadCount > 0 || messages.some((m) => m.from === 'them'),
-          avatar: avatarFallback,
+          avatar: '',
           role: `Applicant · ${row.opportunityTitle || 'Opportunity'}`,
           messages,
         } satisfies InboxThread;

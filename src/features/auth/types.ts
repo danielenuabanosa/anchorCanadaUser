@@ -5,6 +5,15 @@ export interface ProviderProfile {
   organizationName: string;
   verificationStatus: ProviderVerificationStatus;
   onboardingCompleted: boolean;
+  logoUrl?: string | null;
+  registrationNumber?: string;
+  membership?: {
+    memberId: string | null;
+    role: string;
+    permissions: string[];
+    isOwner: boolean;
+    status: string;
+  };
 }
 
 export interface AuthUser {

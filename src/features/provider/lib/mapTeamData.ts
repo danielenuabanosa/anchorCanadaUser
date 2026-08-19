@@ -1,4 +1,3 @@
-import avatar1 from '@assets/images/profile-avatar.png';
 import {
   Shield,
   Timer,
@@ -21,12 +20,15 @@ export type ApiTeamMember = {
   permissions: string;
   permissionKeys?: string[];
   inviteExpired?: boolean;
+  avatarUrl?: string | null;
+  isOwner?: boolean;
   createdAt?: string;
   updatedAt?: string;
 };
 
 export type ApiTeamResponse = {
   members: ApiTeamMember[];
+  owner?: ApiTeamMember | null;
   stats: {
     total: number;
     active: number;
@@ -48,7 +50,8 @@ export function mapApiTeamMemberToRow(item: ApiTeamMember): TeamMemberRow {
     status: (item.status as TeamMemberRow['status']) || 'Active',
     lastActive: item.lastActive || '—',
     permissions: item.permissions || 'Limited',
-    avatar: avatar1,
+    permissionKeys: item.permissionKeys ?? [],
+    avatar: item.avatarUrl || '',
     inviteExpired: item.inviteExpired,
   };
 }

@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
+import { Avatar } from '@/shared/components/ui/Avatar';
+import { photoSrc } from '@/shared/lib/photoSrc';
 import { useRouter } from 'next/navigation';
 import { Ellipsis, Plus } from 'lucide-react';
 import { usePagination } from '@/lib/pagination';
@@ -14,6 +15,7 @@ import { TableRowsSkeleton } from '@/shared/components/ui/PageSkeletons';
 import { useProviderTeam } from '@/features/provider/hooks/useProviderTeam';
 import { mapApiTeamMemberToRow } from '@/features/provider/lib/mapTeamData';
 import { providerApi } from '@/features/provider/services/providerApi';
+import { useProviderAccess } from '@/features/provider/hooks/useProviderAccess';
 import {
   DEFAULT_TEAM_HUB_FILTERS,
   ROLE_STYLES,
@@ -46,6 +48,9 @@ export default function DesktopView() {
   const [menuMemberId, setMenuMemberId] = useState<string | null>(null);
   const router = useRouter();
   const { members, stats, loading, error, refetch } = useProviderTeam();
+  const { isOwner, role: membershipRole } = useProviderAccess();
+  const canInvite =
+    isOwner || ['administrator', 'manager'].includes((membershipRole ?? '').toLowerCase());
 
   const filtered = useMemo(() => {
     const byFilters = filterByTeamHubFilters(members, filters);
@@ -127,14 +132,16 @@ export default function DesktopView() {
             Manage your organization&apos;s members, roles and permissions.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setHubModal({ type: 'invite' })}
-          className="inline-flex items-center gap-2.5 rounded-[6px] bg-[#2F66C8] px-4 py-2.5 text-base font-medium text-white"
-        >
-          <Plus className="h-[18px] w-[18px]" />
-          Invite Team Member
-        </button>
+        {canInvite && (
+          <button
+            type="button"
+            onClick={() => setHubModal({ type: 'invite' })}
+            className="inline-flex items-center gap-2.5 rounded-[6px] bg-[#2F66C8] px-4 py-2.5 text-base font-medium text-white"
+          >
+            <Plus className="h-[18px] w-[18px]" />
+            Invite Team Member
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-2.5 xl:grid-cols-6">
@@ -235,13 +242,11 @@ export default function DesktopView() {
                   />
                 </div>
                 <div className="flex h-[60px] items-center gap-2.5">
-                  <Image
-                    src={member.avatar}
-                    alt=""
-                    width={40}
-                    height={40}
-                    unoptimized={typeof member.avatar === 'string'}
-                    className="h-10 w-10 rounded-full object-cover"
+                  <Avatar
+                    src={photoSrc(member.avatar)}
+                    fallback={member.name}
+                    size="sm"
+                    className="h-10 w-10"
                   />
                   <div className="min-w-0">
                     <p className="truncate text-sm text-[#0F172A]">{member.name}</p>
@@ -323,7 +328,7 @@ export default function DesktopView() {
         }}
         onSuspend={async (member) => {
           await providerApi.suspendTeamMember(member.id);
-          await refetch();
+          await refetch();``
         }}
         onActivate={async (member) => {
           await providerApi.activateTeamMember(member.id);

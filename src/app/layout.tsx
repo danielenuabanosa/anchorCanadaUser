@@ -38,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en-CA"
+      data-scroll-behavior="smooth"
       className={[dmSans.variable, instrumentSerif.variable].join(' ')}
     >
       <body className="antialiased" suppressHydrationWarning>

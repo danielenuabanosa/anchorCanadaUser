@@ -3,8 +3,6 @@
 import { useEffect, useRef } from 'react';
 import { HubMenuSelect } from '@/shared/components/hub/HubMenuSelect';
 import {
-  APP_OPPORTUNITY_FILTER_OPTIONS,
-  APP_REVIEWER_FILTER_OPTIONS,
   APP_STATUS_FILTER_OPTIONS,
   APP_TIME_FILTER_OPTIONS,
   APP_TYPE_FILTER_OPTIONS,
@@ -16,6 +14,8 @@ interface ApplicationMobileFilterMenuProps {
   onClose: () => void;
   value: ApplicationHubFilters;
   onChange: (filters: ApplicationHubFilters) => void;
+  opportunityOptions?: { value: string; label: string }[];
+  reviewerOptions?: { value: string; label: string }[];
 }
 
 /** Figma 505:11892 — stacked filter selects in a floating card under Filters */
@@ -24,6 +24,8 @@ export function ApplicationMobileFilterMenu({
   onClose,
   value,
   onChange,
+  opportunityOptions = [{ value: 'all', label: 'All Opportunities' }],
+  reviewerOptions = [{ value: 'all', label: 'All Reviewers' }],
 }: ApplicationMobileFilterMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -61,7 +63,7 @@ export function ApplicationMobileFilterMenu({
           variant="chip"
           label="All Opportunities"
           value={value.opportunity}
-          options={[...APP_OPPORTUNITY_FILTER_OPTIONS]}
+          options={opportunityOptions}
           onChange={(opportunity) => onChange({ ...value, opportunity })}
           className="w-full [&_button]:w-full [&_button]:justify-between"
           menuClassName="left-auto right-0 w-full min-w-full"
@@ -88,7 +90,7 @@ export function ApplicationMobileFilterMenu({
           variant="chip"
           label="All Reviewers"
           value={value.reviewer}
-          options={[...APP_REVIEWER_FILTER_OPTIONS]}
+          options={reviewerOptions}
           onChange={(reviewer) => onChange({ ...value, reviewer })}
           className="w-full [&_button]:w-full [&_button]:justify-between"
           menuClassName="left-auto right-0 w-full min-w-full"

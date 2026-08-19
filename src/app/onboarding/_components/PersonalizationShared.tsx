@@ -24,13 +24,13 @@ import { PREVIEW_BADGES, FOCUS_CHIPS, DEFAULT_PROFILE } from '@/shared/component
 import { cn } from '@/lib/utils';
 
 export const FEED_STEPS = [
-  { label: 'Organization synced', sub: 'Your organization details have been securely saved.' },
-  { label: 'Categories configured', sub: 'Jobs, Grants, Training, Community' },
-  { label: 'Verification complete', sub: 'Your organization is verified on Anchor.' },
-  { label: 'Setting up publishing tools…', sub: 'Preparing your opportunity management dashboard.' },
-  { label: 'Configuring reach analytics…', sub: 'Track how Canadians discover your listings.' },
-  { label: 'Preparing team access…', sub: 'Admin and editor permissions are ready.' },
-  { label: 'Launching provider portal…', sub: 'Almost ready!' },
+  { label: 'Profile created', sub: 'Your details have been securely saved.' },
+  { label: 'Preferences saved', sub: 'We know what you care about.' },
+  { label: 'Email verified', sub: "You're all set on Anchor." },
+  { label: 'Matching opportunities…', sub: 'Finding programs based on your profile.' },
+  { label: 'Personalizing your feed…', sub: 'Jobs, grants, training, and community.' },
+  { label: 'Preparing your dashboard…', sub: 'Almost ready!' },
+  { label: 'Launching your experience…', sub: 'Welcome to Anchor.' },
 ] as const;
 
 export const MAP_CARDS = [
@@ -77,10 +77,10 @@ export const MAP_CARDS = [
 ] as const;
 
 export const FEATURE_CARDS = [
-  { icon: caseIcon, bg: '#EFF4FF', title: 'Publish Opportunities', desc: 'Post jobs, grants, training, and community programs.' },
-  { icon: grantIcon, bg: '#E2F2EB', title: 'Manage Listings', desc: 'Edit, schedule, and track all your published opportunities.' },
-  { icon: heartHandshake, bg: '#F0EEFD', title: 'Team Collaboration', desc: 'Invite colleagues to help manage your organization.' },
-  { icon: briefcaseIcon, bg: '#FCE7EB', title: 'Reach Analytics', desc: 'See how Canadians discover and engage with your listings.' },
+  { icon: caseIcon, bg: '#EFF4FF', title: 'Personalized Jobs', desc: 'Opportunities matched to your goals and skills.' },
+  { icon: grantIcon, bg: '#E2F2EB', title: 'Grants & Funding', desc: 'Programs you qualify for, all in one place.' },
+  { icon: heartHandshake, bg: '#F0EEFD', title: 'Community Support', desc: 'Connect with services and people near you.' },
+  { icon: briefcaseIcon, bg: '#FCE7EB', title: 'Saved Opportunities', desc: 'Save, track and manage what means to you.' },
 ] as const;
 
 export const PROGRESS_ITEMS: Array<{
@@ -88,10 +88,10 @@ export const PROGRESS_ITEMS: Array<{
   sub: string;
   cta?: boolean;
 }> = [
-  { label: 'Organization registered', sub: 'Great start!' },
+  { label: 'Profile created', sub: 'Great start!' },
   { label: 'Email verified', sub: "You're all set" },
-  { label: 'Categories configured', sub: 'Ready to publish' },
-  { label: 'Provider dashboard ready', sub: "Let's go!", cta: true },
+  { label: 'Personalized for you', sub: 'Personalized for you' },
+  { label: 'Dashboard ready', sub: "Let's explore!", cta: true },
 ];
 
 const TOTAL_DURATION = 7000;
@@ -175,11 +175,11 @@ export function PersonalizationHeading({ compact = false }: { compact?: boolean 
   if (compact) {
     return (
       <div className="text-center">
-        <p className="font-serif text-[36px] leading-[56px] text-[#0F172A]">Setting Up Your</p>
-        <p className="font-serif text-[52px] italic leading-[56px] text-[#2F66C8]">Provider</p>
-        <p className="font-serif text-[36px] leading-[56px] text-[#0F172A]">Portal</p>
+        <p className="font-serif text-[36px] leading-[56px] text-[#0F172A]">Personalizing Your</p>
+        <p className="font-serif text-[52px] italic leading-[56px] text-[#2F66C8]">Anchor</p>
+        <p className="font-serif text-[36px] leading-[56px] text-[#0F172A]">Experience</p>
         <p className="mt-2.5 font-sans text-[14px] leading-normal text-[#8C97AD]">
-          We&apos;re configuring your dashboard based on your organization type and categories.
+          We&apos;re matching opportunities based on your goals, interests, and location.
         </p>
       </div>
     );
@@ -188,12 +188,12 @@ export function PersonalizationHeading({ compact = false }: { compact?: boolean 
   return (
     <div className="text-center">
       <h1 className="flex flex-wrap items-baseline justify-center gap-x-2 gap-y-0 font-serif text-[60px] leading-[56px] text-[#0F172A]">
-        <span>Setting Up Your</span>
-        <span className="italic text-[#2F66C8]">Provider</span>
-        <span>Portal</span>
+        <span>Personalizing Your</span>
+        <span className="italic text-[#2F66C8]">Anchor</span>
+        <span>Experience</span>
       </h1>
       <p className="mt-6 font-sans text-[16px] text-[#8C97AD]">
-        We&apos;re configuring your dashboard based on your organization type and categories.
+        We&apos;re matching opportunities based on your goals, interests, and location.
       </p>
     </div>
   );
@@ -256,7 +256,7 @@ export function LiveFeedPanel({
     >
       <div className="mb-8 inline-flex items-center gap-2 rounded bg-[#EFF4FF] px-1.5 py-1">
         <Image src={start3Icon} alt="" width={16} height={16} className="object-contain" />
-        <p className="text-[14px] font-medium text-[#2F66C8]">Live setup feed</p>
+        <p className="text-[14px] font-medium text-[#2F66C8]">Live personalization feed</p>
       </div>
 
       <div className="flex flex-col">
@@ -403,35 +403,13 @@ export function WelcomeHero({ compact = false }: { compact?: boolean }) {
       <div className={cn('relative w-full', compact ? 'h-[140px]' : 'h-[270px]')}>
         <Image src={validBgImg} alt="" fill className="object-cover object-center" priority />
       </div>
-      <div
-        className={cn(
-          'relative -mt-16 flex items-center justify-center rounded-full bg-[#F1FFEE]',
-          compact ? 'h-[140px] w-[140px]' : 'h-[200px] w-[200px]',
-        )}
-      >
-        <div
-          className={cn(
-            'flex items-center justify-center rounded-full bg-[#D1FAE5]',
-            compact ? 'h-[112px] w-[112px]' : 'h-[160px] w-[160px]',
-          )}
-        >
-          <div
-            className={cn(
-              'flex items-center justify-center rounded-full bg-[#15803D]',
-              compact ? 'h-14 w-14' : 'h-20 w-20',
-            )}
-          >
-            <Check className={cn('text-white', compact ? 'h-7 w-7' : 'h-10 w-10')} strokeWidth={3} />
-          </div>
-        </div>
-      </div>
       <h1
         className={cn(
           'mt-6 text-center font-serif text-[#0F172A]',
-          compact ? 'text-[48px] leading-[56px]' : 'text-[60px] leading-[56px]',
+          compact ? 'type-page-title-mobile' : 'type-page-title',
         )}
       >
-        Welcome to Anchor Provider! 🎉
+        Welcome to Anchor! 🎉
       </h1>
       <p
         className={cn(
@@ -439,7 +417,7 @@ export function WelcomeHero({ compact = false }: { compact?: boolean }) {
           compact ? 'text-[14px]' : 'text-[16px]',
         )}
       >
-        Your organization is verified, your profile is ready, and your provider dashboard is waiting.
+        Your account is verified, your profile is ready, and your personalized opportunities are waiting.
       </p>
     </div>
   );
@@ -455,7 +433,7 @@ export function OrganizationActiveCard({ compact = false }: { compact?: boolean 
     >
       <div className="inline-flex items-center gap-1.5 rounded bg-[#ECFDF5] px-1.5 py-1">
         <Image src={shieldCheckIcon} alt="" width={16} height={16} className="object-contain" />
-        <p className="text-[14px] font-medium text-[#15803D]">Your organization is now active.</p>
+        <p className="text-[14px] font-medium text-[#15803D]">Your profile is now active.</p>
       </div>
       <div className="mt-5 flex items-center gap-5">
         <div className={cn('relative shrink-0 overflow-hidden rounded-2xl border-2 border-white bg-white shadow-sm', compact ? 'h-20 w-20' : 'h-28 w-28')}>
@@ -515,10 +493,10 @@ export function OpportunityBanner({ compact = false }: { compact?: boolean }) {
           </div>
           <div>
             <p className="font-serif text-[18px] leading-tight text-[#0F172A]">
-              Your publishing tools are ready.
+              We&apos;re already finding opportunities for you.
             </p>
             <p className="mt-2 font-sans text-[13px] leading-relaxed text-[#8C97AD]">
-              Based on your categories, you can start posting opportunities to Canadians today.
+              Based on your profile, we&apos;ve started matching opportunities across Canada.
             </p>
           </div>
         </div>
@@ -534,10 +512,10 @@ export function OpportunityBanner({ compact = false }: { compact?: boolean }) {
         </div>
         <div>
           <p className="font-serif text-[28px] leading-[1.4] text-[#0F172A]">
-            Your publishing tools are ready.
+            We&apos;re already finding opportunities for you.
           </p>
           <p className="mt-3 text-[16px] text-[#8C97AD]">
-            Based on your categories, you can start posting opportunities to Canadians today.
+            Based on your profile, we&apos;ve started matching opportunities across Canada.
           </p>
         </div>
       </div>

@@ -74,6 +74,7 @@ type ApiAnalytics = {
     id: string;
     name: string;
     email: string;
+    avatarUrl?: string | null;
     applicationsReviewed: number;
     avgReviewTime: string;
     interviewsConducted: number;
@@ -176,7 +177,7 @@ function mapPayload(raw: ApiAnalytics | null): ProviderAnalyticsData {
       id: m.id,
       name: m.name,
       email: m.email,
-      avatar: avatar1,
+      avatar: m.avatarUrl || undefined,
       applicationsReviewed: m.applicationsReviewed,
       avgReviewTime: m.avgReviewTime,
       interviewsConducted: m.interviewsConducted,

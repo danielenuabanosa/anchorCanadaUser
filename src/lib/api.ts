@@ -118,7 +118,12 @@ apiClient.interceptors.response.use(
         useAuthStore.getState().clearAuth();
         clearStoredAuth();
         if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+          // Don't hard-navigate away from the builder so the user doesn't lose their draft.
+          // The catch block in the builder page will show an appropriate error message.
+          const isBuilderPage = window.location.pathname.includes('/opportunities/create');
+          if (!isBuilderPage) {
+            window.location.href = '/login';
+          }
         }
       }
     }

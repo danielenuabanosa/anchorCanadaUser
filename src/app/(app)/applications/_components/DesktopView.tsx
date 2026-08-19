@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { Avatar } from '@/shared/components/ui/Avatar';
+import { photoSrc } from '@/shared/lib/photoSrc';
 import { Download, Ellipsis } from 'lucide-react';
 import { usePagination } from '@/lib/pagination';
 import { cn } from '@/lib/utils';
@@ -21,8 +22,6 @@ import { downloadApplicationSubmission } from '@/features/provider/lib/downloadS
 import { providerApi } from '@/features/provider/services/providerApi';
 import {
   APPLICATION_TABS,
-  APP_OPPORTUNITY_FILTER_OPTIONS,
-  APP_REVIEWER_FILTER_OPTIONS,
   APP_STATUS_FILTER_OPTIONS,
   APP_TIME_FILTER_OPTIONS,
   APP_TYPE_FILTER_OPTIONS,
@@ -101,6 +100,27 @@ export default function DesktopView() {
         })),
     [teamMembers],
   );
+
+  // Dynamic filter options built from live data
+  const dynamicOpportunityOptions = useMemo(() => {
+    const seen = new Set<string>();
+    const opts: { value: string; label: string }[] = [{ value: 'all', label: 'All Opportunities' }];
+    for (const a of applicants) {
+      if (a.opportunity && !seen.has(a.opportunity)) {
+        seen.add(a.opportunity);
+        opts.push({ value: a.opportunity, label: a.opportunity });
+      }
+    }
+    return opts;
+  }, [applicants]);
+
+  const dynamicReviewerOptions = useMemo(() => {
+    const opts: { value: string; label: string }[] = [{ value: 'all', label: 'All Reviewers' }];
+    for (const m of teamMembers.filter((m) => m.status === 'Active')) {
+      opts.push({ value: m.name, label: m.name });
+    }
+    return opts;
+  }, [teamMembers]);
   const topbarQuery = useOpportunityHubSearch();
   const effectiveSearch = search || topbarQuery;
 
@@ -333,7 +353,7 @@ export default function DesktopView() {
             id: 'opportunity',
             label: 'All Opportunities',
             value: filters.opportunity,
-            options: [...APP_OPPORTUNITY_FILTER_OPTIONS],
+            options: dynamicOpportunityOptions,
             onChange: (value) => setFilter('opportunity', value),
           },
           {
@@ -354,7 +374,7 @@ export default function DesktopView() {
             id: 'reviewer',
             label: 'All Reviewers',
             value: filters.reviewer,
-            options: [...APP_REVIEWER_FILTER_OPTIONS],
+            options: dynamicReviewerOptions,
             onChange: (value) => setFilter('reviewer', value),
           },
           {
@@ -461,9 +481,12 @@ export default function DesktopView() {
                   />
                 </div>
                 <div className="flex h-[60px] items-center gap-2.5">
-                  <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full">
-                    <Image src={row.avatar} alt="" width={40} height={40} className="h-full w-full object-cover" />
-                  </div>
+                  <Avatar
+                    src={photoSrc(row.avatar)}
+                    fallback={row.applicant}
+                    size="sm"
+                    className="h-10 w-10"
+                  />
                   <div className="min-w-0">
                     <p className="truncate text-sm text-[#0F172A]">{row.applicant}</p>
                     <p className="truncate text-xs text-[#8C97AD]">{row.location}</p>
@@ -495,15 +518,16 @@ export default function DesktopView() {
                   </span>
                 </div>
                 <div className="flex h-[60px] items-center gap-2">
-                  {row.reviewerAvatar ? (
-                    <Image
-                      src={row.reviewerAvatar}
-                      alt=""
-                      width={24}
-                      height={24}
-                      className="h-6 w-6 rounded-full object-cover"
+                  {photoSrc(row.reviewerAvatar) ? (
+                    <Avatar
+                      src={photoSrc(row.reviewerAvatar)}
+                      fallback={row.reviewer}
+                      size="xs"
+                      className="h-6 w-6"
                     />
-                  ) : null}
+                  ) : (
+                    <Avatar fallback={row.reviewer || 'Unassigned'} size="xs" className="h-6 w-6" />
+                  )}
                   <p className="truncate text-sm font-medium text-[#0F172A]">{row.reviewer ?? '—'}</p>
                 </div>
                 <div

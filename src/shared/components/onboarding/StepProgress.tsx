@@ -5,9 +5,10 @@ const STEPS = [
   'TYPE',
   'CATEGORIES',
   'ORGANIZATION',
-  'VERIFICATION',
-  'TEAM SETUP',
+  'DOCUMENTS',
+  'ACCOUNT',
   'ACTIVATION',
+  'ORG READY',
 ];
 
 export function StepProgress({ current }: { current: number }) {

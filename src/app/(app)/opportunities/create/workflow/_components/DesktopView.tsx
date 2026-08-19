@@ -5,7 +5,11 @@ import { useRouter } from 'next/navigation';
 import { BuilderPageHeading } from '@/features/opportunity-builder/components/BuilderPageHeading';
 import { OpportunityConfigForm } from '@/features/opportunity-builder/components/OpportunityConfigForm';
 import { useRegisterBuilderNav } from '@/features/opportunity-builder/context/BuilderNavContext';
-import { BUILDER_CATEGORY_GROUPS, BUILDER_PAGE_COPY } from '@/features/opportunity-builder/lib/builderData';
+import { BUILDER_PAGE_COPY } from '@/features/opportunity-builder/lib/builderData';
+import {
+  findCategoryGroup,
+  useBuilderCategoryGroups,
+} from '@/features/opportunity-builder/hooks/useBuilderCategoryGroups';
 import {
   getCategoryConfigSchema,
   isCategoryConfigComplete,
@@ -17,15 +21,10 @@ export default function DesktopView() {
   const category = useOpportunityBuilderStore((s) => s.category);
   const categoryConfig = useOpportunityBuilderStore((s) => s.categoryConfig);
   const setCategoryConfig = useOpportunityBuilderStore((s) => s.setCategoryConfig);
+  const { groups } = useBuilderCategoryGroups();
   const copy = BUILDER_PAGE_COPY.workflow;
 
-  const categoryGroup = useMemo(
-    () =>
-      BUILDER_CATEGORY_GROUPS.find(
-        (g) => g.id === category || g.subcategories.some((s) => s.id === category),
-      ) ?? null,
-    [category],
-  );
+  const categoryGroup = useMemo(() => findCategoryGroup(groups, category) ?? null, [groups, category]);
 
   const schema = useMemo(
     () => getCategoryConfigSchema(categoryGroup?.id ?? null),

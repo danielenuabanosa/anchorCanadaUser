@@ -4,10 +4,10 @@ import MobileView from './_components/MobileView';
 export default function OnboardingJourneyPage() {
   return (
     <>
-      <div className="hidden md:block w-full">
+      <div className="hidden w-full md:block">
         <DesktopView />
       </div>
-      <div className="block md:hidden w-full">
+      <div className="block w-full md:hidden">
         <MobileView />
       </div>
     </>

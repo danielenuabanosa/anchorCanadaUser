@@ -1,5 +1,4 @@
 import type { StaticImageData } from 'next/image';
-import avatar1 from '@assets/images/profile-avatar.png';
 import type {
   ApplicantAbout,
   ApplicationDetail,
@@ -243,7 +242,7 @@ export function mapApiApplicationToDetail(item: ApiApplicationDetail): Applicati
     languages: profile?.languages?.length ? profile.languages.join(', ') : 'Not provided',
   };
 
-  const avatar: string | StaticImageData = profile?.avatarUrl || avatar1;
+  const avatar: string | StaticImageData = profile?.avatarUrl || '';
 
   return {
     id: item.id,
@@ -257,8 +256,8 @@ export function mapApiApplicationToDetail(item: ApiApplicationDetail): Applicati
     stage: mapStage(item.status),
     stageSince: formatDate(item.updatedAt ?? item.createdAt),
     reviewer: item.reviewer?.name
-      ? { name: item.reviewer.name, avatar: avatar1 }
-      : { name: 'Unassigned', avatar: avatar1 },
+      ? { name: item.reviewer.name, avatar: '' }
+      : { name: 'Unassigned', avatar: '' },
     avatar,
     score: 0,
     about,

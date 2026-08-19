@@ -1,8 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import avatar1 from '@assets/images/profile-avatar.png';
-import avatar2 from '@assets/images/profile-google.png';
 import { providerApi } from '@/features/provider/services/providerApi';
 import { isStaticMode } from '@/lib/staticMode';
 import type { TeamMemberStatus } from '@/app/(app)/team/_components/teamManagementData';
@@ -23,6 +21,7 @@ type ApiMember = {
   lastActive?: string;
   permissions?: string;
   createdAt?: string;
+  avatarUrl?: string | null;
 };
 
 function asStatus(status: string): TeamMemberStatus {
@@ -52,7 +51,7 @@ function mapApiMember(api: ApiMember): TeamMemberDetail {
     status: asStatus(String(api.status)),
     lastActive: api.lastActive || '—',
     permissions: api.permissions || 'Role-based access',
-    avatar: avatar1,
+    avatar: api.avatarUrl || '',
     phone: '—',
     location: '—',
     joined,
@@ -60,7 +59,7 @@ function mapApiMember(api: ApiMember): TeamMemberDetail {
     permissionLevel: api.permissions || 'Role-based access',
     departmentShort: api.department || 'Operations',
     localTime: '—',
-    reportingTo: { name: 'Organization Owner', title: 'Owner', avatar: avatar2 },
+    reportingTo: { name: 'Organization Owner', title: 'Owner', avatar: '' },
     stats: {
       applicationsReviewed: 0,
       interviewsConducted: 0,

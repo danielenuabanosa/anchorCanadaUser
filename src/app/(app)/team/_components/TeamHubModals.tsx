@@ -16,7 +16,8 @@ import {
 import { cn } from '@/lib/utils';
 import { downloadTableExport } from '@/lib/exportTable';
 import { HubMenuSelect } from '@/shared/components/hub/HubMenuSelect';
-import avatar1 from '@assets/images/profile-avatar.png';
+import { Avatar } from '@/shared/components/ui/Avatar';
+import { photoSrc } from '@/shared/lib/photoSrc';
 import inviteExpiredHourglass from '@assets/images/team/invite-expired-hourglass.png';
 import cancelInviteTrash from '@assets/images/team/cancel-invite-trash.png';
 import removeMemberTrash from '@assets/images/team/remove-member-trash.png';
@@ -44,7 +45,7 @@ function emailToDisplayName(email: string): string {
     .join(' ');
 }
 
-/** Figma 523:5377 desktop slide-over / 523:6190 mobile centered — Invite Team Member */
+/**  Invite Team Member */
 export function InviteTeamMemberModal({
   open,
   onClose,
@@ -73,7 +74,7 @@ export function InviteTeamMemberModal({
         name: emailToDisplayName(email.trim()),
         role,
         department: department || 'Programs',
-        avatar: avatar1,
+        avatar: '',
         notes: notes.trim() || undefined,
       });
     } catch (err) {
@@ -153,7 +154,7 @@ export function InviteTeamMemberModal({
   );
 }
 
-/** Figma 580:14474 / 580:16169 — Invitation sent success */
+/**  Invitation sent success */
 export function InvitationSentModal({
   open,
   onClose,
@@ -193,7 +194,7 @@ export function InvitationSentModal({
         <p className="mt-5 text-base text-[#44516A]">We&apos;ve sent an invitation to</p>
 
         <div className="mt-4 flex w-full items-center gap-4 rounded-[10px] border border-[#EEF2F8] bg-[#F8FAFC] p-3.5">
-          <Image src={payload.avatar} alt="" width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
+          <Avatar src={photoSrc(payload.avatar)} fallback={payload.name} size="sm" className="h-10 w-10" />
           <div className="flex min-w-0 flex-1 items-end justify-between gap-3">
             <div className="min-w-0 text-left">
               <p className="truncate text-sm font-medium text-[#0F172A]">{payload.name}</p>
@@ -211,7 +212,7 @@ export function InvitationSentModal({
   );
 }
 
-/** Figma 580:18390 desktop / 580:16595 mobile — Resend invitation */
+/** mobile — Resend invitation */
 export function ResendInvitationModal({
   open,
   onClose,
@@ -317,7 +318,7 @@ export function ResendInvitationModal({
   );
 }
 
-/** Figma 580:15046 / 580:17046 — Expired invitation */
+/** Expired invitation */
 export function ExpiredInviteModal({
   open,
   onClose,
@@ -369,7 +370,7 @@ export function ExpiredInviteModal({
   );
 }
 
-/** Figma 580:15608 / 580:17462 — Cancel invitation confirmation */
+/** Cancel invitation confirmation */
 export function CancelInvitationModal({
   open,
   onClose,
@@ -464,7 +465,7 @@ export function EditPermissionsModal({
   return <RolePermissionBuilderModal open={open} onClose={onClose} member={member} onSave={onSave} />;
 }
 
-/** Figma 580:18987 (desktop slide-over) / 580:17877 (mobile centered modal) — Role & Permission Builder */
+/**  Role & Permission Builder */
 export function RolePermissionBuilderModal({
   open,
   onClose,
@@ -476,7 +477,11 @@ export function RolePermissionBuilderModal({
   member: TeamMemberRow;
   onSave?: (payload: { role: string; title?: string; permissions: string[] }) => void | Promise<void>;
 }) {
-  const roleIdFromMember = TEAM_ROLES.find((r) => r.label === member.role)?.id ?? 'administrator';
+  const roleIdFromMember =
+    TEAM_ROLES.find((r) => r.label === member.role)?.id ??
+    (member.role && !['Administrator', 'Manager', 'Reviewer', 'Interviewer'].includes(member.role)
+      ? 'custom'
+      : 'administrator');
   const allPermissionKeys = useMemo(
     () => PERMISSION_GROUPS.flatMap((g) => g.permissions.map((p) => `${g.name}:${p}`)),
     [],
@@ -487,26 +492,38 @@ export function RolePermissionBuilderModal({
 
   useEffect(() => {
     if (open) {
-      const roleId = TEAM_ROLES.find((r) => r.label === member.role)?.id ?? 'administrator';
+      const standard = TEAM_ROLES.find((r) => r.label === member.role)?.id;
+      const roleId =
+        standard ??
+        (member.role && !['Administrator', 'Manager', 'Reviewer', 'Interviewer'].includes(member.role)
+          ? 'custom'
+          : 'administrator');
       setSelectedRole(roleId);
-      setCustomRoleName(roleId === 'custom' ? member.title : '');
-      setPermissions(getPresetPermissions(roleId, allPermissionKeys));
+      setCustomRoleName(roleId === 'custom' ? member.title || member.role : '');
+      if (roleId === 'custom' && member.permissionKeys?.length) {
+        setPermissions(new Set(member.permissionKeys));
+      } else {
+        setPermissions(getPresetPermissions(roleId, allPermissionKeys));
+      }
     }
-  }, [open, member.role, member.title, allPermissionKeys]);
+  }, [open, member.role, member.title, member.permissionKeys, allPermissionKeys]);
 
   if (!open) return null;
 
   const isCustom = selectedRole === 'custom';
-  const visibleGroups = isCustom
-    ? PERMISSION_GROUPS.filter((g) => g.name !== 'Organization')
-    : PERMISSION_GROUPS;
+  const visibleGroups = PERMISSION_GROUPS;
   const visibleKeys = visibleGroups.flatMap((g) => g.permissions.map((p) => `${g.name}:${p}`));
   const allSelected = visibleKeys.length > 0 && visibleKeys.every((k) => permissions.has(k));
 
   function handleRoleChange(roleId: string) {
     setSelectedRole(roleId);
+    if (roleId === 'custom') {
+      setCustomRoleName((current) => current || member.title || '');
+      setPermissions(member.permissionKeys?.length ? new Set(member.permissionKeys) : new Set());
+      return;
+    }
     setPermissions(getPresetPermissions(roleId, allPermissionKeys));
-    if (roleId !== 'custom') setCustomRoleName('');
+    setCustomRoleName('');
   }
 
   function togglePermission(key: string) {
@@ -528,7 +545,7 @@ export function RolePermissionBuilderModal({
         <p className="mb-5 text-base font-semibold leading-[1.8] text-[#0F172A]">Select Role</p>
         <div className="space-y-5">
           {TEAM_ROLES.map((role) => (
-            <label key={role.id} className="flex cursor-pointer gap-5">
+            <label key={role.id} className="flex cursor-pointer gap-5 rounded-[10px] p-2 hover:bg-[#F8FAFC]">
               <input
                 type="radio"
                 name={radioName}
@@ -546,18 +563,22 @@ export function RolePermissionBuilderModal({
 
         {isCustom ? (
           <div className="mt-8">
-            <Field label="Role Name" required>
+            <Field label="Custom role name" required>
               <div className="flex items-center gap-2.5 rounded-[10px] border border-[#D9E1EF] bg-white p-4 transition-colors focus-within:border-[#2F66C8]">
                 <TextCursorInput className="h-[18px] w-[18px] shrink-0 text-[#8C97AD]" strokeWidth={1.75} />
                 <input
                   type="text"
                   value={customRoleName}
                   onChange={(e) => setCustomRoleName(e.target.value)}
-                  placeholder="Operations Manager"
+                  placeholder="e.g. Operations Manager"
+                  autoFocus
                   className="no-anchor-field flex-1 text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
                 />
               </div>
             </Field>
+            <p className="mt-2 text-xs text-[#8C97AD]">
+              Name the role, then tick the permissions this person should have after they log in.
+            </p>
           </div>
         ) : null}
       </div>
@@ -609,11 +630,12 @@ export function RolePermissionBuilderModal({
       confirmLabel="Save Role"
       onConfirm={() => {
         void (async () => {
+          if (selectedRole === 'custom' && !customRoleName.trim()) return;
           const roleLabel =
             TEAM_ROLES.find((r) => r.id === selectedRole)?.label ?? member.role;
           await onSave?.({
-            role: selectedRole === 'custom' ? (customRoleName.trim() || 'Coordinator') : roleLabel,
-            title: selectedRole === 'custom' ? customRoleName.trim() || member.title : undefined,
+            role: selectedRole === 'custom' ? customRoleName.trim() : roleLabel,
+            title: selectedRole === 'custom' ? customRoleName.trim() : undefined,
             permissions: Array.from(permissions),
           });
           onClose();
@@ -624,7 +646,7 @@ export function RolePermissionBuilderModal({
 
   return (
     <>
-      {/* Mobile — Figma 580:17877 centered card */}
+      {/* Mobile  */}
       <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#0F172A]/60 p-5 backdrop-blur-[5px] md:hidden">
         <div className="flex max-h-[90vh] w-full max-w-[400px] flex-col overflow-hidden rounded-[20px] border border-[#D9E1EF] bg-white shadow-[0px_6px_16px_rgba(0,0,0,0.08)]">
           <div className="flex shrink-0 items-center justify-between border-b border-[#EEF2F8] p-[26px]">
@@ -643,7 +665,7 @@ export function RolePermissionBuilderModal({
         </div>
       </div>
 
-      {/* Desktop — Figma 580:18987 right slide-over 840px */}
+      
       <div className="hidden md:block">
         <SlideOverShell title="Role & Permission Builder" onClose={onClose} maxWidth="840px" footer={footer}>
           {body('team-role-desktop')}
@@ -671,7 +693,7 @@ function getPresetPermissions(roleId: string, allKeys: string[]): Set<string> {
   return new Set();
 }
 
-/** Figma 523:18553 desktop / 523:19412 mobile — Export Team Members */
+/** Export Team Members */
 export function ExportTeamMembersModal({
   open,
   onClose,
@@ -837,7 +859,7 @@ export function SuspendMemberModal({
   );
 }
 
-/** Figma 711:21559 / 711:22254 — Activate / reactivate member */
+/**  Activate / reactivate member */
 export function ActivateMemberModal({
   open,
   onClose,
@@ -879,7 +901,7 @@ export function ActivateMemberModal({
   );
 }
 
-/** Figma 711:4769 / 711:5462 — Remove member confirmation */
+/**  Remove member confirmation */
 export function RemoveMemberModal({
   open,
   onClose,
@@ -1198,7 +1220,7 @@ function ResponsiveFormShell({
 }) {
   return (
     <>
-      {/* Mobile — Figma centered card (e.g. 523:6190) */}
+      {/* Mobile  */}
       <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#0F172A]/60 p-5 backdrop-blur-[5px] md:hidden">
         <div className="flex max-h-[90vh] w-full max-w-[400px] flex-col overflow-hidden rounded-[20px] border border-[#D9E1EF] bg-white shadow-[0px_6px_16px_rgba(0,0,0,0.08)]">
           <div className="flex shrink-0 items-center justify-between border-b border-[#EEF2F8] p-[26px]">
@@ -1217,7 +1239,7 @@ function ResponsiveFormShell({
         </div>
       </div>
 
-      {/* Desktop — right slide-over */}
+      {/* right slide-over */}
       <div className="hidden md:block">
         <SlideOverShell title={title} onClose={onClose} maxWidth={maxWidth} footer={footer}>
           {children}
@@ -1398,12 +1420,11 @@ function MemberActionConfirmBody({
       <p className="mt-2.5 text-base text-[#44516A]">{question}</p>
 
       <div className="mt-4 flex w-full max-w-[337px] items-center gap-4 rounded-[10px] border border-[#EEF2F8] bg-[#F8FAFC] p-3.5">
-        <Image
-          src={member.avatar}
-          alt=""
-          width={40}
-          height={40}
-          className="h-10 w-10 shrink-0 rounded-full object-cover"
+        <Avatar
+          src={photoSrc(member.avatar)}
+          fallback={member.name}
+          size="sm"
+          className="h-10 w-10 shrink-0"
         />
         <div className="flex min-w-0 flex-1 items-end justify-between gap-3">
           <div className="min-w-0 text-left">
@@ -1437,7 +1458,7 @@ function ModalShell({
   subtitle?: string;
   onClose: () => void;
   children: React.ReactNode;
-  /** Figma mobile export cards are 400px wide */
+
   mobileNarrow?: boolean;
 }) {
   return (

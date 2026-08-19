@@ -1,13 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
+import { Avatar } from '@/shared/components/ui/Avatar';
 import Link from 'next/link';
 import { ArrowUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { HubMenuSelect } from '@/shared/components/hub/HubMenuSelect';
 import { providerApi } from '@/features/provider/services/providerApi';
-import avatar1 from '@assets/images/profile-avatar.png';
 import {
   TEAM_PERFORMANCE_PERIOD_OPTIONS,
   getTeamPerformanceMetrics,
@@ -74,13 +73,7 @@ export function RecentTeamActivityPanel({ className }: { className?: string }) {
           items.map((item) => (
             <li key={item.id} className="border-b border-[#EEF2F8] py-3.5 last:border-b-0">
               <div className="flex items-center gap-4">
-                <Image
-                  src={avatar1}
-                  alt=""
-                  width={40}
-                  height={40}
-                  className="h-10 w-10 shrink-0 rounded-full object-cover"
-                />
+                <Avatar fallback={item.memberName} size="sm" className="h-10 w-10 shrink-0" />
                 <div className="flex min-w-0 flex-1 items-center justify-between gap-4">
                   <p className="min-w-0 text-sm text-[#0F172A]">
                     <span className="font-medium">{item.memberName}</span>{' '}

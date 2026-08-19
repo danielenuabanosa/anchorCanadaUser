@@ -266,20 +266,22 @@ export function OrganizationInfoCard({ mobile }: { mobile?: boolean }) {
       </div>
       <div>
         <p className="text-xs text-[#44516A]">Socials</p>
-        <div className="mt-2 flex gap-2.5">
+        <div className="mt-2 flex flex-wrap gap-2.5">
           {ORG_PROFILE.socials.length ? (
             ORG_PROFILE.socials.map((social) => (
-              <button
+              <a
                 key={social.id}
-                type="button"
+                href={social.url}
+                target="_blank"
+                rel="noreferrer"
                 aria-label={social.label}
                 className={cn(
-                  'flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white',
+                  'flex h-8 min-w-8 items-center justify-center rounded-full px-2 text-[10px] font-bold text-white',
                   social.color,
                 )}
               >
-                {social.label.charAt(0)}
-              </button>
+                {social.label}
+              </a>
             ))
           ) : (
             <p className="text-sm text-[#44516A]">—</p>

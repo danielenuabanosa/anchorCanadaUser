@@ -18,16 +18,24 @@ export default function MobileView() {
   const router = useRouter();
   const setOnboardingData = useProviderOnboardingStore((s) => s.setOnboardingData);
 
-  function handleContinue() {
-    if (!selected) return;
-    setOnboardingData({ organizationType: selected });
+  function goNext(type: string | null) {
+    if (type) setOnboardingData({ organizationType: type });
     void saveOnboardingDraft('organization-type').catch(() => undefined);
     router.push('/onboarding/categories');
   }
 
+  function handleContinue() {
+    if (!selected) return;
+    goNext(selected);
+  }
+
+  function handleSkip() {
+    goNext(selected);
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-[#f2f7ff]">
-      <OnboardingNavbar />
+      <OnboardingNavbar showSignIn />
 
       <div className="px-5 pb-3 pt-4">
         <StepProgress current={1} />
@@ -70,6 +78,13 @@ export default function MobileView() {
             >
               Continue
               <ArrowRight className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={handleSkip}
+              className="flex h-12 w-full items-center justify-center text-[15px] font-medium text-[#2F66C8]"
+            >
+              Skip for Now
             </button>
             <Link
               href="/onboarding"

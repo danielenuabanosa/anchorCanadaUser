@@ -59,7 +59,7 @@ function SearchPanel() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search for help articles...."
-          className="no-anchor-field w-full bg-transparent text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
+          className="no-anchor-field w-full bg-transparent text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD] border-none"
         />
       </div>
 

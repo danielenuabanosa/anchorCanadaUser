@@ -28,11 +28,14 @@ import { PublishIssuesModal } from '@/features/opportunity-builder/components/Pu
 import { SchedulePublishModal } from '@/features/opportunity-builder/components/SchedulePublishModal';
 import { BuilderMenuSelect } from '@/features/opportunity-builder/components/BuilderMenuSelect';
 import {
-  BUILDER_CATEGORY_GROUPS,
   BUILDER_PAGE_COPY,
   BUILDER_STEP_ROUTES,
   OPPORTUNITY_TYPES,
 } from '@/features/opportunity-builder/lib/builderData';
+import {
+  findCategoryGroup,
+  useBuilderCategoryGroups,
+} from '@/features/opportunity-builder/hooks/useBuilderCategoryGroups';
 import {
   getCategoryConfigSchema,
   getConfigStatusLabel,
@@ -44,6 +47,7 @@ import { providerApi } from '@/features/provider/services/providerApi';
 import { getApiErrorMessage } from '@/lib/apiError';
 import { cn } from '@/lib/utils';
 import { useOpportunityBuilderStore } from '@/store/opportunityBuilderStore';
+import { useOrgBrandingStore } from '@/store/orgBrandingStore';
 
 type PublishOption = 'now' | 'schedule' | 'draft';
 
@@ -166,6 +170,7 @@ function opportunityTypeLabel(type: string | null) {
 export function useReviewPublish() {
   const router = useRouter();
   const store = useOpportunityBuilderStore();
+  const orgBranding = useOrgBrandingStore();
   const {
     opportunityType,
     category,
@@ -197,9 +202,8 @@ export function useReviewPublish() {
   const [nowMs] = useState(() => Date.now());
 
   const typeLabel = OPPORTUNITY_TYPES.find((t) => t.id === opportunityType)?.title ?? 'Not selected';
-  const categoryGroup = BUILDER_CATEGORY_GROUPS.find(
-    (g) => g.id === category || g.subcategories.some((s) => s.id === category),
-  );
+  const { groups } = useBuilderCategoryGroups();
+  const categoryGroup = findCategoryGroup(groups, category);
   const categoryLabel = categoryGroup?.title ?? category ?? 'Not selected';
   const title = details.title?.trim() || 'Untitled Opportunity';
   const configBackHref = BUILDER_STEP_ROUTES[4];
@@ -667,7 +671,7 @@ export function OpportunitySummaryBody({
       <SummaryRow
         icon={<SummaryIcon><Building2 className="h-[18px] w-[18px]" strokeWidth={1.75} /></SummaryIcon>}
         label="Organization"
-        value={details.organization ?? 'Maple Future Foundation'}
+        value={details.organization || orgBranding.organizationName || '—'}
       />
       <SummaryRow
         icon={<SummaryIcon><Calendar className="h-[18px] w-[18px]" strokeWidth={1.75} /></SummaryIcon>}

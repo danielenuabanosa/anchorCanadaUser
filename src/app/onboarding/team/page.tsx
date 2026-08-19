@@ -1,15 +1,6 @@
-import DesktopView from './_components/DesktopView';
-import MobileView from './_components/MobileView';
+import { redirect } from 'next/navigation';
 
+/** Team setup was removed from provider onboarding. */
 export default function TeamSetupPage() {
-  return (
-    <>
-      <div className="hidden w-full md:block">
-        <DesktopView />
-      </div>
-      <div className="block w-full md:hidden">
-        <MobileView />
-      </div>
-    </>
-  );
+  redirect('/onboarding/activation');
 }

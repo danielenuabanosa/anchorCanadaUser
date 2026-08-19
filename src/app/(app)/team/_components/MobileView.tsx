@@ -10,6 +10,7 @@ import { HubSortSelect } from '@/shared/components/hub/HubSortSelect';
 import { ListPagination } from '@/shared/components/ui/ListPagination';
 import { ApplicationCardsSkeletonMobile } from '@/shared/components/ui/PageSkeletons';
 import { useProviderTeam } from '@/features/provider/hooks/useProviderTeam';
+import { useProviderAccess } from '@/features/provider/hooks/useProviderAccess';
 import { mapApiTeamMemberToRow } from '@/features/provider/lib/mapTeamData';
 import { providerApi } from '@/features/provider/services/providerApi';
 import {
@@ -40,6 +41,9 @@ export default function MobileView() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const { members, stats, loading, error, refetch } = useProviderTeam();
+  const { isOwner, role: membershipRole } = useProviderAccess();
+  const canInvite =
+    isOwner || ['administrator', 'manager'].includes((membershipRole ?? '').toLowerCase());
 
   const filtered = useMemo(() => {
     const byFilters = filterByTeamHubFilters(members, filters);
@@ -150,14 +154,16 @@ export default function MobileView() {
         title="Providers Team"
         subtitle="Manage your organization's members, roles and permissions"
         action={
-          <button
-            type="button"
-            onClick={() => setHubModal({ type: 'invite' })}
-            className="inline-flex h-[45px] w-full items-center justify-center gap-2.5 rounded-[6px] border border-[#D9E1EF] bg-white px-4 text-base font-medium text-[#2F66C8]"
-          >
-            <UserPlus className="h-[18px] w-[18px]" strokeWidth={1.75} />
-            Invite Team Member
-          </button>
+          canInvite ? (
+            <button
+              type="button"
+              onClick={() => setHubModal({ type: 'invite' })}
+              className="inline-flex h-[45px] w-full items-center justify-center gap-2.5 rounded-[6px] border border-[#D9E1EF] bg-white px-4 text-base font-medium text-[#2F66C8]"
+            >
+              <UserPlus className="h-[18px] w-[18px]" strokeWidth={1.75} />
+              Invite Team Member
+            </button>
+          ) : undefined
         }
       />
 

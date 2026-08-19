@@ -51,9 +51,9 @@ export interface ApplicantRow {
   appliedAt: string;
   appliedTime?: string;
   reviewer?: string;
-  reviewerAvatar?: StaticImageData;
+  reviewerAvatar?: string | StaticImageData;
   score?: number;
-  avatar: StaticImageData;
+  avatar: string | StaticImageData;
   tab: ApplicationTab;
 }
 

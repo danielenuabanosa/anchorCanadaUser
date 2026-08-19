@@ -70,16 +70,7 @@ export default function LoginDesktopView() {
         password,
       });
       setAuth(user, token, refreshToken);
-      const next = safeNextPath(searchParams.get('next'));
-      if (
-        next === '/dashboard' &&
-        user.provider &&
-        user.provider.onboardingCompleted === false
-      ) {
-        router.push('/onboarding');
-        return;
-      }
-      router.push(next);
+      router.push(safeNextPath(searchParams.get('next')));
     } catch (err) {
       setError(getApiErrorMessage(err, 'Sign-in failed. Please try again.'));
       setIsSubmitting(false);
@@ -103,7 +94,7 @@ export default function LoginDesktopView() {
         <div className="flex flex-col gap-5">
              
                 <div className="flex w-full cursor-pointer items-center justify-center gap-5 rounded-[6px] border border-[#d9e1ef] bg-white px-6 py-4 transition-colors hover:bg-[#f8fafc]">
-                  <Image src={googleIcon} alt="" width={24} height={24} />
+                  <Image src={googleIcon} alt="" width={24} height={24} className="size-6 shrink-0" />
                   <span className="text-base font-medium text-[#0f172a]">Google</span>
                 </div>
               </div>
@@ -145,7 +136,7 @@ export default function LoginDesktopView() {
                 </div>
                 <div className="relative">
                   <span className="pointer-events-none absolute top-1/2 left-3.5 z-[1] -translate-y-1/2">
-                    <Image src={mailIcon} alt="" width={18} height={18} />
+                    <Image src={mailIcon} alt="" width={18} height={18} className="size-[18px] shrink-0" />
                   </span>
                   <input
                     type={isStaticMode() ? 'text' : 'email'}

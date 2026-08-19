@@ -61,17 +61,24 @@ export async function completeProviderOnboarding() {
         }>)
       : [];
 
-    for (const member of teamMembers) {
+    const invitations = teamMembers.flatMap((member) => {
       const email = member.email?.trim();
-      if (!email || !email.includes('@')) continue;
+      if (!email || !email.includes('@')) return [];
+      return [{
+        email,
+        name: member.fullName?.trim() || email.split('@')[0],
+        role: mapInviteRole(member.role ?? 'Viewer'),
+      }];
+    });
+
+    if (invitations.length > 0) {
       try {
-        await providerApi.inviteTeamMember({
-          email,
-          name: member.fullName?.trim() || email.split('@')[0],
-          role: mapInviteRole(member.role ?? 'Viewer'),
-        });
+        const result = await providerApi.inviteTeamMembers(invitations);
+        if (result.errors.length > 0) {
+          console.warn('Some team invitations failed during onboarding:', result.errors);
+        }
       } catch (inviteErr) {
-        console.warn('Team invite failed during onboarding:', inviteErr);
+        console.warn('Team invitations failed during onboarding:', inviteErr);
       }
     }
   } catch (err) {
@@ -79,7 +86,7 @@ export async function completeProviderOnboarding() {
   }
 }
 
-/** Saves onboarding when signed in with a real account; otherwise requires login. */
+/** Saves onboarding when signed in with a real account; otherwise opens a local session for the dashboard. */
 export async function finishActivation(): Promise<void> {
   if (isStaticMode()) {
     establishOnboardingSession();
@@ -88,12 +95,21 @@ export async function finishActivation(): Promise<void> {
 
   if (hasRealSession()) {
     await completeProviderOnboarding();
+    const user = useAuthStore.getState().user;
+    if (user) {
+      useAuthStore.getState().updateUser({
+        provider: {
+          id: user.provider?.id ?? '',
+          organizationName: user.provider?.organizationName ?? user.name,
+          verificationStatus: user.provider?.verificationStatus === 'verified' ? 'verified' : 'pending',
+          onboardingCompleted: true,
+        },
+      });
+    }
     return;
   }
 
-  throw new Error(
-    'Sign in or create your provider account before opening the dashboard.',
-  );
+  establishOnboardingSession();
 }
 
 /** Persist a draft of onboarding progress without marking complete or flipping verification. */

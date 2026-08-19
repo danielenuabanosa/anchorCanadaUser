@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
+import { Avatar } from '@/shared/components/ui/Avatar';
+import { photoSrc } from '@/shared/lib/photoSrc';
 import { useRouter } from 'next/navigation';
 import { Ellipsis } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -14,7 +15,7 @@ interface MobileTeamMemberCardProps {
   onAction?: (member: TeamMemberRow, label: string) => void;
 }
 
-/** Figma 522:3733 — mobile member card with anchored actions dropdown */
+/** mobile member card with anchored actions dropdown */
 export function MobileTeamMemberCard({ member, onAction }: MobileTeamMemberCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
@@ -36,12 +37,11 @@ export function MobileTeamMemberCard({ member, onAction }: MobileTeamMemberCardP
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-1 gap-5">
-          <Image
-            src={member.avatar}
-            alt=""
-            width={40}
-            height={40}
-            className="h-10 w-10 shrink-0 rounded-full object-cover"
+          <Avatar
+            src={photoSrc(member.avatar)}
+            fallback={member.name}
+            size="sm"
+            className="h-10 w-10 shrink-0"
           />
           <div className="min-w-0 flex-1">
             <p className="truncate text-base font-semibold text-[#0F172A]">{member.name}</p>

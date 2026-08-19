@@ -7,9 +7,9 @@ import { VerifyEmailForm } from './VerifyEmailForm';
 export default function MobileView() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-[#f2f7ff]">
-      <OnboardingNavbar />
+      <OnboardingNavbar showSignIn />
       <div className="px-5 pb-2 pt-4">
-        <StepProgress current={0} />
+        <StepProgress current={5} />
       </div>
       <main className="flex flex-col items-center px-5 pb-24 pt-10">
         <h1 className="font-serif text-[36px] leading-[44px] text-[#0F172A]">Verify your email</h1>

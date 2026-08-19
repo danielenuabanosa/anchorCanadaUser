@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useCallback } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 
 interface OtpInputProps {
   digits: string[];
@@ -10,34 +10,27 @@ interface OtpInputProps {
 }
 
 export function OtpInput({ digits, onChange, length = 6, variant = 'desktop' }: OtpInputProps) {
-  const refs = useRef<(HTMLInputElement | null)[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const code = digits.join('').slice(0, length);
+  const activeIndex = Math.min(code.length, length - 1);
 
-  const handleChange = useCallback(
-    (idx: number, value: string) => {
-      const char = value.replace(/\D/g, '').slice(-1);
-      const next = [...digits];
-      next[idx] = char;
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  const syncCode = useCallback(
+    (raw: string) => {
+      const chars = raw.replace(/\D/g, '').slice(0, length);
+      const next = Array.from({ length }, (_, i) => chars[i] ?? '');
       onChange(next);
-      if (char && idx < length - 1) {
-        refs.current[idx + 1]?.focus();
-      }
     },
-    [digits, length, onChange],
+    [length, onChange],
   );
 
-  const handleKeyDown = useCallback(
-    (idx: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Backspace' && !digits[idx] && idx > 0) {
-        refs.current[idx - 1]?.focus();
-      }
-    },
-    [digits],
-  );
-
-  const inputClass =
+  const boxClass =
     variant === 'desktop'
-      ? 'no-anchor-field size-[60px] shrink-0 rounded-[10px] border border-[#D9E1EF] bg-white text-center font-sans text-[16px] font-normal text-[#0F172A] outline-none transition focus:border-[#2F66C8]'
-      : 'no-anchor-field h-[50px] min-w-0 flex-1 rounded-[10px] border border-[#D9E1EF] bg-white text-center font-sans text-[16px] font-normal text-[#0F172A] outline-none transition focus:border-[#2F66C8]';
+      ? 'flex size-[60px] shrink-0 items-center justify-center rounded-[10px] border bg-white font-sans text-[16px] font-normal text-[#0F172A] transition'
+      : 'flex h-[50px] min-w-0 flex-1 items-center justify-center rounded-[10px] border bg-white font-sans text-[16px] font-normal text-[#0F172A] transition';
 
   const containerClass =
     variant === 'desktop'
@@ -45,8 +38,25 @@ export function OtpInput({ digits, onChange, length = 6, variant = 'desktop' }: 
       : 'flex w-full items-center gap-[10px]';
 
   return (
-    <div className={containerClass}>
-      {digits.slice(0, length).map((d, i) => (
+    <div
+      className={`relative ${containerClass}`}
+      onClick={() => inputRef.current?.focus()}
+      onKeyDown={() => inputRef.current?.focus()}
+    >
+      <input
+        ref={inputRef}
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        autoComplete="one-time-code"
+        autoFocus
+        value={code}
+        onChange={(e) => syncCode(e.target.value)}
+        className="absolute inset-0 z-10 h-full w-full cursor-text opacity-0"
+        aria-label="Enter 6-digit verification code"
+      />
+
+      {Array.from({ length }).map((_, i) => (
         <span key={i} className="contents">
           {i === 3 && (
             <span
@@ -56,19 +66,18 @@ export function OtpInput({ digits, onChange, length = 6, variant = 'desktop' }: 
               —
             </span>
           )}
-          <input
-            ref={(el) => {
-              refs.current[i] = el;
-            }}
-            type="text"
-            inputMode="numeric"
-            maxLength={1}
-            value={d}
-            onChange={(e) => handleChange(i, e.target.value)}
-            onKeyDown={(e) => handleKeyDown(i, e)}
-            className={inputClass}
-            aria-label={`Digit ${i + 1}`}
-          />
+          <div
+            className={`${boxClass} ${
+              i === activeIndex
+                ? 'border-[#2F66C8]'
+                : digits[i]
+                  ? 'border-[#2F66C8]/40'
+                  : 'border-[#D9E1EF]'
+            }`}
+            aria-hidden
+          >
+            {digits[i] ?? ''}
+          </div>
         </span>
       ))}
     </div>

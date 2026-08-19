@@ -1,9 +1,3 @@
-import type { StaticImageData } from 'next/image';
-import avatar1 from '@assets/images/profile-avatar.png';
-import avatar2 from '@assets/images/profile-google.png';
-import avatar3 from '@assets/images/profile-georgebrown.png';
-import orgLogo from '@assets/images/prov-sickkids.png';
-
 export const DEFAULT_OPPORTUNITY_DETAIL = {
   id: 'OP-2026-00025',
   title: 'Merit Scholarship Program',
@@ -24,7 +18,7 @@ export const DEFAULT_OPPORTUNITY_DETAIL = {
   eligibility:
     'Canadian citizens or permanent residents enrolled in a recognized post-secondary institution.',
   requirements: 'Transcripts, Personal Statement, 2 Reference Letters',
-  logo: orgLogo,
+  logo: '',
   metrics: {
     views: { value: '2,450', change: '+18%' },
     saves: { value: '568', change: '+12%' },
@@ -53,11 +47,11 @@ export const DEFAULT_OPPORTUNITY_DETAIL = {
     { label: 'Decision', date: 'Jul 1, 2026' },
   ],
   recentApplicants: [
-    { id: '1', name: 'Olivia Bennett', applied: 'Jun 12, 2026', status: 'Under Review', score: '92%', avatar: avatar1 },
-    { id: '2', name: 'Ethan Brocks', applied: 'Jun 11, 2026', status: 'Shortlisted', score: '88%', avatar: avatar2 },
-    { id: '3', name: 'Aisha Khan', applied: 'Jun 10, 2026', status: 'Under Review', score: '85%', avatar: avatar3 },
-    { id: '4', name: 'Noah Trembley', applied: 'Jun 9, 2026', status: 'Submitted', score: '—', avatar: avatar1 },
-    { id: '5', name: 'Sophia Martin', applied: 'Jun 8, 2026', status: 'Submitted', score: '—', avatar: avatar2 },
+    { id: '1', name: 'Olivia Bennett', applied: 'Jun 12, 2026', status: 'Under Review', score: '92%', avatar: '' },
+    { id: '2', name: 'Ethan Brocks', applied: 'Jun 11, 2026', status: 'Shortlisted', score: '88%', avatar: '' },
+    { id: '3', name: 'Aisha Khan', applied: 'Jun 10, 2026', status: 'Under Review', score: '85%', avatar: '' },
+    { id: '4', name: 'Noah Trembley', applied: 'Jun 9, 2026', status: 'Submitted', score: '—', avatar: '' },
+    { id: '5', name: 'Sophia Martin', applied: 'Jun 8, 2026', status: 'Submitted', score: '—', avatar: '' },
   ],
 };
 

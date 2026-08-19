@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { StartBuilderDropdown } from '@/features/opportunity-builder/components/StartBuilderDropdown';
@@ -12,11 +12,23 @@ import { OpportunityPerformanceCard } from './OpportunityPerformanceCard';
 import { RecentApplicationsList } from './RecentApplicationsList';
 import { TeamActivityList } from './TeamActivityList';
 import { OPPORTUNITY_STATUS_STYLES, PROVIDER_STATS, type OpportunityStatus } from './dashboardData';
+import { promptUnverifiedProvider } from '@/store/verificationModalStore';
 
 export default function MobileView() {
   const { user } = useAuthStore();
   const { data, loading, error, period, setPeriod } = useProviderDashboard('7d');
   const orgName = data?.organizationName || user?.name || 'your organization';
+
+  useEffect(() => {
+    if (loading) return;
+    promptUnverifiedProvider(
+      data?.organizationStatus ?? {
+        verificationStatus: user?.provider?.verificationStatus,
+        profileComplete: 0,
+        adminNote: '',
+      },
+    );
+  }, [data, loading, user?.provider?.verificationStatus]);
 
   const stats = useMemo(() => {
     const s = data?.stats;

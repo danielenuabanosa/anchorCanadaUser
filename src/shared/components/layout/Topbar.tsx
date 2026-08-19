@@ -1,24 +1,23 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname, useRouter } from 'next/navigation';
-import { Bell, ChevronDown, Command, MessageCircle, Search, Settings } from 'lucide-react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Bell, ChevronDown, MessageCircle, Settings } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { Avatar } from '@/shared/components/ui/Avatar';
 import { StartBuilderDropdown } from '@/features/opportunity-builder/components/StartBuilderDropdown';
+import { TopbarSearchField } from '@/shared/components/layout/TopbarSearchField';
+import { useTopbarSearchShortcut } from '@/shared/components/layout/useTopbarSearchShortcut';
+import { TeamAvatarStack } from '@/shared/components/layout/TeamAvatarStack';
+import { useOrgBrandingStore } from '@/store/orgBrandingStore';
+import { photoSrc } from '@/shared/lib/photoSrc';
 import {
   useProviderUnreadMessageCount,
   useProviderUnreadNotificationCount,
 } from '@/features/messages/hooks/useUnreadCounts';
 import anchorLogoFull from '@assets/icons/anchor-logo-full.png';
-import orgAvatar from '@assets/images/prov-sickkids.png';
-import avatar1 from '@assets/images/profile-avatar.png';
-import avatar2 from '@assets/images/profile-google.png';
-import avatar3 from '@assets/images/profile-georgebrown.png';
-
-const TEAM_AVATARS = [avatar1, avatar2, avatar3] as const;
 
 function CountBadge({ count }: { count: number }) {
   if (count <= 0) return null;
@@ -30,14 +29,29 @@ function CountBadge({ count }: { count: number }) {
   );
 }
 
-/** Figma dashboard header (80:2486): 110px bar with search, team avatars, Create Opportunity. */
+/** search, team avatars, Create Opportunity. */
 export function Topbar() {
   const { user } = useAuthStore();
+  const orgLogo = useOrgBrandingStore((s) => s.logoUrl);
+  const orgName = useOrgBrandingStore((s) => s.organizationName);
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [query, setQuery] = useState('');
   const { data: unreadNotifications = 0 } = useProviderUnreadNotificationCount();
   const { data: unreadMessages = 0 } = useProviderUnreadMessageCount();
+
+  useEffect(() => {
+    if (
+      pathname.startsWith('/opportunities') ||
+      pathname.startsWith('/applications') ||
+      pathname.startsWith('/categories')
+    ) {
+      setQuery(searchParams.get('q') ?? '');
+    }
+  }, [pathname, searchParams]);
+
+  useTopbarSearchShortcut('/opportunities');
 
   function handleSearch(e: FormEvent) {
     e.preventDefault();
@@ -58,12 +72,12 @@ export function Topbar() {
     window.dispatchEvent(new CustomEvent('opp-hub-search', { detail: q }));
   }
 
-  const displayName = user?.name ?? 'Toronto Community Health';
-  const avatarSrc = user?.avatarUrl ?? orgAvatar.src;
+  const displayName = orgName || user?.name || 'Organization';
+  const avatarSrc = photoSrc(user?.avatarUrl) || photoSrc(orgLogo);
 
   return (
     <>
-      {/* Mobile — Figma 92:1918 */}
+      {/* Mobile —]*/}
       <header className="sticky top-0 z-20 shrink-0 border-b border-[#D9E1EF]/80 bg-white backdrop-blur-[5px] md:hidden">
         <div className="flex items-center justify-between p-10">
           <Link href="/dashboard" className="shrink-0" aria-label="Anchor Canada Provider Portal">
@@ -74,6 +88,7 @@ export function Topbar() {
               height={46}
               priority
               className="h-[45.75px] w-[140px] object-contain object-left"
+              style={{ width: 'auto', height: 'auto' }}
             />
           </Link>
           <div className="flex items-center gap-5">
@@ -108,26 +123,10 @@ export function Topbar() {
         </div>
       </header>
 
-      {/* Desktop — matches admin Navbar search (520×45, #F8FAFC) */}
+      {/* Desktop — matches user panel topbar search */}
       <header className="sticky top-0 z-20 hidden h-[86px] shrink-0 items-center justify-between border-b border-[#EEF2F8] bg-white/90 px-10 py-5 backdrop-blur-[5px] md:flex">
-        <form onSubmit={handleSearch} className="flex min-w-0 flex-1">
-          <div className="anchor-search-nav w-full max-w-[520px] gap-2.5">
-            <div className="flex min-w-0 flex-1 items-center gap-2.5">
-              <Search className="h-[18px] w-[18px] shrink-0 text-[#8C97AD]" aria-hidden />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search opportunities, applications or applicants…"
-                className="no-anchor-field min-w-0 flex-1 bg-transparent font-sans text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
-                aria-label="Search opportunities, applications or applicants"
-              />
-            </div>
-            <div className="flex shrink-0 items-center gap-2.5 text-[#44516A]" aria-hidden>
-              <Command className="h-[18px] w-[18px]" strokeWidth={1.75} />
-              <span className="font-sans text-lg leading-none">K</span>
-            </div>
-          </div>
+        <form onSubmit={handleSearch} className="min-w-0 flex-1 max-w-[520px] shrink">
+          <TopbarSearchField value={query} onChange={setQuery} />
         </form>
 
         <div className="ml-auto flex shrink-0 items-center gap-5">
@@ -147,15 +146,7 @@ export function Topbar() {
             <MessageCircle className="h-[21px] w-[21px]" strokeWidth={1.75} />
             <CountBadge count={unreadMessages} />
           </Link>
-          <button type="button" className="flex items-center gap-2 rounded-lg p-0.5 hover:bg-[#F8FAFC]" aria-label="Team members">
-            <div className="flex -space-x-2">
-              {TEAM_AVATARS.map((src, i) => (
-                <Image key={i} src={src} alt="" width={32} height={32} className="h-8 w-8 rounded-full border-2 border-white object-cover" />
-              ))}
-            </div>
-            <span className="flex h-8 w-8 items-center justify-center rounded-2xl bg-[#EFF4FF] text-sm font-medium text-[#0F172A]">+8</span>
-            <ChevronDown className="h-3.5 w-3.5 text-[#8C97AD]" strokeWidth={2} />
-          </button>
+          <TeamAvatarStack />
           <StartBuilderDropdown label="Create Opportunity" />
         </div>
       </header>

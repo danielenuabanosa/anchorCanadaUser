@@ -2,13 +2,9 @@
 
 
 
-import { useEffect } from 'react';
-
 import Link from 'next/link';
 
 import { CheckCheck, ListFilter, Settings } from 'lucide-react';
-
-import { useSearchParams } from 'next/navigation';
 
 import { HubStatCard } from '@/app/(app)/opportunities/_components/HubStatCard';
 
@@ -41,44 +37,7 @@ import { useNotificationsHub } from './useNotificationsHub';
 export default function DesktopView() {
 
   const hub = useNotificationsHub();
-  const { clearSelection, setActionsOpenId, setDeleteTargetId, setDetailTargetId, toggleSelect } = hub;
-
   const { prefs, togglePref } = useNotificationChannelPrefs();
-
-  const searchParams = useSearchParams();
-  const demo = searchParams.get('demo');
-
-  useEffect(() => {
-    if (!demo) return;
-
-    clearSelection();
-    setActionsOpenId(null);
-    setDeleteTargetId(null);
-    setDetailTargetId(null);
-
-    if (demo === 'swipe') {
-      setActionsOpenId('1');
-      return;
-    }
-
-    if (demo === 'bulk') {
-      toggleSelect('1');
-      toggleSelect('2');
-      toggleSelect('3');
-      return;
-    }
-
-    if (demo === 'delete') {
-      setActionsOpenId('1');
-      setDeleteTargetId('1');
-      return;
-    }
-
-    if (demo === 'detail') {
-      setDetailTargetId('1');
-      return;
-    }
-  }, [clearSelection, demo, setActionsOpenId, setDeleteTargetId, setDetailTargetId, toggleSelect]);
 
   return (
 

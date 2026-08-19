@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -17,6 +16,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DetailPageSkeleton } from '@/shared/components/ui/PageSkeletons';
+import { Avatar } from '@/shared/components/ui/Avatar';
+import { photoSrc } from '@/shared/lib/photoSrc';
 import { ROLE_STYLES, STATUS_STYLES } from '../../_components/teamManagementData';
 import { useTeamMemberDetail } from '@/features/provider/hooks/useTeamMemberDetail';
 import { type TeamMemberDetailTab } from './teamMemberDetailData';
@@ -151,15 +152,11 @@ export function TeamMemberDetailView({
           {/* Left: avatar, identity, contact */}
           <div className={cn('flex flex-col gap-5', !isMobile && 'w-[520px] shrink-0')}>
             <div className={cn('flex gap-5', isMobile ? 'flex-col' : 'items-start gap-10')}>
-              <Image
-                src={data.avatar}
-                alt=""
-                width={isMobile ? 80 : 120}
-                height={isMobile ? 80 : 120}
-                className={cn(
-                  'shrink-0 rounded-full object-cover',
-                  isMobile ? 'h-20 w-20' : 'h-[120px] w-[120px]',
-                )}
+              <Avatar
+                src={photoSrc(data.avatar)}
+                fallback={data.name}
+                size="xl"
+                className={cn('shrink-0', isMobile ? 'h-20 w-20' : 'h-[120px] w-[120px]')}
               />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap gap-2.5">
@@ -297,12 +294,11 @@ export function TeamMemberDetailView({
 
               <DetailCard title="Reporting To">
                 <div className="flex items-center gap-5">
-                  <Image
-                    src={data.reportingTo.avatar}
-                    alt=""
-                    width={46}
-                    height={46}
-                    className="h-[46px] w-[46px] rounded-full object-cover"
+                  <Avatar
+                    src={photoSrc(data.reportingTo.avatar)}
+                    fallback={data.reportingTo.name}
+                    size="md"
+                    className="h-[46px] w-[46px]"
                   />
                   <div>
                     <p className="text-sm font-medium text-[#0F172A]">{data.reportingTo.name}</p>

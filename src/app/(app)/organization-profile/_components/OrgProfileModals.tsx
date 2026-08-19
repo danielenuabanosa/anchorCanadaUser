@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { type ElementType, type Dispatch, type SetStateAction } from 'react';
+import { type ElementType } from 'react';
 import {
   ChevronDown,
   Check,
@@ -32,6 +32,19 @@ import {
   type OrgProfileModal,
 } from './orgProfileData';
 import type { OrgProfileHub } from './useOrgProfileHub';
+import { SOCIAL_FIELDS } from '@/features/onboarding/lib/organizationInfoData';
+import { FileUploadZone, SocialUrlInput } from '@/app/onboarding/organization-info/_components/FormFields';
+import linkedinIcon from '@assets/icons/linkedin.png';
+import xIcon from '@assets/icons/x.png';
+import facebookIcon from '@assets/icons/facebook.png';
+import instagramIcon from '@assets/icons/instagram.png';
+
+const SOCIAL_ICONS = {
+  linkedin: linkedinIcon,
+  twitter: xIcon,
+  facebook: facebookIcon,
+  instagram: instagramIcon,
+} as const;
 
 function ModalBackdrop({
   onClose,
@@ -77,6 +90,8 @@ function FormField({
   select,
   options,
   textarea,
+  readOnly,
+  placeholder,
 }: {
   label: string;
   value: string;
@@ -84,6 +99,8 @@ function FormField({
   select?: boolean;
   options?: readonly string[];
   textarea?: boolean;
+  readOnly?: boolean;
+  placeholder?: string;
 }) {
   const inputClass = 'anchor-field';
 
@@ -95,11 +112,18 @@ function FormField({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           rows={4}
+          readOnly={readOnly}
+          placeholder={placeholder}
           className="anchor-textarea resize-none"
         />
       ) : select ? (
         <div className="relative">
-          <select value={value} onChange={(e) => onChange(e.target.value)} className="anchor-select appearance-none pr-10">
+          <select
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            disabled={readOnly}
+            className="anchor-select appearance-none pr-10"
+          >
             {options?.map((opt) => (
               <option key={opt} value={opt}>
                 {opt}
@@ -109,7 +133,14 @@ function FormField({
           <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-[#44516A]" />
         </div>
       ) : (
-        <input type="text" value={value} onChange={(e) => onChange(e.target.value)} className={inputClass} />
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          readOnly={readOnly}
+          placeholder={placeholder}
+          className={`${inputClass} ${readOnly ? 'cursor-not-allowed bg-[#F8FAFC] text-[#44516A]' : ''}`}
+        />
       )}
     </label>
   );
@@ -158,17 +189,19 @@ const SECTION_TITLES: Record<EditProfileSection, string> = {
   location: 'Location',
   about: 'About & Mission',
   focus: 'Focus Areas',
+  branding: 'Organization Logo',
+  social: 'Social Media',
 };
 
 function EditSectionForm({
   section,
-  form,
-  setForm,
+  hub,
 }: {
   section: EditProfileSection;
-  form: OrgProfileHub['form'];
-  setForm: Dispatch<SetStateAction<OrgProfileHub['form']>>;
+  hub: OrgProfileHub;
 }) {
+  const form = hub.form;
+  const setForm = hub.setForm;
   const update = <K extends keyof OrgProfileHub['form']>(key: K, value: OrgProfileHub['form'][K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
@@ -177,7 +210,15 @@ function EditSectionForm({
       <div className="space-y-2.5">
         <div className="grid gap-2.5 md:grid-cols-2">
           <FormField label="Organization Name" value={form.name} onChange={(v) => update('name', v)} />
-          <FormField label="Registration Number" value={form.regNumber} onChange={(v) => update('regNumber', v)} />
+          <div className="space-y-1.5">
+            <FormField
+              label="Registration Number"
+              value={form.regNumber}
+              onChange={() => undefined}
+              readOnly
+            />
+            <p className="text-xs text-[#8C97AD]">Assigned automatically. This number cannot be edited.</p>
+          </div>
         </div>
         <div className="grid gap-2.5 md:grid-cols-2">
           <FormField
@@ -250,6 +291,54 @@ function EditSectionForm({
         />
         <FormField label="Mission" value={form.mission} onChange={(v) => update('mission', v)} textarea />
         <FormField label="Vision" value={form.vision} onChange={(v) => update('vision', v)} textarea />
+      </div>
+    );
+  }
+
+  if (section === 'branding') {
+    return (
+      <div className="space-y-2.5">
+        <p className="text-sm text-[#44516A]">
+          This logo appears on your public profile, opportunities, and posts across the provider app.
+        </p>
+        <FileUploadZone
+          helperLines={[
+            'Drag and drop your logo here',
+            'or click to browse',
+            'PNG, JPG or SVG (Max 2MB)',
+          ]}
+          fileName={hub.profile.logoUrl ? 'Current logo' : undefined}
+          previewUrl={hub.profile.logoUrl ?? undefined}
+          progress={hub.profile.logoUrl ? 100 : hub.uploading ? 60 : undefined}
+          onFileSelect={(file) => {
+            void hub.uploadProfileLogo(file);
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (section === 'social') {
+    return (
+      <div className="grid gap-5 md:grid-cols-2">
+        {SOCIAL_FIELDS.map((field) => (
+          <SocialUrlInput
+            key={field.id}
+            icon={SOCIAL_ICONS[field.id]}
+            label={field.label}
+            value={form.social?.[field.id] ?? ''}
+            onChange={(value) =>
+              update('social', {
+                linkedin: form.social?.linkedin ?? '',
+                twitter: form.social?.twitter ?? '',
+                facebook: form.social?.facebook ?? '',
+                instagram: form.social?.instagram ?? '',
+                [field.id]: value,
+              })
+            }
+            placeholder={field.placeholder}
+          />
+        ))}
       </div>
     );
   }
@@ -330,7 +419,7 @@ export function EditProfileModal({
               {SECTION_TITLES[hub.editSection]}
             </h3>
             <div className="mt-5">
-              <EditSectionForm section={hub.editSection} form={hub.form} setForm={hub.setForm} />
+              <EditSectionForm section={hub.editSection} hub={hub} />
             </div>
           </div>
         </div>
@@ -793,7 +882,7 @@ const STATUS_MODAL_CONTENT: Record<
         Complete your <span className="font-serif italic text-[#2F66C8]">Profile</span>
       </>
     ),
-    body: 'Add more information to build trust with applicants',
+    body: 'Finish your organization details and upload required documents so an admin can review your account. Incomplete profiles cannot be approved or publish opportunities.',
     action: 'Complete Profile',
     next: 'edit',
   },
@@ -819,11 +908,10 @@ const STATUS_MODAL_CONTENT: Record<
   submitted: {
     title: (
       <>
-        Your verification has been{' '}
-        <span className="font-serif italic text-[#2F66C8]">Submitted!</span>
+        Thanks for completing your <span className="font-serif italic text-[#2F66C8]">profile</span>
       </>
     ),
-    body: "We'll notify you once the review is complete.",
+    body: "An admin is reviewing your organization account. We'll notify you by email once verification is successful.",
     action: 'Got it',
   },
 };

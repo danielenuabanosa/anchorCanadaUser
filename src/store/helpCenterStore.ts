@@ -26,12 +26,12 @@ export const useHelpCenterStore = create<HelpCenterState>((set) => ({
   close: () => set({ isOpen: false, reportOpen: false, reportSubmitted: false }),
   setTab: (tab) => set({ tab }),
 
-  openReport: () => set({ reportOpen: true, reportSubmitted: false }),
+  openReport: () => set({ isOpen: false, reportOpen: true, reportSubmitted: false }),
   closeReport: () =>
     set((state) => ({
       reportOpen: false,
       reportSubmitted: false,
-      isOpen: state.reportSubmitted ? false : state.isOpen,
+      isOpen: state.reportSubmitted ? false : true,
     })),
   submitReport: () => set({ reportSubmitted: true }),
 }));

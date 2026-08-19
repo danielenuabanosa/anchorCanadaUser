@@ -204,7 +204,7 @@ export function WelcomeSidebar() {
   return (
     <div className="min-w-0 flex-1 overflow-hidden rounded-[10px] border border-[#E0EBFF] bg-[#F8FAFC]">
       <div className="relative mb-[-28px] h-[255px] w-full">
-        <Image src={loginBg} alt="" fill className="object-cover" />
+        <Image src={loginBg} alt="" fill className="object-cover" sizes="(max-width: 1200px) 50vw, 622px" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#EFF4FF] via-[#EFF4FF]/80 to-transparent" />
         <div className="absolute inset-0 flex flex-col justify-center px-10 py-[65px]">
           <p className="text-[20px] font-medium leading-[1.6] text-[#0F172A]">👋 Welcome back,</p>

@@ -3,27 +3,21 @@
 import { useState, FormEvent, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Bell, ChevronDown, Command, MessageCircle, Search } from 'lucide-react';
-import { useAuthStore } from '@/store/authStore';
-import { Avatar } from '@/shared/components/ui/Avatar';
+import { Bell, MessageCircle } from 'lucide-react';
 import { StartBuilderDropdown } from '@/features/opportunity-builder/components/StartBuilderDropdown';
+import { TopbarSearchField } from '@/shared/components/layout/TopbarSearchField';
+import { useTopbarSearchShortcut } from '@/shared/components/layout/useTopbarSearchShortcut';
 import {
   useProviderUnreadMessageCount,
   useProviderUnreadNotificationCount,
 } from '@/features/messages/hooks/useUnreadCounts';
-import orgAvatar from '@assets/images/prov-sickkids.png';
-import avatar1 from '@assets/images/profile-avatar.png';
-import avatar2 from '@assets/images/profile-google.png';
-import avatar3 from '@assets/images/profile-georgebrown.png';
-
-const TEAM_AVATARS = [avatar1, avatar2, avatar3] as const;
+import { TeamAvatarStack } from '@/shared/components/layout/TeamAvatarStack';
 
 /**
  * Figma hub header Frame 25 (132:675): 110px bar, search + ⌘K left,
  * bell / messages / avatar stack / Start Opportunity Builder right.
  */
 export function OpportunityManagementTopbar() {
-  const { user } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -34,6 +28,8 @@ export function OpportunityManagementTopbar() {
   useEffect(() => {
     setQuery(searchParams.get('q') ?? '');
   }, [searchParams]);
+
+  useTopbarSearchShortcut('/opportunities');
 
   function dispatchSearch(value: string) {
     window.dispatchEvent(new CustomEvent('opp-hub-search', { detail: value.trim() }));
@@ -60,31 +56,12 @@ export function OpportunityManagementTopbar() {
     dispatchSearch(value);
   }
 
-  const displayName = user?.name ?? 'Toronto Community Health';
-  const avatarSrc = user?.avatarUrl ?? orgAvatar.src;
-
   return (
     <>
-      {/* Desktop — Figma Frame 25 / admin Navbar search */}
-      <header className="sticky top-0 z-20 hidden h-[86px] shrink-0 items-center border-b border-[#EEF2F8] bg-white/90 px-10 py-5 backdrop-blur-[5px] md:flex">
-        <form onSubmit={handleSearch} className="flex min-w-0 flex-1">
-          <div className="anchor-search-nav w-full max-w-[520px] gap-2.5">
-            <div className="flex min-w-0 flex-1 items-center gap-2.5">
-              <Search className="h-[18px] w-[18px] shrink-0 text-[#8C97AD]" aria-hidden />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => handleQueryChange(e.target.value)}
-                placeholder="Search opportunities, applications or applicants…"
-                className="no-anchor-field min-w-0 flex-1 bg-transparent font-sans text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
-                aria-label="Search opportunities, applications or applicants"
-              />
-            </div>
-            <div className="flex shrink-0 items-center gap-2.5 text-[#44516A]" aria-hidden>
-              <Command className="h-[18px] w-[18px]" strokeWidth={1.75} />
-              <span className="font-sans text-lg leading-none">K</span>
-            </div>
-          </div>
+      {/* Desktop — matches user panel topbar search */}
+      <header className="sticky top-0 z-20 hidden h-[86px] shrink-0 items-center justify-between border-b border-[#EEF2F8] bg-white/90 px-10 py-5 backdrop-blur-[5px] md:flex">
+        <form onSubmit={handleSearch} className="min-w-0 flex-1 max-w-[520px] shrink">
+          <TopbarSearchField value={query} onChange={handleQueryChange} />
         </form>
 
         <div className="ml-auto flex shrink-0 items-center gap-5">
@@ -116,27 +93,7 @@ export function OpportunityManagementTopbar() {
               ) : null}
             </Link>
 
-            <button
-              type="button"
-              className="flex items-center gap-2 rounded-lg p-0.5 hover:bg-[#F8FAFC]"
-              aria-label="Team members"
-            >
-              <div className="flex items-center -space-x-2">
-                {TEAM_AVATARS.map((src, i) => (
-                  <Avatar
-                    key={i}
-                    src={src.src}
-                    fallback="Team"
-                    size="sm"
-                    className="h-8 w-8 border-2 border-white"
-                  />
-                ))}
-                <span className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-[#EFF4FF] text-xs font-medium text-[#0F172A]">
-                  +8
-                </span>
-              </div>
-              <ChevronDown className="h-3.5 w-3.5 text-[#8C97AD]" />
-            </button>
+            <TeamAvatarStack />
           </div>
 
           {/* Start Opportunity Builder — far right, Figma Frame 21 */}

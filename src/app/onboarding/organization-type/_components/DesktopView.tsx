@@ -17,16 +17,24 @@ export default function DesktopView() {
   const router = useRouter();
   const setOnboardingData = useProviderOnboardingStore((s) => s.setOnboardingData);
 
-  function handleContinue() {
-    if (!selected) return;
-    setOnboardingData({ organizationType: selected });
+  function goNext(type: string | null) {
+    if (type) setOnboardingData({ organizationType: type });
     void saveOnboardingDraft('organization-type').catch(() => undefined);
     router.push('/onboarding/categories');
   }
 
+  function handleContinue() {
+    if (!selected) return;
+    goNext(selected);
+  }
+
+  function handleSkip() {
+    goNext(selected);
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
-      <OnboardingNavbar />
+      <OnboardingNavbar showSignIn />
 
       <div className="mx-auto w-full max-w-[1548px] px-10 pt-10">
         <StepProgress current={1} />
@@ -69,6 +77,7 @@ export default function DesktopView() {
       <OnboardingNavButtons
         backHref="/onboarding"
         onContinue={handleContinue}
+        onSkip={handleSkip}
         continueDisabled={!selected}
         footer={
           <OnboardingInfoBar message="Your organization type helps personalize your provider dashboard and workflows." />

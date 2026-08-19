@@ -18,7 +18,7 @@ import {
 } from './HelpCenterShared';
 
 const inputClass =
-  'anchor-field flex w-full items-center gap-2.5 p-4 text-base text-[#0F172A]';
+  'flex h-[56px] w-full items-center gap-2.5 rounded-[10px] border border-[#D9E1EF] bg-white px-4 text-base text-[#0F172A]';
 
 function formatSize(bytes: number) {
   if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -152,7 +152,7 @@ export function ReportIssueModal() {
                 value={issueTitle}
                 onChange={(e) => setIssueTitle(e.target.value)}
                 placeholder="Briefly describe the issue"
-                className="w-full bg-transparent outline-none placeholder:text-[#8C97AD]"
+                className="no-anchor-field w-full bg-transparent outline-none placeholder:text-[#8C97AD]"
               />
             </span>
           </label>
@@ -166,7 +166,7 @@ export function ReportIssueModal() {
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full flex-1 appearance-none bg-transparent outline-none"
+                  className="no-anchor-field w-full flex-1 appearance-none bg-transparent outline-none"
                 >
                   <option value="" disabled>
                     Select category
@@ -199,7 +199,7 @@ export function ReportIssueModal() {
                 <select
                   value={priority}
                   onChange={(e) => setPriority(e.target.value)}
-                  className="w-full flex-1 appearance-none bg-transparent outline-none"
+                  className="no-anchor-field w-full flex-1 appearance-none bg-transparent outline-none"
                 >
                   <option value="" disabled>
                     Select priority
@@ -223,13 +223,13 @@ export function ReportIssueModal() {
             <span className="flex items-baseline gap-1 text-base font-semibold leading-[1.8] text-[#0F172A]">
               Description <span className="font-normal text-[#EF4444]">*</span>
             </span>
-            <span className="anchor-textarea flex w-full flex-col gap-2.5 p-4">
+            <span className="flex w-full flex-col gap-2.5 rounded-[10px] border border-[#D9E1EF] bg-white p-4">
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value.slice(0, 1000))}
                 rows={4}
                 placeholder="Describe what happened and any error messages you saw..."
-                className="w-full resize-none bg-transparent text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
+                className="no-anchor-field w-full resize-none bg-transparent text-base text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
               />
               <span className="w-full text-right text-sm text-[#8C97AD]">
                 {description.length} / 1000
@@ -248,7 +248,7 @@ export function ReportIssueModal() {
                 value={tryingTo}
                 onChange={(e) => setTryingTo(e.target.value)}
                 placeholder="e.g. I was trying to publish an opportunity"
-                className="w-full flex-1 bg-transparent outline-none placeholder:text-[#8C97AD]"
+                className="no-anchor-field w-full flex-1 bg-transparent outline-none placeholder:text-[#8C97AD]"
               />
             </span>
           </label>

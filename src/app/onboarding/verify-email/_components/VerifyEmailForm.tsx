@@ -22,7 +22,7 @@ export function VerifyEmailForm() {
   useEffect(() => {
     const saved = sessionStorage.getItem('provider_signup_email');
     if (!saved) {
-      router.replace('/onboarding/account');
+      router.replace('/login');
       return;
     }
     setEmail(saved);
@@ -36,7 +36,7 @@ export function VerifyEmailForm() {
       const result = await authService.verifyEmailOtp(email, digits.join(''));
       setAuth(result.user, result.token, result.refreshToken);
       sessionStorage.removeItem('provider_signup_email');
-      const nextPath = sessionStorage.getItem('provider_signup_next') ?? '/onboarding/organization-type';
+      const nextPath = sessionStorage.getItem('provider_signup_next') ?? '/onboarding/activation';
       sessionStorage.removeItem('provider_signup_next');
 
       if (nextPath === '/dashboard') {

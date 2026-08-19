@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { cn } from '@/lib/utils';
 import {
   ArrowLeft,
   ArrowUp,
@@ -27,7 +27,9 @@ import {
   TrendingUp,
   Users,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Avatar } from '@/shared/components/ui/Avatar';
+import { photoSrc } from '@/shared/lib/photoSrc';
+import { useOrgBrandingStore } from '@/store/orgBrandingStore';
 import { DetailPageSkeleton } from '@/shared/components/ui/PageSkeletons';
 import {
   DEFAULT_OPPORTUNITY_DETAIL,
@@ -273,6 +275,9 @@ export function OpportunityDetailView({ variant }: { variant: 'desktop' | 'mobil
   const [actionBusy, setActionBusy] = useState(false);
   const [shareNote, setShareNote] = useState('');
   const data = loaded ?? DEFAULT_OPPORTUNITY_DETAIL;
+  const orgLogo = useOrgBrandingStore((s) => s.logoUrl);
+  const orgName = useOrgBrandingStore((s) => s.organizationName);
+  const logoSrc = photoSrc(orgLogo) || photoSrc(typeof data.logo === 'string' ? data.logo : undefined);
   const isMobile = variant === 'mobile';
   const isPaused = String(data.status).toLowerCase().includes('pause');
   const isClosed = String(data.status).toLowerCase().includes('closed');
@@ -413,7 +418,12 @@ export function OpportunityDetailView({ variant }: { variant: 'desktop' | 'mobil
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex gap-5">
             <div className="flex h-[100px] w-[100px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#ECFDF5] md:h-[120px] md:w-[120px]">
-              <Image src={data.logo} alt="" width={80} height={80} className="object-contain" />
+              <Avatar
+                src={logoSrc}
+                fallback={orgName || data.organization}
+                size="xl"
+                className="h-full w-full rounded-full"
+              />
             </div>
             <div className="min-w-0">
               <div className="flex flex-wrap gap-2">
@@ -612,7 +622,7 @@ export function OpportunityDetailView({ variant }: { variant: 'desktop' | 'mobil
                   className="grid grid-cols-1 gap-2 px-5 py-4 md:grid-cols-[1.2fr_110px_100px_70px_40px] md:items-center md:gap-2"
                 >
                   <div className="flex items-center gap-3">
-                    <Image src={a.avatar} alt="" width={36} height={36} className="rounded-full object-cover" />
+                    <Avatar src={photoSrc(typeof a.avatar === 'string' ? a.avatar : undefined)} fallback={a.name} size="sm" className="h-9 w-9" />
                     <p className="text-[14px] font-medium text-[#0F172A]">{a.name}</p>
                   </div>
                   <p className="text-[14px] text-[#44516A]">{a.applied}</p>

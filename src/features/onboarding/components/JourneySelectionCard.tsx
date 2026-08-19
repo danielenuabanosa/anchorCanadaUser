@@ -51,7 +51,15 @@ export function JourneySelectionCard({
       }`}
     >
       <div className={`relative w-full overflow-hidden bg-[#EFF4FF] ${compact ? 'h-[180px]' : 'h-[240px]'}`}>
-        <Image src={card.image} alt={card.title} fill className="object-contain object-bottom" sizes="490px" />
+        <Image
+          src={card.image}
+          alt={card.title}
+          fill
+          priority
+          loading="eager"
+          className="object-contain object-bottom"
+          sizes="(max-width: 768px) 100vw, 490px"
+        />
         <div className={`absolute ${compact ? 'right-4 top-4' : 'right-5 top-5'}`}>
           <RadioCircle selected={selected} />
         </div>

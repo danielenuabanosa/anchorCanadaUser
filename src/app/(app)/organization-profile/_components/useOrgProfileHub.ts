@@ -1,9 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import type { EditProfileSection, OrgProfileModal, UploadedFileItem } from './orgProfileData';
 import { providerApi } from '@/features/provider/services/providerApi';
 import { isStaticMode } from '@/lib/staticMode';
+import { useOrgBrandingStore } from '@/store/orgBrandingStore';
+import { promptUnverifiedProvider } from '@/store/verificationModalStore';
+import { getRemainingProfileItems } from '@/features/provider/lib/remainingProfile';
 import {
   DEFAULT_ORG_DISPLAY,
   DEFAULT_ORG_STATS,
@@ -21,6 +25,12 @@ function formatSize(bytes: number) {
 }
 
 function emptyFormFromDisplay(display: OrgProfileDisplay) {
+  const socialFromDisplay = {
+    linkedin: display.socials.find((s) => s.id === 'linkedin')?.url || '',
+    twitter: display.socials.find((s) => s.id === 'twitter')?.url || '',
+    facebook: display.socials.find((s) => s.id === 'facebook')?.url || '',
+    instagram: display.socials.find((s) => s.id === 'instagram')?.url || '',
+  };
   return {
     name: display.name,
     regNumber: display.regNumber,
@@ -40,6 +50,7 @@ function emptyFormFromDisplay(display: OrgProfileDisplay) {
     mission: display.mission,
     vision: display.vision,
     focusAreas: [...display.focusAreas],
+    social: socialFromDisplay,
   };
 }
 
@@ -63,6 +74,7 @@ type OrgApiPayload = {
 };
 
 export function useOrgProfileHub() {
+  const searchParams = useSearchParams();
   const [modal, setModal] = useState<OrgProfileModal>(null);
   const [previousModal, setPreviousModal] = useState<OrgProfileModal>(null);
   const [actionOpen, setActionOpen] = useState(false);
@@ -134,6 +146,30 @@ export function useOrgProfileHub() {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    const section = searchParams.get('section');
+    if (!section) return;
+    if (section === 'verification') {
+      setActionOpen(false);
+      setModal('verification');
+      return;
+    }
+    const allowed: EditProfileSection[] = [
+      'basic',
+      'contact',
+      'location',
+      'about',
+      'focus',
+      'branding',
+      'social',
+    ];
+    if (allowed.includes(section as EditProfileSection)) {
+      setEditSection(section as EditProfileSection);
+      setActionOpen(false);
+      setModal('edit');
+    }
+  }, [searchParams]);
+
   function openModal(next: OrgProfileModal) {
     setActionOpen(false);
     setModal(next);
@@ -168,6 +204,7 @@ export function useOrgProfileHub() {
           const result = await providerApi.uploadOrganizationLogo(file);
           if (result.logoUrl) {
             setProfile((prev) => ({ ...prev, logoUrl: result.logoUrl ?? prev.logoUrl }));
+            useOrgBrandingStore.getState().setLogoUrl(result.logoUrl);
           }
           setSessionUploads((prev) =>
             prev.map((f) =>
@@ -300,6 +337,23 @@ export function useOrgProfileHub() {
     void load({ silent: true });
   }
 
+  async function uploadProfileLogo(file: File) {
+    setUploading(true);
+    setError('');
+    try {
+      const result = await providerApi.uploadOrganizationLogo(file);
+      if (result.logoUrl) {
+        setProfile((prev) => ({ ...prev, logoUrl: result.logoUrl ?? prev.logoUrl }));
+        useOrgBrandingStore.getState().setLogoUrl(result.logoUrl);
+      }
+      await load({ silent: true });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not upload logo.');
+    } finally {
+      setUploading(false);
+    }
+  }
+
   async function saveProfile() {
     setSaving(true);
     setError('');
@@ -326,9 +380,11 @@ export function useOrgProfileHub() {
           mission: form.mission,
           vision: form.vision,
           focusAreas: form.focusAreas,
+          social: form.social,
         },
       })) as OrgApiPayload;
       applyOrgPayload(updated);
+      await useOrgBrandingStore.getState().load();
       if (previousModal) {
         const next = previousModal;
         setPreviousModal(null);
@@ -336,6 +392,19 @@ export function useOrgProfileHub() {
       } else {
         closeModal();
       }
+      const remaining = getRemainingProfileItems(updated as Parameters<typeof getRemainingProfileItems>[0]);
+      const completion =
+        typeof updated.completion === 'number'
+          ? updated.completion
+          : useOrgBrandingStore.getState().profileComplete;
+      window.setTimeout(() => {
+        if (completion >= 100 || remaining.length === 0) return;
+        promptUnverifiedProvider({
+          verificationStatus: updated.verificationStatus,
+          profileComplete: completion,
+          remainingCount: remaining.length,
+        });
+      }, 250);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not save profile.');
     } finally {
@@ -391,6 +460,7 @@ export function useOrgProfileHub() {
     cancelDeleteFile,
     confirmDeleteFile,
     saveProfile,
+    uploadProfileLogo,
     submitVerification,
     refetch: load,
   };

@@ -1,4 +1,3 @@
-import type { Category } from '@/features/categories/types';
 import type { Opportunity } from '@/features/opportunities/types';
 import type { UserProfile } from '@/features/profile/types';
 import type {
@@ -7,39 +6,6 @@ import type {
 } from '@/features/provider/lib/mapHubData';
 
 const now = new Date().toISOString();
-
-export const MOCK_CATEGORIES: Category[] = [
-  {
-    id: '1',
-    slug: 'jobs',
-    type: 'job',
-    title: 'Jobs',
-    description: 'Employment listings your organization publishes.',
-    icon: 'briefcase',
-    opportunityCount: 12,
-    color: '#2F66C8',
-  },
-  {
-    id: '2',
-    slug: 'training',
-    type: 'training',
-    title: 'Training',
-    description: 'Training and skills programs.',
-    icon: 'graduation-cap',
-    opportunityCount: 5,
-    color: '#9333EA',
-  },
-  {
-    id: '3',
-    slug: 'housing',
-    type: 'housing',
-    title: 'Housing',
-    description: 'Housing support programs.',
-    icon: 'home',
-    opportunityCount: 3,
-    color: '#15803D',
-  },
-];
 
 export const MOCK_API_PROVIDER_OPPORTUNITIES: ApiProviderOpportunity[] = [
   {

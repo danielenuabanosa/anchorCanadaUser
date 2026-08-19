@@ -25,6 +25,7 @@ export interface TeamMemberRow {
   status: TeamMemberStatus;
   lastActive: string;
   permissions: string;
+  permissionKeys?: string[];
   avatar: string | typeof avatar1;
   /** Figma 580:15046 — pending invite past 7-day window */
   inviteExpired?: boolean;

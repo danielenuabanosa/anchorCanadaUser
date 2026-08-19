@@ -21,12 +21,13 @@ assets/
 | Step | Route | Description |
 |------|-------|-------------|
 | 0 | `/onboarding` | Journey selection |
-| 1 | `/onboarding/organization-type` | Organization type |
-| 2 | `/onboarding/categories` | Opportunity categories |
-| 3 | `/onboarding/organization-info` | Organization details |
-| 4 | `/onboarding/verification` | Email/phone verification |
-| 5 | `/onboarding/team` | Team setup |
-| 6 | `/onboarding/activation` | Activation complete |
+| 1 | `/onboarding/organization-type` | Organization type (skippable) |
+| 2 | `/onboarding/categories` | Opportunity categories (skippable) |
+| 3 | `/onboarding/organization-info` | Organization details (skippable) |
+| 4 | `/onboarding/verification` | Documents |
+| 5 | `/onboarding/account` | Create account |
+| 6 | `/onboarding/activation` | Email verification (OTP) |
+| 7 | `/onboarding/org-ready` | Organization ready |
 
 ## Development
 

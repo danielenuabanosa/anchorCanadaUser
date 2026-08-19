@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
+import { Avatar } from '@/shared/components/ui/Avatar';
+import { photoSrc } from '@/shared/lib/photoSrc';
 import Link from 'next/link';
 import { ArrowLeft, Search, Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -60,12 +61,11 @@ export default function MobileView() {
 
         <div className="flex items-center justify-between gap-3 rounded-[10px] border border-[#EEF2F8] bg-white p-4">
           <div className="flex min-w-0 items-center gap-3">
-            <Image
-              src={active.avatar}
-              alt=""
-              width={48}
-              height={48}
-              className="h-12 w-12 shrink-0 rounded-full object-cover"
+            <Avatar
+              src={photoSrc(active.avatar)}
+              fallback={active.name}
+              size="md"
+              className="h-12 w-12 shrink-0"
             />
             <div className="min-w-0">
               <p className="truncate text-sm font-medium text-[#0F172A]">{active.name}</p>
@@ -144,14 +144,15 @@ export default function MobileView() {
         subtitle="Communicate with applicants about their applications."
       />
 
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8C97AD]" />
+      <div className="anchor-search-field w-full">
+        <Search className="h-[18px] w-[18px] shrink-0 text-[#8C97AD]" strokeWidth={1.75} aria-hidden />
         <input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search messages..."
-          className="h-[45px] w-full rounded-[6px] border border-[#D9E1EF] bg-white pl-10 pr-3 text-sm outline-none focus:border-[#2F66C8]"
+          aria-label="Search messages"
+          className="no-anchor-field min-w-0 flex-1 bg-transparent text-sm text-[#0F172A] outline-none placeholder:text-[#8C97AD]"
         />
       </div>
 
@@ -169,12 +170,11 @@ export default function MobileView() {
                 onClick={() => setActiveId(thread.id)}
                 className="flex w-full gap-3 p-4 text-left"
               >
-                <Image
-                  src={thread.avatar}
-                  alt=""
-                  width={48}
-                  height={48}
-                  className="h-12 w-12 shrink-0 rounded-full object-cover"
+                <Avatar
+                  src={photoSrc(thread.avatar)}
+                  fallback={thread.name}
+                  size="md"
+                  className="h-12 w-12 shrink-0"
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">

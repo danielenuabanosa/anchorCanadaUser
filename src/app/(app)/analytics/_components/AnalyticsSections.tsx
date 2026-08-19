@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { ArrowRight, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { HubSortSelect } from '@/shared/components/hub/HubSortSelect';
+import { Avatar } from '@/shared/components/ui/Avatar';
+import { photoSrc } from '@/shared/lib/photoSrc';
 import {
   OPPORTUNITY_STATUS_STYLES,
   OPPORTUNITY_TYPE_STYLES,
@@ -326,7 +328,12 @@ export function TeamPerformanceDesktop({ skeleton }: { skeleton?: boolean }) {
             className="grid gap-3 py-5 md:grid-cols-[minmax(200px,1.4fr)_120px_120px_120px] md:items-center md:gap-2.5"
           >
             <div className="flex items-center gap-2.5">
-              <Image src={member.avatar} alt="" width={40} height={40} className="rounded-full" />
+              <Avatar
+                src={photoSrc(typeof member.avatar === 'string' ? member.avatar : undefined)}
+                fallback={member.name}
+                size="md"
+                className="h-10 w-10"
+              />
               <div>
                 <p className="text-sm font-medium text-[#0F172A]">{member.name}</p>
                 <p className="text-xs text-[#44516A]">{member.email}</p>
@@ -395,7 +402,12 @@ export function TeamPerformanceMobile({ skeleton }: { skeleton?: boolean }) {
         {TEAM_PERFORMANCE.map((member) => (
           <div key={member.id} className="rounded-[10px] border border-[#EEF2F8] bg-white p-4">
             <div className="flex items-center gap-3">
-              <Image src={member.avatar} alt="" width={40} height={40} className="rounded-full" />
+              <Avatar
+                src={photoSrc(typeof member.avatar === 'string' ? member.avatar : undefined)}
+                fallback={member.name}
+                size="md"
+                className="h-10 w-10"
+              />
               <div>
                 <p className="text-sm font-medium text-[#0F172A]">{member.name}</p>
                 <p className="text-xs text-[#44516A]">{member.email}</p>

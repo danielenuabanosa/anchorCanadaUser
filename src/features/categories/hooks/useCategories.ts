@@ -10,7 +10,8 @@ export function useCategories() {
   return useQuery({
     queryKey: CATEGORY_KEYS.all,
     queryFn:  () => categoryService.list(),
-    staleTime: 1000 * 60 * 10, // categories change rarely
+    staleTime: 1000 * 30,
+    refetchOnWindowFocus: true,
   });
 }
 

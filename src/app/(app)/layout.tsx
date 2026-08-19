@@ -10,8 +10,11 @@ import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
 import { SidebarProvider } from '@/shared/context/SidebarContext';
 import { cn } from '@/lib/utils';
 import { isHubListPage, usesOpportunityManagementTopbar } from '@/shared/lib/hubRoutes';
-import { HelpCenterRoot } from '@/features/help-center/HelpCenterRoot';
+import { VerificationPendingModal } from '@/features/provider/components/VerificationPendingModal';
 import { useAuthBootstrap } from '@/shared/hooks/useAuthBootstrap';
+import { useOrgBrandingStore } from '@/store/orgBrandingStore';
+import { promptUnverifiedProvider } from '@/store/verificationModalStore';
+import { useAuthStore } from '@/store/authStore';
 
 function resolveTopbar(pathname: string) {
   if (pathname === '/logout') return null;
@@ -49,17 +52,58 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { ready, isAuthenticated, isOfflineMode } = useAuthBootstrap();
+  const membership = useAuthStore((s) => s.user?.provider?.membership);
+
+  // Only show the complete-profile / verification modal to the org owner or administrators,
+  // not to invited team members (Manager, Reviewer, Interviewer, Coordinator, etc.)
+  const isAdminOrOwner =
+    !membership ||
+    membership.isOwner ||
+    ['administrator', 'manager'].includes((membership.role ?? '').toLowerCase());
+
+  useEffect(() => {
+    if (!ready || isOfflineMode || !isAuthenticated || !isAdminOrOwner) return;
+    let cancelled = false;
+    void (async () => {
+      await useOrgBrandingStore.getState().load();
+      if (cancelled) return;
+      promptUnverifiedProvider();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, isAuthenticated, isOfflineMode, isAdminOrOwner]);
+
+  useEffect(() => {
+    if (!ready || isOfflineMode || !isAuthenticated || !isAdminOrOwner) return;
+    if (pathname === '/logout' || pathname === '/help') return;
+    if (pathname.startsWith('/organization-profile')) return;
+    let cancelled = false;
+    void (async () => {
+      await useOrgBrandingStore.getState().load();
+      if (cancelled) return;
+      promptUnverifiedProvider();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname, ready, isAuthenticated, isOfflineMode, isAdminOrOwner]);
 
   useEffect(() => {
     if (!ready) return;
     if (isOfflineMode) return;
+    if (pathname === '/help') return;
     if (!isAuthenticated) {
       router.replace('/login');
     }
-  }, [ready, isOfflineMode, isAuthenticated, router]);
+  }, [ready, isOfflineMode, isAuthenticated, pathname, router]);
 
   if (!ready) return null;
-  if (!isOfflineMode && !isAuthenticated) return null;
+  if (pathname !== '/help' && !isOfflineMode && !isAuthenticated) return null;
+
+  if (pathname === '/help' && !isOfflineMode && !isAuthenticated) {
+    return <>{children}</>;
+  }
 
   const topbar = resolveTopbar(pathname);
   const isBuilder = pathname.startsWith('/opportunities/create');
@@ -91,8 +135,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </main>
           {pathname !== '/logout' ? <BottomNav /> : null}
         </div>
-        <HelpCenterRoot />
       </div>
+      <VerificationPendingModal />
     </SidebarProvider>
   );
 }

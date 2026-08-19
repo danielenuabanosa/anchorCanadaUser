@@ -1,13 +1,13 @@
 import {
   BadgeInfo,
-  BadgePercent,
   FileBadge,
   FileImage,
   FolderClosed,
-  Globe,
   IdCard,
+  Image as ImageIcon,
   MapPin,
   Phone,
+  Share2,
   Target,
 } from 'lucide-react';
 import type { ElementType } from 'react';
@@ -28,7 +28,7 @@ export type OrgProfileModal =
   | 'confirmDelete'
   | null;
 
-export type EditProfileSection = 'basic' | 'contact' | 'location' | 'focus' | 'about';
+export type EditProfileSection = 'basic' | 'contact' | 'location' | 'focus' | 'about' | 'branding' | 'social';
 
 export type VerificationStatus = 'submitted' | 'under_review' | 'verified' | 'not_submitted';
 
@@ -42,6 +42,8 @@ export const EDIT_PROFILE_SECTIONS: {
   { id: 'location', label: 'Location', icon: MapPin },
   { id: 'about', label: 'About & Mission', icon: Target },
   { id: 'focus', label: 'Focus Areas', icon: Target },
+  { id: 'branding', label: 'Logo', icon: ImageIcon },
+  { id: 'social', label: 'Social Media', icon: Share2 },
 ];
 
 export const ORG_ACTION_ITEMS = [
@@ -78,10 +80,9 @@ export const VERIFICATION_STATUS_STYLES: Record<
 /** Checklist template metadata (status/content comes from API). */
 export const VERIFICATION_ITEM_ICONS: Record<string, ElementType> = {
   'business-registration': FileBadge,
+  'proof-of-organization': FolderClosed,
   'government-id': IdCard,
   'organization-logo': FileImage,
-  website: Globe,
-  'tax-certificate': BadgePercent,
   'supporting-documents': FolderClosed,
 };
 

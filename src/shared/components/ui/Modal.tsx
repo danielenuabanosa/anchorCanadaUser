@@ -11,6 +11,7 @@ interface ModalProps {
   description?: string;
   children: ReactNode;
   className?: string;
+  overlayClassName?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
@@ -28,6 +29,7 @@ export function Modal({
   description,
   children,
   className,
+  overlayClassName,
   size = 'md',
 }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -54,7 +56,7 @@ export function Modal({
       aria-modal="true"
       aria-labelledby={title ? 'modal-title' : undefined}
       aria-describedby={description ? 'modal-description' : undefined}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className={cn('fixed inset-0 z-50 flex items-center justify-center p-4', overlayClassName)}
     >
       {/* Backdrop */}
       <div

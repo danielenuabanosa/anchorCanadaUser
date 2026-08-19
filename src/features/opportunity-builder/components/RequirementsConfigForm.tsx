@@ -158,8 +158,8 @@ export function RequirementsConfigForm({
         </section>
 
         <div className="flex flex-col gap-5">
-          <section className="overflow-hidden rounded-[10px] border border-[#EEF2F8] bg-white">
-            <div className="border-b border-[#EEF2F8] px-5 py-4">
+          <section className="rounded-[10px] border border-[#EEF2F8] bg-white">
+            <div className="overflow-hidden rounded-t-[10px] border-b border-[#EEF2F8] px-5 py-4">
               <h2 className="text-base font-semibold text-[#0F172A]">2. Application mode</h2>
             </div>
             <div className="flex flex-col gap-3 p-5">

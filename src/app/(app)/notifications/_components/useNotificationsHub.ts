@@ -13,7 +13,6 @@ import { providerApi } from '@/features/provider/services/providerApi';
 import { isStaticMode } from '@/lib/staticMode';
 import {
   DEFAULT_NOTIFICATION_FILTERS,
-  NOTIFICATIONS,
   NOTIFICATION_SUMMARY,
   NOTIFICATION_TABS,
   filterNotifications,
@@ -72,6 +71,7 @@ function mapApiNotification(raw: {
     iconBg: meta.iconBg,
     iconColor: meta.iconColor,
     accentColor: meta.accentColor,
+    link: raw.link ?? null,
   };
 }
 
@@ -87,9 +87,7 @@ export function useNotificationsHub() {
     metadata?: Record<string, unknown>;
   };
 
-  const [items, setItems] = useState<NotificationItem[]>(() =>
-    isStaticMode() ? NOTIFICATIONS : [],
-  );
+  const [items, setItems] = useState<NotificationItem[]>([]);
   const [activeTab, setActiveTab] = useState<NotificationTab>('all');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [sort, setSort] = useState<NotificationSort>('newest');
@@ -103,7 +101,15 @@ export function useNotificationsHub() {
   const [cards, setCards] = useState(NOTIFICATION_SUMMARY);
   const [tabs, setTabs] = useState(NOTIFICATION_TABS);
   const [recentActivity, setRecentActivity] = useState<
-    Array<{ id: string; category: string; label: string; subtitle: string; time: string; createdAt?: string }>
+    Array<{
+      id: string;
+      category: string;
+      label: string;
+      subtitle: string;
+      time: string;
+      createdAt?: string;
+      link?: string | null;
+    }>
   >([]);
 
   useEffect(() => {
@@ -296,9 +302,8 @@ export function useNotificationsHub() {
   }
 
   function openDetail(item: NotificationItem) {
-    if (item.detail) {
-      setDetailTargetId(item.id);
-    }
+    setDetailTargetId(item.id);
+    if (item.unread) markRead([item.id]);
   }
 
   return {

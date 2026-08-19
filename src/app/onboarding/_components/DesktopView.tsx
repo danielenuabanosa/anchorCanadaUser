@@ -11,6 +11,7 @@ import { JourneySelectionCard } from '@/features/onboarding/components/JourneySe
 import { JOURNEY_CARDS, type JourneyId } from '@/features/onboarding/lib/onboardingData';
 import { useProviderOnboardingStore } from '@/store/onboardingStore';
 import { saveOnboardingDraft } from '@/features/provider/lib/completeOnboarding';
+import { LANDING_URL } from '@/shared/constants';
 
 export default function DesktopView() {
   const [selected, setSelected] = useState<JourneyId | null>(null);
@@ -22,7 +23,7 @@ export default function DesktopView() {
     setOnboardingData({ journey: selected });
     void saveOnboardingDraft('journey').catch(() => undefined);
     if (selected === 'explore') {
-      router.push('/guest');
+      window.location.assign(`${LANDING_URL}/opportunities`);
       return;
     }
     router.push('/onboarding/organization-type');
@@ -30,7 +31,7 @@ export default function DesktopView() {
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-[#f2f7ff]">
-      <OnboardingNavbar />
+      <OnboardingNavbar showSignIn />
 
       <div className="mx-auto w-full max-w-[1548px] px-10 pt-10">
         <StepProgress current={0} />
@@ -59,6 +60,9 @@ export default function DesktopView() {
             />
           ))}
         </div>
+
+   
+      
       </main>
 
       <OnboardingNavButtons

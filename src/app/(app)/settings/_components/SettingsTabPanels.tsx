@@ -2,6 +2,10 @@
 
 import { Archive, Monitor, Smartphone, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Avatar } from '@/shared/components/ui/Avatar';
+import { photoSrc } from '@/shared/lib/photoSrc';
+import { useAuthStore } from '@/store/authStore';
+import { profileService } from '@/features/profile/services/profile.service';
 import { TAB_PANEL_META } from './settingsData';
 import type { SettingsHub } from './useSettingsHub';
 import {
@@ -199,8 +203,33 @@ function GeneralPanel({ hub, mobile }: { hub: SettingsHub; mobile?: boolean }) {
 }
 
 function OrganizationPanel({ hub }: { hub: SettingsHub }) {
+  const user = useAuthStore((s) => s.user);
+  const updateUser = useAuthStore((s) => s.updateUser);
+
   return (
     <div className="flex flex-col gap-5">
+      <FieldCell>
+        <FieldLabel>Your profile photo</FieldLabel>
+        <div className="flex items-center justify-between">
+          <Avatar src={photoSrc(user?.avatarUrl)} fallback={user?.name || 'You'} size="md" />
+          <label className="cursor-pointer rounded-[6px] border border-[#D9E1EF] bg-white px-2.5 py-1.5 text-sm font-medium text-[#2F66C8]">
+            Change
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = '';
+                if (!file) return;
+                void profileService.uploadAvatar(file).then((result) => {
+                  updateUser({ avatarUrl: result.avatarUrl });
+                });
+              }}
+            />
+          </label>
+        </div>
+      </FieldCell>
       <FieldCell>
         <FieldLabel>Logo</FieldLabel>
         <div className="flex items-center justify-between">
